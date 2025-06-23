@@ -11,7 +11,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
   use Phoenix.Component
 
   alias FlyMapEx.Components.WorldMap
-  alias FlyMapEx.Regions
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
@@ -39,7 +38,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
   def render(assigns) do
     # Process region groups and build data structures for rendering
     processed_groups = process_region_groups(assigns.region_groups, assigns.group_styles)
-    
+
     # Extract progress information for expected vs acknowledged groups
     expected_regions = find_regions_by_style(processed_groups, [:expected])
     acknowledged_regions = find_regions_by_style(processed_groups, [:acknowledged])
@@ -87,7 +86,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
         <!-- Dynamic Legend -->
         <div class="text-sm text-base-content/70 space-y-2">
           <div :for={group <- @processed_groups} class="flex items-center">
-            <span 
+            <span
               class={"inline-block w-3 h-3 rounded-full mr-2 #{if group.style.animated, do: "animate-pulse"}"}
               style={"background-color: #{group.style.color};"}
             >
@@ -107,7 +106,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
     Enum.map(region_groups, fn group ->
       style_key = Map.get(group, :style_key)
       style = Map.get(group_styles, style_key, %{color: "#888888", animated: false, label: "Unknown"})
-      
+
       %{
         regions: Map.get(group, :regions, []),
         style_key: style_key,
@@ -129,28 +128,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
       round(length(ack_regions) / length(expected_regions) * 100)
     else
       0
-    end
-  end
-
-  defp format_regions_display(regions, empty_message) do
-    # Filter out empty/unknown regions and convert to display names
-    display_regions =
-      regions
-      |> Enum.reject(&(&1 in ["", "unknown"]))
-      |> Enum.map(&region_display_name/1)
-      |> Enum.reject(&is_nil/1)
-
-    if display_regions != [] do
-      "(#{Enum.join(display_regions, ", ")})"
-    else
-      empty_message
-    end
-  end
-
-  defp region_display_name(region) do
-    case Regions.name(region) do
-      nil -> region  # Fall back to region code if no name found
-      name -> name
     end
   end
 end

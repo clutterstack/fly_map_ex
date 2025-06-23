@@ -40,68 +40,6 @@ defmodule FlyMapEx.Config do
     }
   end
 
-  @doc """
-  Get predefined group styles for different marker types.
-
-  ## Available Styles
-
-  * `:primary` - Blue animated markers for primary/local nodes
-  * `:active` - Yellow markers for active/healthy nodes
-  * `:expected` - Orange animated markers for expected/planned nodes
-  * `:acknowledged` - Violet markers for acknowledged/responding nodes
-  * `:secondary` - Green markers for secondary/backup nodes
-  * `:warning` - Red markers for problematic nodes
-  * `:inactive` - Gray markers for inactive nodes
-
-  ## Examples
-
-      iex> FlyMapEx.Config.group_styles()
-      %{
-        primary: %{color: "#77b5fe", animated: true, label: "Primary"},
-        active: %{color: "#ffdc66", animated: false, label: "Active"},
-        ...
-      }
-  """
-  def group_styles() do
-    %{
-      primary: %{
-        color: "#77b5fe",
-        animated: true,
-        label: "Primary"
-      },
-      active: %{
-        color: "#ffdc66", 
-        animated: false,
-        label: "Active"
-      },
-      expected: %{
-        color: "#ff8c42",
-        animated: true,
-        label: "Expected"
-      },
-      acknowledged: %{
-        color: "#9d4edd",
-        animated: false,
-        label: "Acknowledged"
-      },
-      secondary: %{
-        color: "#28a745",
-        animated: false,
-        label: "Secondary"
-      },
-      warning: %{
-        color: "#dc3545",
-        animated: true,
-        label: "Warning"
-      },
-      inactive: %{
-        color: "#6c757d",
-        animated: false,
-        label: "Inactive"
-      }
-    }
-  end
-
   def color_scheme(:cool) do
     %{
       our_nodes: "#4f46e5",      # Indigo
@@ -169,6 +107,69 @@ defmodule FlyMapEx.Config do
   end
 
   def color_scheme(_), do: color_scheme(:default)
+
+    @doc """
+  Get predefined group styles for different marker types.
+
+  ## Available Styles
+
+  * `:primary` - Blue animated markers for primary/local nodes
+  * `:active` - Yellow markers for active/healthy nodes
+  * `:expected` - Orange animated markers for expected/planned nodes
+  * `:acknowledged` - Violet markers for acknowledged/responding nodes
+  * `:secondary` - Green markers for secondary/backup nodes
+  * `:warning` - Red markers for problematic nodes
+  * `:inactive` - Gray markers for inactive nodes
+
+  ## Examples
+
+      iex> FlyMapEx.Config.group_styles()
+      %{
+        primary: %{color: "#77b5fe", animated: true, label: "Primary"},
+        active: %{color: "#ffdc66", animated: false, label: "Active"},
+        ...
+      }
+  """
+  def group_styles() do
+    %{
+      primary: %{
+        color: "#77b5fe",
+        animated: true,
+        label: "Primary"
+      },
+      active: %{
+        color: "#ffdc66",
+        animated: false,
+        label: "Active"
+      },
+      expected: %{
+        color: "#ff8c42",
+        animated: true,
+        label: "Expected"
+      },
+      acknowledged: %{
+        color: "#9d4edd",
+        animated: false,
+        label: "Acknowledged"
+      },
+      secondary: %{
+        color: "#28a745",
+        animated: false,
+        label: "Secondary"
+      },
+      warning: %{
+        color: "#dc3545",
+        animated: true,
+        label: "Warning"
+      },
+      inactive: %{
+        color: "#6c757d",
+        animated: false,
+        label: "Inactive"
+      }
+    }
+  end
+
 
   @doc """
   Get predefined dimension configurations.
