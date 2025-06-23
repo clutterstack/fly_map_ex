@@ -132,6 +132,77 @@ defmodule FlyMapEx.Adapters do
   def deployment_regions(_), do: %{our_regions: [], active_regions: [], expected_regions: [], ack_regions: []}
 
   @doc """
+  Convert deployment data to region groups format.
+
+  Creates a list of region groups suitable for the new FlyMapEx API.
+
+  ## Examples
+
+      iex> deployment = %{
+      ...>   local_region: "sjc",
+      ...>   all_regions: ["sjc", "fra", "ams"],
+      ...>   healthy_regions: ["sjc", "fra"],
+      ...>   acknowledged_regions: ["sjc"]
+      ...> }
+      iex> FlyMapEx.Adapters.to_region_groups(deployment)
+      [
+        %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
+        %{regions: ["fra"], style_key: :active, label: "Active Regions"},
+        %{regions: ["fra", "ams"], style_key: :expected, label: "Expected Regions"},
+        %{regions: ["sjc"], style_key: :acknowledged, label: "Acknowledged"}
+      ]
+  """
+  def to_region_groups(deployment) when is_map(deployment) do
+    regions_data = deployment_regions(deployment)
+    
+    [
+      %{regions: regions_data.our_regions, style_key: :primary, label: "Our Node"},
+      %{regions: regions_data.active_regions, style_key: :active, label: "Active Regions"},
+      %{regions: regions_data.expected_regions, style_key: :expected, label: "Expected Regions"},
+      %{regions: regions_data.ack_regions, style_key: :acknowledged, label: "Acknowledged"}
+    ]
+    |> Enum.reject(fn group -> Enum.empty?(group.regions) end)
+  end
+
+  def to_region_groups(_), do: []
+
+  @doc """
+  Create custom region groups from a specification.
+
+  Allows full customization of region groups with custom style keys and labels.
+
+  ## Examples
+
+      iex> groups_spec = [
+      ...>   {["sjc"], :primary, "Primary Deployment"},
+      ...>   {["fra", "ams"], :secondary, "Secondary Regions"},
+      ...>   {["lhr"], :monitoring, "Monitoring Node"}
+      ...> ]
+      iex> FlyMapEx.Adapters.create_region_groups(groups_spec)
+      [
+        %{regions: ["sjc"], style_key: :primary, label: "Primary Deployment"},
+        %{regions: ["fra", "ams"], style_key: :secondary, label: "Secondary Regions"},
+        %{regions: ["lhr"], style_key: :monitoring, label: "Monitoring Node"}
+      ]
+  """
+  def create_region_groups(groups_spec) when is_list(groups_spec) do
+    Enum.map(groups_spec, fn
+      {regions, style_key, label} when is_list(regions) ->
+        %{regions: regions, style_key: style_key, label: label}
+      
+      {regions, style_key} when is_list(regions) ->
+        %{regions: regions, style_key: style_key}
+        
+      %{} = group -> group
+      
+      _ -> %{regions: [], style_key: :unknown, label: "Unknown"}
+    end)
+    |> Enum.reject(fn group -> Enum.empty?(Map.get(group, :regions, [])) end)
+  end
+
+  def create_region_groups(_), do: []
+
+  @doc """
   Filter regions to only include valid Fly.io regions.
 
   ## Examples

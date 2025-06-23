@@ -27,24 +27,20 @@ defmodule FlyMapEx.Components.WorldMap do
   }
 
   @doc """
-  Renders the SVG world map with region markers.
+  Renders the SVG world map with dynamic region group markers.
 
   ## Attributes
 
-  * `our_regions` - List of region codes for "our nodes" (blue animated)
-  * `active_regions` - List of region codes for active nodes (yellow)
-  * `expected_regions` - List of region codes for expected nodes (orange animated)
-  * `ack_regions` - List of region codes for acknowledged nodes (violet animated)
+  * `region_groups` - List of processed region groups with styles
   * `colors` - Map of color overrides (optional)
   * `dimensions` - Map with width/height overrides (optional)
+  * `group_styles` - Map of group styles configuration (optional)
   * `id` - HTML id for the SVG element (default: "fly-region-map")
   """
-  attr :our_regions, :list, default: []
-  attr :active_regions, :list, default: []
-  attr :expected_regions, :list, default: []
-  attr :ack_regions, :list, default: []
+  attr :region_groups, :list, default: []
   attr :colors, :map, default: %{}
   attr :dimensions, :map, default: %{}
+  attr :group_styles, :map, default: %{}
   attr :id, :string, default: "fly-region-map"
 
   def render(assigns) do
@@ -55,6 +51,9 @@ defmodule FlyMapEx.Components.WorldMap do
     {minx, miny, width, height} = get_dimensions(assigns.dimensions)
     viewbox = "#{minx} #{miny} #{width} #{height}"
 
+    # Generate gradients for all groups with animation
+    animated_groups = Enum.filter(assigns.region_groups, & &1.style.animated)
+
     assigns = assign(assigns, %{
       colors: colors,
       minx: minx,
@@ -62,6 +61,7 @@ defmodule FlyMapEx.Components.WorldMap do
       width: width,
       height: height,
       viewbox: viewbox,
+      animated_groups: animated_groups,
       toppath: "M #{minx + 1} #{miny + 0.5} H #{width - 0.5}",
       btmpath: "M #{minx + 1} #{miny + height - 1} H #{width - 0.5}"
     })
@@ -75,24 +75,14 @@ defmodule FlyMapEx.Components.WorldMap do
       id={@id}
     >
       <defs>
-        <!-- Gradients for animated markers -->
-        <radialGradient id="ourNodesGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-          <stop offset="60%" stop-color={@colors.our_nodes} stop-opacity="1" />
-          <stop offset="80%" stop-color={@colors.our_nodes} stop-opacity="0.6" />
-          <stop offset="100%" stop-color={@colors.our_nodes} stop-opacity="0.2" />
-        </radialGradient>
-
-        <radialGradient id="expectedNodesGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-          <stop offset="60%" stop-color={@colors.expected_nodes} stop-opacity="1" />
-          <stop offset="80%" stop-color={@colors.expected_nodes} stop-opacity="0.6" />
-          <stop offset="100%" stop-color={@colors.expected_nodes} stop-opacity="0.2" />
-        </radialGradient>
-
-        <radialGradient id="ackNodesGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-          <stop offset="60%" stop-color={@colors.ack_nodes} stop-opacity="1" />
-          <stop offset="80%" stop-color={@colors.ack_nodes} stop-opacity="0.7" />
-          <stop offset="100%" stop-color={@colors.ack_nodes} stop-opacity="0.3" />
-        </radialGradient>
+        <!-- Dynamic gradients for animated groups -->
+        <%= for group <- @animated_groups do %>
+          <radialGradient id={"#{group.style_key}Gradient"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="60%" stop-color={group.style.color} stop-opacity="1" />
+            <stop offset="80%" stop-color={group.style.color} stop-opacity="0.6" />
+            <stop offset="100%" stop-color={group.style.color} stop-opacity="0.2" />
+          </radialGradient>
+        <% end %>
       </defs>
 
       <style>
@@ -101,8 +91,8 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         .region-group text {
           opacity: 0;
-          stroke: {render_color(@colors.our_nodes)};
-          fill: {render_color(@colors.our_nodes)};
+          stroke: {@colors.background};
+          fill: {@colors.background};
           transition: opacity 0.2s;
           pointer-events: none;
           user-select: none;
@@ -113,13 +103,15 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         .region-group circle {
           stroke: transparent;
-          fill: {render_color(@colors.active_nodes)};
+          fill: {@colors.background};
           stroke-width: 8;
           pointer-events: all;
+          opacity: 0.3;
         }
         .region-group:hover circle {
-          stroke: {render_color(@colors.our_nodes)};
-          fill: {render_color(@colors.our_nodes)};
+          stroke: {@colors.border};
+          fill: {@colors.border};
+          opacity: 0.8;
         }
       </style>
 
@@ -133,35 +125,22 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- All regions as interactive elements -->
       <%= for {region, {x, y}} <- all_regions_with_coords() do %>
         <g class="region-group" id={"region-#{region}"}>
-          <circle cx={x} cy={y} r="2" opacity="0.9" />
+          <circle cx={x} cy={y} r="2" opacity="0.3" />
           <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
         </g>
       <% end %>
 
-      <!-- Active regions (yellow markers) -->
-      <%= for {x, y} <- region_coordinates(@active_regions) do %>
-        <circle cx={x} cy={y} r="6" fill={@colors.active_nodes} opacity="0.9" />
-      <% end %>
-
-      <!-- Our regions (blue animated markers) -->
-      <%= for {x, y} <- region_coordinates(@our_regions) do %>
-        <circle cx={x} cy={y} stroke="none" fill="url(#ourNodesGradient)">
-          <animate attributeName="r" values="8;12;8" dur="3s" repeatCount="indefinite" />
-        </circle>
-      <% end %>
-
-      <!-- Expected regions (orange animated markers) -->
-      <%= for {x, y} <- region_coordinates(@expected_regions) do %>
-        <circle cx={x} cy={y} stroke="none" fill="url(#expectedNodesGradient)">
-          <animate attributeName="r" values="6;10;6" dur="4s" repeatCount="indefinite" />
-        </circle>
-      <% end %>
-
-      <!-- Acknowledged regions (violet animated markers) -->
-      <%= for {x, y} <- region_coordinates(@ack_regions) do %>
-        <circle cx={x} cy={y} stroke="none" fill="url(#ackNodesGradient)">
-          <animate attributeName="r" values="7;11;7" dur="2s" repeatCount="indefinite" />
-        </circle>
+      <!-- Dynamic region group markers -->
+      <%= for group <- @region_groups do %>
+        <%= for {x, y} <- region_coordinates(group.regions) do %>
+          <%= if group.style.animated do %>
+            <circle cx={x} cy={y} stroke="none" fill={"url(##{group.style_key}Gradient)"}>
+              <animate attributeName="r" values="6;10;6" dur="3s" repeatCount="indefinite" />
+            </circle>
+          <% else %>
+            <circle cx={x} cy={y} r="6" fill={group.style.color} opacity="0.9" />
+          <% end %>
+        <% end %>
       <% end %>
     </svg>
     """
