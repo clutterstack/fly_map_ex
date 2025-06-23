@@ -1,4 +1,4 @@
-# FlyMap
+# FlyMapEx
 
 A Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
 
@@ -17,7 +17,7 @@ A Phoenix LiveView library for displaying interactive world maps with Fly.io reg
 Add to your Phoenix template:
 
 ```heex
-<FlyMap.render 
+<FlyMapEx.render 
   our_regions={["sjc"]}
   active_regions={["fra", "ams"]}
   expected_regions={["lhr", "ord"]}
@@ -31,7 +31,7 @@ Add to your `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fly_map, "~> 0.1.0"}
+    {:fly_map_ex, "~> 0.1.0"}
   ]
 end
 ```
@@ -42,7 +42,7 @@ end
 
 ```heex
 <!-- Simple deployment visualization -->
-<FlyMap.render 
+<FlyMapEx.render 
   our_regions={["sjc"]}
   active_regions={["fra", "ams", "nrt"]}
 />
@@ -52,7 +52,7 @@ end
 
 ```heex
 <!-- Show acknowledgment progress -->
-<FlyMap.render
+<FlyMapEx.render
   expected_regions={["sjc", "fra", "ams"]}
   ack_regions={["sjc", "fra"]}
   show_progress={true}
@@ -63,14 +63,14 @@ end
 
 ```heex
 <!-- Dashboard theme with compact size -->
-<FlyMap.render
+<FlyMapEx.render
   our_regions={@deployment.local_regions}
   active_regions={@deployment.healthy_regions}
   theme={:dashboard}
 />
 
 <!-- Dark theme for monitoring -->
-<FlyMap.render
+<FlyMapEx.render
   our_regions={@local_regions}
   expected_regions={@all_regions}
   ack_regions={@responding_regions}
@@ -82,7 +82,7 @@ end
 
 ```heex
 <!-- Custom colors and legend -->
-<FlyMap.render
+<FlyMapEx.render
   our_regions={["sjc"]}
   active_regions={["fra"]}
   colors={%{
@@ -103,11 +103,11 @@ end
 def mount(_params, _session, socket) do
   # Extract regions from machine data
   machines = MyApp.FlyAPI.list_machines()
-  active_regions = FlyMap.Adapters.from_machines(machines, "region")
+  active_regions = FlyMapEx.Adapters.from_machines(machines, "region")
   
   # Extract from node acknowledgments
   acks = MyApp.MessageTracker.get_acknowledgments()
-  ack_regions = FlyMap.Adapters.from_acknowledgments(acks, :node_id)
+  ack_regions = FlyMapEx.Adapters.from_acknowledgments(acks, :node_id)
   
   socket = assign(socket, 
     active_regions: active_regions,
@@ -120,7 +120,7 @@ end
 
 ## Components
 
-### FlyMap.render/1
+### FlyMapEx.render/1
 
 Main entry point - renders complete map with card, legend, and optional progress.
 
@@ -136,11 +136,11 @@ Main entry point - renders complete map with card, legend, and optional progress
 - `legend_config` - Customize legend labels and visibility
 - `class` - Additional CSS classes
 
-### FlyMap.Components.WorldMap.render/1
+### FlyMapEx.Components.WorldMap.render/1
 
 Just the SVG world map without card wrapper.
 
-### FlyMap.Components.WorldMapCard.render/1
+### FlyMapEx.Components.WorldMapCard.render/1
 
 Map with card styling, legend, and progress bar.
 
@@ -169,8 +169,8 @@ Map with card styling, legend, and progress bar.
 ```elixir
 # Create custom theme
 custom_theme = %{
-  colors: FlyMap.Config.color_scheme(:cool),
-  dimensions: FlyMap.Config.dimensions(:large),
+  colors: FlyMapEx.Config.color_scheme(:cool),
+  dimensions: FlyMapEx.Config.dimensions(:large),
   legend_config: %{
     our_nodes_label: "Primary Deployment",
     active_nodes_label: "Secondary Deployments"
@@ -178,28 +178,28 @@ custom_theme = %{
 }
 
 # Apply manually
-<FlyMap.render {Map.merge(custom_theme, %{our_regions: ["sjc"]})} />
+<FlyMapEx.render {Map.merge(custom_theme, %{our_regions: ["sjc"]})} />
 ```
 
 ## Data Adapters
 
-### FlyMap.Adapters
+### FlyMapEx.Adapters
 
 Helper functions for extracting regions from common data structures:
 
 ```elixir
 # From node IDs or hostnames
-FlyMap.Adapters.from_node_ids(["machine-1-sjc", "app-fra-2"])
+FlyMapEx.Adapters.from_node_ids(["machine-1-sjc", "app-fra-2"])
 # => ["sjc", "fra"]
 
 # From machine data structures
 machines = [%{"region" => "sjc"}, %{region: "fra"}]
-FlyMap.Adapters.from_machines(machines)
+FlyMapEx.Adapters.from_machines(machines)
 # => ["sjc", "fra"]
 
 # From acknowledgment data
 acks = [%{node_id: "machine-sjc-1", status: :ok}]
-FlyMap.Adapters.from_acknowledgments(acks, :node_id)
+FlyMapEx.Adapters.from_acknowledgments(acks, :node_id)
 # => ["sjc"]
 
 # Create deployment regions structure
@@ -209,31 +209,31 @@ deployment = %{
   healthy_regions: ["sjc", "fra"],
   acknowledged_regions: ["sjc"]
 }
-FlyMap.Adapters.deployment_regions(deployment)
+FlyMapEx.Adapters.deployment_regions(deployment)
 # => %{our_regions: ["sjc"], active_regions: ["fra"], ...}
 ```
 
 ## Regions
 
-### FlyMap.Regions
+### FlyMapEx.Regions
 
 Utilities for working with Fly.io region data:
 
 ```elixir
 # List all valid regions
-FlyMap.Regions.list()
+FlyMapEx.Regions.list()
 # => ["ams", "iad", "atl", ...]
 
 # Get coordinates
-FlyMap.Regions.coordinates("sjc")
+FlyMapEx.Regions.coordinates("sjc")
 # => {-122, 37}
 
 # Get human name
-FlyMap.Regions.name("sjc")
+FlyMapEx.Regions.name("sjc")
 # => "San Jose"
 
 # Validate region
-FlyMap.Regions.valid?("sjc")
+FlyMapEx.Regions.valid?("sjc")
 # => true
 ```
 
@@ -254,13 +254,13 @@ defmodule MyAppWeb.DeploymentLive do
   end
   
   def handle_info({:deployment_updated, data}, socket) do
-    regions = FlyMap.Adapters.deployment_regions(data)
+    regions = FlyMapEx.Adapters.deployment_regions(data)
     {:noreply, assign(socket, regions)}
   end
   
   def render(assigns) do
     ~H"""
-    <FlyMap.render
+    <FlyMapEx.render
       our_regions={@our_regions}
       active_regions={@active_regions}
       expected_regions={@expected_regions}

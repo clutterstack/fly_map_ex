@@ -1,11 +1,11 @@
-defmodule FlyMap.Regions do
+defmodule FlyMapEx.Regions do
   @moduledoc """
   Fly.io region data and coordinate mapping utilities.
-  
+
   Provides functions for converting Fly.io region codes to geographic coordinates
   and human-readable names for map display.
   """
-  
+
   @regions %{
     ams: {5, 52},
     iad: {-77, 39},
@@ -43,11 +43,11 @@ defmodule FlyMap.Regions do
     yyz: {-80, 44},
     waw: {21, 52}
   }
-  
+
   @region_names %{
     ams: "Amsterdam",
     iad: "Ashburn",
-    atl: "Atlanta", 
+    atl: "Atlanta",
     bog: "Bogotá",
     bos: "Boston",
     otp: "Bucharest",
@@ -81,51 +81,51 @@ defmodule FlyMap.Regions do
     yyz: "Toronto",
     waw: "Warsaw"
   }
-  
+
   @doc """
   Returns all available Fly.io region codes as strings.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.list()
+
+      iex> FlyMapEx.Regions.list()
       ["ams", "iad", "atl", ...]
   """
   def list do
     Map.keys(@regions) |> Enum.map(&Atom.to_string/1)
   end
-  
+
   @doc """
   Returns all region data as a map of {region_code, {longitude, latitude}}.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.all()
+
+      iex> FlyMapEx.Regions.all()
       %{ams: {5, 52}, iad: {-77, 39}, ...}
   """
   def all do
     @regions
   end
-  
+
   @doc """
   Get coordinates for a region code.
-  
+
   Returns {longitude, latitude} tuple or handles special cases.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.coordinates("sjc")
+
+      iex> FlyMapEx.Regions.coordinates("sjc")
       {-122, 37}
-      
-      iex> FlyMap.Regions.coordinates("dev")
+
+      iex> FlyMapEx.Regions.coordinates("dev")
       {-122, 47}  # Seattle for development
-      
-      iex> FlyMap.Regions.coordinates("unknown")
+
+      iex> FlyMapEx.Regions.coordinates("unknown")
       {-190, 0}   # Off-screen position
   """
   def coordinates(region) when is_binary(region) do
     try do
       region_atom = String.to_existing_atom(region)
-      
+
       case @regions[region_atom] do
         {long, lat} -> {long, lat}
         nil -> handle_special_region(region)
@@ -134,18 +134,18 @@ defmodule FlyMap.Regions do
       ArgumentError -> handle_special_region(region)
     end
   end
-  
+
   def coordinates(_), do: handle_special_region("unknown")
-  
+
   @doc """
   Get human-readable name for a region code.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.name("sjc")
+
+      iex> FlyMapEx.Regions.name("sjc")
       "San Jose"
-      
-      iex> FlyMap.Regions.name("unknown")
+
+      iex> FlyMapEx.Regions.name("unknown")
       nil
   """
   def name(region) when is_binary(region) do
@@ -156,21 +156,21 @@ defmodule FlyMap.Regions do
       ArgumentError -> nil
     end
   end
-  
+
   def name(_), do: nil
-  
+
   @doc """
   Get formatted display name for a list of regions.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.display_name(["sjc"])
+
+      iex> FlyMapEx.Regions.display_name(["sjc"])
       "San Jose"
-      
-      iex> FlyMap.Regions.display_name([])
+
+      iex> FlyMapEx.Regions.display_name([])
       "your computer"
-      
-      iex> FlyMap.Regions.display_name(["sjc", "fra"])
+
+      iex> FlyMapEx.Regions.display_name(["sjc", "fra"])
       "sjc, fra"
   """
   def display_name([region]) when is_binary(region) do
@@ -179,36 +179,36 @@ defmodule FlyMap.Regions do
       human_name -> human_name
     end
   end
-  
+
   def display_name([]) do
     "your computer"
   end
-  
+
   def display_name(regions) when is_list(regions) do
     Enum.join(regions, ", ")
   end
-  
+
   def display_name(_), do: "unknown"
-  
+
   @doc """
   Validate if a region code is a known Fly.io region.
-  
+
   ## Examples
-  
-      iex> FlyMap.Regions.valid?("sjc")
+
+      iex> FlyMapEx.Regions.valid?("sjc")
       true
-      
-      iex> FlyMap.Regions.valid?("invalid")
+
+      iex> FlyMapEx.Regions.valid?("invalid")
       false
   """
   def valid?(region) when is_binary(region) do
     region in list()
   end
-  
+
   def valid?(_), do: false
-  
+
   # Private functions
-  
+
   # Seattle coordinates for development
   defp handle_special_region("dev"), do: {-122, 47}
   # Off-screen position for unknown regions

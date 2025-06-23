@@ -1,26 +1,26 @@
-defmodule FlyMap.Components.WorldMapCard do
+defmodule FlyMapEx.Components.WorldMapCard do
   @moduledoc """
   A complete world map card component with legend, progress tracking, and styling.
-  
+
   Wraps the WorldMap component with additional UI elements including:
   - Interactive region legends with color coding
   - Optional acknowledgment progress bar
   - Card styling and responsive layout
   """
-  
+
   use Phoenix.Component
-  
-  alias FlyMap.Components.WorldMap
-  alias FlyMap.Regions
-  
+
+  alias FlyMapEx.Components.WorldMap
+  alias FlyMapEx.Regions
+
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
-  
+
   ## Attributes
-  
+
   * `our_regions` - List of region codes for "our nodes" (blue animated markers)
   * `active_regions` - List of region codes for active nodes (yellow markers)
-  * `expected_regions` - List of region codes for expected nodes (orange animated markers) 
+  * `expected_regions` - List of region codes for expected nodes (orange animated markers)
   * `ack_regions` - List of region codes for acknowledged nodes (violet animated markers)
   * `show_progress` - Whether to show the acknowledgment progress bar (default: false)
   * `colors` - Map of color overrides (optional)
@@ -36,17 +36,17 @@ defmodule FlyMap.Components.WorldMapCard do
   attr :dimensions, :map, default: %{}
   attr :class, :string, default: ""
   attr :legend_config, :map, default: %{}
-  
+
   def render(assigns) do
     # Set up default colors with any user overrides
     default_colors = %{
       our_nodes: "#77b5fe",
-      active_nodes: "#ffdc66", 
+      active_nodes: "#ffdc66",
       expected_nodes: "#ff8c42",
       ack_nodes: "#9d4edd"
     }
     colors = Map.merge(default_colors, assigns.colors)
-    
+
     # Set up legend configuration
     default_legend = %{
       show_our_nodes: true,
@@ -54,17 +54,17 @@ defmodule FlyMap.Components.WorldMapCard do
       show_expected_nodes: true,
       show_ack_nodes: true,
       our_nodes_label: "Our nodes",
-      active_nodes_label: "Active nodes", 
+      active_nodes_label: "Active nodes",
       expected_nodes_label: "Expected nodes",
       ack_nodes_label: "Acknowledged nodes"
     }
     legend_config = Map.merge(default_legend, assigns.legend_config)
-    
+
     assigns = assign(assigns, %{
       colors: colors,
       legend_config: legend_config
     })
-    
+
     ~H"""
     <div class={"card bg-base-100 #{@class}"}>
       <div class="card-body">
@@ -139,9 +139,9 @@ defmodule FlyMap.Components.WorldMapCard do
     </div>
     """
   end
-  
+
   # Helper functions
-  
+
   defp calculate_progress_percentage(expected_regions, ack_regions) do
     if length(expected_regions) > 0 do
       round(length(ack_regions) / length(expected_regions) * 100)
@@ -149,22 +149,22 @@ defmodule FlyMap.Components.WorldMapCard do
       0
     end
   end
-  
+
   defp format_regions_display(regions, empty_message) do
     # Filter out empty/unknown regions and convert to display names
-    display_regions = 
+    display_regions =
       regions
       |> Enum.reject(&(&1 in ["", "unknown"]))
       |> Enum.map(&region_display_name/1)
       |> Enum.reject(&is_nil/1)
-    
+
     if display_regions != [] do
       "(#{Enum.join(display_regions, ", ")})"
     else
       empty_message
     end
   end
-  
+
   defp region_display_name(region) do
     case Regions.name(region) do
       nil -> region  # Fall back to region code if no name found

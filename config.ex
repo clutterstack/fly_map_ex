@@ -1,16 +1,16 @@
-defmodule FlyMap.Config do
+defmodule FlyMapEx.Config do
   @moduledoc """
-  Configuration presets and themes for FlyMap components.
-  
+  Configuration presets and themes for FlyMapEx components.
+
   Provides predefined color schemes, sizing options, and complete themes
   that can be easily applied to customize the appearance of the world map.
   """
-  
+
   @doc """
   Get a predefined color scheme.
-  
+
   ## Available Schemes
-  
+
   * `:default` - Blue, yellow, orange, violet (current default)
   * `:cool` - Cool blues and teals
   * `:warm` - Warm oranges and reds
@@ -18,13 +18,13 @@ defmodule FlyMap.Config do
   * `:high_contrast` - High contrast colors for accessibility
   * `:dark` - Dark theme colors
   * `:neon` - Bright neon colors
-  
+
   ## Examples
-  
-      iex> FlyMap.Config.color_scheme(:cool)
+
+      iex> FlyMapEx.Config.color_scheme(:cool)
       %{
         our_nodes: "#4f46e5",
-        active_nodes: "#06b6d4", 
+        active_nodes: "#06b6d4",
         expected_nodes: "#0891b2",
         ack_nodes: "#6366f1"
       }
@@ -39,7 +39,7 @@ defmodule FlyMap.Config do
       border: "#DAA520"          # Map border
     }
   end
-  
+
   def color_scheme(:cool) do
     %{
       our_nodes: "#4f46e5",      # Indigo
@@ -50,7 +50,7 @@ defmodule FlyMap.Config do
       border: "#6b7280"          # Gray
     }
   end
-  
+
   def color_scheme(:warm) do
     %{
       our_nodes: "#dc2626",      # Red
@@ -61,7 +61,7 @@ defmodule FlyMap.Config do
       border: "#92400e"          # Amber
     }
   end
-  
+
   def color_scheme(:minimal) do
     %{
       our_nodes: "#374151",      # Gray dark
@@ -72,7 +72,7 @@ defmodule FlyMap.Config do
       border: "#d1d5db"          # Gray border
     }
   end
-  
+
   def color_scheme(:high_contrast) do
     %{
       our_nodes: "#000000",      # Black
@@ -83,7 +83,7 @@ defmodule FlyMap.Config do
       border: "#000000"          # Black
     }
   end
-  
+
   def color_scheme(:dark) do
     %{
       our_nodes: "#60a5fa",      # Blue light
@@ -94,7 +94,7 @@ defmodule FlyMap.Config do
       border: "#4b5563"          # Gray
     }
   end
-  
+
   def color_scheme(:neon) do
     %{
       our_nodes: "#00ffff",      # Cyan bright
@@ -105,22 +105,22 @@ defmodule FlyMap.Config do
       border: "#ffffff"          # White
     }
   end
-  
+
   def color_scheme(_), do: color_scheme(:default)
-  
+
   @doc """
   Get predefined dimension configurations.
-  
+
   ## Available Sizes
-  
+
   * `:small` - Compact size for dashboards
   * `:medium` - Standard size (default)
   * `:large` - Large size for detailed views
   * `:full` - Full viewport size
-  
+
   ## Examples
-  
-      iex> FlyMap.Config.dimensions(:small)
+
+      iex> FlyMapEx.Config.dimensions(:small)
       %{width: 400, height: 196, minx: 0, miny: 5}
   """
   def dimensions(:small) do
@@ -131,7 +131,7 @@ defmodule FlyMap.Config do
       miny: 5
     }
   end
-  
+
   def dimensions(:medium) do
     %{
       width: 800,
@@ -140,7 +140,7 @@ defmodule FlyMap.Config do
       miny: 10
     }
   end
-  
+
   def dimensions(:large) do
     %{
       width: 1200,
@@ -149,7 +149,7 @@ defmodule FlyMap.Config do
       miny: 15
     }
   end
-  
+
   def dimensions(:full) do
     %{
       width: 1600,
@@ -158,25 +158,25 @@ defmodule FlyMap.Config do
       miny: 20
     }
   end
-  
+
   def dimensions(_), do: dimensions(:medium)
-  
+
   @doc """
   Get a complete theme configuration.
-  
+
   Combines colors, dimensions, and legend settings for common use cases.
-  
+
   ## Available Themes
-  
+
   * `:dashboard` - Compact theme for dashboard widgets
   * `:monitoring` - Default theme for monitoring applications
   * `:presentation` - Large theme for presentations and displays
   * `:minimal` - Clean minimal theme
   * `:dark` - Dark theme
-  
+
   ## Examples
-  
-      iex> FlyMap.Config.theme(:dashboard)
+
+      iex> FlyMapEx.Config.theme(:dashboard)
       %{
         colors: %{...},
         dimensions: %{...},
@@ -195,7 +195,7 @@ defmodule FlyMap.Config do
       }
     }
   end
-  
+
   def theme(:monitoring) do
     %{
       colors: color_scheme(:default),
@@ -203,12 +203,12 @@ defmodule FlyMap.Config do
       legend_config: %{
         our_nodes_label: "Our nodes",
         active_nodes_label: "Active nodes",
-        expected_nodes_label: "Expected nodes", 
+        expected_nodes_label: "Expected nodes",
         ack_nodes_label: "Acknowledged"
       }
     }
   end
-  
+
   def theme(:presentation) do
     %{
       colors: color_scheme(:warm),
@@ -221,7 +221,7 @@ defmodule FlyMap.Config do
       }
     }
   end
-  
+
   def theme(:minimal) do
     %{
       colors: color_scheme(:minimal),
@@ -236,7 +236,7 @@ defmodule FlyMap.Config do
       }
     }
   end
-  
+
   def theme(:dark) do
     %{
       colors: color_scheme(:dark),
@@ -249,19 +249,19 @@ defmodule FlyMap.Config do
       }
     }
   end
-  
+
   def theme(_), do: theme(:monitoring)
-  
+
   @doc """
   Apply a theme to a set of component attributes.
-  
+
   Merges theme configuration with user-provided attributes, allowing
   for theme-based defaults with custom overrides.
-  
+
   ## Examples
-  
+
       iex> attrs = %{our_regions: ["sjc"], show_progress: true}
-      iex> FlyMap.Config.apply_theme(attrs, :dashboard)
+      iex> FlyMapEx.Config.apply_theme(attrs, :dashboard)
       %{
         our_regions: ["sjc"],
         show_progress: true,
@@ -272,10 +272,10 @@ defmodule FlyMap.Config do
   """
   def apply_theme(attrs, theme_name) when is_map(attrs) do
     theme_config = theme(theme_name)
-    
+
     # Merge theme config with user attributes, giving priority to user settings
     Map.merge(theme_config, attrs)
   end
-  
+
   def apply_theme(attrs, _), do: attrs
 end

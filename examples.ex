@@ -1,12 +1,12 @@
-defmodule FlyMap.Examples do
+defmodule FlyMapEx.Examples do
   @moduledoc """
-  Example usage patterns and demo data for FlyMap components.
-  
+  Example usage patterns and demo data for FlyMapEx components.
+
   Provides sample data and component configurations for testing and demonstration.
   """
-  
+
   use Phoenix.Component
-  
+
   @doc """
   Demo deployment scenario with sample regions.
   """
@@ -18,7 +18,7 @@ defmodule FlyMap.Examples do
       ack_regions: ["sjc", "fra"]
     }
   end
-  
+
   @doc """
   Global deployment scenario.
   """
@@ -30,7 +30,7 @@ defmodule FlyMap.Examples do
       ack_regions: ["sjc", "fra", "ams", "nrt"]
     }
   end
-  
+
   @doc """
   Minimal deployment for testing.
   """
@@ -42,16 +42,16 @@ defmodule FlyMap.Examples do
       ack_regions: []
     }
   end
-  
+
   @doc """
   Example component: Basic deployment map
   """
   def basic_map(assigns) do
     deployment = demo_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
-    <FlyMap.render
+    <FlyMapEx.render
       our_regions={@our_regions}
       active_regions={@active_regions}
       expected_regions={@expected_regions}
@@ -59,19 +59,19 @@ defmodule FlyMap.Examples do
     />
     """
   end
-  
+
   @doc """
   Example component: Dashboard widget
   """
   def dashboard_widget(assigns) do
     deployment = demo_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">Global Deployment Status</h2>
-        <FlyMap.render
+        <FlyMapEx.render
           our_regions={@our_regions}
           active_regions={@active_regions}
           expected_regions={@expected_regions}
@@ -86,14 +86,14 @@ defmodule FlyMap.Examples do
     </div>
     """
   end
-  
+
   @doc """
   Example component: Monitoring display
   """
   def monitoring_display(assigns) do
     deployment = global_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
     <div class="space-y-4">
       <div class="stats shadow">
@@ -110,8 +110,8 @@ defmodule FlyMap.Examples do
           <div class="stat-value text-warning">{length(@expected_regions)}</div>
         </div>
       </div>
-      
-      <FlyMap.render
+
+      <FlyMapEx.render
         our_regions={@our_regions}
         active_regions={@active_regions}
         expected_regions={@expected_regions}
@@ -122,18 +122,18 @@ defmodule FlyMap.Examples do
     </div>
     """
   end
-  
+
   @doc """
   Example component: Dark theme for night mode
   """
   def dark_theme_map(assigns) do
     deployment = demo_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
     <div class="bg-base-100 p-6 rounded-lg">
       <h3 class="text-lg font-semibold mb-4">Night Mode Deployment Map</h3>
-      <FlyMap.render
+      <FlyMapEx.render
         our_regions={@our_regions}
         active_regions={@active_regions}
         expected_regions={@expected_regions}
@@ -144,16 +144,16 @@ defmodule FlyMap.Examples do
     </div>
     """
   end
-  
+
   @doc """
   Example component: Custom colors and labels
   """
   def custom_styled_map(assigns) do
     deployment = demo_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
-    <FlyMap.render
+    <FlyMapEx.render
       our_regions={@our_regions}
       active_regions={@active_regions}
       expected_regions={@expected_regions}
@@ -173,29 +173,29 @@ defmodule FlyMap.Examples do
     />
     """
   end
-  
+
   @doc """
   Example component: Minimal presentation view
   """
   def presentation_view(assigns) do
     deployment = demo_deployment()
     assigns = assign(assigns, deployment)
-    
+
     ~H"""
     <div class="text-center space-y-6">
       <div>
         <h1 class="text-4xl font-bold">Global Infrastructure</h1>
         <p class="text-xl text-base-content/70">Real-time deployment status across Fly.io regions</p>
       </div>
-      
-      <FlyMap.render
+
+      <FlyMapEx.render
         our_regions={@our_regions}
         active_regions={@active_regions}
         expected_regions={@expected_regions}
         theme={:presentation}
         class="mx-auto"
       />
-      
+
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
         <div class="stat bg-base-200 rounded-lg">
           <div class="stat-title">Primary</div>
@@ -217,7 +217,7 @@ defmodule FlyMap.Examples do
     </div>
     """
   end
-  
+
   @doc """
   Generate sample machine data for testing adapters.
   """
@@ -229,7 +229,7 @@ defmodule FlyMap.Examples do
       %{"id" => "machine-4-nrt", "region" => "nrt", "status" => "stopped"}
     ]
   end
-  
+
   @doc """
   Generate sample acknowledgment data for testing.
   """
