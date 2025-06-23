@@ -11,6 +11,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
   use Phoenix.Component
 
   alias FlyMapEx.Components.WorldMap
+  alias FlyMapEx.Regions
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
@@ -128,6 +129,28 @@ defmodule FlyMapEx.Components.WorldMapCard do
       round(length(ack_regions) / length(expected_regions) * 100)
     else
       0
+    end
+  end
+
+  defp format_regions_display(regions, empty_message) do
+    # Filter out empty/unknown regions and convert to display names
+    display_regions =
+      regions
+      |> Enum.reject(&(&1 in ["", "unknown"]))
+      |> Enum.map(&region_display_name/1)
+      |> Enum.reject(&is_nil/1)
+
+    if display_regions != [] do
+      "(#{Enum.join(display_regions, ", ")})"
+    else
+      empty_message
+    end
+  end
+
+  defp region_display_name(region) do
+    case Regions.name(region) do
+      nil -> region  # Fall back to region code if no name found
+      name -> name
     end
   end
 end
