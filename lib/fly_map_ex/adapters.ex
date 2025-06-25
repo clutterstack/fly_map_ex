@@ -217,6 +217,78 @@ defmodule FlyMapEx.Adapters do
   def filter_valid_regions(_), do: []
 
   @doc """
+  Parse Fly.io DNS TXT record for machine discovery.
+
+  Parses the format returned by Fly.io internal DNS TXT records which contain
+  machine IDs and their regions in the format: "machineId region,machineId region"
+
+  ## Examples
+
+      iex> FlyMapEx.Adapters.from_fly_dns_txt("683d314fdd4d68 yyz,568323e9b54dd8 lhr")
+      [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}]
+
+      iex> FlyMapEx.Adapters.from_fly_dns_txt("")
+      []
+  """
+  def from_fly_dns_txt(txt_record) when is_binary(txt_record) do
+    txt_record
+    |> String.trim()
+    |> case do
+      "" -> []
+      record ->
+        record
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.map(&parse_machine_entry/1)
+        |> Enum.reject(&is_nil/1)
+    end
+  end
+
+  def from_fly_dns_txt(_), do: []
+
+  @doc """
+  Convert machine tuples to region groups.
+
+  Takes a list of {machine_id, region} tuples and converts them to FlyMapEx
+  region groups format, optionally grouping by region or keeping separate.
+
+  ## Examples
+
+      iex> machines = [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}, {"123abc", "yyz"}]
+      iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Running Machines")
+      [
+        %{regions: ["yyz"], style_key: :primary, label: "Running Machines (2)"},
+        %{regions: ["lhr"], style_key: :primary, label: "Running Machines (1)"}
+      ]
+
+      iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :active)
+      [
+        %{regions: ["yyz"], style_key: :active, label: "Active (2)"},
+        %{regions: ["lhr"], style_key: :active, label: "Active (1)"}
+      ]
+  """
+  def from_machine_tuples(machine_tuples, label, style_key \\ :primary)
+
+  def from_machine_tuples(machine_tuples, label, style_key) when is_list(machine_tuples) do
+    machine_tuples
+    |> Enum.reject(fn {_id, region} -> region in ["", nil, "unknown"] end)
+    |> Enum.group_by(fn {_id, region} -> region end)
+    |> Enum.map(fn {region, machines} ->
+      count = length(machines)
+      label_with_count = "#{label} (#{count})"
+      
+      %{
+        regions: [region],
+        style_key: style_key,
+        label: label_with_count
+      }
+    end)
+    |> Enum.reject(fn group -> Enum.empty?(group.regions) end)
+  end
+
+  def from_machine_tuples(_, _label, _style_key), do: []
+
+  @doc """
   Convert development regions to production equivalents.
 
   Useful for applications that use generic region names in development
@@ -251,6 +323,24 @@ defmodule FlyMapEx.Adapters do
   def normalize_regions(_, _), do: []
 
   # Private helper functions
+
+  defp parse_machine_entry(entry) when is_binary(entry) do
+    case String.split(entry, " ", parts: 2) do
+      [machine_id, region] ->
+        machine_id = String.trim(machine_id)
+        region = String.trim(region)
+        
+        if machine_id != "" and region != "" do
+          {machine_id, region}
+        else
+          nil
+        end
+      
+      _ -> nil
+    end
+  end
+
+  defp parse_machine_entry(_), do: nil
 
   defp extract_region_from_node_id(node_id) when is_binary(node_id) do
     # Common patterns for Fly.io machine IDs and hostnames

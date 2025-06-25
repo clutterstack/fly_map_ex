@@ -49,3 +49,7 @@ ehthumbs.db
 
 # Logs
 *.log
+
+# Claude Code related files
+CLAUDE.md
+demo_app.md
