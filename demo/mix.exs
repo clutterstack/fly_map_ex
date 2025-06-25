@@ -53,7 +53,9 @@ defmodule Demo.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:fly_map_ex, path: ".."}  # Local dependency on parent FlyMapEx library
+      {:fly_map_ex, path: ".."},  # Local dependency on parent FlyMapEx library
+      {:tidewave, "~> 0.1", only: :dev}
+
     ]
   end
 

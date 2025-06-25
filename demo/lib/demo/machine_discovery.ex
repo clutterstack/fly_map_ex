@@ -54,6 +54,120 @@ defmodule Demo.MachineDiscovery do
   end
 
   @doc """
+  Discover available Fly.io apps using internal DNS.
+
+  Queries the TXT record at `_apps.internal` and parses the response
+  to extract a comma-separated list of app names.
+
+  ## Examples
+
+      iex> Demo.MachineDiscovery.discover_apps()
+      {:ok, ["my-app-name", "another-app", "third-app"]}
+
+      iex> Demo.MachineDiscovery.discover_apps()
+      {:error, :no_apps_found}
+  """
+  def discover_apps() do
+    dns_name = ~c"_apps.internal"
+    
+    case :inet_res.lookup(dns_name, :in, :txt) do
+      [] ->
+        Logger.debug("No TXT records found for _apps.internal")
+        {:error, :no_apps_found}
+      
+      records when is_list(records) ->
+        txt_content = 
+          records
+          |> Enum.map(&parse_txt_record/1)
+          |> Enum.join("")
+        
+        apps = parse_apps_list(txt_content)
+        
+        case apps do
+          [] -> {:error, :no_apps_found}
+          apps -> {:ok, apps}
+        end
+      
+      {:error, reason} ->
+        Logger.warning("DNS lookup failed for _apps.internal: #{inspect(reason)}")
+        {:error, reason}
+    end
+  rescue
+    error ->
+      Logger.error("App discovery failed: #{inspect(error)}")
+      {:error, :discovery_failed}
+  end
+
+  @doc """
+  Discover machines for multiple apps simultaneously.
+
+  Returns a map with app names as keys and machine discovery results as values.
+
+  ## Examples
+
+      iex> Demo.MachineDiscovery.discover_all_apps(["app1", "app2"])
+      %{
+        "app1" => {:ok, [{"683d314fdd4d68", "yyz"}]},
+        "app2" => {:error, :no_machines_found}
+      }
+  """
+  def discover_all_apps(app_names) when is_list(app_names) do
+    app_names
+    |> Task.async_stream(&{&1, discover_machines(&1)}, max_concurrency: 10)
+    |> Enum.into(%{}, fn {:ok, {app_name, result}} -> {app_name, result} end)
+  end
+
+  def discover_all_apps(_), do: %{}
+
+  @doc """
+  Convert app machines data to region groups for FlyMapEx.
+
+  Takes a map of app names to machine discovery results and converts them
+  to FlyMapEx region groups format with distinct styling for each app.
+
+  ## Examples
+
+      iex> app_machines = %{
+      ...>   "app1" => {:ok, [{"machine1", "yyz"}, {"machine2", "fra"}]},
+      ...>   "app2" => {:ok, [{"machine3", "lhr"}]}
+      ...> }
+      iex> Demo.MachineDiscovery.from_app_machines(app_machines)
+      [
+        %{regions: ["yyz", "fra"], style_key: :primary, label: "app1 (2 machines)"},
+        %{regions: ["lhr"], style_key: :active, label: "app2 (1 machine)"}
+      ]
+  """
+  def from_app_machines(app_machines) when is_map(app_machines) do
+    style_keys = [:primary, :active, :secondary, :warning, :expected, :acknowledged, :inactive]
+    
+    app_machines
+    |> Enum.with_index()
+    |> Enum.filter(fn {{_app, result}, _index} -> 
+      match?({:ok, [_ | _]}, result)
+    end)
+    |> Enum.map(fn {{app_name, {:ok, machines}}, index} ->
+      regions = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
+      style_key = Enum.at(style_keys, rem(index, length(style_keys)))
+      machine_count = length(machines)
+      
+      label = case machine_count do
+        1 -> "#{app_name} (1 machine)"
+        n -> "#{app_name} (#{n} machines)"
+      end
+      
+      %{
+        regions: regions,
+        style_key: style_key,
+        label: label,
+        app_name: app_name,
+        machine_count: machine_count
+      }
+    end)
+  end
+
+  def from_app_machines(_), do: []
+
+  @doc """
   Discover machines periodically and send results to a process.
 
   Starts a task that queries DNS every `interval_ms` milliseconds and sends
@@ -82,6 +196,21 @@ defmodule Demo.MachineDiscovery do
   end
 
   defp parse_txt_record(_), do: ""
+
+  defp parse_apps_list(txt_content) when is_binary(txt_content) do
+    txt_content
+    |> String.trim()
+    |> case do
+      "" -> []
+      content ->
+        content
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+    end
+  end
+
+  defp parse_apps_list(_), do: []
 
   defp periodic_discovery_loop(app_name, target_pid, interval_ms) do
     result = discover_machines(app_name)
