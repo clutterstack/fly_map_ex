@@ -7,27 +7,32 @@ defmodule FlyMapEx do
 
   ## Usage
 
-      # Basic usage with region lists
+      # Basic usage with region groups
+      region_groups = FlyMapEx.Config.build_region_groups([
+        {"Running Machines", ["sjc", "fra"], :success},
+        {"Stopped Machines", ["ams", "lhr"], :inactive},
+        {"Pending Restart", ["yyz"], :warning}
+      ])
+      
       <FlyMapEx.render
-        our_regions={["sjc", "fra"]}
-        expected_regions={["ams", "lhr"]}
-        active_regions={["ord", "dfw"]}
-        ack_regions={["sjc"]}
+        region_groups={region_groups}
+        theme={:modern}
       />
 
-      # With custom colors and progress tracking
+      # Manual region groups
       <FlyMapEx.render
-        our_regions={["sjc"]}
-        expected_regions={["ams", "lhr"]}
-        ack_regions={["sjc"]}
-        show_progress={true}
-        colors={%{our_nodes: "#00ff00", expected_nodes: "#ff0000"}}
+        region_groups={[
+          %{regions: ["sjc"], style_key: :success, label: "Production"},
+          %{regions: ["fra"], style_key: :warning, label: "Staging"}
+        ]}
+        theme={:dark}
       />
 
   ## Features
 
   - Interactive SVG world map with Fly.io region coordinates
-  - Multiple marker types with configurable colors and animations
+  - Flexible styling system with semantic style names
+  - Any number of custom node groups
   - Built-in legends and progress tracking
   - Phoenix LiveView compatible
   - Responsive design
@@ -41,6 +46,7 @@ defmodule FlyMapEx do
   ## Utilities
 
   - `FlyMapEx.Regions` - Region data and coordinate utilities
+  - `FlyMapEx.Config` - Configuration, themes, and style helpers
   - `FlyMapEx.Adapters` - Data transformation helpers
   """
 
@@ -59,71 +65,71 @@ defmodule FlyMapEx do
 
   * `region_groups` - List of region group maps, each containing:
     * `regions` - List of region codes for this group
-    * `style_key` - Atom referencing a style from group_styles config (e.g., :primary, :active)
-    * `label` - Display label for this group (optional, falls back to style label)
+    * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
+    * `label` - Display label for this group
+  * `theme` - Theme name (e.g., :modern, :dark, :compact)
   * `show_progress` - Whether to show acknowledgment progress bar (default: false)
-  * `colors` - Map of color overrides (optional)
   * `class` - Additional CSS classes for the container
-  * `legend_config` - Map with legend customization options
-  * `group_styles` - Map of custom group styles (optional, uses theme defaults)
+  * `custom_styles` - Map of custom style overrides (optional)
 
   ## Examples
 
-      # Basic usage with region groups
+      # Easy usage with helper function
+      region_groups = FlyMapEx.Config.build_region_groups([
+        {"Running Servers", ["sjc", "fra"], :success},
+        {"Stopped Servers", ["ams"], :inactive}
+      ])
+      <FlyMapEx.render region_groups={region_groups} theme={:modern} />
+
+      # Manual region groups
       <FlyMapEx.render region_groups={[
-        %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
-        %{regions: ["fra", "ams"], style_key: :active, label: "Active Regions"}
-      ]} />
+        %{regions: ["sjc"], style_key: :success, label: "Production"},
+        %{regions: ["fra", "ams"], style_key: :warning, label: "Staging"}
+      ]} theme={:dark} />
 
       # With progress tracking
       <FlyMapEx.render
         region_groups={[
-          %{regions: ["sjc", "fra"], style_key: :expected},
-          %{regions: ["sjc"], style_key: :acknowledged}
+          %{regions: ["sjc", "fra"], style_key: :pending, label: "Deploying"},
+          %{regions: ["sjc"], style_key: :success, label: "Deployed"}
         ]}
         show_progress={true}
+        theme={:compact}
       />
 
       # With custom styling
       <FlyMapEx.render
-        region_groups={[%{regions: ["sjc"], style_key: :primary}]}
-        colors={%{primary: "#00ff00"}}
-        class="my-custom-map"
+        region_groups={[%{regions: ["sjc"], style_key: :primary, label: "Main"}]}
+        custom_styles={%{primary: %{color: "#00ff00", animated: true}}}
+        theme={:modern}
       />
   """
   attr :region_groups, :list, default: []
+  attr :theme, :atom, default: :standard
   attr :show_progress, :boolean, default: false
-  attr :colors, :map, default: %{}
-  attr :dimensions, :map, default: %{}
   attr :class, :string, default: ""
-  attr :legend_config, :map, default: %{}
-  attr :group_styles, :map, default: %{}
-  attr :theme, :atom, default: nil
+  attr :custom_styles, :map, default: %{}
 
   def render(assigns) do
-    # Apply theme if specified
-    assigns = if assigns.theme do
-      theme_config = Config.theme(assigns.theme)
-
-      # Merge theme with user overrides, preserving user settings
-      assigns
-      |> assign(:colors, Map.merge(theme_config.colors, assigns.colors))
-      |> assign(:dimensions, Map.merge(theme_config.dimensions, assigns.dimensions))
-      |> assign(:legend_config, Map.merge(theme_config.legend_config, assigns.legend_config))
-      |> assign(:group_styles, Map.merge(theme_config.group_styles, assigns.group_styles))
-    else
-      assigns
-    end
+    # Apply theme configuration
+    theme_config = Config.theme(assigns.theme)
+    
+    # Merge theme styles with custom overrides
+    final_styles = Map.merge(theme_config.styles, assigns.custom_styles)
+    
+    assigns = assigns
+      |> assign(:dimensions, theme_config.dimensions)
+      |> assign(:background, theme_config.background)
+      |> assign(:styles, final_styles)
 
     ~H"""
     <div class={@class}>
       <WorldMapCard.render
         region_groups={@region_groups}
         show_progress={@show_progress}
-        colors={@colors}
         dimensions={@dimensions}
-        legend_config={@legend_config}
-        group_styles={@group_styles}
+        background={@background}
+        styles={@styles}
       />
     </div>
     """
