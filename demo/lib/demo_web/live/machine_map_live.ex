@@ -26,7 +26,7 @@ defmodule DemoWeb.MachineMapLive do
 
     # Try to get a default app from config/env
     default_app = get_app_name()
-    
+
     socket = if default_app do
       assign(socket, :selected_apps, [default_app])
     else
@@ -38,7 +38,7 @@ defmodule DemoWeb.MachineMapLive do
 
   def handle_event("discover_apps", _params, socket) do
     socket = assign(socket, :apps_loading, true)
-    
+
     case MachineDiscovery.discover_apps() do
       {:ok, apps} ->
         socket =
@@ -46,34 +46,34 @@ defmodule DemoWeb.MachineMapLive do
           |> assign(:available_apps, apps)
           |> assign(:apps_loading, false)
           |> assign(:apps_error, nil)
-        
+
         {:noreply, socket}
-      
+
       {:error, reason} ->
         error_message = case reason do
           :no_apps_found -> "No apps found in _apps.internal DNS record"
           :discovery_failed -> "Failed to query _apps.internal DNS"
           other -> "App discovery error: #{inspect(other)}"
         end
-        
+
         socket =
           socket
           |> assign(:apps_loading, false)
           |> assign(:apps_error, error_message)
-        
+
         {:noreply, socket}
     end
   end
 
   def handle_event("toggle_app", %{"app" => app_name}, socket) do
     selected_apps = socket.assigns.selected_apps
-    
+
     new_selected_apps = if app_name in selected_apps do
       List.delete(selected_apps, app_name)
     else
       [app_name | selected_apps]
     end
-    
+
     socket = assign(socket, :selected_apps, new_selected_apps)
     {:noreply, socket}
   end
@@ -96,16 +96,16 @@ defmodule DemoWeb.MachineMapLive do
 
   def handle_event("refresh_machines", _params, socket) do
     selected_apps = socket.assigns.selected_apps
-    
+
     if selected_apps == [] do
       {:noreply, socket}
     else
       socket = assign(socket, :machines_loading, true)
-      
+
       app_machines = MachineDiscovery.discover_all_apps(selected_apps)
       region_groups = MachineDiscovery.from_app_machines(app_machines)
-      
-      all_machines = 
+
+      all_machines =
         app_machines
         |> Enum.flat_map(fn {app_name, result} ->
           case result do
@@ -113,7 +113,7 @@ defmodule DemoWeb.MachineMapLive do
             {:error, _} -> []
           end
         end)
-      
+
       socket =
         socket
         |> assign(:app_machines, app_machines)
@@ -122,7 +122,7 @@ defmodule DemoWeb.MachineMapLive do
         |> assign(:machines_loading, false)
         |> assign(:last_updated, DateTime.utc_now())
         |> assign(:error, nil)
-      
+
       {:noreply, socket}
     end
   end
@@ -131,12 +131,12 @@ defmodule DemoWeb.MachineMapLive do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-3xl font-bold mb-6">Fly.io Multi-App Machine Map</h1>
-      
+
       <!-- App Discovery Section -->
       <div class="bg-white rounded-lg shadow-lg mb-6">
         <div class="flex items-center justify-between p-6 pb-4">
           <h2 class="text-xl font-semibold">App Selection</h2>
-          <button 
+          <button
             phx-click="toggle_app_selection"
             class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg transition-colors flex items-center gap-2"
           >
@@ -153,8 +153,88 @@ defmodule DemoWeb.MachineMapLive do
             <% end %>
           </button>
         </div>
-        
+
         <div class={"#{if @show_app_selection, do: "p-6 pt-0", else: "hidden"}"}>
+
+          <div class="flex gap-4 mb-4">
+            <button
+              phx-click="discover_apps"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              disabled={@apps_loading}
+            >
+              <%= if @apps_loading do %>
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Discovering...
+              <% else %>
+                Discover Apps
+              <% end %>
+            </button>
+
+            <button
+              phx-click="refresh_machines"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              disabled={@machines_loading || @selected_apps == []}
+            >
+              <%= if @machines_loading do %>
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Refreshing...
+              <% else %>
+                Refresh Machines
+              <% end %>
+            </button>
+          </div>
+
+          <%= if @apps_error do %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <h3 class="text-red-800 font-semibold">App Discovery Error</h3>
+              <p class="text-red-700 text-sm mt-1"><%= @apps_error %></p>
+            </div>
+          <% end %>
+
+          <%= if @available_apps != [] do %>
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-medium">Available Apps</h3>
+                <div class="flex gap-2">
+                  <button
+                    phx-click="select_all_apps"
+                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg transition-colors"
+                    disabled={length(@available_apps) == length(@selected_apps)}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    phx-click="deselect_all_apps"
+                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg transition-colors"
+                    disabled={@selected_apps == []}
+                  >
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                <%= for app <- @available_apps do %>
+                  <label class="flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      phx-click="toggle_app"
+                      phx-value-app={app}
+                      checked={app in @selected_apps}
+                      class="rounded border-gray-300"
+                    />
+                    <span class="text-sm font-mono"><%= app %></span>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
           <%= if @selected_apps != [] do %>
             <div class="mb-4 p-3 bg-blue-50 rounded-lg">
               <div class="flex items-center justify-between">
@@ -176,85 +256,7 @@ defmodule DemoWeb.MachineMapLive do
               </div>
             </div>
           <% end %>
-          
-          <div class="flex gap-4 mb-4">
-            <button 
-              phx-click="discover_apps" 
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-              disabled={@apps_loading}
-            >
-              <%= if @apps_loading do %>
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Discovering...
-              <% else %>
-                Discover Apps
-              <% end %>
-            </button>
-            
-            <button 
-              phx-click="refresh_machines" 
-              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-              disabled={@machines_loading || @selected_apps == []}
-            >
-              <%= if @machines_loading do %>
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Refreshing...
-              <% else %>
-                Refresh Machines
-              <% end %>
-            </button>
-          </div>
-          
-          <%= if @apps_error do %>
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <h3 class="text-red-800 font-semibold">App Discovery Error</h3>
-              <p class="text-red-700 text-sm mt-1"><%= @apps_error %></p>
-            </div>
-          <% end %>
-          
-          <%= if @available_apps != [] do %>
-            <div class="mb-4">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-medium">Available Apps</h3>
-                <div class="flex gap-2">
-                  <button 
-                    phx-click="select_all_apps"
-                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg transition-colors"
-                    disabled={length(@available_apps) == length(@selected_apps)}
-                  >
-                    Select All
-                  </button>
-                  <button 
-                    phx-click="deselect_all_apps"
-                    class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg transition-colors"
-                    disabled={@selected_apps == []}
-                  >
-                    Deselect All
-                  </button>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                <%= for app <- @available_apps do %>
-                  <label class="flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      phx-click="toggle_app" 
-                      phx-value-app={app}
-                      checked={app in @selected_apps}
-                      class="rounded border-gray-300"
-                    />
-                    <span class="text-sm font-mono"><%= app %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
+
         </div>
       </div>
 
@@ -271,7 +273,7 @@ defmodule DemoWeb.MachineMapLive do
       <%= if @all_machines != [] do %>
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 class="text-xl font-semibold mb-4">Machine Details</h2>
-          
+
           <!-- Summary Stats -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-blue-50 p-4 rounded-lg">
@@ -289,14 +291,14 @@ defmodule DemoWeb.MachineMapLive do
               </p>
             </div>
           </div>
-          
+
           <!-- Machines by App -->
           <div class="space-y-4">
             <h3 class="text-lg font-medium">Machines by App</h3>
             <%= for group <- @region_groups do %>
               <div class="border rounded-lg p-4">
                 <div class="flex items-center mb-2">
-                  <span 
+                  <span
                     class="inline-block w-3 h-3 rounded-full mr-2"
                     style={"background-color: #{get_style_color(group.style_key)};"}
                   ></span>
@@ -319,7 +321,7 @@ defmodule DemoWeb.MachineMapLive do
               </div>
             <% end %>
           </div>
-          
+
           <!-- Machines by Region -->
           <div class="mt-6">
             <h3 class="text-lg font-medium mb-4">Machines by Region</h3>
@@ -369,7 +371,7 @@ defmodule DemoWeb.MachineMapLive do
       acknowledged: "#9d4edd",
       inactive: "#6c757d"
     }
-    
+
     Map.get(style_colors, style_key, "#888888")
   end
 
