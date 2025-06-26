@@ -14,14 +14,15 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   alias FlyMapEx.Components.WorldMap
   alias FlyMapEx.Regions
+  alias FlyMapEx.Nodes
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
 
   ## Attributes
 
-  * `region_groups` - List of region group maps, each containing:
-    * `regions` - List of region codes for this group
+  * `region_groups` - List of region/node group maps, each containing:
+    * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, lng}}
     * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
     * `label` - Display label for this group
   * `show_progress` - Whether to show the acknowledgment progress bar (default: false)
@@ -111,7 +112,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
               <div class="text-xs text-base-content/60 mt-1">
                 <div class="flex items-center space-x-4">
                   <span>
-                    Regions: {format_regions_display(group.regions, "none")}
+                    Nodes: {format_nodes_display(group.nodes, "none")}
                   </span>
                   <span :if={Map.has_key?(group, :machine_count)} class="bg-base-300 px-2 py-1 rounded text-xs">
                     {group.machine_count} machines
@@ -148,14 +149,16 @@ defmodule FlyMapEx.Components.WorldMapCard do
   defp process_region_groups(region_groups, styles) do
     Enum.map(region_groups, fn group ->
       style_key = Map.get(group, :style_key)
-      style = Map.get(styles, style_key, %{color: "#888888", animated: false, label: "Unknown"})
+      style = Map.get(styles, style_key, %{color: "#888888", animated: false, label: "Unknown", base_size: 6, gradient: false, animation: :none})
 
+      nodes = Map.get(group, :nodes, [])
+      
       %{
-        regions: Map.get(group, :regions, []),
+        nodes: nodes,
         style_key: style_key,
         style: style,
         label: Map.get(group, :label, style.label),
-        machine_count: Map.get(group, :machine_count, length(Map.get(group, :regions, [])))
+        machine_count: Map.get(group, :machine_count, length(nodes))
       }
     end)
   end
@@ -163,8 +166,37 @@ defmodule FlyMapEx.Components.WorldMapCard do
   defp find_regions_by_style(processed_groups, style_keys) do
     processed_groups
     |> Enum.filter(fn group -> group.style_key in style_keys end)
-    |> Enum.flat_map(fn group -> group.regions end)
+    |> Enum.flat_map(fn group -> extract_region_codes(group.nodes) end)
     |> Enum.uniq()
+  end
+
+  # Helper to extract region codes from nodes for backward compatibility
+  defp extract_region_codes(nodes) when is_list(nodes) do
+    Enum.flat_map(nodes, fn
+      %{label: label, coordinates: _} ->
+        # For coordinate nodes, try to match back to region code
+        # This is a best-effort for progress tracking compatibility
+        case find_region_code_by_coordinates(label) do
+          nil -> []
+          code -> [code]
+        end
+      region_code when is_binary(region_code) ->
+        [region_code]
+      _ ->
+        []
+    end)
+  end
+
+  # Try to find region code by checking if label matches a known region name
+  defp find_region_code_by_coordinates(label) do
+    Regions.all()
+    |> Enum.find(fn {code, _coords} -> 
+      Regions.name(Atom.to_string(code)) == label 
+    end)
+    |> case do
+      {code, _coords} -> Atom.to_string(code)
+      nil -> nil
+    end
   end
 
   defp calculate_progress_percentage(pending_regions, completed_regions) do
@@ -175,6 +207,26 @@ defmodule FlyMapEx.Components.WorldMapCard do
       0
     end
   end
+
+  defp format_nodes_display(nodes, empty_message) do
+    # Convert nodes to display names
+    display_names =
+      nodes
+      |> Enum.map(&node_display_name/1)
+      |> Enum.reject(&is_nil/1)
+
+    if display_names != [] do
+      "(#{Enum.join(display_names, ", ")})"
+    else
+      empty_message
+    end
+  end
+
+  defp node_display_name(%{label: label}) when is_binary(label), do: label
+  defp node_display_name(region_code) when is_binary(region_code) do
+    region_display_name(region_code)
+  end
+  defp node_display_name(_), do: nil
 
   defp format_regions_display(regions, empty_message) do
     # Filter out empty/unknown regions and convert to display names
@@ -200,7 +252,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   defp total_active_regions(processed_groups) do
     processed_groups
-    |> Enum.flat_map(fn group -> group.regions end)
+    |> Enum.flat_map(fn group -> group.nodes end)
     |> Enum.uniq()
     |> length()
   end
@@ -211,9 +263,10 @@ defmodule FlyMapEx.Components.WorldMapCard do
   end
 
   defp inactive_regions_count(processed_groups) do
-    active_regions =
+    # Extract region codes from active nodes for Fly.io compatibility
+    active_region_codes =
       processed_groups
-      |> Enum.flat_map(fn group -> group.regions end)
+      |> Enum.flat_map(fn group -> extract_region_codes(group.nodes) end)
       |> Enum.uniq()
       |> MapSet.new()
 
@@ -223,14 +276,14 @@ defmodule FlyMapEx.Components.WorldMapCard do
       |> Enum.map(&Atom.to_string/1)
       |> MapSet.new()
 
-    MapSet.difference(all_regions, active_regions)
+    MapSet.difference(all_regions, active_region_codes)
     |> MapSet.size()
   end
 
   defp total_machine_count(processed_groups) do
     processed_groups
     |> Enum.map(fn group ->
-      Map.get(group, :machine_count, length(group.regions))
+      Map.get(group, :machine_count, length(group.nodes))
     end)
     |> Enum.sum()
   end

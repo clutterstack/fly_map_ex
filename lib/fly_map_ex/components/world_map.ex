@@ -9,6 +9,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
   alias FlyMapEx.Regions
   alias FlyMapEx.WorldMapPaths
+  alias FlyMapEx.Nodes
 
   # Default map dimensions and styling
   @default_bbox {0, 0, 800, 391}
@@ -28,11 +29,11 @@ defmodule FlyMapEx.Components.WorldMap do
   }
 
   @doc """
-  Renders the SVG world map with dynamic region group markers.
+  Renders the SVG world map with dynamic node group markers.
 
   ## Attributes
 
-  * `region_groups` - List of processed region groups with styles
+  * `region_groups` - List of processed node groups with styles
   * `colours` - Map of color overrides (optional)
   * `dimensions` - Map with width/height overrides (optional)
   * `group_styles` - Map of group styles configuration (optional)
@@ -52,8 +53,10 @@ defmodule FlyMapEx.Components.WorldMap do
     {minx, miny, width, height} = get_dimensions(assigns.dimensions)
     viewbox = "#{minx} #{miny} #{width} #{height}"
 
-    # Generate gradients for all groups with animation
-    animated_groups = Enum.filter(assigns.region_groups, & &1.style.animated)
+    # Generate gradients for all groups with gradients enabled
+    gradient_groups = Enum.filter(assigns.region_groups, fn group -> 
+      Map.get(group.style, :gradient, false) 
+    end)
 
     assigns = assign(assigns, %{
       colours: colours,
@@ -62,7 +65,8 @@ defmodule FlyMapEx.Components.WorldMap do
       width: width,
       height: height,
       viewbox: viewbox,
-      animated_groups: animated_groups,
+      gradient_groups: gradient_groups,
+      bbox: {minx, miny, width, height},
       toppath: "M #{minx + 1} #{miny + 0.5} H #{width - 0.5}",
       btmpath: "M #{minx + 1} #{miny + height - 1} H #{width - 0.5}"
     })
@@ -76,11 +80,11 @@ defmodule FlyMapEx.Components.WorldMap do
       id={@id}
     >
       <defs>
-        <!-- Dynamic gradients for animated groups -->
-        <%= for group <- @animated_groups do %>
+        <!-- Dynamic gradients for groups with gradient enabled -->
+        <%= for group <- @gradient_groups do %>
           <radialGradient id={"#{group.style_key}Gradient"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="60%" stop-color={group.style.color} stop-opacity="1" />
-            <stop offset="80%" stop-color={group.style.color} stop-opacity="0.6" />
+            <stop offset="40%" stop-color={group.style.color} stop-opacity="1" />
+            <stop offset="70%" stop-color={group.style.color} stop-opacity="0.7" />
             <stop offset="100%" stop-color={group.style.color} stop-opacity="0.2" />
           </radialGradient>
         <% end %>
@@ -131,16 +135,10 @@ defmodule FlyMapEx.Components.WorldMap do
         </g>
       <% end %>
 
-      <!-- Dynamic region group markers -->
+      <!-- Dynamic node group markers -->
       <%= for group <- @region_groups do %>
-        <%= for {x, y} <- region_coordinates(group.regions) do %>
-          <%= if group.style.animated do %>
-            <circle cx={x} cy={y} stroke="none" fill={"url(##{group.style_key}Gradient)"}>
-              <animate attributeName="r" values="6;10;6" dur="3s" repeatCount="indefinite" />
-            </circle>
-          <% else %>
-            <circle cx={x} cy={y} r="6" fill={group.style.color} opacity="0.9" />
-          <% end %>
+        <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
+          <%= render_marker(group, x, y) %>
         <% end %>
       <% end %>
     </svg>
@@ -158,6 +156,61 @@ defmodule FlyMapEx.Components.WorldMap do
     {minx, miny, width, height}
   end
 
+  defp node_coordinates(nodes, bbox) when is_list(nodes) do
+    nodes
+    |> Enum.map(&extract_coordinates/1)
+    |> Enum.map(&Nodes.wgs84_to_svg(&1, bbox))
+  end
+
+  defp extract_coordinates(%{coordinates: coords}), do: coords
+  defp extract_coordinates(region_code) when is_binary(region_code) do
+    Regions.coordinates(region_code)
+  end
+
+  defp render_marker(group, x, y) do
+    base_size = Map.get(group.style, :base_size, 6)
+    animation = Map.get(group.style, :animation, :none)
+    gradient = Map.get(group.style, :gradient, false)
+    
+    fill = if gradient do
+      "url(##{group.style_key}Gradient)"
+    else
+      group.style.color
+    end
+
+    case animation do
+      :pulse ->
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        ~H"""
+        <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
+          <animate attributeName="r" values={"#{@base_size};#{@base_size + 4};#{@base_size}"} dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
+        </circle>
+        """
+
+      :bounce ->
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        ~H"""
+        <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
+          <animate attributeName="r" values={"#{@base_size};#{@base_size + 6};#{@base_size};#{@base_size + 2};#{@base_size}"} dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        """
+
+      :fade ->
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        ~H"""
+        <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@fill}>
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" />
+        </circle>
+        """
+
+      _ -> # :none or any other value
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        ~H"""
+        <circle cx={@x} cy={@y} r={@base_size} fill={@fill} opacity="0.9" />
+        """
+    end
+  end
 
   defp region_coordinates(regions) do
     regions

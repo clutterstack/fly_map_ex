@@ -27,7 +27,7 @@ defmodule FlyMapEx.Config do
   ## Examples
 
       iex> FlyMapEx.Config.style_definitions()[:primary]
-      %{color: "#3b82f6", animated: true, label: "Primary"}
+      %{color: "#3b82f6", animated: true, label: "Primary", base_size: 6, gradient: false}
 
       # Create region groups with semantic styles
       region_groups = [
@@ -40,64 +40,237 @@ defmodule FlyMapEx.Config do
       primary: %{
         color: "#3b82f6",    # Blue-500
         animated: true,
-        label: "Primary"
+        label: "Primary",
+        base_size: 8,
+        gradient: true,
+        animation: :pulse
       },
       secondary: %{
         color: "#10b981",   # Emerald-500
         animated: false,
-        label: "Secondary"
+        label: "Secondary",
+        base_size: 6,
+        gradient: false,
+        animation: :none
       },
       success: %{
         color: "#059669",   # Emerald-600
         animated: false,
-        label: "Success"
+        label: "Success",
+        base_size: 6,
+        gradient: false,
+        animation: :none
       },
       warning: %{
         color: "#d97706",   # Amber-600
         animated: true,
-        label: "Warning"
+        label: "Warning",
+        base_size: 8,
+        gradient: true,
+        animation: :pulse
       },
       danger: %{
         color: "#dc2626",   # Red-600
         animated: true,
-        label: "Danger"
+        label: "Danger",
+        base_size: 10,
+        gradient: true,
+        animation: :bounce
       },
       info: %{
         color: "#0ea5e9",   # Sky-500
         animated: false,
-        label: "Info"
+        label: "Info",
+        base_size: 6,
+        gradient: false,
+        animation: :none
       },
       active: %{
         color: "#eab308",   # Yellow-500
         animated: true,
-        label: "Active"
+        label: "Active",
+        base_size: 7,
+        gradient: true,
+        animation: :pulse
       },
       inactive: %{
         color: "#6b7280",   # Gray-500
         animated: false,
-        label: "Inactive"
+        label: "Inactive",
+        base_size: 5,
+        gradient: false,
+        animation: :none
       },
       pending: %{
         color: "#f59e0b",   # Amber-500
         animated: true,
-        label: "Pending"
+        label: "Pending",
+        base_size: 7,
+        gradient: true,
+        animation: :fade
       },
       completed: %{
         color: "#14b8a6",   # Teal-500
         animated: false,
-        label: "Completed"
+        label: "Completed",
+        base_size: 6,
+        gradient: false,
+        animation: :none
       },
       error: %{
         color: "#ef4444",   # Red-500
         animated: true,
-        label: "Error"
+        label: "Error",
+        base_size: 9,
+        gradient: true,
+        animation: :bounce
       },
       neutral: %{
         color: "#9ca3af",   # Gray-400
         animated: false,
-        label: "Neutral"
+        label: "Neutral",
+        base_size: 5,
+        gradient: false,
+        animation: :none
       }
     }
+  end
+
+  @doc """
+  Get custom themes from application configuration.
+
+  Custom themes are defined in the application config under the `:custom_themes` key.
+  Each theme should follow the same schema as predefined styles.
+
+  ## Configuration Example
+
+      config :fly_map_ex, :custom_themes, %{
+        production: %{
+          color: "#10B981",
+          animated: false,
+          label: "Production",
+          base_size: 12,
+          gradient: true,
+          animation: :pulse
+        },
+        staging: %{
+          color: "#F59E0B",
+          animated: true,
+          label: "Staging",
+          base_size: 8,
+          gradient: false,
+          animation: :bounce
+        }
+      }
+
+  ## Examples
+
+      iex> FlyMapEx.Config.custom_themes()[:production]
+      %{color: "#10B981", animated: false, label: "Production", base_size: 12, gradient: true, animation: :pulse}
+  """
+  def custom_themes() do
+    Application.get_env(:fly_map_ex, :custom_themes, %{})
+  end
+
+  @doc """
+  Get all available style definitions, merging predefined and custom themes.
+
+  Custom themes from app config will override predefined themes with the same key.
+
+  ## Examples
+
+      iex> FlyMapEx.Config.all_styles()[:primary]
+      %{color: "#3b82f6", animated: true, label: "Primary", base_size: 8, gradient: true, animation: :pulse}
+
+      # If custom theme named :primary exists, it overrides the predefined one
+      iex> FlyMapEx.Config.all_styles()[:my_custom_theme]
+      %{color: "#custom", animated: false, label: "My Theme", base_size: 10, gradient: false, animation: :none}
+  """
+  def all_styles() do
+    Map.merge(style_definitions(), custom_themes())
+  end
+
+  @doc """
+  Register a custom theme at runtime.
+
+  This allows applications to dynamically add new themes without restart.
+  The theme will be stored in the application environment.
+
+  ## Theme Schema
+
+  Required fields:
+  * `color` - Hex color string (e.g., "#3b82f6")
+  * `animated` - Boolean indicating if markers should animate (deprecated, use animation instead)
+  * `label` - Display label for the theme
+  * `base_size` - Base marker size in pixels
+  * `gradient` - Boolean indicating if markers should use gradients
+  * `animation` - Animation type (:none, :pulse, :bounce, :fade)
+
+  ## Examples
+
+      FlyMapEx.Config.register_custom_theme(:my_theme, %{
+        color: "#FF6B6B",
+        animated: true,
+        label: "Critical",
+        base_size: 12,
+        gradient: true,
+        animation: :bounce
+      })
+  """
+  def register_custom_theme(theme_name, theme_config) when is_atom(theme_name) and is_map(theme_config) do
+    validated_config = validate_theme_config(theme_config)
+    current_themes = custom_themes()
+    updated_themes = Map.put(current_themes, theme_name, validated_config)
+    Application.put_env(:fly_map_ex, :custom_themes, updated_themes)
+    :ok
+  end
+
+  @doc """
+  Validate a theme configuration to ensure it has all required fields.
+
+  ## Examples
+
+      iex> FlyMapEx.Config.validate_theme_config(%{color: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse})
+      %{color: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse}
+  """
+  def validate_theme_config(config) when is_map(config) do
+    defaults = %{
+      color: "#6b7280",
+      animated: false,
+      label: "Custom",
+      base_size: 6,
+      gradient: false,
+      animation: :none
+    }
+
+    validated = Map.merge(defaults, config)
+
+    # Validate required fields
+    unless is_binary(validated.color) and String.starts_with?(validated.color, "#") do
+      raise ArgumentError, "Theme color must be a hex color string starting with #"
+    end
+
+    unless is_boolean(validated.animated) do
+      raise ArgumentError, "Theme animated must be a boolean"
+    end
+
+    unless is_binary(validated.label) do
+      raise ArgumentError, "Theme label must be a string"
+    end
+
+    unless is_integer(validated.base_size) and validated.base_size > 0 do
+      raise ArgumentError, "Theme base_size must be a positive integer"
+    end
+
+    unless is_boolean(validated.gradient) do
+      raise ArgumentError, "Theme gradient must be a boolean"
+    end
+
+    unless validated.animation in [:none, :pulse, :bounce, :fade] do
+      raise ArgumentError, "Theme animation must be one of :none, :pulse, :bounce, :fade"
+    end
+
+    validated
   end
 
   @doc """
@@ -291,7 +464,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:compact),
       background: background_scheme(:light),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 
@@ -299,7 +472,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:standard),
       background: background_scheme(:light),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 
@@ -307,7 +480,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:large),
       background: background_scheme(:light),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 
@@ -315,7 +488,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:standard),
       background: background_scheme(:dark),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 
@@ -323,7 +496,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:standard),
       background: background_scheme(:minimal),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 
@@ -331,7 +504,7 @@ defmodule FlyMapEx.Config do
     %{
       dimensions: dimensions(:standard),
       background: background_scheme(:cool),
-      styles: style_definitions()
+      styles: all_styles()
     }
   end
 

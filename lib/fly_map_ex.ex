@@ -54,6 +54,7 @@ defmodule FlyMapEx do
 
   alias FlyMapEx.Components.WorldMapCard
   alias FlyMapEx.Config
+  alias FlyMapEx.Nodes
 
   @doc """
   Renders a complete world map with regions, legend, and optional progress tracking.
@@ -63,9 +64,10 @@ defmodule FlyMapEx do
 
   ## Attributes
 
-  * `region_groups` - List of region group maps, each containing:
-    * `regions` - List of region codes for this group
-    * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
+  * `region_groups` - List of region/node group maps, each containing:
+    * `regions` - List of region codes for this group (legacy, deprecated - use `nodes`)
+    * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, lng}}
+    * `style_key` - Atom referencing a style (e.g., :success, :warning, :active) 
     * `label` - Display label for this group
   * `theme` - Theme name (e.g., :modern, :dark, :compact)
   * `show_progress` - Whether to show acknowledgment progress bar (default: false)
@@ -81,11 +83,28 @@ defmodule FlyMapEx do
       ])
       <FlyMapEx.render region_groups={region_groups} theme={:modern} />
 
-      # Manual region groups
+      # Manual region groups (legacy format)
       <FlyMapEx.render region_groups={[
         %{regions: ["sjc"], style_key: :success, label: "Production"},
         %{regions: ["fra", "ams"], style_key: :warning, label: "Staging"}
       ]} theme={:dark} />
+
+      # New node format with coordinates
+      <FlyMapEx.render region_groups={[
+        %{
+          nodes: [
+            %{label: "Production Server", coordinates: {40.7128, -74.0060}},
+            %{label: "Backup Server", coordinates: {51.5074, -0.1278}}
+          ],
+          style_key: :success,
+          label: "Production"
+        },
+        %{
+          nodes: ["sjc", "fra"],  # Can still mix region codes
+          style_key: :warning,
+          label: "Staging"
+        }
+      ]} theme={:modern} />
 
       # With progress tracking
       <FlyMapEx.render
@@ -97,10 +116,9 @@ defmodule FlyMapEx do
         theme={:compact}
       />
 
-      # With custom styling
+      # With custom styling and app config themes
       <FlyMapEx.render
-        region_groups={[%{regions: ["sjc"], style_key: :primary, label: "Main"}]}
-        custom_styles={%{primary: %{color: "#00ff00", animated: true}}}
+        region_groups={[%{nodes: ["sjc"], style_key: :my_custom_theme, label: "Custom"}]}
         theme={:modern}
       />
   """
@@ -117,7 +135,11 @@ defmodule FlyMapEx do
     # Merge theme styles with custom overrides
     final_styles = Map.merge(theme_config.styles, assigns.custom_styles)
     
+    # Normalize region groups to support both legacy and new node formats
+    normalized_groups = normalize_region_groups(assigns.region_groups)
+    
     assigns = assigns
+      |> assign(:region_groups, normalized_groups)
       |> assign(:dimensions, theme_config.dimensions)
       |> assign(:background, theme_config.background)
       |> assign(:styles, final_styles)
@@ -133,5 +155,28 @@ defmodule FlyMapEx do
       />
     </div>
     """
+  end
+
+  # Private function to normalize region groups for backward compatibility
+  defp normalize_region_groups(region_groups) when is_list(region_groups) do
+    Enum.map(region_groups, &normalize_region_group/1)
+  end
+
+  defp normalize_region_group(%{nodes: nodes} = group) when is_list(nodes) do
+    # Already using new format
+    Nodes.process_node_group(group)
+  end
+
+  defp normalize_region_group(%{regions: regions} = group) when is_list(regions) do
+    # Legacy format - convert regions to nodes
+    group
+    |> Map.put(:nodes, regions)
+    |> Map.delete(:regions)
+    |> Nodes.process_node_group()
+  end
+
+  defp normalize_region_group(group) do
+    # No nodes or regions specified - return as is
+    group
   end
 end
