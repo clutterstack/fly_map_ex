@@ -289,6 +289,10 @@ defmodule DemoWeb.MachineMapLive do
               </div>
               <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                 <%= for app <- @available_apps do %>
+                  <% machine_count = case Map.get(@all_instances_data, app) do
+                       {:ok, machines} -> length(machines)
+                       _ -> 0
+                     end %>
                   <label class="flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"
@@ -297,7 +301,10 @@ defmodule DemoWeb.MachineMapLive do
                       checked={app in @selected_apps}
                       class="rounded border-gray-300"
                     />
-                    <span class="text-sm font-mono"><%= app %></span>
+                    <div class="flex-1">
+                      <span class="text-sm font-mono"><%= app %></span>
+                      <span class="text-xs text-gray-500 ml-1">(<%= machine_count %> machines)</span>
+                    </div>
                   </label>
                 <% end %>
               </div>
