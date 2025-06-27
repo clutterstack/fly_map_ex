@@ -15,7 +15,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:available_apps, [])
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
-      |> assign(:marker_groups, [])
+      |> assign(:marker_groups, [fly_regions_group()])
       |> assign(:all_machines, [])
       |> assign(:last_updated, nil)
       |> assign(:error, nil)
@@ -103,7 +103,7 @@ defmodule DemoWeb.MachineMapLive do
       socket = assign(socket, :machines_loading, true)
 
       app_machines = MachineDiscovery.discover_all_apps(selected_apps)
-      marker_groups = MachineDiscovery.from_app_machines(app_machines)
+      marker_groups = socket.assigns.marker_groups ++ MachineDiscovery.from_app_machines(app_machines)
 
       all_machines =
         app_machines
@@ -374,16 +374,16 @@ defmodule DemoWeb.MachineMapLive do
     Map.get(style_colours, style_key, "#888888")
   end
 
-  # A group has to be a map?
+  # A group is a map
+  #   %{nodes: ["sjc", "fra"], style_key: :primary, label: "Active Regions"},
 
-  defp fly_region_group do
-    for {region_atom, coords} <- Regions.all() #  %{ams: {5, 52}, iad: {-77, 39}, ...}
-      region_string = Atom.to_string(region_atom)
-      svg_coords = wgs84_to_svg(coords, @bbox)
-      {region_string, svg_coords}
-    end
+  defp fly_regions_group do
+    %{
+      nodes: FlyMapEx.Regions.list(),
+      style_key: :primary,
+      label: "Fly.io regions"
+    }
 
-    %{style:}
+
   end
-
 end
