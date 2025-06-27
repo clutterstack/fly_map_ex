@@ -12,7 +12,7 @@ defmodule FlyMapEx.Nodes do
   Transform a list of node groups to include processed coordinates.
 
   Node groups can contain either:
-  - Fly.io region codes (strings like "sjc", "fra") - for backward compatibility
+  - Fly.io region codes (strings like "sjc", "fra")
   - Node maps with coordinates (%{label: "Server 1", coordinates: {40.7128, -74.0060}})
 
   ## Examples
@@ -112,10 +112,10 @@ defmodule FlyMapEx.Nodes do
         %{label: "Server 2", coordinates: {51.5074, -0.1278}}
       ]
 
-      iex> FlyMapEx.Nodes.extract_coordinates(nodes)
+      iex> FlyMapEx.Nodes.coords_lookup(nodes)
       [{40.7128, -74.0060}, {51.5074, -0.1278}]
   """
-  def extract_coordinates(nodes) when is_list(nodes) do
+  def coords_lookup(nodes) when is_list(nodes) do
     Enum.map(nodes, fn %{coordinates: coords} -> coords end)
   end
 

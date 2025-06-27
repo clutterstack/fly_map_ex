@@ -1,4 +1,4 @@
-defmodule FlyMapEx.Config do
+defmodule FlyMapEx.Themes do
   @moduledoc """
   Configuration presets and themes for FlyMapEx components.
 
@@ -26,8 +26,8 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.style_definitions()[:primary]
-      %{color: "#3b82f6", animated: true, label: "Primary", base_size: 6, gradient: false}
+      iex> FlyMapEx.Themes.style_definitions()[:primary]
+      %{colour: "#3b82f6", animated: true, label: "Primary", base_size: 6, gradient: false}
 
       # Create marker groups with semantic styles
       marker_groups = [
@@ -38,7 +38,7 @@ defmodule FlyMapEx.Config do
   def style_definitions() do
     %{
       primary: %{
-        color: "#3b82f6",    # Blue-500
+        colour: "#3b82f6",    # Blue-500
         animated: true,
         label: "Primary",
         base_size: 8,
@@ -46,7 +46,7 @@ defmodule FlyMapEx.Config do
         animation: :pulse
       },
       secondary: %{
-        color: "#10b981",   # Emerald-500
+        colour: "#10b981",   # Emerald-500
         animated: false,
         label: "Secondary",
         base_size: 6,
@@ -54,7 +54,7 @@ defmodule FlyMapEx.Config do
         animation: :none
       },
       success: %{
-        color: "#059669",   # Emerald-600
+        colour: "#059669",   # Emerald-600
         animated: false,
         label: "Success",
         base_size: 6,
@@ -62,7 +62,7 @@ defmodule FlyMapEx.Config do
         animation: :none
       },
       warning: %{
-        color: "#d97706",   # Amber-600
+        colour: "#d97706",   # Amber-600
         animated: true,
         label: "Warning",
         base_size: 8,
@@ -70,7 +70,7 @@ defmodule FlyMapEx.Config do
         animation: :pulse
       },
       danger: %{
-        color: "#dc2626",   # Red-600
+        colour: "#dc2626",   # Red-600
         animated: true,
         label: "Danger",
         base_size: 10,
@@ -78,7 +78,7 @@ defmodule FlyMapEx.Config do
         animation: :bounce
       },
       info: %{
-        color: "#0ea5e9",   # Sky-500
+        colour: "#0ea5e9",   # Sky-500
         animated: false,
         label: "Info",
         base_size: 6,
@@ -86,7 +86,7 @@ defmodule FlyMapEx.Config do
         animation: :none
       },
       active: %{
-        color: "#eab308",   # Yellow-500
+        colour: "#eab308",   # Yellow-500
         animated: true,
         label: "Active",
         base_size: 7,
@@ -94,7 +94,7 @@ defmodule FlyMapEx.Config do
         animation: :pulse
       },
       inactive: %{
-        color: "#6b7280",   # Gray-500
+        colour: "#6b7280",   # Gray-500
         animated: false,
         label: "Inactive",
         base_size: 5,
@@ -102,7 +102,7 @@ defmodule FlyMapEx.Config do
         animation: :none
       },
       pending: %{
-        color: "#f59e0b",   # Amber-500
+        colour: "#f59e0b",   # Amber-500
         animated: true,
         label: "Pending",
         base_size: 7,
@@ -110,7 +110,7 @@ defmodule FlyMapEx.Config do
         animation: :fade
       },
       completed: %{
-        color: "#14b8a6",   # Teal-500
+        colour: "#14b8a6",   # Teal-500
         animated: false,
         label: "Completed",
         base_size: 6,
@@ -118,7 +118,7 @@ defmodule FlyMapEx.Config do
         animation: :none
       },
       error: %{
-        color: "#ef4444",   # Red-500
+        colour: "#ef4444",   # Red-500
         animated: true,
         label: "Error",
         base_size: 9,
@@ -126,7 +126,7 @@ defmodule FlyMapEx.Config do
         animation: :bounce
       },
       neutral: %{
-        color: "#9ca3af",   # Gray-400
+        colour: "#9ca3af",   # Gray-400
         animated: false,
         label: "Neutral",
         base_size: 5,
@@ -146,7 +146,7 @@ defmodule FlyMapEx.Config do
 
       config :fly_map_ex, :custom_themes, %{
         production: %{
-          color: "#10B981",
+          colour: "#10B981",
           animated: false,
           label: "Production",
           base_size: 12,
@@ -154,7 +154,7 @@ defmodule FlyMapEx.Config do
           animation: :pulse
         },
         staging: %{
-          color: "#F59E0B",
+          colour: "#F59E0B",
           animated: true,
           label: "Staging",
           base_size: 8,
@@ -165,8 +165,8 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.custom_themes()[:production]
-      %{color: "#10B981", animated: false, label: "Production", base_size: 12, gradient: true, animation: :pulse}
+      iex> FlyMapEx.Themes.custom_themes()[:production]
+      %{colour: "#10B981", animated: false, label: "Production", base_size: 12, gradient: true, animation: :pulse}
   """
   def custom_themes() do
     Application.get_env(:fly_map_ex, :custom_themes, %{})
@@ -179,12 +179,12 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.all_styles()[:primary]
-      %{color: "#3b82f6", animated: true, label: "Primary", base_size: 8, gradient: true, animation: :pulse}
+      iex> FlyMapEx.Themes.all_styles()[:primary]
+      %{colour: "#3b82f6", animated: true, label: "Primary", base_size: 8, gradient: true, animation: :pulse}
 
       # If custom theme named :primary exists, it overrides the predefined one
-      iex> FlyMapEx.Config.all_styles()[:my_custom_theme]
-      %{color: "#custom", animated: false, label: "My Theme", base_size: 10, gradient: false, animation: :none}
+      iex> FlyMapEx.Themes.all_styles()[:my_custom_theme]
+      %{colour: "#custom", animated: false, label: "My Theme", base_size: 10, gradient: false, animation: :none}
   """
   def all_styles() do
     Map.merge(style_definitions(), custom_themes())
@@ -199,7 +199,7 @@ defmodule FlyMapEx.Config do
   ## Theme Schema
 
   Required fields:
-  * `color` - Hex color string (e.g., "#3b82f6")
+  * `colour` - Hex colour string (e.g., "#3b82f6")
   * `animated` - Boolean indicating if markers should animate (deprecated, use animation instead)
   * `label` - Display label for the theme
   * `base_size` - Base marker size in pixels
@@ -208,8 +208,8 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      FlyMapEx.Config.register_custom_theme(:my_theme, %{
-        color: "#FF6B6B",
+      FlyMapEx.Themes.register_custom_theme(:my_theme, %{
+        colour: "#FF6B6B",
         animated: true,
         label: "Critical",
         base_size: 12,
@@ -230,12 +230,12 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.validate_theme_config(%{color: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse})
-      %{color: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse}
+      iex> FlyMapEx.Themes.validate_theme_config(%{colour: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse})
+      %{colour: "#000", animated: true, label: "Test", base_size: 8, gradient: false, animation: :pulse}
   """
   def validate_theme_config(config) when is_map(config) do
     defaults = %{
-      color: "#6b7280",
+      colour: "#6b7280",
       animated: false,
       label: "Custom",
       base_size: 6,
@@ -246,8 +246,8 @@ defmodule FlyMapEx.Config do
     validated = Map.merge(defaults, config)
 
     # Validate required fields
-    unless is_binary(validated.color) and String.starts_with?(validated.color, "#") do
-      raise ArgumentError, "Theme color must be a hex color string starting with #"
+    unless is_binary(validated.colour) and String.starts_with?(validated.colour, "#") do
+      raise ArgumentError, "Theme colour must be a hex colour string starting with #"
     end
 
     unless is_boolean(validated.animated) do
@@ -282,7 +282,7 @@ defmodule FlyMapEx.Config do
   ## Examples
 
       # Simple usage
-      groups = FlyMapEx.Config.build_marker_groups([
+      groups = FlyMapEx.Themes.build_marker_groups([
         {"Started Machines", ["sjc", "fra"], :success},
         {"Stopped Machines", ["lhr", "ams"], :inactive},
         {"Pending Restart", ["yyz"], :warning}
@@ -307,7 +307,7 @@ defmodule FlyMapEx.Config do
 
 
   @doc """
-  Get background and border color schemes for themes.
+  Get background and border colour schemes for themes.
 
   ## Available Schemes
 
@@ -320,7 +320,7 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.background_scheme(:dark)
+      iex> FlyMapEx.Themes.background_scheme(:dark)
       %{land: "#1f2937", border: "#4b5563"}
   """
   def background_scheme(:light) do
@@ -392,7 +392,7 @@ defmodule FlyMapEx.Config do
   ## Examples
 
       # Theme provides visual styling
-      theme_config = FlyMapEx.Config.theme(:modern)
+      theme_config = FlyMapEx.Themes.theme(:modern)
 
       # Your marker groups provide the data and labels
       marker_groups = [
@@ -440,7 +440,7 @@ defmodule FlyMapEx.Config do
   ## Examples
 
       iex> attrs = %{marker_groups: groups}
-      iex> FlyMapEx.Config.apply_theme(attrs, :modern)
+      iex> FlyMapEx.Themes.apply_theme(attrs, :modern)
       %{
         marker_groups: groups,
         land: %{...},

@@ -34,8 +34,7 @@ defmodule FlyMapEx do
   use Phoenix.Component
 
   alias FlyMapEx.Components.WorldMapCard
-  alias FlyMapEx.Config
-  alias FlyMapEx.Nodes
+  alias FlyMapEx.{Theme, Style, Nodes}
 
   @doc """
   This is the main entry point for the library. It renders a card containing
@@ -44,105 +43,116 @@ defmodule FlyMapEx do
   ## Attributes
 
   * `marker_groups` - List of region/node group maps, each containing:
-    * `regions` - List of region codes for this group (legacy, deprecated - use `nodes`)
     * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
-    * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
+    * `style` - Style definition (keyword list or map) or FlyMapEx.Style builder result
     * `label` - Display label for this group
-  * `theme` - Theme name (e.g., :modern, :dark)
+  * `theme` - Background theme name (e.g., :dark, :minimal, :cool)
+  * `background` - Custom background colors (overrides theme)
   * `class` - Additional CSS classes for the container
-  * `custom_styles` - Map of custom style overrides (optional)
 
   ## Examples
 
-      # Easy usage with helper function
-      marker_groups = FlyMapEx.Config.build_marker_groups([
-        {"Running Servers", ["sjc", "fra"], :success},
-        {"Stopped Servers", ["ams"], :inactive}
-      ])
-      <FlyMapEx.render marker_groups={marker_groups} theme={:modern} />
-
-      # Manual marker groups (legacy format)
+      # Inline style definitions
       <FlyMapEx.render marker_groups={[
-        %{regions: ["sjc"], style_key: :success, label: "Production"},
-        %{regions: ["fra", "ams"], style_key: :warning, label: "Staging"}
+        %{
+          nodes: ["sjc", "fra"], 
+          style: [color: "#10b981", size: 8, animated: true],
+          label: "Production Servers"
+        },
+        %{
+          nodes: ["ams"], 
+          style: [color: "#ef4444", size: 10, animation: :bounce],
+          label: "Critical Issues"
+        }
       ]} theme={:dark} />
 
-      # New node format with coordinates
+      # Using style builder functions
+      <FlyMapEx.render marker_groups={[
+        %{
+          nodes: ["sjc", "fra"],
+          style: FlyMapEx.Style.success(),
+          label: "Healthy Nodes"
+        },
+        %{
+          nodes: ["ams"],
+          style: FlyMapEx.Style.danger(size: 12),
+          label: "Failed Nodes"
+        }
+      ]} theme={:minimal} />
+
+      # Mix of region codes and coordinates
       <FlyMapEx.render marker_groups={[
         %{
           nodes: [
-            %{label: "Production Server", coordinates: {40.7128, -74.0060}},
-            %{label: "Backup Server", coordinates: {51.5074, -0.1278}}
+            %{label: "Custom Server", coordinates: {40.7128, -74.0060}},
+            "fra"  # Mix with region codes
           ],
-          style_key: :success,
-          label: "Production"
-        },
-        %{
-          nodes: ["sjc", "fra"],  # Can still mix region codes
-          style_key: :warning,
-          label: "Staging"
+          style: FlyMapEx.Style.active(color: "#custom"),
+          label: "Mixed Deployment"
         }
-      ]} theme={:modern} />
+      ]} />
 
-
-
-      # With custom styling and app config themes
-      <FlyMapEx.render
-        marker_groups={[%{nodes: ["sjc"], style_key: :my_custom_theme, label: "Custom"}]}
-        theme={:modern}
-      />
+      # CSS variables for dynamic theming
+      <div style="--primary: #ff6b6b;">
+        <FlyMapEx.render marker_groups={[
+          %{nodes: ["sjc"], style: [color: "var(--primary)", size: 8], label: "Dynamic"}
+        ]} />
+      </div>
   """
   attr :marker_groups, :list, default: []
   attr :theme, :atom, default: :light
+  attr :background, :map, default: nil
   attr :class, :string, default: ""
-  attr :custom_styles, :map, default: %{}
 
   def render(assigns) do
-    # Apply theme configuration
-    theme_config = Config.theme(assigns.theme)
-
-    # Merge theme styles with custom overrides
-    final_styles = Map.merge(theme_config.styles, assigns.custom_styles)
-
-    # Normalize marker groups to support both legacy and new node formats
+    # Use custom background or theme background
+    background = assigns.background || Theme.background(assigns.theme)
+    
+    # Normalize marker group styles
     normalized_groups = normalize_marker_groups(assigns.marker_groups)
 
     assigns = assigns
+      |> assign(:background, background)
       |> assign(:marker_groups, normalized_groups)
-      |> assign(:background, theme_config.background)
-      |> assign(:styles, final_styles)
 
     ~H"""
     <div class={@class}>
       <WorldMapCard.render
         marker_groups={@marker_groups}
         background={@background}
-        styles={@styles}
       />
     </div>
     """
   end
 
-  # Private function to normalize marker groups for backward compatibility
+  # Private function to normalize marker groups and styles
   defp normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    Enum.map(marker_groups, &normalize_region_group/1)
+    Enum.map(marker_groups, &normalize_marker_group/1)
   end
 
-  defp normalize_region_group(%{nodes: nodes} = group) when is_list(nodes) do
-    # Already using new format
-    Nodes.process_node_group(group)
+  defp normalize_marker_group(%{style: style} = group) when not is_nil(style) do
+    # Normalize the style and process nodes
+    normalized_style = Style.normalize(style)
+    group = Map.put(group, :style, normalized_style)
+    
+    if Map.has_key?(group, :nodes) do
+      Nodes.process_node_group(group)
+    else
+      group
+    end
   end
 
-  defp normalize_region_group(%{regions: regions} = group) when is_list(regions) do
-    # Legacy format - convert regions to nodes
-    group
-    |> Map.put(:nodes, regions)
-    |> Map.delete(:regions)
-    |> Nodes.process_node_group()
-  end
-
-  defp normalize_region_group(group) do
-    # No nodes or regions specified - return as is
-    group
+  defp normalize_marker_group(group) do
+    # No style specified - use default
+    require Logger
+    Logger.warning("Marker group missing style, using default: #{inspect(group)}")
+    
+    default_group = Map.put_new(group, :style, Style.normalize([]))
+    
+    if Map.has_key?(default_group, :nodes) do
+      Nodes.process_node_group(default_group)  
+    else
+      default_group
+    end
   end
 end

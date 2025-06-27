@@ -1,4 +1,5 @@
 defmodule FlyMapEx.Regions do
+
   @moduledoc """
   Fly.io region data and coordinate mapping utilities.
 

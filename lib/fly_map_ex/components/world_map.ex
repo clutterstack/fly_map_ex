@@ -6,6 +6,7 @@ defmodule FlyMapEx.Components.WorldMap do
   """
 
   use Phoenix.Component
+  require Logger
 
   alias FlyMapEx.Regions
   alias FlyMapEx.WorldMapPaths
@@ -59,7 +60,7 @@ defmodule FlyMapEx.Components.WorldMap do
       height: @height,
       viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
       gradient_groups: gradient_groups,
-      bbox: {@minx, @miny, @width, @height},
+      bbox: @bbox,
       toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
       btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}"
     })
@@ -131,7 +132,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- Dynamic node group markers -->
       <%= for group <- @marker_groups do %>
         <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
-          <%= render_marker(group.style, x, y) %>
+          <%= render_marker(group, x, y) %>
         <% end %>
       <% end %>
     </svg>
@@ -144,12 +145,12 @@ defmodule FlyMapEx.Components.WorldMap do
 
   defp node_coordinates(nodes, bbox) when is_list(nodes) do
     nodes
-    |> Enum.map(&extract_coordinates/1)
+    |> Enum.map(&coords_lookup/1)
     |> Enum.map(&wgs84_to_svg(&1, bbox))
   end
 
-  defp extract_coordinates(%{coordinates: coords}), do: coords
-  defp extract_coordinates(region_code) when is_binary(region_code) do
+  defp coords_lookup(%{coordinates: coords}), do: coords
+  defp coords_lookup(region_code) when is_binary(region_code) do
     Regions.coordinates(region_code)
   end
 
@@ -165,6 +166,7 @@ defmodule FlyMapEx.Components.WorldMap do
   #     nodes:
 
   defp render_marker(group, x, y) do
+    # Logger.debug("in render_marker")
     base_size = Map.get(group.style, :base_size, 6)
     animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)

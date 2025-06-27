@@ -12,7 +12,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
   require Logger
 
   alias FlyMapEx.Components.WorldMap
-  alias FlyMapEx.Regions
+  alias FlyMapEx.{Regions, Themes}
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
@@ -24,17 +24,17 @@ defmodule FlyMapEx.Components.WorldMapCard do
     * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
     * `label` - Display label for this group
   * `background` - Map with background and border colours
-  * `styles` - Map of available styles
+  * `config_styles` - Map of available styles
   * `class` - Additional CSS classes for the card container
   """
   attr :marker_groups, :list, default: []
   attr :background, :map, default: %{}
-  attr :styles, :map, default: %{}
+  attr :config_styles, :map, default: Themes.style_definitions()
   attr :class, :string, default: ""
 
   def render(assigns) do
     # Process marker groups and build data structures for rendering
-    processed_groups = process_marker_groups(assigns.marker_groups, assigns.styles)
+    processed_groups = process_marker_groups(assigns.marker_groups, assigns.config_styles)
 
     # Extract progress information for pending vs completed groups
     pending_regions = find_regions_by_style(processed_groups, [:pending, :warning])
@@ -46,7 +46,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
       completed_regions: completed_regions
     })
 
-    # Logger.debug("@styles: #{inspect assigns.styles}")
+    # Logger.debug("@config_styles: #{inspect assigns.config_styles}")
 
     ~H"""
     <div class={"card bg-base-100 #{@class}"}>
@@ -55,7 +55,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
           <WorldMap.render
             marker_groups={@processed_groups}
             colours={@background}
-            group_styles={@styles}
+            group_styles={@config_styles}
           />
         </div>
 
@@ -117,11 +117,13 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   # Helper functions
 
-  defp process_marker_groups(marker_groups, styles) do
+  #   `marker_groups` is a list of maps
+  #   `style_key` is an atom denoting a style preset defined in Themes.style_definitions/0
+  #   `config_styles` is an assign
+  defp process_marker_groups(marker_groups, config_styles) do
     Enum.map(marker_groups, fn group ->
-      style_key = Map.get(group, :style_key)
-      style = Map.get(styles, style_key, %{color: "#888888", animated: false, label: "Unknown", base_size: 6, gradient: false, animation: :none})
-
+      style_key = Map.get(group, :style_key, :primary)
+      style = Map.get(config_styles, style_key)
       nodes = Map.get(group, :nodes, [])
 
       %{
