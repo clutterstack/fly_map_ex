@@ -1,18 +1,21 @@
 # FlyMapEx
 
-A Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
+A Phoenix LiveView library for displaying a world map with styled markers for groups of 
+"nodes." 
+
+Includes utilities for ingesting Fly.io region markers.
 
 ## Overview
 
-FlyMapEx provides Phoenix components and utilities for visualizing node deployments across Fly.io regions with different marker styles, animations, and legends. Perfect for monitoring distributed applications and deployment status visualization.
+FlyMapEx provides Phoenix components and utilities for visualizing node deployments across Fly.io regions with different marker styles, animations, and legends.
 
 ## Features
 
-- Interactive SVG world map with Fly.io region coordinates
+- SVG world map 
+- Accepts Fly.io region codes or `{lat, long}` tuples
 - Multiple marker types with configurable colors and animations
-- Built-in legends and progress tracking
+- Built-in legends
 - Phoenix LiveView compatible
-- Responsive design
 - Predefined themes and color schemes
 - Custom styling support
 
@@ -33,29 +36,17 @@ end
 ### Basic Usage
 
 ```heex
-<FlyMapEx.render region_groups={[
+<FlyMapEx.render marker_groups={[
   %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
   %{regions: ["fra", "ams"], style_key: :active, label: "Active Regions"}
 ]} />
-```
-
-### With Progress Tracking
-
-```heex
-<FlyMapEx.render
-  region_groups={[
-    %{regions: ["sjc", "fra"], style_key: :expected},
-    %{regions: ["sjc"], style_key: :acknowledged}
-  ]}
-  show_progress={true}
-/>
 ```
 
 ### With Themes
 
 ```heex
 <FlyMapEx.render
-  region_groups={[%{regions: ["sjc"], style_key: :primary}]}
+  marker_groups={[%{regions: ["sjc"], style_key: :primary}]}
   theme={:dashboard}
 />
 ```
@@ -64,8 +55,8 @@ end
 
 ```heex
 <FlyMapEx.render
-  region_groups={[%{regions: ["sjc"], style_key: :primary}]}
-  colors={%{primary: "#00ff00"}}
+  marker_groups={[%{regions: ["sjc"], style_key: :primary}]}
+  colours={%{primary: "#00ff00"}}
   class="my-custom-map"
 />
 ```
@@ -78,13 +69,11 @@ The main entry point component that renders a complete world map with regions, l
 
 #### Attributes
 
-- `region_groups` - List of region group maps, each containing:
+- `marker_groups` - List of marker group maps, each containing:
   - `regions` - List of region codes for this group
   - `style_key` - Atom referencing a style from group_styles config (e.g., :primary, :active)
   - `label` - Display label for this group (optional, falls back to style label)
-- `show_progress` - Whether to show acknowledgment progress bar (default: false)
 - `colors` - Map of color overrides (optional)
-- `dimensions` - Map with width/height overrides (optional)
 - `class` - Additional CSS classes for the container
 - `legend_config` - Map with legend customization options
 - `group_styles` - Map of custom group styles (optional, uses theme defaults)
@@ -103,10 +92,7 @@ Map with card wrapper, legend, and progress tracking.
 ### Themes
 
 FlyMapEx includes several predefined themes:
-
-- `:dashboard` - Compact theme for dashboard widgets
-- `:monitoring` - Default theme for monitoring applications
-- `:presentation` - Large theme for presentations and displays
+- `:light` - Light theme
 - `:minimal` - Clean minimal theme
 - `:dark` - Dark theme
 
@@ -152,12 +138,11 @@ Configuration presets and themes:
 
 - `color_scheme/1` - Get predefined color schemes
 - `group_styles/0` - Get marker style configurations
-- `dimensions/1` - Get predefined dimension configurations
 - `theme/1` - Get complete theme configurations
 
 ### FlyMapEx.Adapters
 
-Data transformation helpers for converting various data formats to the expected region group format.
+Data transformation helpers for converting various data formats to the expected marker group format.
 
 ## Supported Fly.io Regions
 
@@ -197,14 +182,14 @@ def mount(_params, _session, socket) do
 end
 
 def handle_info({:machines_updated, {:ok, machines}}, socket) do
-  # Convert to region groups for display
-  region_groups = FlyMapEx.Adapters.from_machine_tuples(
+  # Convert to marker groups for display
+  marker_groups = FlyMapEx.Adapters.from_machine_tuples(
     machines, 
     "Running Machines", 
     :primary
   )
   
-  socket = assign(socket, region_groups: region_groups)
+  socket = assign(socket, marker_groups: marker_groups)
   {:noreply, socket}
 end
 ```
@@ -218,8 +203,8 @@ Parse Fly.io DNS TXT records containing machine data:
 machines = FlyMapEx.Adapters.from_fly_dns_txt("683d314fdd4d68 yyz,568323e9b54dd8 lhr")
 # Returns: [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}]
 
-# Convert to region groups with counts
-region_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :primary)
+# Convert to marker groups with counts
+marker_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :primary)
 # Returns: [
 #   %{regions: ["yyz"], style_key: :primary, label: "Active (1)"},
 #   %{regions: ["lhr"], style_key: :primary, label: "Active (1)"}

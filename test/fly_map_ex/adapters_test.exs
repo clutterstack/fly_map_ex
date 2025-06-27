@@ -29,7 +29,7 @@ defmodule FlyMapEx.AdaptersTest do
   end
 
   describe "from_machine_tuples/3" do
-    test "converts machine tuples to region groups" do
+    test "converts machine tuples to marker groups" do
       machines = [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}, {"abc123", "yyz"}]
 
       result = Adapters.from_machine_tuples(machines, "Running Machines")

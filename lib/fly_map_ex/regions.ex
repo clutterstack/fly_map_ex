@@ -7,41 +7,41 @@ defmodule FlyMapEx.Regions do
   """
 
   @regions %{
-    ams: {5, 52},
-    iad: {-77, 39},
-    atl: {-84, 34},
-    bog: {-74, 5},
-    bos: {-71, 42},
-    otp: {26, 45},
-    ord: {-88, 42},
-    dfw: {-97, 33},
-    den: {-105, 40},
-    eze: {-59, -35},
-    fra: {9, 50},
-    gdl: {-103, 21},
-    hkg: {114, 22},
-    jnb: {28, -26},
-    lhr: {0, 51},
-    lax: {-118, 34},
-    mad: {-4, 40},
-    mia: {-80, 26},
-    yul: {-74, 45},
-    bom: {73, 19},
-    cdg: {3, 49},
-    phx: {-112, 33},
-    qro: {-100, 21},
-    gig: {-43, -23},
-    sjc: {-122, 37},
-    scl: {-71, -33},
-    gru: {-46, -23},
-    sea: {-122, 47},
-    ewr: {-74, 41},
-    sin: {104, 1},
-    arn: {18, 60},
-    syd: {151, -34},
-    nrt: {140, 36},
-    yyz: {-80, 44},
-    waw: {21, 52}
+    ams: {52, 5},
+    iad: {39, -77},
+    atl: {34, -84},
+    bog: {5, -74},
+    bos: {42, -71},
+    otp: {45, 26},
+    ord: {42, -88},
+    dfw: {33, -97},
+    den: {40, -105},
+    eze: {-35, -59},
+    fra: {50, 9},
+    gdl: {21, -103},
+    hkg: {22, 114},
+    jnb: {-26, 28},
+    lhr: {51, 0},
+    lax: {34, -118},
+    mad: {40, -4},
+    mia: {26, -80},
+    yul: {45, -74},
+    bom: {19, 73},
+    cdg: {49, 3},
+    phx: {33, -112},
+    qro: {21, -100},
+    gig: {-23, -43},
+    sjc: {37, -122},
+    scl: {-33, -71},
+    gru: {-23, -46},
+    sea: {47, -122},
+    ewr: {41, -74},
+    sin: {1, 104},
+    arn: {60, 18},
+    syd: {-34, 151},
+    nrt: {36, 140},
+    yyz: {44, -80},
+    waw: {52, 21}
   }
 
   @region_names %{
@@ -127,7 +127,7 @@ defmodule FlyMapEx.Regions do
       region_atom = String.to_existing_atom(region)
 
       case @regions[region_atom] do
-        {long, lat} -> {long, lat}
+        {lat, long} -> {lat, long}
         nil -> handle_special_region(region)
       end
     rescue

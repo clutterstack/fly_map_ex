@@ -58,29 +58,6 @@ defmodule FlyMapEx.Adapters do
 
   def from_machines(_, _), do: []
 
-  @doc """
-  Extract regions from a list of acknowledgment or response data.
-
-  Useful for tracking which regions have responded to requests or acknowledged
-  messages in distributed systems.
-
-  ## Examples
-
-      iex> acks = [%{node_id: "machine-sjc-1", status: :ok}, %{node_id: "machine-fra-2", status: :ok}]
-      iex> FlyMapEx.Adapters.from_acknowledgments(acks, :node_id)
-      ["sjc", "fra"]
-  """
-  def from_acknowledgments(acks, node_id_key \\ :node_id)
-
-  def from_acknowledgments(acks, node_id_key) when is_list(acks) do
-    acks
-    |> Enum.map(&get_region_from_map(&1, node_id_key))
-    |> Enum.map(&extract_region_from_node_id/1)
-    |> Enum.reject(&(&1 in ["unknown", "", nil]))
-    |> Enum.uniq()
-  end
-
-  def from_acknowledgments(_, _), do: []
 
   @doc """
   Create region lists for common deployment patterns.
@@ -132,9 +109,9 @@ defmodule FlyMapEx.Adapters do
   def deployment_regions(_), do: %{our_regions: [], active_regions: [], expected_regions: [], ack_regions: []}
 
   @doc """
-  Convert deployment data to region groups format.
+  Convert deployment data to marker groups format.
 
-  Creates a list of region groups suitable for the new FlyMapEx API.
+  Creates a list of marker groups suitable for the new FlyMapEx API.
 
   ## Examples
 
@@ -144,7 +121,7 @@ defmodule FlyMapEx.Adapters do
       ...>   healthy_regions: ["sjc", "fra"],
       ...>   acknowledged_regions: ["sjc"]
       ...> }
-      iex> FlyMapEx.Adapters.to_region_groups(deployment)
+      iex> FlyMapEx.Adapters.to_marker_groups(deployment)
       [
         %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
         %{regions: ["fra"], style_key: :active, label: "Active Regions"},
@@ -152,9 +129,9 @@ defmodule FlyMapEx.Adapters do
         %{regions: ["sjc"], style_key: :acknowledged, label: "Acknowledged"}
       ]
   """
-  def to_region_groups(deployment) when is_map(deployment) do
+  def to_marker_groups(deployment) when is_map(deployment) do
     regions_data = deployment_regions(deployment)
-    
+
     [
       %{regions: regions_data.our_regions, style_key: :primary, label: "Our Node"},
       %{regions: regions_data.active_regions, style_key: :active, label: "Active Regions"},
@@ -164,12 +141,12 @@ defmodule FlyMapEx.Adapters do
     |> Enum.reject(fn group -> Enum.empty?(group.regions) end)
   end
 
-  def to_region_groups(_), do: []
+  def to_marker_groups(_), do: []
 
   @doc """
-  Create custom region groups from a specification.
+  Create custom marker groups from a specification.
 
-  Allows full customization of region groups with custom style keys and labels.
+  Allows full customization of marker groups with custom style keys and labels.
 
   ## Examples
 
@@ -178,29 +155,29 @@ defmodule FlyMapEx.Adapters do
       ...>   {["fra", "ams"], :secondary, "Secondary Regions"},
       ...>   {["lhr"], :monitoring, "Monitoring Node"}
       ...> ]
-      iex> FlyMapEx.Adapters.create_region_groups(groups_spec)
+      iex> FlyMapEx.Adapters.create_marker_groups(groups_spec)
       [
         %{regions: ["sjc"], style_key: :primary, label: "Primary Deployment"},
         %{regions: ["fra", "ams"], style_key: :secondary, label: "Secondary Regions"},
         %{regions: ["lhr"], style_key: :monitoring, label: "Monitoring Node"}
       ]
   """
-  def create_region_groups(groups_spec) when is_list(groups_spec) do
+  def create_marker_groups(groups_spec) when is_list(groups_spec) do
     Enum.map(groups_spec, fn
       {regions, style_key, label} when is_list(regions) ->
         %{regions: regions, style_key: style_key, label: label}
-      
+
       {regions, style_key} when is_list(regions) ->
         %{regions: regions, style_key: style_key}
-        
+
       %{} = group -> group
-      
+
       _ -> %{regions: [], style_key: :unknown, label: "Unknown"}
     end)
     |> Enum.reject(fn group -> Enum.empty?(Map.get(group, :regions, [])) end)
   end
 
-  def create_region_groups(_), do: []
+  def create_marker_groups(_), do: []
 
   @doc """
   Filter regions to only include valid Fly.io regions.
@@ -247,10 +224,10 @@ defmodule FlyMapEx.Adapters do
   def from_fly_dns_txt(_), do: []
 
   @doc """
-  Convert machine tuples to region groups.
+  Convert machine tuples to marker groups.
 
   Takes a list of {machine_id, region} tuples and converts them to FlyMapEx
-  region groups format, optionally grouping by region or keeping separate.
+  marker groups format, optionally grouping by region or keeping separate.
 
   ## Examples
 
@@ -276,7 +253,7 @@ defmodule FlyMapEx.Adapters do
     |> Enum.map(fn {region, machines} ->
       count = length(machines)
       label_with_count = "#{label} (#{count})"
-      
+
       %{
         regions: [region],
         style_key: style_key,
@@ -329,13 +306,13 @@ defmodule FlyMapEx.Adapters do
       [machine_id, region] ->
         machine_id = String.trim(machine_id)
         region = String.trim(region)
-        
+
         if machine_id != "" and region != "" do
           {machine_id, region}
         else
           nil
         end
-      
+
       _ -> nil
     end
   end

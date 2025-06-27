@@ -24,25 +24,25 @@ defmodule Demo.MachineDiscovery do
   """
   def discover_machines(app_name) when is_binary(app_name) do
     dns_name = String.to_charlist("vms.#{app_name}.internal")
-    
+
     case :inet_res.lookup(dns_name, :in, :txt) do
       [] ->
         Logger.debug("No TXT records found for #{app_name}")
         {:error, :no_machines_found}
-      
+
       records when is_list(records) ->
-        txt_content = 
+        txt_content =
           records
           |> Enum.map(&parse_txt_record/1)
           |> Enum.join("")
-        
+
         machines = FlyMapEx.Adapters.from_fly_dns_txt(txt_content)
-        
+
         case machines do
           [] -> {:error, :no_machines_found}
           machines -> {:ok, machines}
         end
-      
+
       {:error, reason} ->
         Logger.warning("DNS lookup failed for #{app_name}: #{inspect(reason)}")
         {:error, reason}
@@ -69,25 +69,25 @@ defmodule Demo.MachineDiscovery do
   """
   def discover_apps() do
     dns_name = ~c"_apps.internal"
-    
+
     case :inet_res.lookup(dns_name, :in, :txt) do
       [] ->
         Logger.debug("No TXT records found for _apps.internal")
         {:error, :no_apps_found}
-      
+
       records when is_list(records) ->
-        txt_content = 
+        txt_content =
           records
           |> Enum.map(&parse_txt_record/1)
           |> Enum.join("")
-        
+
         apps = parse_apps_list(txt_content)
-        
+
         case apps do
           [] -> {:error, :no_apps_found}
           apps -> {:ok, apps}
         end
-      
+
       {:error, reason} ->
         Logger.warning("DNS lookup failed for _apps.internal: #{inspect(reason)}")
         {:error, reason}
@@ -120,10 +120,10 @@ defmodule Demo.MachineDiscovery do
   def discover_all_apps(_), do: %{}
 
   @doc """
-  Convert app machines data to region groups for FlyMapEx.
+  Convert app machines data to marker groups for FlyMapEx.
 
   Takes a map of app names to machine discovery results and converts them
-  to FlyMapEx region groups format with distinct styling for each app.
+  to FlyMapEx marker groups format with distinct styling for each app.
 
   ## Examples
 
@@ -139,22 +139,22 @@ defmodule Demo.MachineDiscovery do
   """
   def from_app_machines(app_machines) when is_map(app_machines) do
     style_keys = [:primary, :active, :secondary, :warning, :expected, :acknowledged, :inactive]
-    
+
     app_machines
     |> Enum.with_index()
-    |> Enum.filter(fn {{_app, result}, _index} -> 
+    |> Enum.filter(fn {{_app, result}, _index} ->
       match?({:ok, [_ | _]}, result)
     end)
     |> Enum.map(fn {{app_name, {:ok, machines}}, index} ->
       regions = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
       style_key = Enum.at(style_keys, rem(index, length(style_keys)))
       machine_count = length(machines)
-      
+
       label = case machine_count do
         1 -> "#{app_name} (1 machine)"
         n -> "#{app_name} (#{n} machines)"
       end
-      
+
       %{
         regions: regions,
         style_key: style_key,
@@ -215,7 +215,7 @@ defmodule Demo.MachineDiscovery do
   defp periodic_discovery_loop(app_name, target_pid, interval_ms) do
     result = discover_machines(app_name)
     send(target_pid, {:machines_updated, result})
-    
+
     Process.sleep(interval_ms)
     periodic_discovery_loop(app_name, target_pid, interval_ms)
   end

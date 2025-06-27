@@ -15,7 +15,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:available_apps, [])
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
-      |> assign(:region_groups, [])
+      |> assign(:marker_groups, [])
       |> assign(:all_machines, [])
       |> assign(:last_updated, nil)
       |> assign(:error, nil)
@@ -103,7 +103,7 @@ defmodule DemoWeb.MachineMapLive do
       socket = assign(socket, :machines_loading, true)
 
       app_machines = MachineDiscovery.discover_all_apps(selected_apps)
-      region_groups = MachineDiscovery.from_app_machines(app_machines)
+      marker_groups = MachineDiscovery.from_app_machines(app_machines)
 
       all_machines =
         app_machines
@@ -117,7 +117,7 @@ defmodule DemoWeb.MachineMapLive do
       socket =
         socket
         |> assign(:app_machines, app_machines)
-        |> assign(:region_groups, region_groups)
+        |> assign(:marker_groups, marker_groups)
         |> assign(:all_machines, all_machines)
         |> assign(:machines_loading, false)
         |> assign(:last_updated, DateTime.utc_now())
@@ -169,7 +169,7 @@ defmodule DemoWeb.MachineMapLive do
                 </svg>
                 Discovering...
               <% else %>
-                Discover Apps
+                Select Apps
               <% end %>
             </button>
 
@@ -185,7 +185,7 @@ defmodule DemoWeb.MachineMapLive do
                 </svg>
                 Refreshing...
               <% else %>
-                Refresh Machines
+                Update Map
               <% end %>
             </button>
           </div>
@@ -263,8 +263,7 @@ defmodule DemoWeb.MachineMapLive do
       <!-- World Map -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <FlyMapEx.render
-          region_groups={@region_groups}
-          theme={:monitoring}
+          marker_groups={@marker_groups}
           class="machine-map"
         />
       </div>
@@ -295,7 +294,7 @@ defmodule DemoWeb.MachineMapLive do
           <!-- Machines by App -->
           <div class="space-y-4">
             <h3 class="text-lg font-medium">Machines by App</h3>
-            <%= for group <- @region_groups do %>
+            <%= for group <- @marker_groups do %>
               <div class="border rounded-lg p-4">
                 <div class="flex items-center mb-2">
                   <span
@@ -362,7 +361,7 @@ defmodule DemoWeb.MachineMapLive do
   end
 
   defp get_style_color(style_key) do
-    style_colors = %{
+    style_colours = %{
       primary: "#77b5fe",
       active: "#ffdc66",
       secondary: "#28a745",
@@ -372,7 +371,19 @@ defmodule DemoWeb.MachineMapLive do
       inactive: "#6c757d"
     }
 
-    Map.get(style_colors, style_key, "#888888")
+    Map.get(style_colours, style_key, "#888888")
+  end
+
+  # A group has to be a map?
+
+  defp fly_region_group do
+    for {region_atom, coords} <- Regions.all() #  %{ams: {5, 52}, iad: {-77, 39}, ...}
+      region_string = Atom.to_string(region_atom)
+      svg_coords = wgs84_to_svg(coords, @bbox)
+      {region_string, svg_coords}
+    end
+
+    %{style:}
   end
 
 end

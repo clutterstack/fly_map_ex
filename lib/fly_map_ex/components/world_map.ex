@@ -9,17 +9,16 @@ defmodule FlyMapEx.Components.WorldMap do
 
   alias FlyMapEx.Regions
   alias FlyMapEx.WorldMapPaths
-  alias FlyMapEx.Nodes
 
-  # Default map dimensions and styling
-  @default_bbox {0, 0, 800, 391}
-  @default_minx 0
-  @default_miny 10
-  @default_width 800
-  @default_height 320
+  # Map dims determined by svg and some cropping
+  @bbox {0, 0, 800, 391}
+  @minx 0
+  @miny 10
+  @width 800
+  @height 320
 
   # Default color scheme
-  @default_colours %{
+  @colours %{
     our_nodes: "#77b5fe",      # Blue for our nodes
     active_nodes: "#ffdc66",   # Yellow for active nodes
     expected_nodes: "#ff8c42", # Orange for expected nodes
@@ -33,42 +32,36 @@ defmodule FlyMapEx.Components.WorldMap do
 
   ## Attributes
 
-  * `region_groups` - List of processed node groups with styles
+  * `marker_groups` - List of processed node groups with styles
   * `colours` - Map of color overrides (optional)
-  * `dimensions` - Map with width/height overrides (optional)
   * `group_styles` - Map of group styles configuration (optional)
   * `id` - HTML id for the SVG element (default: "fly-region-map")
   """
-  attr :region_groups, :list, default: []
+  attr :marker_groups, :list, default: []
   attr :colours, :map, default: %{}
-  attr :dimensions, :map, default: %{}
   attr :group_styles, :map, default: %{}
   attr :id, :string, default: "fly-region-map"
 
   def render(assigns) do
     # Merge user colours with defaults
-    colours = Map.merge(@default_colours, assigns.colours)
-
-    # Setup dimensions
-    {minx, miny, width, height} = get_dimensions(assigns.dimensions)
-    viewbox = "#{minx} #{miny} #{width} #{height}"
+    colours = Map.merge(@colours, assigns.colours)
 
     # Generate gradients for all groups with gradients enabled
-    gradient_groups = Enum.filter(assigns.region_groups, fn group -> 
-      Map.get(group.style, :gradient, false) 
+    gradient_groups = Enum.filter(assigns.marker_groups, fn group ->
+      Map.get(group.style, :gradient, false)
     end)
 
     assigns = assign(assigns, %{
       colours: colours,
-      minx: minx,
-      miny: miny,
-      width: width,
-      height: height,
-      viewbox: viewbox,
+      minx: @minx,
+      miny: @miny,
+      width: @width,
+      height: @height,
+      viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
       gradient_groups: gradient_groups,
-      bbox: {minx, miny, width, height},
-      toppath: "M #{minx + 1} #{miny + 0.5} H #{width - 0.5}",
-      btmpath: "M #{minx + 1} #{miny + height - 1} H #{width - 0.5}"
+      bbox: {@minx, @miny, @width, @height},
+      toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
+      btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}"
     })
 
     ~H"""
@@ -83,9 +76,9 @@ defmodule FlyMapEx.Components.WorldMap do
         <!-- Dynamic gradients for groups with gradient enabled -->
         <%= for group <- @gradient_groups do %>
           <radialGradient id={"#{group.style_key}Gradient"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="40%" stop-color={group.style.color} stop-opacity="1" />
-            <stop offset="70%" stop-color={group.style.color} stop-opacity="0.7" />
-            <stop offset="100%" stop-color={group.style.color} stop-opacity="0.2" />
+            <stop offset="40%" stop-color={group.style.colour} stop-opacity="1" />
+            <stop offset="70%" stop-color={group.style.colour} stop-opacity="0.7" />
+            <stop offset="100%" stop-color={group.style.colour} stop-opacity="0.2" />
           </radialGradient>
         <% end %>
       </defs>
@@ -120,7 +113,7 @@ defmodule FlyMapEx.Components.WorldMap do
         }
       </style>
 
-      <!-- World map background -->
+      <!-- World map svg from WorldMapPaths component -->
       <WorldMapPaths.render colours={@colours} />
 
       <!-- Map borders -->
@@ -136,9 +129,9 @@ defmodule FlyMapEx.Components.WorldMap do
       <% end %>
 
       <!-- Dynamic node group markers -->
-      <%= for group <- @region_groups do %>
+      <%= for group <- @marker_groups do %>
         <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
-          <%= render_marker(group, x, y) %>
+          <%= render_marker(group.style, x, y) %>
         <% end %>
       <% end %>
     </svg>
@@ -147,19 +140,12 @@ defmodule FlyMapEx.Components.WorldMap do
 
   # Private functions
 
-  defp get_dimensions(user_dimensions) do
-    width = Map.get(user_dimensions, :width, @default_width)
-    height = Map.get(user_dimensions, :height, @default_height)
-    minx = Map.get(user_dimensions, :minx, @default_minx)
-    miny = Map.get(user_dimensions, :miny, @default_miny)
 
-    {minx, miny, width, height}
-  end
 
   defp node_coordinates(nodes, bbox) when is_list(nodes) do
     nodes
     |> Enum.map(&extract_coordinates/1)
-    |> Enum.map(&Nodes.wgs84_to_svg(&1, bbox))
+    |> Enum.map(&wgs84_to_svg(&1, bbox))
   end
 
   defp extract_coordinates(%{coordinates: coords}), do: coords
@@ -167,15 +153,26 @@ defmodule FlyMapEx.Components.WorldMap do
     Regions.coordinates(region_code)
   end
 
+  # Group of form
+  #   %{
+  #     style: %{
+  #               base_size: 6,
+  #               animation: :none,
+  #               gradient: false,
+  #               style_key: :primary,
+  #               colour:
+  #             },
+  #     nodes:
+
   defp render_marker(group, x, y) do
     base_size = Map.get(group.style, :base_size, 6)
     animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)
-    
+
     fill = if gradient do
       "url(##{group.style_key}Gradient)"
     else
-      group.style.color
+      group.style.colour
     end
 
     case animation do
@@ -215,18 +212,18 @@ defmodule FlyMapEx.Components.WorldMap do
   defp region_coordinates(regions) do
     regions
     |> Enum.map(&Regions.coordinates/1)
-    |> Enum.map(&wgs84_to_svg(&1, @default_bbox))
+    |> Enum.map(&wgs84_to_svg(&1, @bbox))
   end
 
   defp all_regions_with_coords do
     for {region_atom, coords} <- Regions.all() do
       region_string = Atom.to_string(region_atom)
-      svg_coords = wgs84_to_svg(coords, @default_bbox)
+      svg_coords = wgs84_to_svg(coords, @bbox)
       {region_string, svg_coords}
     end
   end
 
-  defp wgs84_to_svg({long, lat}, {x_min, y_min, x_max, y_max}) do
+  defp wgs84_to_svg({lat, long}, {x_min, y_min, x_max, y_max}) do
     svg_width = x_max - x_min
     svg_height = y_max - y_min
 

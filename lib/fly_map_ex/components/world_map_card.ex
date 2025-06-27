@@ -4,7 +4,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   Wraps the WorldMap component with additional UI elements including:
   - Interactive region legends with color coding
-  - Optional acknowledgment progress bar
   - Card styling and responsive layout
   """
 
@@ -14,33 +13,28 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   alias FlyMapEx.Components.WorldMap
   alias FlyMapEx.Regions
-  alias FlyMapEx.Nodes
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
 
   ## Attributes
 
-  * `region_groups` - List of region/node group maps, each containing:
-    * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, lng}}
+  * `marker_groups` - List of region/node group maps, each containing:
+    * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
     * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
     * `label` - Display label for this group
-  * `show_progress` - Whether to show the acknowledgment progress bar (default: false)
-  * `dimensions` - Map with width, height, and positioning
-  * `background` - Map with background and border colors
+  * `background` - Map with background and border colours
   * `styles` - Map of available styles
   * `class` - Additional CSS classes for the card container
   """
-  attr :region_groups, :list, default: []
-  attr :show_progress, :boolean, default: false
-  attr :dimensions, :map, default: %{}
+  attr :marker_groups, :list, default: []
   attr :background, :map, default: %{}
   attr :styles, :map, default: %{}
   attr :class, :string, default: ""
 
   def render(assigns) do
-    # Process region groups and build data structures for rendering
-    processed_groups = process_region_groups(assigns.region_groups, assigns.styles)
+    # Process marker groups and build data structures for rendering
+    processed_groups = process_marker_groups(assigns.marker_groups, assigns.styles)
 
     # Extract progress information for pending vs completed groups
     pending_regions = find_regions_by_style(processed_groups, [:pending, :warning])
@@ -52,40 +46,17 @@ defmodule FlyMapEx.Components.WorldMapCard do
       completed_regions: completed_regions
     })
 
-    Logger.debug("@styles: #{inspect assigns.styles}")
+    # Logger.debug("@styles: #{inspect assigns.styles}")
 
     ~H"""
     <div class={"card bg-base-100 #{@class}"}>
       <div class="card-body">
         <div class="rounded-lg border overflow-hidden" style={"background-color: #{@background.land}"}>
           <WorldMap.render
-            region_groups={@processed_groups}
-            dimensions={@dimensions}
+            marker_groups={@processed_groups}
             colours={@background}
             group_styles={@styles}
           />
-        </div>
-
-        <!-- Progress Tracking (only shown when requested) -->
-        <div :if={@show_progress} class="mb-4">
-          <div class="flex items-center justify-between text-sm mb-2">
-            <span>Progress:</span>
-            <div class="flex items-center gap-2 text-sm">
-              <span class="badge badge-success badge-sm">
-                {length(@completed_regions)} completed
-              </span>
-              <span class="badge badge-warning badge-sm">
-                {length(@pending_regions)} pending
-              </span>
-            </div>
-          </div>
-          <div class="w-full bg-base-300 rounded-full h-2">
-            <div
-              class="h-2 rounded-full bg-gradient-to-r from-orange-500 to-emerald-500 transition-all duration-500"
-              style={"width: #{calculate_progress_percentage(@pending_regions, @completed_regions)}%"}
-            >
-            </div>
-          </div>
         </div>
 
         <!-- Enhanced Legend -->
@@ -101,7 +72,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
             <div class="flex-shrink-0 mt-1">
               <span
                 class={"inline-block w-3 h-3 rounded-full #{if group.style.animated, do: "animate-pulse"}"}
-                style={"background-color: #{group.style.color};"}
+                style={"background-color: #{group.style.colour};"}
               >
               </span>
             </div>
@@ -146,13 +117,13 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   # Helper functions
 
-  defp process_region_groups(region_groups, styles) do
-    Enum.map(region_groups, fn group ->
+  defp process_marker_groups(marker_groups, styles) do
+    Enum.map(marker_groups, fn group ->
       style_key = Map.get(group, :style_key)
       style = Map.get(styles, style_key, %{color: "#888888", animated: false, label: "Unknown", base_size: 6, gradient: false, animation: :none})
 
       nodes = Map.get(group, :nodes, [])
-      
+
       %{
         nodes: nodes,
         style_key: style_key,
@@ -190,21 +161,12 @@ defmodule FlyMapEx.Components.WorldMapCard do
   # Try to find region code by checking if label matches a known region name
   defp find_region_code_by_coordinates(label) do
     Regions.all()
-    |> Enum.find(fn {code, _coords} -> 
-      Regions.name(Atom.to_string(code)) == label 
+    |> Enum.find(fn {code, _coords} ->
+      Regions.name(Atom.to_string(code)) == label
     end)
     |> case do
       {code, _coords} -> Atom.to_string(code)
       nil -> nil
-    end
-  end
-
-  defp calculate_progress_percentage(pending_regions, completed_regions) do
-    total_regions = length(pending_regions) + length(completed_regions)
-    if total_regions > 0 do
-      round(length(completed_regions) / total_regions * 100)
-    else
-      0
     end
   end
 
@@ -227,21 +189,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
     region_display_name(region_code)
   end
   defp node_display_name(_), do: nil
-
-  defp format_regions_display(regions, empty_message) do
-    # Filter out empty/unknown regions and convert to display names
-    display_regions =
-      regions
-      |> Enum.reject(&(&1 in ["", "unknown"]))
-      |> Enum.map(&region_display_name/1)
-      |> Enum.reject(&is_nil/1)
-
-    if display_regions != [] do
-      "(#{Enum.join(display_regions, ", ")})"
-    else
-      empty_message
-    end
-  end
 
   defp region_display_name(region) do
     case Regions.name(region) do

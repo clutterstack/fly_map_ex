@@ -37,8 +37,7 @@ defmodule FlyMapEx.MixProject do
     A Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
 
     Provides Phoenix components and utilities for visualizing node deployments across Fly.io regions
-    with different marker styles, animations, and legends. Perfect for monitoring distributed applications
-    and deployment status visualization.
+    with different marker styles, animations, and legends.
     """
   end
 

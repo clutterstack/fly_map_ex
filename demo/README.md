@@ -5,7 +5,7 @@ This Phoenix LiveView application demonstrates real-time machine discovery and v
 ## Features
 
 - **Real-time Machine Discovery**: Uses Fly.io's internal DNS to discover running machines every 30 seconds
-- **Interactive World Map**: Shows machines as markers on a world map with region grouping
+- **Interactive World Map**: Shows machines as markers on a world map with marker grouping
 - **Live Updates**: Automatically updates the map when machines are added/removed
 - **Error Handling**: Gracefully handles DNS lookup failures and missing apps
 
@@ -44,9 +44,9 @@ def mount(_params, _session, socket) do
 end
 
 def handle_info({:machines_updated, {:ok, machines}}, socket) do
-  # Convert machines to region groups for FlyMapEx
-  region_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Running Machines", :primary)
-  socket = assign(socket, region_groups: region_groups)
+  # Convert machines to marker groups for FlyMapEx
+  marker_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Running Machines", :primary)
+  socket = assign(socket, marker_groups: marker_groups)
   {:noreply, socket}
 end
 ```
@@ -55,8 +55,7 @@ end
 
 ```heex
 <FlyMapEx.render
-  region_groups={@region_groups}
-  theme={:monitoring}
+  marker_groups={@marker_groups}
   class="machine-map"
 />
 ```

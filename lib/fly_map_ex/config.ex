@@ -29,8 +29,8 @@ defmodule FlyMapEx.Config do
       iex> FlyMapEx.Config.style_definitions()[:primary]
       %{color: "#3b82f6", animated: true, label: "Primary", base_size: 6, gradient: false}
 
-      # Create region groups with semantic styles
-      region_groups = [
+      # Create marker groups with semantic styles
+      marker_groups = [
         %{regions: ["sjc", "fra"], style_key: :active, label: "Running Machines"},
         %{regions: ["lhr"], style_key: :inactive, label: "Stopped Machines"}
       ]
@@ -274,24 +274,24 @@ defmodule FlyMapEx.Config do
   end
 
   @doc """
-  Helper function to easily create region groups with semantic styling.
+  Helper function to easily create marker groups with semantic styling.
 
   Takes a list of tuples {label, regions, style_key} and returns properly
-  formatted region groups for use with FlyMapEx components.
+  formatted marker groups for use with FlyMapEx components.
 
   ## Examples
 
       # Simple usage
-      groups = FlyMapEx.Config.build_region_groups([
+      groups = FlyMapEx.Config.build_marker_groups([
         {"Started Machines", ["sjc", "fra"], :success},
         {"Stopped Machines", ["lhr", "ams"], :inactive},
         {"Pending Restart", ["yyz"], :warning}
       ])
 
       # Usage with FlyMapEx
-      FlyMapEx.render(region_groups: groups, theme: :modern)
+      FlyMapEx.render(marker_groups: groups, theme: :modern)
   """
-  def build_region_groups(group_specs) when is_list(group_specs) do
+  def build_marker_groups(group_specs) when is_list(group_specs) do
     Enum.map(group_specs, fn
       {label, regions, style_key} when is_binary(label) and is_list(regions) and is_atom(style_key) ->
         %{
@@ -305,63 +305,6 @@ defmodule FlyMapEx.Config do
     end)
   end
 
-
-  @doc """
-  Get predefined dimension configurations.
-
-  ## Available Sizes
-
-  * `:compact` - Small size for widgets and dashboards
-  * `:standard` - Default medium size
-  * `:large` - Large size for detailed views
-  * `:fullscreen` - Maximum size for presentations
-
-  ## Examples
-
-      iex> FlyMapEx.Config.dimensions(:compact)
-      %{width: 400, height: 196, minx: 0, miny: 5}
-  """
-  def dimensions(:compact) do
-    %{
-      width: 400,
-      height: 196,
-      minx: 0,
-      miny: 5
-    }
-  end
-
-  def dimensions(:standard) do
-    %{
-      width: 800,
-      height: 320,
-      minx: 0,
-      miny: 10
-    }
-  end
-
-  def dimensions(:large) do
-    %{
-      width: 1200,
-      height: 480,
-      minx: 0,
-      miny: 15
-    }
-  end
-
-  def dimensions(:fullscreen) do
-    %{
-      width: 1600,
-      height: 640,
-      minx: 0,
-      miny: 20
-    }
-  end
-
-  # Legacy aliases for backward compatibility during transition
-  def dimensions(:small), do: dimensions(:compact)
-  def dimensions(:medium), do: dimensions(:standard)
-  def dimensions(:full), do: dimensions(:fullscreen)
-  def dimensions(_), do: dimensions(:standard)
 
   @doc """
   Get background and border color schemes for themes.
@@ -435,7 +378,7 @@ defmodule FlyMapEx.Config do
   Get a complete theme configuration.
 
   Themes now focus on visual styling and are label-agnostic.
-  Your region groups provide the labels and data.
+  Your marker groups provide the labels and data.
 
   ## Available Themes
 
@@ -444,41 +387,24 @@ defmodule FlyMapEx.Config do
   * `:large` - Large size for detailed views
   * `:dark` - Dark background theme
   * `:minimal` - Clean minimal theme
-  * `:modern` - Modern styling with cool colors
+  * `:modern` - Modern styling with cool colours
 
   ## Examples
 
       # Theme provides visual styling
       theme_config = FlyMapEx.Config.theme(:modern)
 
-      # Your region groups provide the data and labels
-      region_groups = [
+      # Your marker groups provide the data and labels
+      marker_groups = [
         %{regions: ["sjc"], style_key: :success, label: "Running"},
         %{regions: ["fra"], style_key: :inactive, label: "Stopped"}
       ]
 
       # Combine them
-      FlyMapEx.render(region_groups: region_groups, theme: :modern)
+      FlyMapEx.render(marker_groups: marker_groups, theme: :modern)
   """
-  def theme(:compact) do
+  def theme(:light) do
     %{
-      dimensions: dimensions(:compact),
-      background: background_scheme(:light),
-      styles: all_styles()
-    }
-  end
-
-  def theme(:standard) do
-    %{
-      dimensions: dimensions(:standard),
-      background: background_scheme(:light),
-      styles: all_styles()
-    }
-  end
-
-  def theme(:large) do
-    %{
-      dimensions: dimensions(:large),
       background: background_scheme(:light),
       styles: all_styles()
     }
@@ -486,7 +412,6 @@ defmodule FlyMapEx.Config do
 
   def theme(:dark) do
     %{
-      dimensions: dimensions(:standard),
       background: background_scheme(:dark),
       styles: all_styles()
     }
@@ -494,7 +419,6 @@ defmodule FlyMapEx.Config do
 
   def theme(:minimal) do
     %{
-      dimensions: dimensions(:standard),
       background: background_scheme(:minimal),
       styles: all_styles()
     }
@@ -502,17 +426,10 @@ defmodule FlyMapEx.Config do
 
   def theme(:modern) do
     %{
-      dimensions: dimensions(:standard),
       background: background_scheme(:cool),
       styles: all_styles()
     }
   end
-
-  # Legacy themes for backward compatibility during transition
-  def theme(:dashboard), do: theme(:compact)
-  def theme(:monitoring), do: theme(:standard)
-  def theme(:presentation), do: theme(:large)
-  def theme(_), do: theme(:standard)
 
   @doc """
   Apply a theme to a set of component attributes.
@@ -522,12 +439,10 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> attrs = %{region_groups: groups, show_progress: true}
+      iex> attrs = %{marker_groups: groups}
       iex> FlyMapEx.Config.apply_theme(attrs, :modern)
       %{
-        region_groups: groups,
-        show_progress: true,
-        dimensions: %{...},
+        marker_groups: groups,
         land: %{...},
         styles: %{...}
       }
