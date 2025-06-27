@@ -97,6 +97,36 @@ defmodule FlyMapEx.Style do
   end
   
   @doc """
+  Primary state style - blue, pulsing.
+  """
+  def primary(opts \\ []) do
+    custom("#2563eb", Keyword.merge([size: 8, animated: true, animation: :pulse, gradient: true], opts))
+  end
+  
+  @doc """
+  Expected state style - orange, pulsing.
+  Alias for warning style for backward compatibility.
+  """
+  def expected(opts \\ []) do
+    warning(opts)
+  end
+  
+  @doc """
+  Acknowledged state style - green, static.
+  Alias for success style for backward compatibility.
+  """
+  def acknowledged(opts \\ []) do
+    success(opts)
+  end
+  
+  @doc """
+  Secondary state style - teal, static.
+  """
+  def secondary(opts \\ []) do
+    custom("#14b8a6", Keyword.merge([size: 6, animated: false], opts))
+  end
+  
+  @doc """
   Normalize a style definition to ensure all required fields are present.
   
   Accepts either a keyword list or map, returns a normalized map.

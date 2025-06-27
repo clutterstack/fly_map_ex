@@ -21,7 +21,7 @@ defmodule FlyMapEx.Nodes do
       node_groups = [
         %{
           nodes: ["sjc", "fra"],  # Fly.io regions
-          style_key: :primary,
+          style: FlyMapEx.Style.primary(),
           label: "Legacy Regions"
         },
         %{
@@ -29,7 +29,7 @@ defmodule FlyMapEx.Nodes do
             %{label: "Custom Server", coordinates: {40.7128, -74.0060}},
             %{label: "Another Server", coordinates: {51.5074, -0.1278}}
           ],
-          style_key: :secondary,
+          style: FlyMapEx.Style.secondary(),
           label: "Custom Nodes"
         }
       ]

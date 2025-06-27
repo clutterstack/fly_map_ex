@@ -123,22 +123,22 @@ defmodule FlyMapEx.Adapters do
       ...> }
       iex> FlyMapEx.Adapters.to_marker_groups(deployment)
       [
-        %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
-        %{regions: ["fra"], style_key: :active, label: "Active Regions"},
-        %{regions: ["fra", "ams"], style_key: :expected, label: "Expected Regions"},
-        %{regions: ["sjc"], style_key: :acknowledged, label: "Acknowledged"}
+        %{nodes: ["sjc"], style: FlyMapEx.Style.primary(), label: "Our Node"},
+        %{nodes: ["fra"], style: FlyMapEx.Style.active(), label: "Active Regions"},
+        %{nodes: ["fra", "ams"], style: FlyMapEx.Style.expected(), label: "Expected Regions"},
+        %{nodes: ["sjc"], style: FlyMapEx.Style.acknowledged(), label: "Acknowledged"}
       ]
   """
   def to_marker_groups(deployment) when is_map(deployment) do
     regions_data = deployment_regions(deployment)
 
     [
-      %{regions: regions_data.our_regions, style_key: :primary, label: "Our Node"},
-      %{regions: regions_data.active_regions, style_key: :active, label: "Active Regions"},
-      %{regions: regions_data.expected_regions, style_key: :expected, label: "Expected Regions"},
-      %{regions: regions_data.ack_regions, style_key: :acknowledged, label: "Acknowledged"}
+      %{nodes: regions_data.our_regions, style: FlyMapEx.Style.primary(), label: "Our Node"},
+      %{nodes: regions_data.active_regions, style: FlyMapEx.Style.active(), label: "Active Regions"},
+      %{nodes: regions_data.expected_regions, style: FlyMapEx.Style.expected(), label: "Expected Regions"},
+      %{nodes: regions_data.ack_regions, style: FlyMapEx.Style.acknowledged(), label: "Acknowledged"}
     ]
-    |> Enum.reject(fn group -> Enum.empty?(group.regions) end)
+    |> Enum.reject(fn group -> Enum.empty?(group.nodes) end)
   end
 
   def to_marker_groups(_), do: []
@@ -157,24 +157,24 @@ defmodule FlyMapEx.Adapters do
       ...> ]
       iex> FlyMapEx.Adapters.create_marker_groups(groups_spec)
       [
-        %{regions: ["sjc"], style_key: :primary, label: "Primary Deployment"},
-        %{regions: ["fra", "ams"], style_key: :secondary, label: "Secondary Regions"},
-        %{regions: ["lhr"], style_key: :monitoring, label: "Monitoring Node"}
+        %{nodes: ["sjc"], style: FlyMapEx.Style.primary(), label: "Primary Deployment"},
+        %{nodes: ["fra", "ams"], style: FlyMapEx.Style.secondary(), label: "Secondary Regions"},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.info(), label: "Monitoring Node"}
       ]
   """
   def create_marker_groups(groups_spec) when is_list(groups_spec) do
     Enum.map(groups_spec, fn
-      {regions, style_key, label} when is_list(regions) ->
-        %{regions: regions, style_key: style_key, label: label}
+      {nodes, style_key, label} when is_list(nodes) ->
+        %{nodes: nodes, style: normalize_style(style_key), label: label}
 
-      {regions, style_key} when is_list(regions) ->
-        %{regions: regions, style_key: style_key}
+      {nodes, style_key} when is_list(nodes) ->
+        %{nodes: nodes, style: normalize_style(style_key)}
 
       %{} = group -> group
 
-      _ -> %{regions: [], style_key: :unknown, label: "Unknown"}
+      _ -> %{nodes: [], style: FlyMapEx.Style.info(), label: "Unknown"}
     end)
-    |> Enum.reject(fn group -> Enum.empty?(Map.get(group, :regions, [])) end)
+    |> Enum.reject(fn group -> Enum.empty?(Map.get(group, :nodes, [])) end)
   end
 
   def create_marker_groups(_), do: []
@@ -234,14 +234,14 @@ defmodule FlyMapEx.Adapters do
       iex> machines = [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}, {"123abc", "yyz"}]
       iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Running Machines")
       [
-        %{regions: ["yyz"], style_key: :primary, label: "Running Machines (2)"},
-        %{regions: ["lhr"], style_key: :primary, label: "Running Machines (1)"}
+        %{nodes: ["yyz"], style: FlyMapEx.Style.primary(), label: "Running Machines (2)", machine_count: 2},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.primary(), label: "Running Machines (1)", machine_count: 1}
       ]
 
       iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :active)
       [
-        %{regions: ["yyz"], style_key: :active, label: "Active (2)"},
-        %{regions: ["lhr"], style_key: :active, label: "Active (1)"}
+        %{nodes: ["yyz"], style: FlyMapEx.Style.active(), label: "Active (2)", machine_count: 2},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.active(), label: "Active (1)", machine_count: 1}
       ]
   """
   def from_machine_tuples(machine_tuples, label, style_key \\ :primary)
@@ -255,15 +255,33 @@ defmodule FlyMapEx.Adapters do
       label_with_count = "#{label} (#{count})"
 
       %{
-        regions: [region],
-        style_key: style_key,
-        label: label_with_count
+        nodes: [region],
+        style: normalize_style(style_key),
+        label: label_with_count,
+        machine_count: count
       }
     end)
-    |> Enum.reject(fn group -> Enum.empty?(group.regions) end)
+    |> Enum.reject(fn group -> Enum.empty?(group.nodes) end)
   end
 
   def from_machine_tuples(_, _label, _style_key), do: []
+
+  # Helper function to normalize style keys to style maps
+  defp normalize_style(style_key) when is_atom(style_key) do
+    case style_key do
+      :primary -> FlyMapEx.Style.primary()
+      :active -> FlyMapEx.Style.active()
+      :expected -> FlyMapEx.Style.warning()
+      :acknowledged -> FlyMapEx.Style.success()
+      :secondary -> FlyMapEx.Style.secondary()
+      :warning -> FlyMapEx.Style.warning()
+      :inactive -> FlyMapEx.Style.inactive()
+      _ -> FlyMapEx.Style.info()
+    end
+  end
+
+  defp normalize_style(style) when is_map(style), do: style
+  defp normalize_style(_), do: FlyMapEx.Style.info()
 
   @doc """
   Convert development regions to production equivalents.

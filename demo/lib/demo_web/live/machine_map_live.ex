@@ -305,17 +305,19 @@ defmodule DemoWeb.MachineMapLive do
                 </div>
                 <div class="text-sm text-gray-600">
                   <p>Nodes: <%= group.nodes |> Enum.map(fn node -> if is_binary(node), do: node, else: node.label end) |> Enum.join(", ") %></p>
-                  <div class="mt-2">
-                    <p class="font-medium">Machines:</p>
-                    <div class="ml-4 space-y-1">
-                      <%= for {machine_id, region, app} <- @all_machines, app == group.app_name do %>
-                        <div class="font-mono text-xs">
-                          <span class="text-gray-500"><%= String.slice(machine_id, 0, 8) %>...</span>
-                          <span class="text-blue-600 ml-2"><%= region %></span>
-                        </div>
-                      <% end %>
+                  <%= if Map.has_key?(group, :app_name) do %>
+                    <div class="mt-2">
+                      <p class="font-medium">Machines:</p>
+                      <div class="ml-4 space-y-1">
+                        <%= for {machine_id, region, app} <- @all_machines, app == group.app_name do %>
+                          <div class="font-mono text-xs">
+                            <span class="text-gray-500"><%= String.slice(machine_id, 0, 8) %>...</span>
+                            <span class="text-blue-600 ml-2"><%= region %></span>
+                          </div>
+                        <% end %>
+                      </div>
                     </div>
-                  </div>
+                  <% end %>
                 </div>
               </div>
             <% end %>
@@ -368,7 +370,7 @@ defmodule DemoWeb.MachineMapLive do
   defp get_style_color(_), do: "#888888"
 
   # A group is a map
-  #   %{nodes: ["sjc", "fra"], style_key: :primary, label: "Active Regions"},
+  #   %{nodes: ["sjc", "fra"], style: FlyMapEx.Style.primary(), label: "Active Regions"},
 
   defp fly_regions_group do
     %{

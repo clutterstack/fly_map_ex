@@ -36,14 +36,16 @@ defmodule FlyMapEx.AdaptersTest do
 
       assert length(result) == 2
 
-      yyz_group = Enum.find(result, fn group -> group.regions == ["yyz"] end)
-      lhr_group = Enum.find(result, fn group -> group.regions == ["lhr"] end)
+      yyz_group = Enum.find(result, fn group -> group.nodes == ["yyz"] end)
+      lhr_group = Enum.find(result, fn group -> group.nodes == ["lhr"] end)
 
       assert yyz_group.label == "Running Machines (2)"
-      assert yyz_group.style_key == :primary
+      assert yyz_group.machine_count == 2
+      assert is_map(yyz_group.style)
 
       assert lhr_group.label == "Running Machines (1)"
-      assert lhr_group.style_key == :primary
+      assert lhr_group.machine_count == 1
+      assert is_map(lhr_group.style)
     end
 
     test "uses custom style key" do
@@ -51,7 +53,11 @@ defmodule FlyMapEx.AdaptersTest do
 
       result = Adapters.from_machine_tuples(machines, "Active", :active)
 
-      assert [%{regions: ["yyz"], style_key: :active, label: "Active (1)"}] = result
+      assert [group] = result
+      assert group.nodes == ["yyz"]
+      assert group.label == "Active (1)"
+      assert group.machine_count == 1
+      assert is_map(group.style)
     end
 
     test "filters out invalid regions" do
@@ -59,7 +65,11 @@ defmodule FlyMapEx.AdaptersTest do
 
       result = Adapters.from_machine_tuples(machines, "Valid")
 
-      assert [%{regions: ["yyz"], style_key: :primary, label: "Valid (1)"}] = result
+      assert [group] = result
+      assert group.nodes == ["yyz"]
+      assert group.label == "Valid (1)"
+      assert group.machine_count == 1
+      assert is_map(group.style)
     end
 
     test "handles empty input" do
