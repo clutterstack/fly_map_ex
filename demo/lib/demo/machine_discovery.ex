@@ -99,6 +99,57 @@ defmodule Demo.MachineDiscovery do
   end
 
   @doc """
+  Discover only apps that have active machines using _instances.internal DNS.
+
+  Queries the TXT record at `_instances.internal` and extracts unique app names
+  from the instance data. This ensures we only show apps with running machines.
+
+  ## Examples
+
+      iex> Demo.MachineDiscovery.discover_apps_with_machines()
+      {:ok, ["c-corrodocs", "ccorrosion", "where"]}
+
+      iex> Demo.MachineDiscovery.discover_apps_with_machines()
+      {:error, :no_instances_found}
+  """
+  def discover_apps_with_machines() do
+    dns_name = ~c"_instances.internal"
+
+    case :inet_res.lookup(dns_name, :in, :txt) do
+      [] ->
+        Logger.debug("No TXT records found for _instances.internal")
+        {:error, :no_instances_found}
+
+      records when is_list(records) ->
+        txt_content =
+          records
+          |> Enum.map(&parse_txt_record/1)
+          |> Enum.join("")
+
+        instances = FlyMapEx.Adapters.from_fly_instances_txt(txt_content)
+
+        apps = 
+          instances
+          |> Enum.map(fn {_instance_id, app_name, _region} -> app_name end)
+          |> Enum.uniq()
+          |> Enum.sort()
+
+        case apps do
+          [] -> {:error, :no_instances_found}
+          apps -> {:ok, apps}
+        end
+
+      {:error, reason} ->
+        Logger.warning("DNS lookup failed for _instances.internal: #{inspect(reason)}")
+        {:error, reason}
+    end
+  rescue
+    error ->
+      Logger.error("App discovery with machines failed: #{inspect(error)}")
+      {:error, :discovery_failed}
+  end
+
+  @doc """
   Discover machines for multiple apps simultaneously.
 
   Returns a map with app names as keys and machine discovery results as values.
@@ -118,6 +169,58 @@ defmodule Demo.MachineDiscovery do
   end
 
   def discover_all_apps(_), do: %{}
+
+  @doc """
+  Discover all apps and their machines in a single _instances.internal query.
+
+  More efficient than the traditional two-step process of discovering apps
+  then querying each one individually. Returns both the apps and their machine data.
+
+  ## Examples
+
+      iex> Demo.MachineDiscovery.discover_all_from_instances()
+      %{
+        "c-corrodocs" => {:ok, [{"3d8d9250a27de8", "yyz"}]},
+        "ccorrosion" => {:ok, [{"5683d56ea79d28", "yyz"}, {"e286de5c69e986", "mia"}]}
+      }
+  """
+  def discover_all_from_instances() do
+    dns_name = ~c"_instances.internal"
+
+    case :inet_res.lookup(dns_name, :in, :txt) do
+      [] ->
+        Logger.debug("No TXT records found for _instances.internal")
+        %{}
+
+      records when is_list(records) ->
+        txt_content =
+          records
+          |> Enum.map(&parse_txt_record/1)
+          |> Enum.join("")
+
+        instances = FlyMapEx.Adapters.from_fly_instances_txt(txt_content)
+
+        # Group instances by app name and convert to the expected format
+        instances
+        |> Enum.group_by(fn {_instance_id, app_name, _region} -> app_name end)
+        |> Enum.into(%{}, fn {app_name, app_instances} ->
+          # Convert to {machine_id, region} tuples for compatibility
+          machines = 
+            app_instances
+            |> Enum.map(fn {instance_id, _app_name, region} -> {instance_id, region} end)
+          
+          {app_name, {:ok, machines}}
+        end)
+
+      {:error, reason} ->
+        Logger.warning("DNS lookup failed for _instances.internal: #{inspect(reason)}")
+        %{}
+    end
+  rescue
+    error ->
+      Logger.error("Instance discovery failed: #{inspect(error)}")
+      %{}
+  end
 
   @doc """
   Convert app machines data to marker groups for FlyMapEx.

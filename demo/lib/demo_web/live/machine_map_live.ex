@@ -17,6 +17,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:app_machines, %{})
       |> assign(:marker_groups, [fly_regions_group()])
       |> assign(:all_machines, [])
+      |> assign(:all_instances_data, %{})  # Cache complete instance data for instant filtering
       |> assign(:last_updated, nil)
       |> assign(:error, nil)
       |> assign(:apps_loading, false)
@@ -33,36 +34,15 @@ defmodule DemoWeb.MachineMapLive do
       socket
     end
 
+    # Start loading instance data immediately on mount
+    send(self(), :load_instances)
+
     {:ok, socket}
   end
 
   def handle_event("discover_apps", _params, socket) do
-    socket = assign(socket, :apps_loading, true)
-
-    case MachineDiscovery.discover_apps() do
-      {:ok, apps} ->
-        socket =
-          socket
-          |> assign(:available_apps, apps)
-          |> assign(:apps_loading, false)
-          |> assign(:apps_error, nil)
-
-        {:noreply, socket}
-
-      {:error, reason} ->
-        error_message = case reason do
-          :no_apps_found -> "No apps found in _apps.internal DNS record"
-          :discovery_failed -> "Failed to query _apps.internal DNS"
-          other -> "App discovery error: #{inspect(other)}"
-        end
-
-        socket =
-          socket
-          |> assign(:apps_loading, false)
-          |> assign(:apps_error, error_message)
-
-        {:noreply, socket}
-    end
+    socket = discover_and_cache_instances(socket)
+    {:noreply, socket}
   end
 
   def handle_event("toggle_app", %{"app" => app_name}, socket) do
@@ -74,72 +54,100 @@ defmodule DemoWeb.MachineMapLive do
       [app_name | selected_apps]
     end
 
-    socket = assign(socket, :selected_apps, new_selected_apps)
+    socket = 
+      socket
+      |> assign(:selected_apps, new_selected_apps)
+      |> refresh_machines_for_selected_apps()
+
     {:noreply, socket}
   end
 
   def handle_event("select_all_apps", _params, socket) do
     available_apps = socket.assigns.available_apps
-    socket = assign(socket, :selected_apps, available_apps)
+    
+    socket = 
+      socket
+      |> assign(:selected_apps, available_apps)
+      |> refresh_machines_for_selected_apps()
+
     {:noreply, socket}
   end
 
   def handle_event("deselect_all_apps", _params, socket) do
-    socket = assign(socket, :selected_apps, [])
+    socket = 
+      socket
+      |> assign(:selected_apps, [])
+      |> refresh_machines_for_selected_apps()
+
     {:noreply, socket}
   end
 
   def handle_event("toggle_app_selection", _params, socket) do
     new_show_state = !socket.assigns.show_app_selection
     socket = assign(socket, :show_app_selection, new_show_state)
-    
-    # Auto-discover apps when showing interface for first time
-    if new_show_state && socket.assigns.available_apps == [] && !socket.assigns.apps_loading do
-      send(self(), :auto_discover_apps)
-    end
-    
     {:noreply, socket}
   end
 
-  def handle_info(:auto_discover_apps, socket) do
-    socket = assign(socket, :apps_loading, true)
+  def handle_info(:load_instances, socket) do
+    socket =
+      socket
+      |> discover_and_cache_instances()  # Load and cache all instance data
+      |> refresh_machines_for_selected_apps()  # Apply to any pre-selected apps
 
-    case MachineDiscovery.discover_apps() do
-      {:ok, apps} ->
-        socket =
-          socket
-          |> assign(:available_apps, apps)
-          |> assign(:apps_loading, false)
-          |> assign(:apps_error, nil)
-
-        {:noreply, socket}
-
-      {:error, reason} ->
-        error_message = case reason do
-          :no_apps_found -> "No apps found in _apps.internal DNS record"
-          :discovery_failed -> "Failed to query _apps.internal DNS"
-          other -> "App discovery error: #{inspect(other)}"
-        end
-
-        socket =
-          socket
-          |> assign(:apps_loading, false)
-          |> assign(:apps_error, error_message)
-
-        {:noreply, socket}
-    end
+    {:noreply, socket}
   end
 
   def handle_event("refresh_machines", _params, socket) do
+    socket =
+      socket
+      |> discover_and_cache_instances()  # Refresh cached data from DNS
+      |> refresh_machines_for_selected_apps()  # Filter for selected apps
+
+    {:noreply, socket}
+  end
+
+  # Private helper function to discover and cache all instance data
+  defp discover_and_cache_instances(socket) do
+    socket = assign(socket, :apps_loading, true)
+
+    # Get all instance data in one DNS query and cache it
+    all_instances_data = MachineDiscovery.discover_all_from_instances()
+    
+    if all_instances_data == %{} do
+      socket
+      |> assign(:apps_loading, false)
+      |> assign(:apps_error, "No running machines found in _instances.internal DNS record")
+    else
+      # Extract app names from cached data
+      available_apps = 
+        all_instances_data
+        |> Map.keys()
+        |> Enum.sort()
+
+      socket
+      |> assign(:all_instances_data, all_instances_data)
+      |> assign(:available_apps, available_apps)
+      |> assign(:apps_loading, false)
+      |> assign(:apps_error, nil)
+    end
+  end
+
+  # Private helper function to refresh machines for selected apps using cached data
+  defp refresh_machines_for_selected_apps(socket) do
     selected_apps = socket.assigns.selected_apps
+    all_instances_data = socket.assigns.all_instances_data
 
     if selected_apps == [] do
-      {:noreply, socket}
+      # Clear the map if no apps are selected
+      socket
+      |> assign(:app_machines, %{})
+      |> assign(:marker_groups, [])
+      |> assign(:all_machines, [])
+      |> assign(:last_updated, DateTime.utc_now())
     else
-      socket = assign(socket, :machines_loading, true)
-
-      app_machines = MachineDiscovery.discover_all_apps(selected_apps)
-      marker_groups = socket.assigns.marker_groups ++ MachineDiscovery.from_app_machines(app_machines)
+      # Filter cached instance data for selected apps (no DNS query needed!)
+      app_machines = Map.take(all_instances_data, selected_apps)
+      marker_groups = MachineDiscovery.from_app_machines(app_machines)
 
       all_machines =
         app_machines
@@ -150,16 +158,12 @@ defmodule DemoWeb.MachineMapLive do
           end
         end)
 
-      socket =
-        socket
-        |> assign(:app_machines, app_machines)
-        |> assign(:marker_groups, marker_groups)
-        |> assign(:all_machines, all_machines)
-        |> assign(:machines_loading, false)
-        |> assign(:last_updated, DateTime.utc_now())
-        |> assign(:error, nil)
-
-      {:noreply, socket}
+      socket
+      |> assign(:app_machines, app_machines)
+      |> assign(:marker_groups, marker_groups)
+      |> assign(:all_machines, all_machines)
+      |> assign(:last_updated, DateTime.utc_now())
+      |> assign(:error, nil)
     end
   end
 
@@ -167,6 +171,22 @@ defmodule DemoWeb.MachineMapLive do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-3xl font-bold mb-6">Fly.io Multi-App Machine Map</h1>
+
+      <!-- Initial Loading State -->
+      <%= if @apps_loading && @available_apps == [] do %>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <div class="flex items-center gap-3">
+            <svg class="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <div>
+              <h3 class="text-blue-800 font-semibold">Loading Fly.io Applications</h3>
+              <p class="text-blue-600 text-sm">Discovering running machines across all regions...</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
 
       <!-- App Discovery Section -->
       <div class="bg-white rounded-lg shadow-lg mb-6">

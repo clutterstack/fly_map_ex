@@ -45,6 +45,40 @@ defmodule FlyMapEx.Adapters do
   def from_fly_dns_txt(_), do: []
 
   @doc """
+  Parse Fly.io _instances.internal DNS TXT record for instance discovery.
+
+  Parses the format returned by `_instances.internal` which contains instance data
+  in the format: "instance=id,app=name,ip=addr,region=reg;instance=id2,app=name2,..."
+
+  ## Examples
+
+      iex> txt = "instance=3d8d9250a27de8,app=c-corrodocs,ip=fdaa:0:3b99:a7b:1d3:cb60:76c3:2,region=yyz;instance=5683d56ea79d28,app=ccorrosion,ip=fdaa:0:3b99:a7b:1d3:ea9b:7cc0:2,region=yyz"
+      iex> FlyMapEx.Adapters.from_fly_instances_txt(txt)
+      [
+        {"3d8d9250a27de8", "c-corrodocs", "yyz"},
+        {"5683d56ea79d28", "ccorrosion", "yyz"}
+      ]
+
+      iex> FlyMapEx.Adapters.from_fly_instances_txt("")
+      []
+  """
+  def from_fly_instances_txt(txt_record) when is_binary(txt_record) do
+    txt_record
+    |> String.trim()
+    |> case do
+      "" -> []
+      record ->
+        record
+        |> String.split(";")
+        |> Enum.map(&String.trim/1)
+        |> Enum.map(&parse_instance_entry/1)
+        |> Enum.reject(&is_nil/1)
+    end
+  end
+
+  def from_fly_instances_txt(_), do: []
+
+  @doc """
   Convert machine tuples to marker groups.
 
   Takes a list of {machine_id, region} tuples and converts them to FlyMapEx
@@ -124,5 +158,33 @@ defmodule FlyMapEx.Adapters do
   end
 
   defp parse_machine_entry(_), do: nil
+
+  defp parse_instance_entry(entry) when is_binary(entry) do
+    # Parse format: "instance=id,app=name,ip=addr,region=reg"
+    parts = String.split(entry, ",")
+    
+    case parts do
+      [instance_part, app_part, _ip_part, region_part] ->
+        with ["instance", instance_id] <- String.split(instance_part, "=", parts: 2),
+             ["app", app_name] <- String.split(app_part, "=", parts: 2),
+             ["region", region] <- String.split(region_part, "=", parts: 2) do
+          instance_id = String.trim(instance_id)
+          app_name = String.trim(app_name)
+          region = String.trim(region)
+          
+          if instance_id != "" and app_name != "" and region != "" do
+            {instance_id, app_name, region}
+          else
+            nil
+          end
+        else
+          _ -> nil
+        end
+      
+      _ -> nil
+    end
+  end
+
+  defp parse_instance_entry(_), do: nil
 
 end
