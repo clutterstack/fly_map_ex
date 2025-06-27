@@ -40,7 +40,6 @@ defmodule FlyMapEx.Components.WorldMap do
   """
   attr :marker_groups, :list, default: []
   attr :colours, :map, default: %{}
-  attr :group_styles, :map, default: %{}
   attr :id, :string, default: "fly-region-map"
 
   def render(assigns) do
@@ -75,11 +74,11 @@ defmodule FlyMapEx.Components.WorldMap do
     >
       <defs>
         <!-- Dynamic gradients for groups with gradient enabled -->
-        <%= for group <- @gradient_groups do %>
-          <radialGradient id={"#{group.style_key}Gradient"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="40%" stop-color={group.style.colour} stop-opacity="1" />
-            <stop offset="70%" stop-color={group.style.colour} stop-opacity="0.7" />
-            <stop offset="100%" stop-color={group.style.colour} stop-opacity="0.2" />
+        <%= for {group, index} <- Enum.with_index(@gradient_groups) do %>
+          <radialGradient id={"gradient#{index}"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="40%" stop-color={group.style.color} stop-opacity="1" />
+            <stop offset="70%" stop-color={group.style.color} stop-opacity="0.7" />
+            <stop offset="100%" stop-color={group.style.color} stop-opacity="0.2" />
           </radialGradient>
         <% end %>
       </defs>
@@ -130,9 +129,9 @@ defmodule FlyMapEx.Components.WorldMap do
       <% end %>
 
       <!-- Dynamic node group markers -->
-      <%= for group <- @marker_groups do %>
+      <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
         <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
-          <%= render_marker(group, x, y) %>
+          <%= render_marker(group, group_index, x, y, @gradient_groups) %>
         <% end %>
       <% end %>
     </svg>
@@ -154,27 +153,17 @@ defmodule FlyMapEx.Components.WorldMap do
     Regions.coordinates(region_code)
   end
 
-  # Group of form
-  #   %{
-  #     style: %{
-  #               base_size: 6,
-  #               animation: :none,
-  #               gradient: false,
-  #               style_key: :primary,
-  #               colour:
-  #             },
-  #     nodes:
-
-  defp render_marker(group, x, y) do
-    # Logger.debug("in render_marker")
-    base_size = Map.get(group.style, :base_size, 6)
+  defp render_marker(group, _group_index, x, y, gradient_groups) do
+    base_size = Map.get(group.style, :size, 6)
     animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)
 
     fill = if gradient do
-      "url(##{group.style_key}Gradient)"
+      # Find this group's gradient index
+      gradient_index = Enum.find_index(gradient_groups, fn g -> g == group end)
+      if gradient_index, do: "url(#gradient#{gradient_index})", else: group.style.color
     else
-      group.style.colour
+      group.style.color
     end
 
     case animation do
@@ -211,11 +200,6 @@ defmodule FlyMapEx.Components.WorldMap do
     end
   end
 
-  defp region_coordinates(regions) do
-    regions
-    |> Enum.map(&Regions.coordinates/1)
-    |> Enum.map(&wgs84_to_svg(&1, @bbox))
-  end
 
   defp all_regions_with_coords do
     for {region_atom, coords} <- Regions.all() do

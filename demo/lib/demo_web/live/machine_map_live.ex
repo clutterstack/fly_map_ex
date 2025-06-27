@@ -299,12 +299,12 @@ defmodule DemoWeb.MachineMapLive do
                 <div class="flex items-center mb-2">
                   <span
                     class="inline-block w-3 h-3 rounded-full mr-2"
-                    style={"background-color: #{get_style_color(group.style_key)};"}
+                    style={"background-color: #{get_style_color(group.style)};"}
                   ></span>
                   <h4 class="font-semibold"><%= group.label %></h4>
                 </div>
                 <div class="text-sm text-gray-600">
-                  <p>Regions: <%= Enum.join(group.regions, ", ") %></p>
+                  <p>Nodes: <%= group.nodes |> Enum.map(fn node -> if is_binary(node), do: node, else: node.label end) |> Enum.join(", ") %></p>
                   <div class="mt-2">
                     <p class="font-medium">Machines:</p>
                     <div class="ml-4 space-y-1">
@@ -360,19 +360,12 @@ defmodule DemoWeb.MachineMapLive do
       System.get_env("FLY_APP_NAME")
   end
 
-  defp get_style_color(style_key) do
-    style_colours = %{
-      primary: "#77b5fe",
-      active: "#ffdc66",
-      secondary: "#28a745",
-      warning: "#dc3545",
-      expected: "#ff8c42",
-      acknowledged: "#9d4edd",
-      inactive: "#6c757d"
-    }
-
-    Map.get(style_colours, style_key, "#888888")
+  defp get_style_color(style) when is_map(style) do
+    # Extract color from the new style format
+    Map.get(style, :color, "#888888")
   end
+  
+  defp get_style_color(_), do: "#888888"
 
   # A group is a map
   #   %{nodes: ["sjc", "fra"], style_key: :primary, label: "Active Regions"},
@@ -380,10 +373,8 @@ defmodule DemoWeb.MachineMapLive do
   defp fly_regions_group do
     %{
       nodes: FlyMapEx.Regions.list(),
-      style_key: :primary,
+      style: FlyMapEx.Style.info(size: 4, animated: false),
       label: "Fly.io regions"
     }
-
-
   end
 end

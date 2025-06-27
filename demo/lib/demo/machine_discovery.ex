@@ -133,12 +133,21 @@ defmodule Demo.MachineDiscovery do
       ...> }
       iex> Demo.MachineDiscovery.from_app_machines(app_machines)
       [
-        %{regions: ["yyz", "fra"], style_key: :primary, label: "app1 (2 machines)"},
-        %{regions: ["lhr"], style_key: :active, label: "app2 (1 machine)"}
+        %{nodes: ["yyz", "fra"], style: FlyMapEx.Style.active(), label: "app1 (2 machines)"},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.success(), label: "app2 (1 machine)"}
       ]
   """
   def from_app_machines(app_machines) when is_map(app_machines) do
-    style_keys = [:primary, :active, :secondary, :warning, :expected, :acknowledged, :inactive]
+    # Define style functions for different apps
+    style_functions = [
+      &FlyMapEx.Style.active/1,
+      &FlyMapEx.Style.success/1, 
+      &FlyMapEx.Style.warning/1,
+      &FlyMapEx.Style.danger/1,
+      &FlyMapEx.Style.pending/1,
+      &FlyMapEx.Style.info/1,
+      &FlyMapEx.Style.inactive/1
+    ]
 
     app_machines
     |> Enum.with_index()
@@ -146,9 +155,18 @@ defmodule Demo.MachineDiscovery do
       match?({:ok, [_ | _]}, result)
     end)
     |> Enum.map(fn {{app_name, {:ok, machines}}, index} ->
-      regions = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
-      style_key = Enum.at(style_keys, rem(index, length(style_keys)))
+      nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
+      style_fn = Enum.at(style_functions, rem(index, length(style_functions)))
       machine_count = length(machines)
+
+      # Apply different styling based on machine count for visual variety
+      style_opts = case machine_count do
+        count when count >= 5 -> [size: 10, animated: true]
+        count when count >= 3 -> [size: 8, animated: true]
+        _ -> [size: 6, animated: false]
+      end
+      
+      style = style_fn.(style_opts)
 
       label = case machine_count do
         1 -> "#{app_name} (1 machine)"
@@ -156,8 +174,8 @@ defmodule Demo.MachineDiscovery do
       end
 
       %{
-        regions: regions,
-        style_key: style_key,
+        nodes: nodes,
+        style: style,
         label: label,
         app_name: app_name,
         machine_count: machine_count

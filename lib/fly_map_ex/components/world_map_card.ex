@@ -12,7 +12,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
   require Logger
 
   alias FlyMapEx.Components.WorldMap
-  alias FlyMapEx.{Regions, Themes}
+  alias FlyMapEx.Regions
 
   @doc """
   Renders a world map card with regions, legend, and optional progress tracking.
@@ -21,24 +21,22 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   * `marker_groups` - List of region/node group maps, each containing:
     * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
-    * `style_key` - Atom referencing a style (e.g., :success, :warning, :active)
+    * `style` - Style definition (normalized map with color, size, etc.)
     * `label` - Display label for this group
   * `background` - Map with background and border colours
-  * `config_styles` - Map of available styles
   * `class` - Additional CSS classes for the card container
   """
   attr :marker_groups, :list, default: []
   attr :background, :map, default: %{}
-  attr :config_styles, :map, default: Themes.style_definitions()
   attr :class, :string, default: ""
 
   def render(assigns) do
-    # Process marker groups and build data structures for rendering
-    processed_groups = process_marker_groups(assigns.marker_groups, assigns.config_styles)
+    # Process marker groups (they're already normalized by the main component)
+    processed_groups = assigns.marker_groups
 
     # Extract progress information for pending vs completed groups
-    pending_regions = find_regions_by_style(processed_groups, [:pending, :warning])
-    completed_regions = find_regions_by_style(processed_groups, [:success, :completed])
+    pending_regions = find_regions_by_color(processed_groups, ["#f59e0b", "#d97706"])  # amber/orange colors
+    completed_regions = find_regions_by_color(processed_groups, ["#10b981", "#14b8a6"])  # green/teal colors
 
     assigns = assign(assigns, %{
       processed_groups: processed_groups,
@@ -55,7 +53,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
           <WorldMap.render
             marker_groups={@processed_groups}
             colours={@background}
-            group_styles={@config_styles}
           />
         </div>
 
@@ -72,7 +69,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
             <div class="flex-shrink-0 mt-1">
               <span
                 class={"inline-block w-3 h-3 rounded-full #{if group.style.animated, do: "animate-pulse"}"}
-                style={"background-color: #{group.style.colour};"}
+                style={"background-color: #{group.style.color};"}
               >
               </span>
             </div>
@@ -117,30 +114,11 @@ defmodule FlyMapEx.Components.WorldMapCard do
 
   # Helper functions
 
-  #   `marker_groups` is a list of maps
-  #   `style_key` is an atom denoting a style preset defined in Themes.style_definitions/0
-  #   `config_styles` is an assign
-  defp process_marker_groups(marker_groups, config_styles) do
-    Enum.map(marker_groups, fn group ->
-      style_key = Map.get(group, :style_key, :primary)
-      style = Map.get(config_styles, style_key)
-      nodes = Map.get(group, :nodes, [])
-
-      %{
-        nodes: nodes,
-        style_key: style_key,
-        style: style,
-        label: Map.get(group, :label, style.label),
-        machine_count: Map.get(group, :machine_count, length(nodes))
-      }
-    end)
-  end
-
-  defp find_regions_by_style(processed_groups, style_keys) do
+  defp find_regions_by_color(processed_groups, colors) do
     processed_groups
-    |> Enum.filter(fn group -> group.style_key in style_keys end)
+    |> Enum.filter(fn group -> group.style.color in colors end)
     |> Enum.flat_map(fn group -> extract_region_codes(group.nodes) end)
-    |> Enum.uniq()
+    |> Enum.uniq()  
   end
 
   # Helper to extract region codes from nodes for backward compatibility
