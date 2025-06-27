@@ -6,7 +6,6 @@ defmodule FlyMapEx.Components.WorldMap do
   """
 
   use Phoenix.Component
-  require Logger
 
   alias FlyMapEx.Regions
   alias FlyMapEx.WorldMapPaths

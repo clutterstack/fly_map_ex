@@ -155,58 +155,5 @@ defmodule FlyMapEx.Style do
     Map.merge(defaults, style)
   end
   
-  @doc """
-  Validate a style definition.
   
-  Ensures the style has valid values for all fields.
-  """
-  def validate!(style) do
-    normalized = normalize(style)
-    
-    unless is_binary(normalized.color) do
-      raise ArgumentError, "Style color must be a string, got: #{inspect(normalized.color)}"
-    end
-    
-    unless is_integer(normalized.size) and normalized.size > 0 do
-      raise ArgumentError, "Style size must be a positive integer, got: #{inspect(normalized.size)}"
-    end
-    
-    unless is_boolean(normalized.animated) do
-      raise ArgumentError, "Style animated must be a boolean, got: #{inspect(normalized.animated)}"
-    end
-    
-    unless normalized.animation in [:none, :pulse, :bounce, :fade] do
-      raise ArgumentError, "Style animation must be one of [:none, :pulse, :bounce, :fade], got: #{inspect(normalized.animation)}"
-    end
-    
-    unless is_boolean(normalized.gradient) do
-      raise ArgumentError, "Style gradient must be a boolean, got: #{inspect(normalized.gradient)}"
-    end
-    
-    normalized
-  end
-  
-  @doc """
-  Convert a style definition to CSS custom properties.
-  
-  Useful for dynamic theming at runtime.
-  
-  ## Examples
-  
-      iex> FlyMapEx.Style.to_css_vars(FlyMapEx.Style.success(), "primary")
-      "--primary-color: #10b981; --primary-size: 6px; --primary-animated: false;"
-  """
-  def to_css_vars(style, prefix) do
-    normalized = normalize(style)
-    
-    [
-      "--#{prefix}-color: #{normalized.color}",
-      "--#{prefix}-size: #{normalized.size}px", 
-      "--#{prefix}-animated: #{normalized.animated}",
-      "--#{prefix}-animation: #{normalized.animation}",
-      "--#{prefix}-gradient: #{normalized.gradient}"
-    ]
-    |> Enum.join("; ")
-    |> Kernel.<>(";")
-  end
 end
