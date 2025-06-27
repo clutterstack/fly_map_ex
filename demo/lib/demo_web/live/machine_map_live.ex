@@ -90,8 +90,44 @@ defmodule DemoWeb.MachineMapLive do
   end
 
   def handle_event("toggle_app_selection", _params, socket) do
-    socket = assign(socket, :show_app_selection, !socket.assigns.show_app_selection)
+    new_show_state = !socket.assigns.show_app_selection
+    socket = assign(socket, :show_app_selection, new_show_state)
+    
+    # Auto-discover apps when showing interface for first time
+    if new_show_state && socket.assigns.available_apps == [] && !socket.assigns.apps_loading do
+      send(self(), :auto_discover_apps)
+    end
+    
     {:noreply, socket}
+  end
+
+  def handle_info(:auto_discover_apps, socket) do
+    socket = assign(socket, :apps_loading, true)
+
+    case MachineDiscovery.discover_apps() do
+      {:ok, apps} ->
+        socket =
+          socket
+          |> assign(:available_apps, apps)
+          |> assign(:apps_loading, false)
+          |> assign(:apps_error, nil)
+
+        {:noreply, socket}
+
+      {:error, reason} ->
+        error_message = case reason do
+          :no_apps_found -> "No apps found in _apps.internal DNS record"
+          :discovery_failed -> "Failed to query _apps.internal DNS"
+          other -> "App discovery error: #{inspect(other)}"
+        end
+
+        socket =
+          socket
+          |> assign(:apps_loading, false)
+          |> assign(:apps_error, error_message)
+
+        {:noreply, socket}
+    end
   end
 
   def handle_event("refresh_machines", _params, socket) do
@@ -156,39 +192,52 @@ defmodule DemoWeb.MachineMapLive do
 
         <div class={"#{if @show_app_selection, do: "p-6 pt-0", else: "hidden"}"}>
 
-          <div class="flex gap-4 mb-4">
-            <button
-              phx-click="discover_apps"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-              disabled={@apps_loading}
-            >
-              <%= if @apps_loading do %>
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Discovering...
-              <% else %>
-                Select Apps
-              <% end %>
-            </button>
+          <%= if @available_apps != [] or @apps_loading do %>
+            <div class="flex gap-4 mb-4">
+              <button
+                phx-click="discover_apps"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                disabled={@apps_loading}
+              >
+                <%= if @apps_loading do %>
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Discovering...
+                <% else %>
+                  Refresh Apps
+                <% end %>
+              </button>
 
-            <button
-              phx-click="refresh_machines"
-              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-              disabled={@machines_loading || @selected_apps == []}
-            >
-              <%= if @machines_loading do %>
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <button
+                phx-click="refresh_machines"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                disabled={@machines_loading || @selected_apps == []}
+              >
+                <%= if @machines_loading do %>
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Refreshing...
+                <% else %>
+                  Update Map
+                <% end %>
+              </button>
+            </div>
+          <% else %>
+            <!-- Auto-discovery message when showing interface for first time -->
+            <%= if @apps_loading do %>
+              <div class="flex items-center gap-2 mb-4 text-blue-600">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Refreshing...
-              <% else %>
-                Update Map
-              <% end %>
-            </button>
-          </div>
+                <span>Discovering available apps...</span>
+              </div>
+            <% end %>
+          <% end %>
 
           <%= if @apps_error do %>
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
