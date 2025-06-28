@@ -259,11 +259,10 @@ defmodule DemoWeb.MachineMapLive do
             </p>
           </div>
         </div>
-      </div>
 
       <!-- Machines by Region -->
         <div class="mt-6">
-          <h3 class="text-lg font-medium mb-4 text-base-content">Machines by Region</h3>
+          <h3 class="text-lg font-medium mb-4 text-base-content">By region</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
               <div class="border border-base-300 rounded-lg p-4 bg-base-200/30">
@@ -280,6 +279,7 @@ defmodule DemoWeb.MachineMapLive do
               </div>
             <% end %>
           </div>
+        </div>
         </div>
 
       <div class="mt-8 text-xs text-base-content/50">
