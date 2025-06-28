@@ -33,8 +33,9 @@ defmodule FlyMapEx do
 
   use Phoenix.Component
 
-  alias FlyMapEx.Components.WorldMapCard
-  alias FlyMapEx.{Theme, Style, Nodes}
+  alias FlyMapEx.{Theme, Style, Nodes, Regions}
+  alias FlyMapEx.Components.{WorldMap, LegendComponent}
+
 
   @doc """
   This is the main entry point for the library. It renders a card containing
@@ -55,12 +56,12 @@ defmodule FlyMapEx do
       # Inline style definitions
       <FlyMapEx.render marker_groups={[
         %{
-          nodes: ["sjc", "fra"], 
+          nodes: ["sjc", "fra"],
           style: [color: "#10b981", size: 8, animated: true],
           label: "Production Servers"
         },
         %{
-          nodes: ["ams"], 
+          nodes: ["ams"],
           style: [color: "#ef4444", size: 10, animation: :bounce],
           label: "Critical Issues"
         }
@@ -121,13 +122,23 @@ defmodule FlyMapEx do
 
     ~H"""
     <div class={@class}>
-      <WorldMapCard.render
-        marker_groups={@marker_groups}
-        background={@background}
-        selected_apps={@selected_apps}
-        available_apps={@available_apps}
-        all_instances_data={@all_instances_data}
-      />
+         <div class={"card bg-base-100"}>
+      <div class="card-body">
+        <div class="rounded-lg border overflow-hidden" style={"background-color: #{@background.land}"}>
+          <WorldMap.render
+            marker_groups={@marker_groups}
+            colours={@background}
+          />
+        </div>
+
+        <LegendComponent.legend
+          marker_groups={@marker_groups}
+          selected_apps={@selected_apps}
+          available_apps={@available_apps}
+          all_instances_data={@all_instances_data}
+        />
+      </div>
+    </div>
     </div>
     """
   end

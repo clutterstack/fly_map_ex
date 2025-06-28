@@ -10,14 +10,14 @@ defmodule FlyMapEx.Components.LegendComponent do
   alias FlyMapEx.Components.{WorldMap, WorldMapCard}
   alias FlyMapEx.Regions
 
-  attr(:processed_groups, :list, required: true)
+  attr(:marker_groups, :list, required: true)
   attr(:selected_apps, :list, default: [])
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
 
-  def legend(%{processed_groups: processed_groups} = assigns) do
+  def legend(%{marker_groups: marker_groups} = assigns) do
     # Create legend entries for all available apps
-    all_legend_entries = create_all_app_legend_entries(assigns.available_apps, assigns.all_instances_data, processed_groups)
+    all_legend_entries = create_all_app_legend_entries(assigns.available_apps, assigns.all_instances_data, marker_groups)
 
     assigns = assign(assigns, :all_legend_entries, all_legend_entries)
     ~H"""
@@ -26,7 +26,7 @@ defmodule FlyMapEx.Components.LegendComponent do
           <div class="flex items-center justify-between mb-2">
             <h3 class="font-semibold text-base-content">Legend</h3>
             <div class="text-xs text-base-content/50">
-              <%= total_active_regions(@processed_groups) %>/<%= total_available_regions() %> active regions, <%= total_machine_count(@processed_groups) %> items
+              <%= total_active_regions(@marker_groups) %>/<%= total_available_regions() %> active regions, <%= total_machine_count(@marker_groups) %> items
             </div>
           </div>
 
@@ -134,8 +134,8 @@ defmodule FlyMapEx.Components.LegendComponent do
   end
 
 
-  defp total_active_regions(processed_groups) do
-    processed_groups
+  defp total_active_regions(marker_groups) do
+    marker_groups
     |> Enum.flat_map(fn group -> group.nodes end)
     |> Enum.uniq()
     |> length()
@@ -146,18 +146,18 @@ defmodule FlyMapEx.Components.LegendComponent do
     |> map_size()
   end
 
-  defp total_machine_count(processed_groups) do
-    processed_groups
+  defp total_machine_count(marker_groups) do
+    marker_groups
     |> Enum.map(fn group ->
       Map.get(group, :machine_count, length(group.nodes))
     end)
     |> Enum.sum()
   end
 
-  defp create_all_app_legend_entries(available_apps, all_instances_data, processed_groups) do
+  defp create_all_app_legend_entries(available_apps, all_instances_data, marker_groups) do
     # Create a map of app_name -> existing group for selected apps
     existing_groups =
-      processed_groups
+      marker_groups
       |> Enum.filter(& Map.has_key?(&1, :app_name))
       |> Enum.into(%{}, fn group -> {group.app_name, group} end)
 
