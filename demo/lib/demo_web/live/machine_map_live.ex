@@ -118,7 +118,7 @@ defmodule DemoWeb.MachineMapLive do
     socket = assign(socket, :apps_loading, true)
 
     # Get all instance data in one DNS query and cache it
-    all_instances_data = MachineDiscovery.discover_all_from_instances() |> dbg
+    all_instances_data = MachineDiscovery.discover_all_from_instances()
 
     if all_instances_data == %{} do
       socket
@@ -153,7 +153,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:last_updated, DateTime.utc_now())
     else
       # Filter cached instance data for selected apps (no DNS query needed!)
-      app_machines = Map.take(all_instances_data, selected_apps) |> dbg
+      app_machines = Map.take(all_instances_data, selected_apps)
       marker_groups = MachineDiscovery.from_app_machines(app_machines)
 
       all_selected_machines =
@@ -209,15 +209,9 @@ defmodule DemoWeb.MachineMapLive do
         </div>
       <% end %>
 
-
-    <!-- World Map -->
+      <!-- Machine Details -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <FlyMapEx.render marker_groups={@marker_groups} class="machine-map" />
-      </div>
-
-    <!-- Machine Details -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Machine Details</h2>
+        <h2 class="text-xl font-semibold mb-4">Machine details</h2>
 
     <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -239,6 +233,17 @@ defmodule DemoWeb.MachineMapLive do
             </p>
           </div>
         </div>
+        </div>
+
+
+    <!-- World Map -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <FlyMapEx.render marker_groups={@marker_groups} class="machine-map" />
+      </div>
+
+    <!-- Apps -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Apps on this network</h2>
 
     <!-- Machines by App (all from DNS) -->
         <div class="space-y-4">
@@ -342,7 +347,7 @@ defmodule DemoWeb.MachineMapLive do
   defp machs_from_app_name(all_instances_data, app_name) do
     case Map.get(all_instances_data, app_name) do
       {:ok, instances} ->
-        instances |> dbg
+        instances
 
       nil ->
         []
