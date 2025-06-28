@@ -9,6 +9,7 @@ defmodule DemoWeb.MachineMapLive do
 
   alias Demo.MachineDiscovery
   alias DemoWeb.Layouts
+  alias DemoWeb.Components.AppCard
 
   def mount(_params, _session, socket) do
     socket =
@@ -16,7 +17,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:available_apps, [])
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
-      |> assign(:marker_groups, [fly_regions_group()])
+      |> assign(:marker_groups, [])
       |> assign(:all_selected_machines, [])
       # Cache complete instance data for instant filtering
       |> assign(:all_instances_data, %{})
@@ -217,10 +218,10 @@ defmodule DemoWeb.MachineMapLive do
 
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
-        <FlyMapEx.render 
-          marker_groups={@marker_groups} 
+        <FlyMapEx.render
+          marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
-          class="machine-map" 
+          class="machine-map"
         />
       </div>
 
@@ -232,7 +233,7 @@ defmodule DemoWeb.MachineMapLive do
         <div class="space-y-4">
           <!--  for group <- @marker_groups do -->
           <%= for app <- @available_apps do %>
-            <.app_card_content
+            <AppCard.app_card_content
               all_instances_data={@all_instances_data}
               marker_groups={@marker_groups}
               app_name={app}
@@ -241,32 +242,12 @@ defmodule DemoWeb.MachineMapLive do
           <% end %>
         </div>
 
-    <!-- Machines by Region -->
-        <div class="mt-6">
-          <h3 class="text-lg font-medium mb-4 text-base-content">Machines by Region</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
-              <div class="border border-base-300 rounded-lg p-4 bg-base-200/30">
-                <h4 class="font-semibold text-primary">{region}</h4>
-                <p class="text-sm text-base-content/60 mb-2">{length(machines)} machines</p>
-                <div class="space-y-1">
-                  <%= for {machine_id, _, app} <- machines do %>
-                    <div class="text-xs">
-                      <span class="font-mono text-base-content/50">{String.slice(machine_id, 0, 8)}...</span>
-                      <span class="text-secondary ml-2">({app})</span>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
       </div>
 
 
       <!-- Machine Details -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-base-content">Machine details</h2>
+        <h2 class="text-xl font-semibold mb-4 text-base-content">Mapped Machines</h2>
 
         <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -290,6 +271,27 @@ defmodule DemoWeb.MachineMapLive do
         </div>
       </div>
 
+      <!-- Machines by Region -->
+        <div class="mt-6">
+          <h3 class="text-lg font-medium mb-4 text-base-content">Machines by Region</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
+              <div class="border border-base-300 rounded-lg p-4 bg-base-200/30">
+                <h4 class="font-semibold text-primary">{region}</h4>
+                <p class="text-sm text-base-content/60 mb-2">{length(machines)} machines</p>
+                <div class="space-y-1">
+                  <%= for {machine_id, _, app} <- machines do %>
+                    <div class="text-xs">
+                      <span class="font-mono text-base-content/50">{String.slice(machine_id, 0, 8)}...</span>
+                      <span class="text-secondary ml-2">({app})</span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
       <div class="mt-8 text-xs text-base-content/50">
         <p>This demo queries Fly.io internal DNS for app discovery and machine information.</p>
         <p>
@@ -308,117 +310,19 @@ defmodule DemoWeb.MachineMapLive do
       System.get_env("FLY_APP_NAME")
   end
 
-  defp get_style_color(style) when is_map(style) do
-    # Extract color from the new style format
-    Map.get(style, :color, "#888888")
-  end
-
-  defp get_style_color(_), do: "#888888"
 
   # A group is a map
   #   %{nodes: ["sjc", "fra"], style: FlyMapEx.Style.primary(), label: "Active Regions"},
+  #  We could define a function like the following and add it to the list in the marker_groups
+  # assign in order to display the Fly.io deployment regions as active markers (the FlyMapEx lib
+  # can display them out of the box, though)
+  # defp fly_regions_group do
+  #   %{
+  #     nodes: FlyMapEx.Regions.list(),
+  #     style: FlyMapEx.Style.info(size: 4, animated: false),
+  #     label: "Fly.io regions"
+  #   }
+  # end
 
-  defp fly_regions_group do
-    %{
-      nodes: FlyMapEx.Regions.list(),
-      style: FlyMapEx.Style.info(size: 4, animated: false),
-      label: "Fly.io regions"
-    }
-  end
 
-  defp group_from_app_name(marker_groups, app_name) do
-    Enum.find(marker_groups, fn group ->
-      Map.get(group, :app_name) == app_name
-    end)
-  end
-
-  defp colour_from_app_name(marker_groups, app_name) do
-    group = group_from_app_name(marker_groups, app_name)
-
-    case group do
-      nil -> "#ffffffaa"
-      _ -> get_style_color(group.style)
-    end
-  end
-
-  defp regions_from_app_name(all_instances_data, app_name) do
-    case Map.get(all_instances_data, app_name) do
-      {:ok, instances} ->
-        instances
-        |> Enum.map(&elem(&1, 1))
-        |> Enum.uniq()
-
-      nil ->
-        []
-    end
-  end
-
-  defp machs_from_app_name(all_instances_data, app_name) do
-    case Map.get(all_instances_data, app_name) do
-      {:ok, instances} ->
-        instances
-
-      nil ->
-        []
-    end
-  end
-
-  def app_card_content(
-        %{
-          all_instances_data: _all_instances_data,
-          marker_groups: _marker_groups,
-          app_name: app_name,
-          selected_apps: selected_apps
-        } = assigns
-      ) do
-    region_string =
-      regions_from_app_name(assigns.all_instances_data, app_name)
-      |> Enum.map(fn region -> if is_binary(region), do: region, else: region.label end)
-      |> Enum.join(", ")
-
-     is_selected = app_name in selected_apps
-
-      assigns =
-        assigns
-        |> assign(:region_string, region_string)
-       |> assign(:is_selected, is_selected)
-
-    ~H"""
-    <div
-        class={[
-         "border rounded-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-md",
-          if(@is_selected, do: "border-primary bg-primary/10 shadow-sm", else: "border-base-300 hover:border-base-content/20")
-        ]}
-        phx-click="toggle_app"
-       phx-value-app={@app_name}
-      >
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <span
-              class={[
-                "inline-block w-3 h-3 rounded-full mr-2",
-                if(@is_selected, do: "ring-2 ring-primary/30", else: "")
-              ]}
-            style={"background-color: #{colour_from_app_name(@marker_groups, @app_name)};"}
-          >
-          </span>
-          <h4 class={[
-            "font-semibold",
-            if(@is_selected, do: "text-primary", else: "text-base-content")
-          ]}>{@app_name}</h4>
-        </div>
-        <div class="flex items-center gap-2 text-xs text-base-content/60">
-          <span>{length(machs_from_app_name(@all_instances_data, @app_name))} machines</span>
-          <span>•</span>
-          <span>{@region_string}</span>
-          <%= if @is_selected do %>
-            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-          <% end %>
-        </div>
-      </div>
-    </div>
-    """
-  end
 end

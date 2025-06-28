@@ -128,12 +128,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <path d={@btmpath} stroke={@colours.border} stroke-width="1" />
 
       <!-- All regions as interactive elements -->
-      <%= for {region, {x, y}} <- all_regions_with_coords() do %>
-        <g class="region-group" id={"region-#{region}"}>
-          <circle cx={x} cy={y} r="2" opacity="0.3" />
-          <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
-        </g>
-      <% end %>
+      <.fly_region_markers />
 
       <!-- Dynamic node group markers -->
       <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
@@ -142,6 +137,17 @@ defmodule FlyMapEx.Components.WorldMap do
         <% end %>
       <% end %>
     </svg>
+    """
+  end
+
+  def fly_region_markers(%{}=assigns) do
+    ~H"""
+    <%= for {region, {x, y}} <- all_regions_with_coords() do %>
+      <g class="region-group" id={"region-#{region}"}>
+        <circle cx={x} cy={y} r="2" opacity="0.3" />
+        <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
+      </g>
+    <% end %>
     """
   end
 
