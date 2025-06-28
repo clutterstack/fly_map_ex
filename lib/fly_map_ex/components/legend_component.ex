@@ -55,24 +55,20 @@ defmodule FlyMapEx.Components.LegendComponent do
             </div>
             <div class="flex-grow min-w-0">
               <div class={[
-                "font-medium",
+                "font-medium flex items-center",
                 if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps,
                   do: "text-primary",
                   else: "text-base-content")
               ]}>
-                {group.label}
+                <span>{group.label}</span>
+                <span class="text-xs text-base-content/60 ml-2">
+                  • nodes: {format_nodes_display(group.nodes, "none")}
+                </span>
                 <%= if Map.has_key?(group, :app_name) and group.app_name in @selected_apps do %>
-                  <svg class="inline w-4 h-4 ml-1 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="inline w-4 h-4 ml-2 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                   </svg>
                 <% end %>
-              </div>
-              <div class="text-xs text-base-content/60 mt-1">
-                <div class="flex items-center space-x-4">
-                  <span>
-                    Nodes: {format_nodes_display(group.nodes, "none")}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
