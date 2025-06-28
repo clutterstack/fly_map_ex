@@ -103,6 +103,7 @@ defmodule FlyMapEx do
   attr(:theme, :atom, default: :light)
   attr(:background, :map, default: nil)
   attr(:class, :string, default: "")
+  attr(:selected_apps, :list, default: [])
 
   def render(assigns) do
     # Use custom background or theme background
@@ -121,6 +122,7 @@ defmodule FlyMapEx do
       <WorldMapCard.render
         marker_groups={@marker_groups}
         background={@background}
+        selected_apps={@selected_apps}
       />
     </div>
     """

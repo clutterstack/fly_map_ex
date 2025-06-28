@@ -10,6 +10,9 @@ defmodule FlyMapEx.Components.LegendComponent do
   alias FlyMapEx.Components.{WorldMap, WorldMapCard}
   alias FlyMapEx.Regions
 
+  attr(:processed_groups, :list, required: true)
+  attr(:selected_apps, :list, default: [])
+
   def legend(%{processed_groups: processed_groups} = assigns) do
     ~H"""
     <!-- Enhanced Legend -->
@@ -21,17 +24,42 @@ defmodule FlyMapEx.Components.LegendComponent do
             </div>
           </div>
 
-          <div :for={group <- @processed_groups} class="flex items-start space-x-3 p-2 rounded-lg hover:bg-base-200/50">
+          <div 
+            :for={group <- @processed_groups} 
+            class={[
+              "flex items-start space-x-3 p-2 rounded-lg cursor-pointer transition-all duration-200",
+              "hover:bg-base-200/50 hover:shadow-sm",
+              if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, 
+                do: "bg-primary/10 border border-primary/20", 
+                else: "hover:border-base-content/10 border border-transparent")
+            ]}
+            phx-click={if Map.has_key?(group, :app_name), do: "toggle_marker_group", else: nil}
+            phx-value-app={if Map.has_key?(group, :app_name), do: group.app_name, else: nil}
+          >
             <div class="flex-shrink-0 mt-1">
               <span
-                class={"inline-block w-3 h-3 rounded-full #{if group.style.animated, do: "animate-pulse"}"}
+                class={[
+                  "inline-block w-3 h-3 rounded-full",
+                  if(group.style.animated, do: "animate-pulse"),
+                  if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, do: "ring-2 ring-primary/30")
+                ]}
                 style={"background-color: #{group.style.color};"}
               >
               </span>
             </div>
             <div class="flex-grow min-w-0">
-              <div class="font-medium text-base-content">
+              <div class={[
+                "font-medium",
+                if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, 
+                  do: "text-primary", 
+                  else: "text-base-content")
+              ]}>
                 {group.label}
+                <%= if Map.has_key?(group, :app_name) and group.app_name in @selected_apps do %>
+                  <svg class="inline w-4 h-4 ml-1 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                <% end %>
               </div>
               <div class="text-xs text-base-content/60 mt-1">
                 <div class="flex items-center space-x-4">
