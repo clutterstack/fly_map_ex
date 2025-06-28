@@ -9,7 +9,8 @@ import Config
 
 config :demo,
   generators: [timestamp_type: :utc_datetime],
-  fly_app_name: nil  # Configure your Fly.io app name here
+  # Configure your Fly.io app name here
+  fly_app_name: nil
 
 # Configures the endpoint
 config :demo, DemoWeb.Endpoint,

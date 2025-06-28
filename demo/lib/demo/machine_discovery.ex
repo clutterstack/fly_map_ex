@@ -128,7 +128,7 @@ defmodule Demo.MachineDiscovery do
 
         instances = FlyMapEx.Adapters.from_fly_instances_txt(txt_content)
 
-        apps = 
+        apps =
           instances
           |> Enum.map(fn {_instance_id, app_name, _region} -> app_name end)
           |> Enum.uniq()
@@ -205,10 +205,10 @@ defmodule Demo.MachineDiscovery do
         |> Enum.group_by(fn {_instance_id, app_name, _region} -> app_name end)
         |> Enum.into(%{}, fn {app_name, app_instances} ->
           # Convert to {machine_id, region} tuples for compatibility
-          machines = 
+          machines =
             app_instances
             |> Enum.map(fn {instance_id, _app_name, region} -> {instance_id, region} end)
-          
+
           {app_name, {:ok, machines}}
         end)
 
@@ -244,7 +244,7 @@ defmodule Demo.MachineDiscovery do
     # Define style functions for different apps
     style_functions = [
       &FlyMapEx.Style.active/1,
-      &FlyMapEx.Style.success/1, 
+      &FlyMapEx.Style.success/1,
       &FlyMapEx.Style.warning/1,
       &FlyMapEx.Style.danger/1,
       &FlyMapEx.Style.pending/1,
@@ -263,18 +263,20 @@ defmodule Demo.MachineDiscovery do
       machine_count = length(machines)
 
       # Apply different styling based on machine count for visual variety
-      style_opts = case machine_count do
-        count when count >= 5 -> [size: 10, animated: true]
-        count when count >= 3 -> [size: 8, animated: true]
-        _ -> [size: 6, animated: false]
-      end
-      
+      style_opts =
+        case machine_count do
+          count when count >= 5 -> [size: 10, animated: true]
+          count when count >= 3 -> [size: 8, animated: true]
+          _ -> [size: 6, animated: false]
+        end
+
       style = style_fn.(style_opts)
 
-      label = case machine_count do
-        1 -> "#{app_name} (1 machine)"
-        n -> "#{app_name} (#{n} machines)"
-      end
+      label =
+        case machine_count do
+          1 -> "#{app_name} (1 machine)"
+          n -> "#{app_name} (#{n} machines)"
+        end
 
       %{
         nodes: nodes,
@@ -322,7 +324,9 @@ defmodule Demo.MachineDiscovery do
     txt_content
     |> String.trim()
     |> case do
-      "" -> []
+      "" ->
+        []
+
       content ->
         content
         |> String.split(",")
