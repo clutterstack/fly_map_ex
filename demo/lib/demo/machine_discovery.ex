@@ -226,7 +226,8 @@ defmodule Demo.MachineDiscovery do
   Convert app machines data to marker groups for FlyMapEx.
 
   Takes a map of app names to machine discovery results and converts them
-  to FlyMapEx marker groups format with distinct styling for each app.
+  to FlyMapEx marker groups format with distinct cycling colors for each app.
+  Uses FlyMapEx.Style.cycle/1 to automatically assign visually distinct colors.
 
   ## Examples
 
@@ -236,22 +237,11 @@ defmodule Demo.MachineDiscovery do
       ...> }
       iex> Demo.MachineDiscovery.from_app_machines(app_machines)
       [
-        %{nodes: ["yyz", "fra"], style: FlyMapEx.Style.active(), label: "app1 (2 machines)"},
-        %{nodes: ["lhr"], style: FlyMapEx.Style.success(), label: "app2 (1 machine)"}
+        %{nodes: ["yyz", "fra"], style: FlyMapEx.Style.cycle(0), label: "app1 (2 machines)"},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.cycle(1), label: "app2 (1 machine)"}
       ]
   """
   def from_app_machines(app_machines) when is_map(app_machines) do
-    # Define style functions for different apps
-    style_functions = [
-      &FlyMapEx.Style.active/1,
-      &FlyMapEx.Style.success/1,
-      &FlyMapEx.Style.warning/1,
-      &FlyMapEx.Style.danger/1,
-      &FlyMapEx.Style.pending/1,
-      &FlyMapEx.Style.info/1,
-      &FlyMapEx.Style.inactive/1
-    ]
-
     app_machines
     |> Enum.with_index()
     |> Enum.filter(fn {{_app, result}, _index} ->
@@ -259,10 +249,9 @@ defmodule Demo.MachineDiscovery do
     end)
     |> Enum.map(fn {{app_name, {:ok, machines}}, index} ->
       nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
-      style_fn = Enum.at(style_functions, rem(index, length(style_functions)))
       machine_count = length(machines)
 
-      # Apply different styling based on machine count for visual variety
+      # Use cycling colors with size/animation based on machine count for visual variety
       style_opts =
         case machine_count do
           count when count >= 5 -> [size: 10, animated: true]
@@ -270,7 +259,8 @@ defmodule Demo.MachineDiscovery do
           _ -> [size: 6, animated: false]
         end
 
-      style = style_fn.(style_opts)
+      # Use FlyMapEx.Style.cycle/1 for automatic color cycling
+      style = FlyMapEx.Style.cycle(index, style_opts)
 
       label =
         case machine_count do
