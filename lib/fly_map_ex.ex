@@ -36,7 +36,6 @@ defmodule FlyMapEx do
   alias FlyMapEx.{Theme, Style, Nodes, Regions}
   alias FlyMapEx.Components.{WorldMap, LegendComponent}
 
-
   @doc """
   This is the main entry point for the library. It renders a card containing
   the world map and legend.

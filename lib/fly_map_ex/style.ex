@@ -2,24 +2,86 @@ defmodule FlyMapEx.Style do
   @moduledoc """
   Style builder functions for FlyMapEx markers.
 
-  Provides a clean API for creating marker styles without predefined presets.
-  Styles are defined inline or built using semantic helper functions.
+  Provides semantic styles for common states, non-semantic color cycling for multiple
+  groups, and custom style building capabilities.
 
-  ## Basic Usage
+  ## Semantic Styles
 
-      # Inline style definition
-      %{nodes: ["sjc"], style: [color: "#3b82f6", size: 8], label: "Custom"}
-      
-      # Using builder functions
-      %{nodes: ["fra"], style: FlyMapEx.Style.success(), label: "Healthy"}
-      %{nodes: ["ams"], style: FlyMapEx.Style.danger(size: 12), label: "Critical"}
+  For markers with clear meaning:
 
-  ## CSS Variables
+      %{nodes: ["sjc"], style: FlyMapEx.Style.operational(), label: "Running"}
+      %{nodes: ["fra"], style: FlyMapEx.Style.warning(), label: "Degraded"}
+      %{nodes: ["ams"], style: FlyMapEx.Style.danger(), label: "Failed"}
 
-  Styles support CSS custom properties for dynamic theming:
+  ## Non-Semantic Color Cycling
 
-      %{nodes: ["sjc"], style: [color: "var(--primary)", size: 8], label: "Dynamic"}
+  For multiple groups without specific meaning:
+
+      groups = [
+        %{nodes: ["sjc"], style: FlyMapEx.Style.cycle(0), label: "App 1"},
+        %{nodes: ["fra"], style: FlyMapEx.Style.cycle(1), label: "App 2"},
+        %{nodes: ["ams"], style: FlyMapEx.Style.cycle(2), label: "App 3"}
+      ]
+
+  ## Custom Styles
+
+      %{nodes: ["sjc"], style: FlyMapEx.Style.custom("#3b82f6", size: 8), label: "Custom"}
+      %{nodes: ["fra"], style: [color: "var(--primary)", size: 6], label: "CSS Variable"}
   """
+
+  # Color palette for non-semantic cycling
+  @cycle_colors [
+    # blue
+    "#3b82f6",
+    # emerald
+    "#10b981",
+    # amber
+    "#f59e0b",
+    # red
+    "#ef4444",
+    # violet
+    "#8b5cf6",
+    # cyan
+    "#06b6d4",
+    # lime
+    "#84cc16",
+    # orange
+    "#f97316",
+    # pink
+    "#ec4899",
+    # teal
+    "#14b8a6"
+  ]
+
+  @doc """
+  Get the available non-semantic colors for cycling.
+
+  Returns a list of hex color strings that provide good visual distinction
+  when used for multiple groups without semantic meaning.
+
+  ## Examples
+
+      iex> FlyMapEx.Style.colors()
+      ["#3b82f6", "#10b981", "#f59e0b", ...]
+  """
+  def colors, do: @cycle_colors
+
+  @doc """
+  Get a non-semantic style by cycling through predefined colors.
+
+  Useful when you have multiple groups but don't want to assign semantic meaning.
+  Colors are chosen to provide good visual distinction.
+
+  ## Examples
+
+      FlyMapEx.Style.cycle(0)  # blue
+      FlyMapEx.Style.cycle(1)  # emerald  
+      FlyMapEx.Style.cycle(10) # blue again (wraps around)
+  """
+  def cycle(index, opts \\ []) when is_integer(index) do
+    color = Enum.at(@cycle_colors, rem(index, length(@cycle_colors)))
+    custom(color, Keyword.merge([size: 7], opts))
+  end
 
   @doc """
   Build a custom style with explicit parameters.
@@ -47,25 +109,36 @@ defmodule FlyMapEx.Style do
     }
   end
 
-  @doc """
-  Success/healthy state style - green, static.
-  """
-  def success(opts \\ []) do
-    custom("#10b981", Keyword.merge([size: 6, animated: false], opts))
-  end
+  # Core semantic styles
 
   @doc """
-  Warning state style - orange, pulsing.
+  Operational/healthy state style - green, subtle animation.
+
+  Use for nodes that are running normally and healthy.
   """
-  def warning(opts \\ []) do
+  def operational(opts \\ []) do
     custom(
-      "#f59e0b",
+      "#10b981",
       Keyword.merge([size: 7, animated: true, animation: :pulse, gradient: true], opts)
     )
   end
 
   @doc """
-  Danger/error state style - red, bouncing.
+  Warning/degraded state style - amber, static with gradient.
+
+  Use for nodes that are running but experiencing issues.
+  """
+  def warning(opts \\ []) do
+    custom(
+      "#f59e0b",
+      Keyword.merge([size: 8, animated: false, gradient: true], opts)
+    )
+  end
+
+  @doc """
+  Danger/failed state style - red, prominent bouncing animation.
+
+  Use for nodes that are failed or experiencing critical issues.
   """
   def danger(opts \\ []) do
     custom(
@@ -75,85 +148,112 @@ defmodule FlyMapEx.Style do
   end
 
   @doc """
-  Active/running state style - blue, pulsing.
-  """
-  def active(opts \\ []) do
-    custom(
-      "#3b82f6",
-      Keyword.merge([size: 8, animated: true, animation: :pulse, gradient: true], opts)
-    )
-  end
+  Inactive/stopped state style - gray, small and static.
 
-  @doc """
-  Inactive/stopped state style - gray, static.
+  Use for nodes that are intentionally stopped or offline.
   """
   def inactive(opts \\ []) do
     custom("#6b7280", Keyword.merge([size: 5, animated: false], opts))
   end
 
-  @doc """
-  Pending/processing state style - yellow, fading.
-  """
-  def pending(opts \\ []) do
-    custom(
-      "#eab308",
-      Keyword.merge([size: 7, animated: true, animation: :fade, gradient: true], opts)
-    )
-  end
+  # Additional useful styles
 
   @doc """
-  Info/neutral state style - light blue, static.
-  """
-  def info(opts \\ []) do
-    custom("#0ea5e9", Keyword.merge([size: 6, animated: false], opts))
-  end
+  Primary accent style - blue, static with gradient.
 
-  @doc """
-  Primary state style - blue, pulsing.
+  General purpose primary accent color.
   """
   def primary(opts \\ []) do
     custom(
-      "#2563eb",
-      Keyword.merge([size: 8, animated: true, animation: :pulse, gradient: true], opts)
+      "#3b82f6",
+      Keyword.merge([size: 7, animated: false, gradient: true], opts)
     )
   end
 
   @doc """
-  Expected state style - orange, pulsing.
-  Alias for warning style for backward compatibility.
-  """
-  def expected(opts \\ []) do
-    warning(opts)
-  end
+  Secondary accent style - teal, static.
 
-  @doc """
-  Acknowledged state style - green, static.
-  Alias for success style for backward compatibility.
-  """
-  def acknowledged(opts \\ []) do
-    success(opts)
-  end
-
-  @doc """
-  Secondary state style - teal, static.
+  General purpose secondary accent color.
   """
   def secondary(opts \\ []) do
     custom("#14b8a6", Keyword.merge([size: 6, animated: false], opts))
   end
 
   @doc """
+  Info/neutral state style - light blue, static.
+
+  For informational or neutral states.
+  """
+  def info(opts \\ []) do
+    custom("#0ea5e9", Keyword.merge([size: 6, animated: false], opts))
+  end
+
+  # Backward compatibility aliases (deprecated)
+
+  @doc """
+  Active state style - alias for operational.
+
+  **Deprecated**: Use `operational/1` instead.
+  """
+  def active(opts \\ []) do
+    operational(opts)
+  end
+
+  @doc """
+  Success state style - alias for operational.
+
+  **Deprecated**: Use `operational/1` instead.
+  """
+  def success(opts \\ []) do
+    operational(opts)
+  end
+
+  @doc """
   Normalize a style definition to ensure all required fields are present.
 
-  Accepts either a keyword list or map, returns a normalized map.
+  Accepts style atoms, keyword lists, maps, or functions, and returns a normalized map.
+  This function handles the conversion from various style formats to the standard
+  style map format expected by the rendering components.
+
+  ## Style Atom Resolution
+
+  Resolves semantic and non-semantic style atoms:
+
+  * `:operational`, `:warning`, `:danger`, `:inactive` - Core semantic styles
+  * `:primary`, `:secondary`, `:info` - General purpose styles  
+  * `:active`, `:success` - Backward compatibility (map to `:operational`)
+  * Unknown atoms fall back to `:info` style
 
   ## Examples
 
+      iex> FlyMapEx.Style.normalize(:operational)
+      %{color: "#10b981", size: 7, animated: true, animation: :pulse, gradient: true}
+      
       iex> FlyMapEx.Style.normalize([color: "#000", size: 10])
       %{color: "#000", size: 10, animated: false, animation: :none, gradient: false}
       
       iex> FlyMapEx.Style.normalize(%{color: "#fff"})
       %{color: "#fff", size: 6, animated: false, animation: :none, gradient: false}
   """
+  def normalize(style_atom) when is_atom(style_atom) do
+    case style_atom do
+      :operational -> operational()
+      :warning -> warning()
+      :danger -> danger()
+      :inactive -> inactive()
+      :primary -> primary()
+      :secondary -> secondary()
+      :info -> info()
+      # Backward compatibility
+      :active -> operational()
+      :success -> operational()
+      :acknowledged -> operational()
+      :expected -> warning()
+      # Fallback
+      _ -> info()
+    end
+  end
+
   def normalize(style) when is_list(style) do
     style |> Enum.into(%{}) |> normalize()
   end
@@ -169,4 +269,6 @@ defmodule FlyMapEx.Style do
 
     Map.merge(defaults, style)
   end
+
+  def normalize(_), do: info()
 end

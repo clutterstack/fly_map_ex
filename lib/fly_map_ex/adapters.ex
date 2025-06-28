@@ -6,6 +6,8 @@ defmodule FlyMapEx.Adapters do
   commonly used in Elixir applications.
   """
 
+  alias FlyMapEx.Style
+
   @doc """
   Parse Fly.io DNS TXT record for machine discovery.
 
@@ -107,7 +109,7 @@ defmodule FlyMapEx.Adapters do
 
       %{
         nodes: [region],
-        style: normalize_style(style_key),
+        style: Style.normalize(style_key),
         label: label_with_count,
         machine_count: count
       }
@@ -117,22 +119,7 @@ defmodule FlyMapEx.Adapters do
 
   def from_machine_tuples(_, _label, _style_key), do: []
 
-  # Helper function to normalize style keys to style maps
-  defp normalize_style(style_key) when is_atom(style_key) do
-    case style_key do
-      :primary -> FlyMapEx.Style.primary()
-      :active -> FlyMapEx.Style.active()
-      :expected -> FlyMapEx.Style.warning()
-      :acknowledged -> FlyMapEx.Style.success()
-      :secondary -> FlyMapEx.Style.secondary()
-      :warning -> FlyMapEx.Style.warning()
-      :inactive -> FlyMapEx.Style.inactive()
-      _ -> FlyMapEx.Style.info()
-    end
-  end
-
-  defp normalize_style(style) when is_map(style), do: style
-  defp normalize_style(_), do: FlyMapEx.Style.info()
+  # Note: Style normalization is now handled by FlyMapEx.Style.normalize/1
 
   # Private helper functions
 

@@ -82,12 +82,12 @@ defmodule FlyMapEx.Theme do
 
   @doc """
   Get a responsive background that adapts to CSS theme variables.
-  
+
   This uses CSS custom properties that automatically change
   based on the current DaisyUI theme.
-  
+
   ## Examples
-  
+
       iex> FlyMapEx.Theme.responsive_background()
       %{
         land: "oklch(var(--color-base-100) / 1)",

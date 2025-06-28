@@ -17,9 +17,15 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   def legend(%{marker_groups: marker_groups} = assigns) do
     # Create legend entries for all available apps
-    all_legend_entries = create_all_app_legend_entries(assigns.available_apps, assigns.all_instances_data, marker_groups)
+    all_legend_entries =
+      create_all_app_legend_entries(
+        assigns.available_apps,
+        assigns.all_instances_data,
+        marker_groups
+      )
 
     assigns = assign(assigns, :all_legend_entries, all_legend_entries)
+
     ~H"""
     <!-- Enhanced Legend -->
         <div class="text-xs text-base-content/70 space-y-1">
@@ -91,7 +97,6 @@ defmodule FlyMapEx.Components.LegendComponent do
           </div>
         </div>
     """
-
   end
 
   # Helper functions
@@ -110,8 +115,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     end
   end
 
-
-
   defp node_display_name(%{label: label}) when is_binary(label), do: label
 
   defp node_display_name(region_code) when is_binary(region_code) do
@@ -120,7 +123,6 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   defp node_display_name(_), do: nil
 
-
   defp region_display_name(region) do
     case Regions.name(region) do
       # Fall back to region code if no name found
@@ -128,7 +130,6 @@ defmodule FlyMapEx.Components.LegendComponent do
       name -> name
     end
   end
-
 
   defp total_active_regions(marker_groups) do
     marker_groups
@@ -154,7 +155,7 @@ defmodule FlyMapEx.Components.LegendComponent do
     # Create a map of app_name -> existing group for selected apps
     existing_groups =
       marker_groups
-      |> Enum.filter(& Map.has_key?(&1, :app_name))
+      |> Enum.filter(&Map.has_key?(&1, :app_name))
       |> Enum.into(%{}, fn group -> {group.app_name, group} end)
 
     # Create legend entries for all available apps
@@ -164,6 +165,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         nil ->
           # App is not selected, create a placeholder entry
           create_unselected_app_entry(app_name, all_instances_data)
+
         existing_group ->
           # App is selected, use the existing group
           existing_group
@@ -178,15 +180,17 @@ defmodule FlyMapEx.Components.LegendComponent do
         nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
         machine_count = length(machines)
 
-        label = case machine_count do
-          1 -> "#{app_name} (1 machine)"
-          n -> "#{app_name} (#{n} machines)"
-        end
+        label =
+          case machine_count do
+            1 -> "#{app_name} (1 machine)"
+            n -> "#{app_name} (#{n} machines)"
+          end
 
         # Use a muted style for unselected apps
         %{
           nodes: nodes,
-          style: %{color: "#94a3b8", size: 6, animated: false}, # muted gray
+          # muted gray
+          style: %{color: "#94a3b8", size: 6, animated: false},
           label: label,
           app_name: app_name,
           machine_count: machine_count
@@ -196,7 +200,8 @@ defmodule FlyMapEx.Components.LegendComponent do
         # No machine data available
         %{
           nodes: [],
-          style: %{color: "#e2e8f0", size: 4, animated: false}, # very light gray
+          # very light gray
+          style: %{color: "#e2e8f0", size: 4, animated: false},
           label: "#{app_name} (no machines)",
           app_name: app_name,
           machine_count: 0

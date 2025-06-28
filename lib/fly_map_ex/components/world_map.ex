@@ -140,7 +140,7 @@ defmodule FlyMapEx.Components.WorldMap do
     """
   end
 
-  def fly_region_markers(%{}=assigns) do
+  def fly_region_markers(%{} = assigns) do
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class="region-group" id={"region-#{region}"}>
