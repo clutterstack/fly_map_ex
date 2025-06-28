@@ -8,6 +8,7 @@ defmodule DemoWeb.MachineMapLive do
   use Phoenix.LiveView
 
   alias Demo.MachineDiscovery
+  alias DemoWeb.Layouts
 
   def mount(_params, _session, socket) do
     socket =
@@ -25,7 +26,6 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:machines_loading, false)
       |> assign(:apps_error, nil)
       |> assign(:show_app_selection, true)
-      |> assign(:theme, :light)
 
     # Try to get a default app from config/env
     default_app = get_app_name()
@@ -39,8 +39,6 @@ defmodule DemoWeb.MachineMapLive do
 
     # Start loading instance data immediately on mount
     send(self(), :load_instances)
-    # Check theme after mount
-    send(self(), :check_theme)
 
     {:ok, socket}
   end
@@ -94,16 +92,6 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_event("theme_changed", %{"theme" => theme}, socket) do
-    theme_atom = case theme do
-      "dark" -> :dark
-      "light" -> :light
-      _ -> :light
-    end
-    socket = assign(socket, :theme, theme_atom)
-    {:noreply, socket}
-  end
-
   def handle_event("refresh_machines", _params, socket) do
     socket =
       socket
@@ -126,9 +114,6 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_info(:check_theme, socket) do
-    {:noreply, socket}
-  end
 
   # Private helper function to discover and cache all instance data
   defp discover_and_cache_instances(socket) do
@@ -196,8 +181,11 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
-    <div class="container mx-auto px-4 py-8" phx-hook="ThemeDetector" id="theme-detector">
-      <h1 class="text-3xl font-bold mb-6 text-base-content">Fly.io Multi-App Machine Map</h1>
+    <div class="container mx-auto px-4 py-8">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-base-content">Fly.io Multi-App Machine Map</h1>
+        <Layouts.theme_toggle />
+      </div>
 
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
@@ -229,7 +217,11 @@ defmodule DemoWeb.MachineMapLive do
 
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
-        <FlyMapEx.render marker_groups={@marker_groups} theme={@theme} class="machine-map" />
+        <FlyMapEx.render 
+          marker_groups={@marker_groups} 
+          background={FlyMapEx.Theme.responsive_background()}
+          class="machine-map" 
+        />
       </div>
 
     <!-- Apps -->
@@ -305,40 +297,6 @@ defmodule DemoWeb.MachineMapLive do
         </p>
       </div>
     </div>
-
-    <script>
-      window.Hooks = window.Hooks || {};
-      window.Hooks.ThemeDetector = {
-        mounted() {
-          // Send initial theme
-          const theme = document.documentElement.getAttribute('data-theme') || 'light';
-          this.pushEvent('theme_changed', {theme: theme});
-
-          // Listen for theme changes
-          const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                const newTheme = document.documentElement.getAttribute('data-theme') || 'light';
-                this.pushEvent('theme_changed', {theme: newTheme});
-              }
-            });
-          });
-
-          observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['data-theme']
-          });
-
-          this.observer = observer;
-        },
-        
-        destroyed() {
-          if (this.observer) {
-            this.observer.disconnect();
-          }
-        }
-      };
-    </script>
     """
   end
 
