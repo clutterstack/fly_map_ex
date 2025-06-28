@@ -209,32 +209,6 @@ defmodule DemoWeb.MachineMapLive do
         </div>
       <% end %>
 
-      <!-- Machine Details -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Machine details</h2>
-
-    <!-- Summary Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h3 class="text-blue-800 font-semibold">Total Machines</h3>
-            <p class="text-2xl font-bold text-blue-900">{length(@all_selected_machines)}</p>
-          </div>
-          <div class="bg-green-50 p-4 rounded-lg">
-            <h3 class="text-green-800 font-semibold">Active Apps</h3>
-            <p class="text-2xl font-bold text-green-900">{length(@selected_apps)}</p>
-          </div>
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <h3 class="text-purple-800 font-semibold">Regions</h3>
-            <p class="text-2xl font-bold text-purple-900">
-              {@all_selected_machines
-              |> Enum.map(fn {_, region, _} -> region end)
-              |> Enum.uniq()
-              |> length()}
-            </p>
-          </div>
-        </div>
-        </div>
-
 
     <!-- World Map -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -243,11 +217,10 @@ defmodule DemoWeb.MachineMapLive do
 
     <!-- Apps -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Apps on this network</h2>
+        <h2 class="text-xl font-semibold mb-4">Apps with active Machines on this network</h2>
 
     <!-- Machines by App (all from DNS) -->
         <div class="space-y-4">
-          <h3 class="text-lg font-medium">Machines by App (all)</h3>
           <!--  for group <- @marker_groups do -->
           <%= for app <- @available_apps do %>
             <.app_card_content
@@ -277,6 +250,33 @@ defmodule DemoWeb.MachineMapLive do
                 </div>
               </div>
             <% end %>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Machine Details -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Machine details</h2>
+
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="text-blue-800 font-semibold">Total Machines</h3>
+            <p class="text-2xl font-bold text-blue-900">{length(@all_selected_machines)}</p>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg">
+            <h3 class="text-green-800 font-semibold">Active Apps</h3>
+            <p class="text-2xl font-bold text-green-900">{length(@selected_apps)}</p>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <h3 class="text-purple-800 font-semibold">Regions</h3>
+            <p class="text-2xl font-bold text-purple-900">
+              {@all_selected_machines
+              |> Enum.map(fn {_, region, _} -> region end)
+              |> Enum.uniq()
+              |> length()}
+            </p>
           </div>
         </div>
       </div>
@@ -377,42 +377,36 @@ defmodule DemoWeb.MachineMapLive do
     ~H"""
     <div
         class={[
-         "border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md",
+         "border rounded-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-md",
           if(@is_selected, do: "border-blue-500 bg-blue-50 shadow-sm", else: "border-gray-200 hover:border-gray-300")
         ]}
         phx-click="toggle_app"
        phx-value-app={@app_name}
       >
-      <div class="flex items-center mb-2">
-        <span
-            class={[
-              "inline-block w-3 h-3 rounded-full mr-2",
-              if(@is_selected, do: "ring-2 ring-blue-300", else: "")
-            ]}
-          style={"background-color: #{colour_from_app_name(@marker_groups, @app_name)};"}
-        >
-        </span>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <span
+              class={[
+                "inline-block w-3 h-3 rounded-full mr-2",
+                if(@is_selected, do: "ring-2 ring-blue-300", else: "")
+              ]}
+            style={"background-color: #{colour_from_app_name(@marker_groups, @app_name)};"}
+          >
+          </span>
           <h4 class={[
             "font-semibold",
             if(@is_selected, do: "text-blue-900", else: "text-gray-900")
           ]}>{@app_name}</h4>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500">
+          <span>{length(machs_from_app_name(@all_instances_data, @app_name))} machines</span>
+          <span>•</span>
+          <span>{@region_string}</span>
           <%= if @is_selected do %>
-            <svg class="w-4 h-4 ml-auto text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
-          <% end %>      </div>
-      <div class="text-sm text-gray-600">
-        <p>Regions: {@region_string}</p>
-        <div class="mt-2">
-          <p class="font-medium">Machines:</p>
-          <div class="ml-4 space-y-1">
-            <%= for {machine_id, region} <- machs_from_app_name(@all_instances_data, @app_name) do %>
-              <div class="font-mono text-xs">
-                <span class="text-gray-500">{String.slice(machine_id, 0, 8)}...</span>
-                <span class="text-blue-600 ml-2">{region}</span>
-              </div>
-            <% end %>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>
