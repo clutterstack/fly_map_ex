@@ -93,7 +93,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
             </div>
           </div>
 
-          <!-- Available regions without machines -->
+          <!-- Available regions with or without Machines -->
           <div class="flex items-start space-x-3 p-2 rounded-lg hover:bg-base-200/50 opacity-75">
             <div class="flex-shrink-0 mt-1">
               <span class="inline-block w-2 h-2 rounded-full bg-gray-400 opacity-30"></span>
@@ -104,7 +104,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
               </div>
               <div class="text-xs text-base-content/50 mt-1">
                 <span>
-                  Fly.io regions without machines (<%= inactive_regions_count(@processed_groups) %> regions)
+                  Fly.io regions  (<%= total_available_regions() %> regions)
                 </span>
               </div>
             </div>
