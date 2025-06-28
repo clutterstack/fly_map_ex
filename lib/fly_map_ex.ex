@@ -99,19 +99,20 @@ defmodule FlyMapEx do
         ]} />
       </div>
   """
-  attr :marker_groups, :list, default: []
-  attr :theme, :atom, default: :light
-  attr :background, :map, default: nil
-  attr :class, :string, default: ""
+  attr(:marker_groups, :list, default: [])
+  attr(:theme, :atom, default: :light)
+  attr(:background, :map, default: nil)
+  attr(:class, :string, default: "")
 
   def render(assigns) do
     # Use custom background or theme background
     background = assigns.background || Theme.background(assigns.theme)
-    
+
     # Normalize marker group styles
     normalized_groups = normalize_marker_groups(assigns.marker_groups)
 
-    assigns = assigns
+    assigns =
+      assigns
       |> assign(:background, background)
       |> assign(:marker_groups, normalized_groups)
 
@@ -134,7 +135,7 @@ defmodule FlyMapEx do
     # Normalize the style and process nodes
     normalized_style = Style.normalize(style)
     group = Map.put(group, :style, normalized_style)
-    
+
     if Map.has_key?(group, :nodes) do
       Nodes.process_node_group(group)
     else
@@ -146,11 +147,11 @@ defmodule FlyMapEx do
     # No style specified - use default
     require Logger
     Logger.warning("Marker group missing style, using default: #{inspect(group)}")
-    
+
     default_group = Map.put_new(group, :style, Style.normalize([]))
-    
+
     if Map.has_key?(default_group, :nodes) do
-      Nodes.process_node_group(default_group)  
+      Nodes.process_node_group(default_group)
     else
       default_group
     end

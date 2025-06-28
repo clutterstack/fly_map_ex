@@ -26,23 +26,26 @@ defmodule FlyMapEx.Components.WorldMapCard do
   * `background` - Map with background and border colours
   * `class` - Additional CSS classes for the card container
   """
-  attr :marker_groups, :list, default: []
-  attr :background, :map, default: %{}
-  attr :class, :string, default: ""
+  attr(:marker_groups, :list, default: [])
+  attr(:background, :map, default: %{})
+  attr(:class, :string, default: "")
 
   def render(assigns) do
     # Process marker groups (they're already normalized by the main component)
     processed_groups = assigns.marker_groups
 
     # Extract progress information for pending vs completed groups
-    pending_regions = find_regions_by_color(processed_groups, ["#f59e0b", "#d97706"])  # amber/orange colors
-    completed_regions = find_regions_by_color(processed_groups, ["#10b981", "#14b8a6"])  # green/teal colors
+    # amber/orange colors
+    pending_regions = find_regions_by_color(processed_groups, ["#f59e0b", "#d97706"])
+    # green/teal colors
+    completed_regions = find_regions_by_color(processed_groups, ["#10b981", "#14b8a6"])
 
-    assigns = assign(assigns, %{
-      processed_groups: processed_groups,
-      pending_regions: pending_regions,
-      completed_regions: completed_regions
-    })
+    assigns =
+      assign(assigns, %{
+        processed_groups: processed_groups,
+        pending_regions: pending_regions,
+        completed_regions: completed_regions
+      })
 
     # Logger.debug("@config_styles: #{inspect assigns.config_styles}")
 
@@ -118,7 +121,7 @@ defmodule FlyMapEx.Components.WorldMapCard do
     processed_groups
     |> Enum.filter(fn group -> group.style.color in colors end)
     |> Enum.flat_map(fn group -> extract_region_codes(group.nodes) end)
-    |> Enum.uniq()  
+    |> Enum.uniq()
   end
 
   # Helper to extract region codes from nodes for backward compatibility
@@ -131,8 +134,10 @@ defmodule FlyMapEx.Components.WorldMapCard do
           nil -> []
           code -> [code]
         end
+
       region_code when is_binary(region_code) ->
         [region_code]
+
       _ ->
         []
     end)
@@ -165,14 +170,17 @@ defmodule FlyMapEx.Components.WorldMapCard do
   end
 
   defp node_display_name(%{label: label}) when is_binary(label), do: label
+
   defp node_display_name(region_code) when is_binary(region_code) do
     region_display_name(region_code)
   end
+
   defp node_display_name(_), do: nil
 
   defp region_display_name(region) do
     case Regions.name(region) do
-      nil -> region  # Fall back to region code if no name found
+      # Fall back to region code if no name found
+      nil -> region
       name -> name
     end
   end

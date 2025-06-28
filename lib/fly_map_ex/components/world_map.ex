@@ -19,12 +19,18 @@ defmodule FlyMapEx.Components.WorldMap do
 
   # Default color scheme
   @colours %{
-    our_nodes: "#77b5fe",      # Blue for our nodes
-    active_nodes: "#ffdc66",   # Yellow for active nodes
-    expected_nodes: "#ff8c42", # Orange for expected nodes
-    ack_nodes: "#9d4edd",      # Plasma violet for acknowledged nodes
-    background: "#444444",     # Map background
-    border: "#DAA520"          # Map border
+    # Blue for our nodes
+    our_nodes: "#77b5fe",
+    # Yellow for active nodes
+    active_nodes: "#ffdc66",
+    # Orange for expected nodes
+    expected_nodes: "#ff8c42",
+    # Plasma violet for acknowledged nodes
+    ack_nodes: "#9d4edd",
+    # Map background
+    background: "#444444",
+    # Map border
+    border: "#DAA520"
   }
 
   @doc """
@@ -37,31 +43,33 @@ defmodule FlyMapEx.Components.WorldMap do
   * `group_styles` - Map of group styles configuration (optional)
   * `id` - HTML id for the SVG element (default: "fly-region-map")
   """
-  attr :marker_groups, :list, default: []
-  attr :colours, :map, default: %{}
-  attr :id, :string, default: "fly-region-map"
+  attr(:marker_groups, :list, default: [])
+  attr(:colours, :map, default: %{})
+  attr(:id, :string, default: "fly-region-map")
 
   def render(assigns) do
     # Merge user colours with defaults
     colours = Map.merge(@colours, assigns.colours)
 
     # Generate gradients for all groups with gradients enabled
-    gradient_groups = Enum.filter(assigns.marker_groups, fn group ->
-      Map.get(group.style, :gradient, false)
-    end)
+    gradient_groups =
+      Enum.filter(assigns.marker_groups, fn group ->
+        Map.get(group.style, :gradient, false)
+      end)
 
-    assigns = assign(assigns, %{
-      colours: colours,
-      minx: @minx,
-      miny: @miny,
-      width: @width,
-      height: @height,
-      viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
-      gradient_groups: gradient_groups,
-      bbox: @bbox,
-      toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
-      btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}"
-    })
+    assigns =
+      assign(assigns, %{
+        colours: colours,
+        minx: @minx,
+        miny: @miny,
+        width: @width,
+        height: @height,
+        viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
+        gradient_groups: gradient_groups,
+        bbox: @bbox,
+        toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
+        btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}"
+      })
 
     ~H"""
     <svg
@@ -139,8 +147,6 @@ defmodule FlyMapEx.Components.WorldMap do
 
   # Private functions
 
-
-
   defp node_coordinates(nodes, bbox) when is_list(nodes) do
     nodes
     |> Enum.map(&coords_lookup/1)
@@ -148,6 +154,7 @@ defmodule FlyMapEx.Components.WorldMap do
   end
 
   defp coords_lookup(%{coordinates: coords}), do: coords
+
   defp coords_lookup(region_code) when is_binary(region_code) do
     Regions.coordinates(region_code)
   end
@@ -157,17 +164,19 @@ defmodule FlyMapEx.Components.WorldMap do
     animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)
 
-    fill = if gradient do
-      # Find this group's gradient index
-      gradient_index = Enum.find_index(gradient_groups, fn g -> g == group end)
-      if gradient_index, do: "url(#gradient#{gradient_index})", else: group.style.color
-    else
-      group.style.color
-    end
+    fill =
+      if gradient do
+        # Find this group's gradient index
+        gradient_index = Enum.find_index(gradient_groups, fn g -> g == group end)
+        if gradient_index, do: "url(#gradient#{gradient_index})", else: group.style.color
+      else
+        group.style.color
+      end
 
     case animation do
       :pulse ->
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+
         ~H"""
         <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
           <animate attributeName="r" values={"#{@base_size};#{@base_size + 4};#{@base_size}"} dur="2s" repeatCount="indefinite" />
@@ -177,6 +186,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
       :bounce ->
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+
         ~H"""
         <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
           <animate attributeName="r" values={"#{@base_size};#{@base_size + 6};#{@base_size};#{@base_size + 2};#{@base_size}"} dur="1.5s" repeatCount="indefinite" />
@@ -185,20 +195,22 @@ defmodule FlyMapEx.Components.WorldMap do
 
       :fade ->
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+
         ~H"""
         <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@fill}>
           <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" />
         </circle>
         """
 
-      _ -> # :none or any other value
+      # :none or any other value
+      _ ->
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+
         ~H"""
         <circle cx={@x} cy={@y} r={@base_size} fill={@fill} opacity="0.9" />
         """
     end
   end
-
 
   defp all_regions_with_coords do
     for {region_atom, coords} <- Regions.all() do
@@ -225,5 +237,4 @@ defmodule FlyMapEx.Components.WorldMap do
 
     {x, y}
   end
-
 end

@@ -6,14 +6,6 @@ defmodule FlyMapEx.Adapters do
   commonly used in Elixir applications.
   """
 
-
-
-
-
-
-
-
-
   @doc """
   Parse Fly.io DNS TXT record for machine discovery.
 
@@ -32,7 +24,9 @@ defmodule FlyMapEx.Adapters do
     txt_record
     |> String.trim()
     |> case do
-      "" -> []
+      "" ->
+        []
+
       record ->
         record
         |> String.split(",")
@@ -66,7 +60,9 @@ defmodule FlyMapEx.Adapters do
     txt_record
     |> String.trim()
     |> case do
-      "" -> []
+      "" ->
+        []
+
       record ->
         record
         |> String.split(";")
@@ -138,7 +134,6 @@ defmodule FlyMapEx.Adapters do
   defp normalize_style(style) when is_map(style), do: style
   defp normalize_style(_), do: FlyMapEx.Style.info()
 
-
   # Private helper functions
 
   defp parse_machine_entry(entry) when is_binary(entry) do
@@ -153,7 +148,8 @@ defmodule FlyMapEx.Adapters do
           nil
         end
 
-      _ -> nil
+      _ ->
+        nil
     end
   end
 
@@ -162,7 +158,7 @@ defmodule FlyMapEx.Adapters do
   defp parse_instance_entry(entry) when is_binary(entry) do
     # Parse format: "instance=id,app=name,ip=addr,region=reg"
     parts = String.split(entry, ",")
-    
+
     case parts do
       [instance_part, app_part, _ip_part, region_part] ->
         with ["instance", instance_id] <- String.split(instance_part, "=", parts: 2),
@@ -171,7 +167,7 @@ defmodule FlyMapEx.Adapters do
           instance_id = String.trim(instance_id)
           app_name = String.trim(app_name)
           region = String.trim(region)
-          
+
           if instance_id != "" and app_name != "" and region != "" do
             {instance_id, app_name, region}
           else
@@ -180,11 +176,11 @@ defmodule FlyMapEx.Adapters do
         else
           _ -> nil
         end
-      
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 
   defp parse_instance_entry(_), do: nil
-
 end

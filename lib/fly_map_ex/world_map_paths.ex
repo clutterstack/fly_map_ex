@@ -17,7 +17,7 @@ defmodule FlyMapEx.WorldMapPaths do
     * `background` - Fill color for landmasses
     * `border` - Stroke color for borders
   """
-  attr :colours, :map, required: true
+  attr(:colours, :map, required: true)
 
   def render(assigns) do
     ~H"""

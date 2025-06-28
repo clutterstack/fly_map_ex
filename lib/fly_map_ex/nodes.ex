@@ -8,7 +8,6 @@ defmodule FlyMapEx.Nodes do
 
   alias FlyMapEx.Regions
 
-
   @doc """
   Process a single node group to normalize nodes to coordinate format.
   """
@@ -40,11 +39,13 @@ defmodule FlyMapEx.Nodes do
           label: Regions.name(node) || node,
           coordinates: {lat, long}
         }
+
       _ ->
         # Unknown region, place off-screen
         %{
           label: node,
-          coordinates: {0, -190}  # Off-screen coordinates
+          # Off-screen coordinates
+          coordinates: {0, -190}
         }
     end
   end
@@ -70,8 +71,4 @@ defmodule FlyMapEx.Nodes do
     - A node map with label and coordinates (e.g., %{label: "Server", coordinates: {40.0, -74.0}})
     """
   end
-
-
-
-
 end

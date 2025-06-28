@@ -1,43 +1,43 @@
 defmodule FlyMapEx.Theme do
   @moduledoc """
   Background themes for FlyMapEx components.
-  
+
   Themes only control background colors and overall visual styling.
   Marker styles are defined separately using FlyMapEx.Style.
-  
+
   ## Usage
-  
+
       <FlyMapEx.render marker_groups={groups} theme={:dark} />
       
       # Or with custom background
       <FlyMapEx.render marker_groups={groups} background={custom_bg} />
   """
-  
+
   @doc """
   Get a background color scheme by name.
-  
+
   ## Available Themes
-  
+
   * `:light` - Light background with dark borders
   * `:dark` - Dark background with subtle borders  
   * `:minimal` - Clean white background
   * `:cool` - Cool blue tones
   * `:warm` - Warm earth tones
   * `:high_contrast` - Maximum contrast for accessibility
-  
+
   ## Examples
-  
+
       iex> FlyMapEx.Theme.background(:dark)
       %{land: "#0f172a", ocean: "#aaaaaa", border: "#334155"}
   """
   def background(:light) do
     %{
       land: "#888888",
-      ocean: "#aaaaaa", 
+      ocean: "#aaaaaa",
       border: "#0f172a"
     }
   end
-  
+
   def background(:dark) do
     %{
       land: "#0f172a",
@@ -45,15 +45,15 @@ defmodule FlyMapEx.Theme do
       border: "#334155"
     }
   end
-  
+
   def background(:minimal) do
     %{
       land: "#ffffff",
-      ocean: "#aaaaaa", 
+      ocean: "#aaaaaa",
       border: "#e5e7eb"
     }
   end
-  
+
   def background(:cool) do
     %{
       land: "#f1f5f9",
@@ -61,15 +61,15 @@ defmodule FlyMapEx.Theme do
       border: "#64748b"
     }
   end
-  
+
   def background(:warm) do
     %{
       land: "#fef7ed",
       ocean: "#aaaaaa",
-      border: "#c2410c" 
+      border: "#c2410c"
     }
   end
-  
+
   def background(:high_contrast) do
     %{
       land: "#ffffff",
@@ -77,6 +77,6 @@ defmodule FlyMapEx.Theme do
       border: "#000000"
     }
   end
-  
+
   def background(_), do: background(:light)
 end
