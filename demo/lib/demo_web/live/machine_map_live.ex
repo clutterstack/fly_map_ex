@@ -137,6 +137,7 @@ defmodule DemoWeb.MachineMapLive do
       socket
       |> assign(:all_instances_data, all_instances_data)
       |> assign(:available_apps, available_apps)
+      |> assign(:selected_apps, available_apps)
       |> assign(:apps_loading, false)
       |> assign(:apps_error, nil)
     end
