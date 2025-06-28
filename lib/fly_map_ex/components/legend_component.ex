@@ -18,7 +18,7 @@ defmodule FlyMapEx.Components.LegendComponent do
   def legend(%{processed_groups: processed_groups} = assigns) do
     # Create legend entries for all available apps
     all_legend_entries = create_all_app_legend_entries(assigns.available_apps, assigns.all_instances_data, processed_groups)
-    
+
     assigns = assign(assigns, :all_legend_entries, all_legend_entries)
     ~H"""
     <!-- Enhanced Legend -->
@@ -30,13 +30,13 @@ defmodule FlyMapEx.Components.LegendComponent do
             </div>
           </div>
 
-          <div 
-            :for={group <- @all_legend_entries} 
+          <div
+            :for={group <- @all_legend_entries}
             class={[
               "flex items-start space-x-3 p-2 rounded-lg cursor-pointer transition-all duration-200",
               "hover:bg-base-200/50 hover:shadow-sm",
-              if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, 
-                do: "bg-primary/10 border border-primary/20", 
+              if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps,
+                do: "bg-primary/10 border border-primary/20",
                 else: "hover:border-base-content/10 border border-transparent")
             ]}
             phx-click={if Map.has_key?(group, :app_name), do: "toggle_marker_group", else: nil}
@@ -56,8 +56,8 @@ defmodule FlyMapEx.Components.LegendComponent do
             <div class="flex-grow min-w-0">
               <div class={[
                 "font-medium",
-                if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, 
-                  do: "text-primary", 
+                if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps,
+                  do: "text-primary",
                   else: "text-base-content")
               ]}>
                 {group.label}
@@ -70,7 +70,7 @@ defmodule FlyMapEx.Components.LegendComponent do
               <div class="text-xs text-base-content/60 mt-1">
                 <div class="flex items-center space-x-4">
                   <span>
-                    Nodes: {WorldMapCard.format_nodes_display(group.nodes, "none")}
+                    Nodes: {format_nodes_display(group.nodes, "none")}
                   </span>
                 </div>
               </div>
@@ -100,6 +100,39 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   # Helper functions
 
+  defp format_nodes_display(nodes, empty_message) do
+    # Convert nodes to display names
+    display_names =
+      nodes
+      |> Enum.map(&node_display_name/1)
+      |> Enum.reject(&is_nil/1)
+
+    if display_names != [] do
+      "#{Enum.join(display_names, ", ")}"
+    else
+      empty_message
+    end
+  end
+
+
+
+  defp node_display_name(%{label: label}) when is_binary(label), do: label
+
+  defp node_display_name(region_code) when is_binary(region_code) do
+    region_display_name(region_code)
+  end
+
+  defp node_display_name(_), do: nil
+
+
+  defp region_display_name(region) do
+    case Regions.name(region) do
+      # Fall back to region code if no name found
+      nil -> region
+      name -> name
+    end
+  end
+
 
   defp total_active_regions(processed_groups) do
     processed_groups
@@ -123,7 +156,7 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   defp create_all_app_legend_entries(available_apps, all_instances_data, processed_groups) do
     # Create a map of app_name -> existing group for selected apps
-    existing_groups = 
+    existing_groups =
       processed_groups
       |> Enum.filter(& Map.has_key?(&1, :app_name))
       |> Enum.into(%{}, fn group -> {group.app_name, group} end)
@@ -148,7 +181,7 @@ defmodule FlyMapEx.Components.LegendComponent do
       {:ok, machines} ->
         nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
         machine_count = length(machines)
-        
+
         label = case machine_count do
           1 -> "#{app_name} (1 machine)"
           n -> "#{app_name} (#{n} machines)"
@@ -162,7 +195,7 @@ defmodule FlyMapEx.Components.LegendComponent do
           app_name: app_name,
           machine_count: machine_count
         }
-      
+
       _ ->
         # No machine data available
         %{

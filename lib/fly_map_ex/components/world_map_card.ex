@@ -37,17 +37,10 @@ defmodule FlyMapEx.Components.WorldMapCard do
     # Process marker groups (they're already normalized by the main component)
     processed_groups = assigns.marker_groups
 
-    # Extract progress information for pending vs completed groups
-    # amber/orange colors
-    pending_regions = find_regions_by_color(processed_groups, ["#f59e0b", "#d97706"])
-    # green/teal colors
-    completed_regions = find_regions_by_color(processed_groups, ["#10b981", "#14b8a6"])
 
     assigns =
       assign(assigns, %{
         processed_groups: processed_groups,
-        pending_regions: pending_regions,
-        completed_regions: completed_regions
       })
 
     ~H"""
@@ -60,11 +53,11 @@ defmodule FlyMapEx.Components.WorldMapCard do
           />
         </div>
 
-        <LegendComponent.legend 
-          processed_groups={@processed_groups} 
+        <LegendComponent.legend
+          processed_groups={@processed_groups}
           selected_apps={@selected_apps}
           available_apps={@available_apps}
-          all_instances_data={@all_instances_data} 
+          all_instances_data={@all_instances_data}
         />
       </div>
     </div>
@@ -109,36 +102,6 @@ defmodule FlyMapEx.Components.WorldMapCard do
     |> case do
       {code, _coords} -> Atom.to_string(code)
       nil -> nil
-    end
-  end
-
-  def format_nodes_display(nodes, empty_message) do
-    # Convert nodes to display names
-    display_names =
-      nodes
-      |> Enum.map(&node_display_name/1)
-      |> Enum.reject(&is_nil/1)
-
-    if display_names != [] do
-      "#{Enum.join(display_names, ", ")}"
-    else
-      empty_message
-    end
-  end
-
-  defp node_display_name(%{label: label}) when is_binary(label), do: label
-
-  defp node_display_name(region_code) when is_binary(region_code) do
-    region_display_name(region_code)
-  end
-
-  defp node_display_name(_), do: nil
-
-  defp region_display_name(region) do
-    case Regions.name(region) do
-      # Fall back to region code if no name found
-      nil -> region
-      name -> name
     end
   end
 end

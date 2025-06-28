@@ -235,14 +235,6 @@ defmodule DemoWeb.MachineMapLive do
         />
       </div>
 
-    <!-- Apps -->
-      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
-
-
-
-      </div>
-
-
       <!-- Machine Details -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">Mapped Machines</h2>
