@@ -16,7 +16,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
       |> assign(:marker_groups, [fly_regions_group()])
-      |> assign(:all_machines, [])
+      |> assign(:all_selected_machines, [])
       |> assign(:all_instances_data, %{})  # Cache complete instance data for instant filtering
       |> assign(:last_updated, nil)
       |> assign(:error, nil)
@@ -54,7 +54,7 @@ defmodule DemoWeb.MachineMapLive do
       [app_name | selected_apps]
     end
 
-    socket = 
+    socket =
       socket
       |> assign(:selected_apps, new_selected_apps)
       |> refresh_machines_for_selected_apps()
@@ -64,8 +64,8 @@ defmodule DemoWeb.MachineMapLive do
 
   def handle_event("select_all_apps", _params, socket) do
     available_apps = socket.assigns.available_apps
-    
-    socket = 
+
+    socket =
       socket
       |> assign(:selected_apps, available_apps)
       |> refresh_machines_for_selected_apps()
@@ -74,7 +74,7 @@ defmodule DemoWeb.MachineMapLive do
   end
 
   def handle_event("deselect_all_apps", _params, socket) do
-    socket = 
+    socket =
       socket
       |> assign(:selected_apps, [])
       |> refresh_machines_for_selected_apps()
@@ -111,15 +111,15 @@ defmodule DemoWeb.MachineMapLive do
     socket = assign(socket, :apps_loading, true)
 
     # Get all instance data in one DNS query and cache it
-    all_instances_data = MachineDiscovery.discover_all_from_instances()
-    
+    all_instances_data = MachineDiscovery.discover_all_from_instances() |> dbg
+
     if all_instances_data == %{} do
       socket
       |> assign(:apps_loading, false)
       |> assign(:apps_error, "No running machines found in _instances.internal DNS record")
     else
       # Extract app names from cached data
-      available_apps = 
+      available_apps =
         all_instances_data
         |> Map.keys()
         |> Enum.sort()
@@ -142,14 +142,14 @@ defmodule DemoWeb.MachineMapLive do
       socket
       |> assign(:app_machines, %{})
       |> assign(:marker_groups, [])
-      |> assign(:all_machines, [])
+      |> assign(:all_selected_machines, [])
       |> assign(:last_updated, DateTime.utc_now())
     else
       # Filter cached instance data for selected apps (no DNS query needed!)
-      app_machines = Map.take(all_instances_data, selected_apps)
+      app_machines = Map.take(all_instances_data, selected_apps) |> dbg
       marker_groups = MachineDiscovery.from_app_machines(app_machines)
 
-      all_machines =
+      all_selected_machines =
         app_machines
         |> Enum.flat_map(fn {app_name, result} ->
           case result do
@@ -161,7 +161,7 @@ defmodule DemoWeb.MachineMapLive do
       socket
       |> assign(:app_machines, app_machines)
       |> assign(:marker_groups, marker_groups)
-      |> assign(:all_machines, all_machines)
+      |> assign(:all_selected_machines, all_selected_machines)
       |> assign(:last_updated, DateTime.utc_now())
       |> assign(:error, nil)
     end
@@ -345,7 +345,7 @@ defmodule DemoWeb.MachineMapLive do
       </div>
 
       <!-- Machine Details -->
-      <%= if @all_machines != [] do %>
+      <%= if @all_selected_machines != [] do %>
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 class="text-xl font-semibold mb-4">Machine Details</h2>
 
@@ -353,7 +353,7 @@ defmodule DemoWeb.MachineMapLive do
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-blue-50 p-4 rounded-lg">
               <h3 class="text-blue-800 font-semibold">Total Machines</h3>
-              <p class="text-2xl font-bold text-blue-900"><%= length(@all_machines) %></p>
+              <p class="text-2xl font-bold text-blue-900"><%= length(@all_selected_machines) %></p>
             </div>
             <div class="bg-green-50 p-4 rounded-lg">
               <h3 class="text-green-800 font-semibold">Active Apps</h3>
@@ -362,14 +362,35 @@ defmodule DemoWeb.MachineMapLive do
             <div class="bg-purple-50 p-4 rounded-lg">
               <h3 class="text-purple-800 font-semibold">Regions</h3>
               <p class="text-2xl font-bold text-purple-900">
-                <%= @all_machines |> Enum.map(fn {_, region, _} -> region end) |> Enum.uniq() |> length() %>
+                <%= @all_selected_machines |> Enum.map(fn {_, region, _} -> region end) |> Enum.uniq() |> length() %>
               </p>
             </div>
           </div>
 
-          <!-- Machines by App -->
+          <!-- Machines by App (all from DNS) -->
           <div class="space-y-4">
-            <h3 class="text-lg font-medium">Machines by App</h3>
+            <h3 class="text-lg font-medium">Machines by App (all)</h3>
+            <!--  for group <- @marker_groups do -->
+            <%= for app <- @available_apps do %>
+              <div class="border rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                  <span
+                    class="inline-block w-3 h-3 rounded-full mr-2"
+                    style={"background-color: #{colour_from_app_name(@marker_groups, app)};"}
+                  ></span>
+                  <h4 class="font-semibold"><%= app %></h4>
+                </div>
+                <div class="text-sm text-gray-600">
+                  hahahaha
+                  <.app_card_content all_instances_data={@all_instances_data}, marker_groups={@marker_groups}, app_name={app} />
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Machines by App (selected) -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium">Machines by App (selected) </h3>
             <%= for group <- @marker_groups do %>
               <div class="border rounded-lg p-4">
                 <div class="flex items-center mb-2">
@@ -385,7 +406,7 @@ defmodule DemoWeb.MachineMapLive do
                     <div class="mt-2">
                       <p class="font-medium">Machines:</p>
                       <div class="ml-4 space-y-1">
-                        <%= for {machine_id, region, app} <- @all_machines, app == group.app_name do %>
+                        <%= for {machine_id, region, app} <- @all_selected_machines, app == group.app_name do %>
                           <div class="font-mono text-xs">
                             <span class="text-gray-500"><%= String.slice(machine_id, 0, 8) %>...</span>
                             <span class="text-blue-600 ml-2"><%= region %></span>
@@ -403,7 +424,7 @@ defmodule DemoWeb.MachineMapLive do
           <div class="mt-6">
             <h3 class="text-lg font-medium mb-4">Machines by Region</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <%= for {region, machines} <- @all_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
+              <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
                 <div class="border rounded-lg p-4">
                   <h4 class="font-semibold text-blue-800"><%= region %></h4>
                   <p class="text-sm text-gray-600 mb-2"><%= length(machines) %> machines</p>
@@ -442,7 +463,7 @@ defmodule DemoWeb.MachineMapLive do
     # Extract color from the new style format
     Map.get(style, :color, "#888888")
   end
-  
+
   defp get_style_color(_), do: "#888888"
 
   # A group is a map
@@ -455,4 +476,66 @@ defmodule DemoWeb.MachineMapLive do
       label: "Fly.io regions"
     }
   end
+
+  defp group_from_app_name(marker_groups, app_name) do
+    Enum.find(marker_groups, fn group ->
+      Map.get(group, :app_name) == app_name
+    end)
+  end
+
+  defp colour_from_app_name(marker_groups, app_name) do
+    group = group_from_app_name(marker_groups, app_name)
+    case group do
+      nil -> "#ffffffaa"
+      _ -> get_style_color(group.style)
+    end
+  end
+
+  defp regions_from_app_name(all_instances_data, app_name) do
+    case Map.get(all_instances_data, app_name) do
+      {:ok, instances} ->
+        instances
+        |> Enum.map(&elem(&1, 1))
+        |> Enum.uniq()
+
+      nil ->
+        []
+    end
+  end
+
+  defp machs_from_app_name(all_instances_data, app_name) do
+    case Map.get(all_instances_data, app_name) do
+      {:ok, instances} ->
+        instances |> dbg
+
+      nil ->
+        []
+    end
+
+  end
+
+  def app_card_content(%{all_instances_data: all_instances_data, marker_groups: marker_groups, app_name: app_name} = assigns) do
+    region_string =
+      regions_from_app_name(assigns.all_instances_data, app_name)
+      |> Enum.map(fn region -> if is_binary(region), do: region, else: region.label end)
+      |> Enum.join(", ")
+
+      assigns = assign(assigns, :region_string, region_string)
+
+    ~H"""
+        <p>Regions: <%= @region_string  %></p>
+        <div class="mt-2">
+          <p class="font-medium">Machines:</p>
+          <div class="ml-4 space-y-1">
+            <%= for {machine_id, region} <- machs_from_app_name(@all_instances_data, @app_name) do %>
+              <div class="font-mono text-xs">
+                <span class="text-gray-500"><%= String.slice(machine_id, 0, 8) %>...</span>
+                <span class="text-blue-600 ml-2"><%= region %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+    """
+  end
+
 end
