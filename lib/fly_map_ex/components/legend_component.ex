@@ -22,9 +22,9 @@ defmodule FlyMapEx.Components.LegendComponent do
     assigns = assign(assigns, :all_legend_entries, all_legend_entries)
     ~H"""
     <!-- Enhanced Legend -->
-        <div class="text-sm text-base-content/70 space-y-3">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="font-semibold text-base-content">Legend</h3>
+        <div class="text-xs text-base-content/70 space-y-1">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-medium text-base-content">Legend</h3>
             <div class="text-xs text-base-content/50">
               <%= total_active_regions(@marker_groups) %>/<%= total_available_regions() %> active regions, <%= total_machine_count(@marker_groups) %> items
             </div>
@@ -33,7 +33,7 @@ defmodule FlyMapEx.Components.LegendComponent do
           <div
             :for={group <- @all_legend_entries}
             class={[
-              "flex items-start space-x-3 p-2 rounded-lg cursor-pointer transition-all duration-200",
+              "flex items-start space-x-2 p-1 rounded cursor-pointer transition-all duration-200",
               "hover:bg-base-200/50 hover:shadow-sm",
               if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps,
                 do: "bg-primary/10 border border-primary/20",
@@ -42,10 +42,10 @@ defmodule FlyMapEx.Components.LegendComponent do
             phx-click={if Map.has_key?(group, :app_name), do: "toggle_marker_group", else: nil}
             phx-value-app={if Map.has_key?(group, :app_name), do: group.app_name, else: nil}
           >
-            <div class="flex-shrink-0 mt-1">
+            <div class="flex-shrink-0 mt-0.5">
               <span
                 class={[
-                  "inline-block w-3 h-3 rounded-full",
+                  "inline-block w-2 h-2 rounded-full",
                   if(group.style.animated, do: "animate-pulse"),
                   if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, do: "ring-2 ring-primary/30")
                 ]}
@@ -55,17 +55,17 @@ defmodule FlyMapEx.Components.LegendComponent do
             </div>
             <div class="flex-grow min-w-0">
               <div class={[
-                "font-medium flex items-center",
+                "text-sm font-medium flex items-center",
                 if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps,
                   do: "text-primary",
                   else: "text-base-content")
               ]}>
                 <span>{group.label}</span>
-                <span class="text-xs text-base-content/60 ml-2">
+                <span class="text-xs text-base-content/60 ml-1">
                   • nodes: {format_nodes_display(group.nodes, "none")}
                 </span>
                 <%= if Map.has_key?(group, :app_name) and group.app_name in @selected_apps do %>
-                  <svg class="inline w-4 h-4 ml-2 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="inline w-3 h-3 ml-1 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                   </svg>
                 <% end %>
@@ -74,15 +74,15 @@ defmodule FlyMapEx.Components.LegendComponent do
           </div>
 
           <!-- Available regions with or without Machines -->
-          <div class="flex items-start space-x-3 p-2 rounded-lg hover:bg-base-200/50 opacity-75">
-            <div class="flex-shrink-0 mt-1">
+          <div class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50 opacity-75">
+            <div class="flex-shrink-0 mt-0.5">
               <span class="inline-block w-2 h-2 rounded-full bg-gray-400 opacity-30"></span>
             </div>
             <div class="flex-grow min-w-0">
-              <div class="font-medium text-base-content/60">
+              <div class="text-sm font-medium text-base-content/60">
                 Available Regions
               </div>
-              <div class="text-xs text-base-content/50 mt-1">
+              <div class="text-xs text-base-content/50">
                 <span>
                   Fly.io regions  (<%= total_available_regions() %> regions)
                 </span>
