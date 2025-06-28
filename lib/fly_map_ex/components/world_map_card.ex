@@ -30,6 +30,8 @@ defmodule FlyMapEx.Components.WorldMapCard do
   attr(:background, :map, default: %{})
   attr(:class, :string, default: "")
   attr(:selected_apps, :list, default: [])
+  attr(:available_apps, :list, default: [])
+  attr(:all_instances_data, :map, default: %{})
 
   def render(assigns) do
     # Process marker groups (they're already normalized by the main component)
@@ -58,7 +60,12 @@ defmodule FlyMapEx.Components.WorldMapCard do
           />
         </div>
 
-        <LegendComponent.legend processed_groups={@processed_groups} selected_apps={@selected_apps} />
+        <LegendComponent.legend 
+          processed_groups={@processed_groups} 
+          selected_apps={@selected_apps}
+          available_apps={@available_apps}
+          all_instances_data={@all_instances_data} 
+        />
       </div>
     </div>
     """

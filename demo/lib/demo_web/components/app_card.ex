@@ -7,6 +7,23 @@ defmodule DemoWeb.Components.AppCard do
 
   require Logger
 
+  @doc """
+
+  Could use this something like this (but I replaced it with built-in legend functionality in FlyMapEx)
+   <!-- Machines by App (all from DNS) -->
+    <div class="space-y-4">
+      <!--  for group <- @marker_groups do -->
+      <%= for app <- @available_apps do %>
+        <AppCard.app_card_content
+          all_instances_data={@all_instances_data}
+          marker_groups={@marker_groups}
+          app_name={app}
+          selected_apps={@selected_apps}
+        />
+      <% end %>
+    </div>
+  """
+
 
     def app_card_content(
         %{

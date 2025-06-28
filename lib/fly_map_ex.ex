@@ -104,6 +104,8 @@ defmodule FlyMapEx do
   attr(:background, :map, default: nil)
   attr(:class, :string, default: "")
   attr(:selected_apps, :list, default: [])
+  attr(:available_apps, :list, default: [])
+  attr(:all_instances_data, :map, default: %{})
 
   def render(assigns) do
     # Use custom background or theme background
@@ -123,6 +125,8 @@ defmodule FlyMapEx do
         marker_groups={@marker_groups}
         background={@background}
         selected_apps={@selected_apps}
+        available_apps={@available_apps}
+        all_instances_data={@all_instances_data}
       />
     </div>
     """

@@ -193,6 +193,7 @@ defmodule DemoWeb.MachineMapLive do
         <h1 class="text-3xl font-bold text-base-content">Fly.io Multi-App Machine Map</h1>
         <Layouts.theme_toggle />
       </div>
+      <h2 class="text-xl mb-4 text-base-content">Apps with active Machines on this network</h2>
 
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
@@ -228,26 +229,16 @@ defmodule DemoWeb.MachineMapLive do
           marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
           selected_apps={@selected_apps}
+          available_apps={@available_apps}
+          all_instances_data={@all_instances_data}
           class="machine-map"
         />
       </div>
 
     <!-- Apps -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-base-content">Apps with active Machines on this network</h2>
 
-    <!-- Machines by App (all from DNS) -->
-        <div class="space-y-4">
-          <!--  for group <- @marker_groups do -->
-          <%= for app <- @available_apps do %>
-            <AppCard.app_card_content
-              all_instances_data={@all_instances_data}
-              marker_groups={@marker_groups}
-              app_name={app}
-              selected_apps={@selected_apps}
-            />
-          <% end %>
-        </div>
+
 
       </div>
 
