@@ -25,6 +25,7 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:machines_loading, false)
       |> assign(:apps_error, nil)
       |> assign(:show_app_selection, true)
+      |> assign(:theme, :light)
 
     # Try to get a default app from config/env
     default_app = get_app_name()
@@ -38,6 +39,8 @@ defmodule DemoWeb.MachineMapLive do
 
     # Start loading instance data immediately on mount
     send(self(), :load_instances)
+    # Check theme after mount
+    send(self(), :check_theme)
 
     {:ok, socket}
   end
@@ -91,14 +94,13 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_info(:load_instances, socket) do
-    socket =
-      socket
-      # Load and cache all instance data
-      |> discover_and_cache_instances()
-      # Apply to any pre-selected apps
-      |> refresh_machines_for_selected_apps()
-
+  def handle_event("theme_changed", %{"theme" => theme}, socket) do
+    theme_atom = case theme do
+      "dark" -> :dark
+      "light" -> :light
+      _ -> :light
+    end
+    socket = assign(socket, :theme, theme_atom)
     {:noreply, socket}
   end
 
@@ -110,6 +112,21 @@ defmodule DemoWeb.MachineMapLive do
       # Filter for selected apps
       |> refresh_machines_for_selected_apps()
 
+    {:noreply, socket}
+  end
+
+  def handle_info(:load_instances, socket) do
+    socket =
+      socket
+      # Load and cache all instance data
+      |> discover_and_cache_instances()
+      # Apply to any pre-selected apps
+      |> refresh_machines_for_selected_apps()
+
+    {:noreply, socket}
+  end
+
+  def handle_info(:check_theme, socket) do
     {:noreply, socket}
   end
 
@@ -179,15 +196,15 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-6">Fly.io Multi-App Machine Map</h1>
+    <div class="container mx-auto px-4 py-8" phx-hook="ThemeDetector" id="theme-detector">
+      <h1 class="text-3xl font-bold mb-6 text-base-content">Fly.io Multi-App Machine Map</h1>
 
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div class="bg-info/10 border border-info/20 rounded-lg p-6 mb-6">
           <div class="flex items-center gap-3">
             <svg
-              class="animate-spin h-6 w-6 text-blue-600"
+              class="animate-spin h-6 w-6 text-info"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -202,8 +219,8 @@ defmodule DemoWeb.MachineMapLive do
               </path>
             </svg>
             <div>
-              <h3 class="text-blue-800 font-semibold">Loading Fly.io Applications</h3>
-              <p class="text-blue-600 text-sm">Discovering running machines across all regions...</p>
+              <h3 class="text-info font-semibold">Loading Fly.io Applications</h3>
+              <p class="text-info/80 text-sm">Discovering running machines across all regions...</p>
             </div>
           </div>
         </div>
@@ -211,13 +228,13 @@ defmodule DemoWeb.MachineMapLive do
 
 
     <!-- World Map -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <FlyMapEx.render marker_groups={@marker_groups} class="machine-map" />
+      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
+        <FlyMapEx.render marker_groups={@marker_groups} theme={@theme} class="machine-map" />
       </div>
 
     <!-- Apps -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Apps with active Machines on this network</h2>
+      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4 text-base-content">Apps with active Machines on this network</h2>
 
     <!-- Machines by App (all from DNS) -->
         <div class="space-y-4">
@@ -234,17 +251,17 @@ defmodule DemoWeb.MachineMapLive do
 
     <!-- Machines by Region -->
         <div class="mt-6">
-          <h3 class="text-lg font-medium mb-4">Machines by Region</h3>
+          <h3 class="text-lg font-medium mb-4 text-base-content">Machines by Region</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
-              <div class="border rounded-lg p-4">
-                <h4 class="font-semibold text-blue-800">{region}</h4>
-                <p class="text-sm text-gray-600 mb-2">{length(machines)} machines</p>
+              <div class="border border-base-300 rounded-lg p-4 bg-base-200/30">
+                <h4 class="font-semibold text-primary">{region}</h4>
+                <p class="text-sm text-base-content/60 mb-2">{length(machines)} machines</p>
                 <div class="space-y-1">
                   <%= for {machine_id, _, app} <- machines do %>
                     <div class="text-xs">
-                      <span class="font-mono text-gray-500">{String.slice(machine_id, 0, 8)}...</span>
-                      <span class="text-purple-600 ml-2">({app})</span>
+                      <span class="font-mono text-base-content/50">{String.slice(machine_id, 0, 8)}...</span>
+                      <span class="text-secondary ml-2">({app})</span>
                     </div>
                   <% end %>
                 </div>
@@ -256,22 +273,22 @@ defmodule DemoWeb.MachineMapLive do
 
 
       <!-- Machine Details -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Machine details</h2>
+      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4 text-base-content">Machine details</h2>
 
         <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h3 class="text-blue-800 font-semibold">Total Machines</h3>
-            <p class="text-2xl font-bold text-blue-900">{length(@all_selected_machines)}</p>
+          <div class="bg-info/10 p-4 rounded-lg">
+            <h3 class="text-info font-semibold">Total Machines</h3>
+            <p class="text-2xl font-bold text-info">{length(@all_selected_machines)}</p>
           </div>
-          <div class="bg-green-50 p-4 rounded-lg">
-            <h3 class="text-green-800 font-semibold">Active Apps</h3>
-            <p class="text-2xl font-bold text-green-900">{length(@selected_apps)}</p>
+          <div class="bg-success/10 p-4 rounded-lg">
+            <h3 class="text-success font-semibold">Active Apps</h3>
+            <p class="text-2xl font-bold text-success">{length(@selected_apps)}</p>
           </div>
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <h3 class="text-purple-800 font-semibold">Regions</h3>
-            <p class="text-2xl font-bold text-purple-900">
+          <div class="bg-secondary/10 p-4 rounded-lg">
+            <h3 class="text-secondary font-semibold">Regions</h3>
+            <p class="text-2xl font-bold text-secondary">
               {@all_selected_machines
               |> Enum.map(fn {_, region, _} -> region end)
               |> Enum.uniq()
@@ -281,13 +298,47 @@ defmodule DemoWeb.MachineMapLive do
         </div>
       </div>
 
-      <div class="mt-8 text-xs text-gray-500">
+      <div class="mt-8 text-xs text-base-content/50">
         <p>This demo queries Fly.io internal DNS for app discovery and machine information.</p>
         <p>
           Make sure you're running on Fly.io's private network (WireGuard) for DNS queries to work.
         </p>
       </div>
     </div>
+
+    <script>
+      window.Hooks = window.Hooks || {};
+      window.Hooks.ThemeDetector = {
+        mounted() {
+          // Send initial theme
+          const theme = document.documentElement.getAttribute('data-theme') || 'light';
+          this.pushEvent('theme_changed', {theme: theme});
+
+          // Listen for theme changes
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                const newTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                this.pushEvent('theme_changed', {theme: newTheme});
+              }
+            });
+          });
+
+          observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+          });
+
+          this.observer = observer;
+        },
+        
+        destroyed() {
+          if (this.observer) {
+            this.observer.disconnect();
+          }
+        }
+      };
+    </script>
     """
   end
 
@@ -356,8 +407,8 @@ defmodule DemoWeb.MachineMapLive do
 
   def app_card_content(
         %{
-          all_instances_data: all_instances_data,
-          marker_groups: marker_groups,
+          all_instances_data: _all_instances_data,
+          marker_groups: _marker_groups,
           app_name: app_name,
           selected_apps: selected_apps
         } = assigns
@@ -378,7 +429,7 @@ defmodule DemoWeb.MachineMapLive do
     <div
         class={[
          "border rounded-lg p-3 cursor-pointer transition-all duration-200 hover:shadow-md",
-          if(@is_selected, do: "border-blue-500 bg-blue-50 shadow-sm", else: "border-gray-200 hover:border-gray-300")
+          if(@is_selected, do: "border-primary bg-primary/10 shadow-sm", else: "border-base-300 hover:border-base-content/20")
         ]}
         phx-click="toggle_app"
        phx-value-app={@app_name}
@@ -388,22 +439,22 @@ defmodule DemoWeb.MachineMapLive do
           <span
               class={[
                 "inline-block w-3 h-3 rounded-full mr-2",
-                if(@is_selected, do: "ring-2 ring-blue-300", else: "")
+                if(@is_selected, do: "ring-2 ring-primary/30", else: "")
               ]}
             style={"background-color: #{colour_from_app_name(@marker_groups, @app_name)};"}
           >
           </span>
           <h4 class={[
             "font-semibold",
-            if(@is_selected, do: "text-blue-900", else: "text-gray-900")
+            if(@is_selected, do: "text-primary", else: "text-base-content")
           ]}>{@app_name}</h4>
         </div>
-        <div class="flex items-center gap-2 text-xs text-gray-500">
+        <div class="flex items-center gap-2 text-xs text-base-content/60">
           <span>{length(machs_from_app_name(@all_instances_data, @app_name))} machines</span>
           <span>•</span>
           <span>{@region_string}</span>
           <%= if @is_selected do %>
-            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
           <% end %>
