@@ -181,7 +181,7 @@ defmodule DemoWeb.MachineMapLive do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-3xl font-bold mb-6">Fly.io Multi-App Machine Map</h1>
-      
+
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
@@ -208,7 +208,7 @@ defmodule DemoWeb.MachineMapLive do
           </div>
         </div>
       <% end %>
-      
+
     <!-- App Discovery Section -->
       <div class="bg-white rounded-lg shadow-lg mb-6">
         <div class="flex items-center justify-between p-6 pb-4">
@@ -397,16 +397,16 @@ defmodule DemoWeb.MachineMapLive do
           <% end %>
         </div>
       </div>
-      
+
     <!-- World Map -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <FlyMapEx.render marker_groups={@marker_groups} class="machine-map" />
       </div>
-      
+
     <!-- Machine Details -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Machine Details</h2>
-        
+
     <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="bg-blue-50 p-4 rounded-lg">
@@ -427,7 +427,7 @@ defmodule DemoWeb.MachineMapLive do
             </p>
           </div>
         </div>
-        
+
     <!-- Machines by App (all from DNS) -->
         <div class="space-y-4">
           <h3 class="text-lg font-medium">Machines by App (all)</h3>
@@ -435,14 +435,13 @@ defmodule DemoWeb.MachineMapLive do
           <%= for app <- @available_apps do %>
             <.app_card_content
               all_instances_data={@all_instances_data}
-              ,
               marker_groups={@marker_groups}
-              ,
               app_name={app}
+              selected_apps={@selected_apps}
             />
           <% end %>
         </div>
-        
+
     <!-- Machines by Region -->
         <div class="mt-6">
           <h3 class="text-lg font-medium mb-4">Machines by Region</h3>
@@ -542,7 +541,8 @@ defmodule DemoWeb.MachineMapLive do
         %{
           all_instances_data: all_instances_data,
           marker_groups: marker_groups,
-          app_name: app_name
+          app_name: app_name,
+          selected_apps: selected_apps
         } = assigns
       ) do
     region_string =
@@ -550,18 +550,40 @@ defmodule DemoWeb.MachineMapLive do
       |> Enum.map(fn region -> if is_binary(region), do: region, else: region.label end)
       |> Enum.join(", ")
 
-    assigns = assign(assigns, :region_string, region_string)
+     is_selected = app_name in selected_apps
+
+      assigns =
+        assigns
+        |> assign(:region_string, region_string)
+       |> assign(:is_selected, is_selected)
 
     ~H"""
-    <div class="border rounded-lg p-4">
+    <div
+        class={[
+         "border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md",
+          if(@is_selected, do: "border-blue-500 bg-blue-50 shadow-sm", else: "border-gray-200 hover:border-gray-300")
+        ]}
+        phx-click="toggle_app"
+       phx-value-app={@app_name}
+      >
       <div class="flex items-center mb-2">
         <span
-          class="inline-block w-3 h-3 rounded-full mr-2"
+            class={[
+              "inline-block w-3 h-3 rounded-full mr-2",
+              if(@is_selected, do: "ring-2 ring-blue-300", else: "")
+            ]}
           style={"background-color: #{colour_from_app_name(@marker_groups, @app_name)};"}
         >
         </span>
-        <h4 class="font-semibold">{@app_name}</h4>
-      </div>
+          <h4 class={[
+            "font-semibold",
+            if(@is_selected, do: "text-blue-900", else: "text-gray-900")
+          ]}>{@app_name}</h4>
+          <%= if @is_selected do %>
+            <svg class="w-4 h-4 ml-auto text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          <% end %>      </div>
       <div class="text-sm text-gray-600">
         <p>Regions: {@region_string}</p>
         <div class="mt-2">
