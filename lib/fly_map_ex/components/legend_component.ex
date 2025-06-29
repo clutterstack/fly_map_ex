@@ -7,7 +7,6 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   require Logger
 
-  alias FlyMapEx.Components.{WorldMap, WorldMapCard}
   alias FlyMapEx.Regions
 
   attr(:marker_groups, :list, required: true)

@@ -22,7 +22,6 @@ defmodule FlyMapEx do
 
   - `FlyMapEx.render/1` - Complete map with card and legend.
   - `FlyMapEx.Components.WorldMap.render/1` - Just the SVG map
-  - `FlyMapEx.Components.WorldMapCard.render/1` - Map with card wrapper
 
   ## Utilities
 
@@ -33,7 +32,7 @@ defmodule FlyMapEx do
 
   use Phoenix.Component
 
-  alias FlyMapEx.{Theme, Style, Nodes, Regions}
+  alias FlyMapEx.{Theme, Style, Nodes}
   alias FlyMapEx.Components.{WorldMap, LegendComponent}
 
   @doc """

@@ -121,7 +121,7 @@ defmodule FlyMapEx.Components.WorldMap do
         svg circle {
           pointer-events: none;
         }
-        .region-group text {
+        .region-text-group text {
           opacity: 0;
           stroke: none;
           fill: var(--neutral-text-color);
@@ -129,8 +129,12 @@ defmodule FlyMapEx.Components.WorldMap do
           pointer-events: none;
           user-select: none;
         }
-        .region-group:hover text,
-        .region-group.active text {
+        <%= for {region, _coords} <- all_regions_with_coords() do %>
+        .region-<%= region %>:hover ~ .text-<%= region %> text {
+          opacity: 1;
+        }
+        <% end %>
+        .region-text-group.active text {
           opacity: 1;
         }
         .region-group circle {
@@ -160,9 +164,9 @@ defmodule FlyMapEx.Components.WorldMap do
       <path d={@toppath} stroke={@colours.border} stroke-width="1" />
       <path d={@btmpath} stroke={@colours.border} stroke-width="1" />
 
-      <!-- All regions as interactive elements -->
+      <!-- Optional markers showing all Fly.io regions -->
       <%= if @show_regions do %>
-        <.fly_region_markers marker_base_radius={@marker_base_radius} />
+        <.fly_region_markers region_marker_radius={@region_marker_radius} />
       <% end %>
 
       <!-- Dynamic node group markers -->
@@ -171,18 +175,32 @@ defmodule FlyMapEx.Components.WorldMap do
           <%= render_marker(group, group_index, x, y, @gradient_groups, @marker_base_radius) %>
         <% end %>
       <% end %>
+
+      <!-- All regions as interactive elements -->
+      <%= if @show_regions do %>
+        <.fly_region_hover_text />
+      <% end %>
+
     </svg>
     """
   end
 
-  attr(:marker_base_radius, :integer, required: true)
   attr :region_marker_radius, :integer, default: 2
 
   def fly_region_markers(assigns) do
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
-      <g class="region-group" id={"region-#{region}"}>
+      <g class={"region-group region-#{region}"} id={"region-#{region}"}>
         <circle cx={x} cy={y} r={@region_marker_radius} />
+      </g>
+    <% end %>
+    """
+  end
+
+  def fly_region_hover_text(%{} = assigns) do
+    ~H"""
+    <%= for {region, {x, y}} <- all_regions_with_coords() do %>
+      <g class={"region-text-group text-#{region}"} id={"region-text-#{region}"}>
         <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
       </g>
     <% end %>
