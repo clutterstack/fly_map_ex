@@ -137,6 +137,8 @@ defmodule FlyMapEx do
           selected_apps={@selected_apps}
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
+          region_marker_colour={WorldMap.get_region_marker_color(@background)}
+          marker_opacity={FlyMapEx.Config.marker_opacity()}
         />
       </div>
     </div>

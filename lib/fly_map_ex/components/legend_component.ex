@@ -13,6 +13,8 @@ defmodule FlyMapEx.Components.LegendComponent do
   attr(:selected_apps, :list, default: [])
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
+  attr(:region_marker_colour, :string, required: true)
+  attr(:marker_opacity, :float, required: true)
 
   def legend(%{marker_groups: marker_groups} = assigns) do
     # Create legend entries for all available apps
@@ -79,17 +81,20 @@ defmodule FlyMapEx.Components.LegendComponent do
           </div>
 
           <!-- Available regions with or without Machines -->
-          <div class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50 opacity-75">
+          <div class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50">
             <div class="flex-shrink-0 mt-0.5">
-              <span class="inline-block w-2 h-2 rounded-full bg-gray-400 opacity-30"></span>
+              <span
+                class="inline-block w-2 h-2 rounded-full"
+                style={"background-color: #{@region_marker_colour}; opacity: #{@marker_opacity};"}
+              ></span>
             </div>
             <div class="flex-grow min-w-0">
               <div class="text-sm font-medium text-base-content/60">
-                Available Regions
+                Fly.io Regions
               </div>
               <div class="text-xs text-base-content/50">
                 <span>
-                  Fly.io regions  (<%= total_available_regions() %> regions)
+                  (<%= total_available_regions() %> regions)
                 </span>
               </div>
             </div>

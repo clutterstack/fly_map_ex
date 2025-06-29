@@ -236,10 +236,10 @@ defmodule DemoWeb.MachineMapLive do
           all_instances_data={@all_instances_data}
           class="machine-map"
         />
-        
-        <LoadingOverlay.render 
-          show={@apps_loading || @map_refreshing} 
-          message={if @map_refreshing, do: "Refreshing Map Data", else: "Loading Map Data"} 
+
+        <LoadingOverlay.render
+          show={@apps_loading || @map_refreshing}
+          message={if @map_refreshing, do: "Refreshing Map Data", else: "Loading Map Data"}
         />
       </div>
 
@@ -254,7 +254,7 @@ defmodule DemoWeb.MachineMapLive do
             <p class="text-2xl font-bold text-info">{length(@all_selected_machines)}</p>
           </div>
           <div class="bg-success/10 p-4 rounded-lg">
-            <h3 class="text-success font-semibold">Active Apps</h3>
+            <h3 class="text-success font-semibold">Apps</h3>
             <p class="text-2xl font-bold text-success">{length(@selected_apps)}</p>
           </div>
           <div class="bg-secondary/10 p-4 rounded-lg">

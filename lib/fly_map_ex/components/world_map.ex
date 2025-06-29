@@ -311,7 +311,7 @@ defmodule FlyMapEx.Components.WorldMap do
   end
 
   # Helper function to get the appropriate region marker color
-  defp get_region_marker_color(colours) do
+  def get_region_marker_color(colours) do
     case Map.get(colours, :neutral_marker) do
       "oklch" <> _ ->
         # For CSS variables, provide fallback that inherits from document
