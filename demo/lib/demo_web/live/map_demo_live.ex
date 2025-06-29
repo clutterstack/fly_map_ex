@@ -13,7 +13,7 @@ defmodule DemoWeb.MapDemoLive do
 
     marker_groups = [
       %{
-        nodes: [%{label: "NYC Server", coordinates: {40.7128, -74.0060}}],
+        nodes: [%{label: "NYC Server", coordinates: {40.7128, -74.0060}}, %{label: "floating server", coordinates: {49, -33}}],
         style: FlyMapEx.Style.primary(),
         label: "Custom Locations"
       }
