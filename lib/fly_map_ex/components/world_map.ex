@@ -68,7 +68,9 @@ defmodule FlyMapEx.Components.WorldMap do
         gradient_groups: gradient_groups,
         bbox: @bbox,
         toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
-        btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}"
+        btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
+        marker_opacity: FlyMapEx.Config.marker_opacity(),
+        hover_opacity: FlyMapEx.Config.hover_opacity()
       })
 
     ~H"""
@@ -91,7 +93,12 @@ defmodule FlyMapEx.Components.WorldMap do
       </defs>
 
       <style>
-        circle {
+        /* Generated at <%= DateTime.utc_now() |> DateTime.to_string() %> */
+        :root {
+          --marker-opacity: <%= @marker_opacity %>;
+          --hover-opacity: <%= @hover_opacity %>;
+        }
+        svg circle {
           pointer-events: none;
         }
         .region-group text {
@@ -111,12 +118,18 @@ defmodule FlyMapEx.Components.WorldMap do
           fill: {@colours.background};
           stroke-width: 8;
           pointer-events: all;
-          opacity: 0.3;
+          opacity: var(--marker-opacity);
+        }
+        .marker-group.static circle {
+          opacity: var(--marker-opacity);
+        }
+        .marker-group.animated circle {
+          /* Animated markers control their own opacity */
         }
         .region-group:hover circle {
           stroke: {@colours.border};
           fill: {@colours.border};
-          opacity: 0.8;
+          opacity: var(--hover-opacity);
         }
       </style>
 
@@ -144,7 +157,7 @@ defmodule FlyMapEx.Components.WorldMap do
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class="region-group" id={"region-#{region}"}>
-        <circle cx={x} cy={y} r="2" opacity="0.3" />
+        <circle cx={x} cy={y} r="2" />
         <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
       </g>
     <% end %>
@@ -181,31 +194,39 @@ defmodule FlyMapEx.Components.WorldMap do
 
     case animation do
       :pulse ->
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size, min_opacity: min_opacity, max_opacity: max_opacity}
 
         ~H"""
-        <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
-          <animate attributeName="r" values={"#{@base_size};#{@base_size + 4};#{@base_size}"} dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
-        </circle>
+        <g class="marker-group animated">
+          <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
+            <animate attributeName="r" values={"#{@base_size};#{@base_size + 4};#{@base_size}"} dur="2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values={"#{@min_opacity};#{@max_opacity};#{@min_opacity}"} dur="2s" repeatCount="indefinite" />
+          </circle>
+        </g>
         """
 
       :bounce ->
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
 
         ~H"""
-        <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
-          <animate attributeName="r" values={"#{@base_size};#{@base_size + 6};#{@base_size};#{@base_size + 2};#{@base_size}"} dur="1.5s" repeatCount="indefinite" />
-        </circle>
+        <g class="marker-group static">
+          <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
+            <animate attributeName="r" values={"#{@base_size};#{@base_size + 6};#{@base_size};#{@base_size + 2};#{@base_size}"} dur="1.5s" repeatCount="indefinite" />
+          </circle>
+        </g>
         """
 
       :fade ->
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
+        {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
+        assigns = %{x: x, y: y, fill: fill, base_size: base_size, min_opacity: min_opacity, max_opacity: max_opacity}
 
         ~H"""
-        <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@fill}>
-          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite" />
-        </circle>
+        <g class="marker-group animated">
+          <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@fill}>
+            <animate attributeName="opacity" values={"#{@min_opacity};#{@max_opacity};#{@min_opacity}"} dur="3s" repeatCount="indefinite" />
+          </circle>
+        </g>
         """
 
       # :none or any other value
@@ -213,7 +234,9 @@ defmodule FlyMapEx.Components.WorldMap do
         assigns = %{x: x, y: y, fill: fill, base_size: base_size}
 
         ~H"""
-        <circle cx={@x} cy={@y} r={@base_size} fill={@fill} opacity="0.9" />
+        <g class="marker-group static">
+          <circle cx={@x} cy={@y} r={@base_size} fill={@fill} />
+        </g>
         """
     end
   end
