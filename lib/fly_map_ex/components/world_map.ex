@@ -70,7 +70,9 @@ defmodule FlyMapEx.Components.WorldMap do
         toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
         marker_opacity: FlyMapEx.Config.marker_opacity(),
-        hover_opacity: FlyMapEx.Config.hover_opacity()
+        hover_opacity: FlyMapEx.Config.hover_opacity(),
+        marker_base_radius: FlyMapEx.Config.marker_base_radius(),
+        region_marker_radius: round(0.5*FlyMapEx.Config.marker_base_radius())
       })
 
     ~H"""
@@ -141,23 +143,26 @@ defmodule FlyMapEx.Components.WorldMap do
       <path d={@btmpath} stroke={@colours.border} stroke-width="1" />
 
       <!-- All regions as interactive elements -->
-      <.fly_region_markers />
+      <.fly_region_markers marker_base_radius={@marker_base_radius} />
 
       <!-- Dynamic node group markers -->
       <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
         <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
-          <%= render_marker(group, group_index, x, y, @gradient_groups) %>
+          <%= render_marker(group, group_index, x, y, @gradient_groups, @marker_base_radius) %>
         <% end %>
       <% end %>
     </svg>
     """
   end
 
-  def fly_region_markers(%{} = assigns) do
+  attr(:marker_base_radius, :integer, required: true)
+  attr :region_marker_radius, :integer, default: 2
+
+  def fly_region_markers(assigns) do
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class="region-group" id={"region-#{region}"}>
-        <circle cx={x} cy={y} r="2" />
+        <circle cx={x} cy={y} r={@region_marker_radius} />
         <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
       </g>
     <% end %>
@@ -178,8 +183,8 @@ defmodule FlyMapEx.Components.WorldMap do
     Regions.coordinates(region_code)
   end
 
-  defp render_marker(group, _group_index, x, y, gradient_groups) do
-    base_size = Map.get(group.style, :size, 6)
+  defp render_marker(group, _group_index, x, y, gradient_groups, default_radius) do
+    base_size = Map.get(group.style, :size, default_radius)
     animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)
 

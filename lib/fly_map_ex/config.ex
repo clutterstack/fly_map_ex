@@ -1,14 +1,14 @@
 defmodule FlyMapEx.Config do
   @moduledoc """
   Application-wide configuration for FlyMapEx.
-  
+
   Provides centralized configuration for opacity settings that apply
   across all marker groups and styles.
   """
 
   @doc """
   Base opacity for markers in their default state.
-  
+
   Default: 0.8
   """
   def marker_opacity do
@@ -17,7 +17,7 @@ defmodule FlyMapEx.Config do
 
   @doc """
   Opacity for markers in hover state.
-  
+
   Default: 1.0
   """
   def hover_opacity do
@@ -27,10 +27,19 @@ defmodule FlyMapEx.Config do
   @doc """
   Opacity range for animated markers as {min, max} tuple.
   Used by pulse and fade animations.
-  
+
   Default: {0.3, 1.0}
   """
   def animation_opacity_range do
     Application.get_env(:fly_map_ex, :animation_opacity_range, {0.3, 1.0})
+  end
+
+  @doc """
+  Base radius for marker circles in pixels.
+
+  Default: 2
+  """
+  def marker_base_radius do
+    Application.get_env(:fly_map_ex, :marker_base_radius, 2)
   end
 end

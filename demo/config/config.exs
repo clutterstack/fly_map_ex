@@ -12,11 +12,12 @@ config :demo,
   # Configure your Fly.io app name here
   fly_app_name: nil
 
-# FlyMapEx opacity configuration
+# FlyMapEx opacity and radius configuration
 config :fly_map_ex,
   marker_opacity: 0.6,
   hover_opacity: 0.9,
-  animation_opacity_range: {0.2, 0.8}
+  animation_opacity_range: {0.2, 0.8},
+  marker_base_radius: 3
 
 # Configures the endpoint
 config :demo, DemoWeb.Endpoint,
