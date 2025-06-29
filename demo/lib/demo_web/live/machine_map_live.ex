@@ -9,7 +9,7 @@ defmodule DemoWeb.MachineMapLive do
 
   alias Demo.MachineDiscovery
   alias DemoWeb.Layouts
-  alias DemoWeb.Components.AppCard
+  alias DemoWeb.Components.LoadingOverlay
 
   def mount(_params, _session, socket) do
     socket =
@@ -23,8 +23,9 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:all_instances_data, %{})
       |> assign(:last_updated, nil)
       |> assign(:error, nil)
-      |> assign(:apps_loading, false)
+      |> assign(:apps_loading, true)
       |> assign(:machines_loading, false)
+      |> assign(:map_refreshing, false)
       |> assign(:apps_error, nil)
       |> assign(:show_app_selection, true)
 
@@ -101,10 +102,12 @@ defmodule DemoWeb.MachineMapLive do
   def handle_event("refresh_machines", _params, socket) do
     socket =
       socket
+      |> assign(:map_refreshing, true)
       # Refresh cached data from DNS
       |> discover_and_cache_instances()
       # Filter for selected apps
       |> refresh_machines_for_selected_apps()
+      |> assign(:map_refreshing, false)
 
     {:noreply, socket}
   end
@@ -224,7 +227,7 @@ defmodule DemoWeb.MachineMapLive do
 
 
     <!-- World Map -->
-      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
+      <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
           marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
@@ -232,6 +235,11 @@ defmodule DemoWeb.MachineMapLive do
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
           class="machine-map"
+        />
+        
+        <LoadingOverlay.render 
+          show={@apps_loading || @map_refreshing} 
+          message={if @map_refreshing, do: "Refreshing Map Data", else: "Loading Map Data"} 
         />
       </div>
 
