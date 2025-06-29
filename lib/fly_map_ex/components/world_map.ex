@@ -42,10 +42,12 @@ defmodule FlyMapEx.Components.WorldMap do
   * `colours` - Map of color overrides (optional)
   * `group_styles` - Map of group styles configuration (optional)
   * `id` - HTML id for the SVG element (default: "fly-region-map")
+  * `show_regions` - Whether to show region markers (default: nil, uses config default)
   """
   attr(:marker_groups, :list, default: [])
   attr(:colours, :map, default: %{})
   attr(:id, :string, default: "fly-region-map")
+  attr(:show_regions, :boolean, default: nil)
 
   def render(assigns) do
     # Merge user colours with defaults
@@ -56,6 +58,9 @@ defmodule FlyMapEx.Components.WorldMap do
       Enum.filter(assigns.marker_groups, fn group ->
         Map.get(group.style, :gradient, false)
       end)
+
+    # Determine if regions should be shown (attribute overrides config default)
+    show_regions = if is_nil(assigns.show_regions), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
 
     assigns =
       assign(assigns, %{
@@ -72,7 +77,8 @@ defmodule FlyMapEx.Components.WorldMap do
         marker_opacity: FlyMapEx.Config.marker_opacity(),
         hover_opacity: FlyMapEx.Config.hover_opacity(),
         marker_base_radius: FlyMapEx.Config.marker_base_radius(),
-        region_marker_radius: round(0.5*FlyMapEx.Config.marker_base_radius())
+        region_marker_radius: round(0.5*FlyMapEx.Config.marker_base_radius()),
+        show_regions: show_regions
       })
 
     ~H"""
@@ -96,7 +102,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
       <style>
         /* Generated at <%= DateTime.utc_now() |> DateTime.to_string() %> */
-        :root {
+        svg {
           --marker-opacity: <%= @marker_opacity %>;
           --hover-opacity: <%= @hover_opacity %>;
           --neutral-marker-color: <%= get_region_marker_color(@colours) %>;
@@ -107,7 +113,7 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         /* Dark mode fallbacks */
         @media (prefers-color-scheme: dark) {
-          :root {
+          svg {
             --fallback-neutral-marker: #9ca3af;
             --fallback-neutral-text: #d1d5db;
           }
@@ -117,8 +123,8 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         .region-group text {
           opacity: 0;
-          stroke: var(--neutral-text-color, var(--fallback-neutral-text));
-          fill: var(--neutral-text-color, var(--fallback-neutral-text));
+          stroke: none;
+          fill: var(--neutral-text-color);
           transition: opacity 0.2s;
           pointer-events: none;
           user-select: none;
@@ -129,7 +135,7 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         .region-group circle {
           stroke: transparent;
-          fill: var(--neutral-marker-color, var(--fallback-neutral-marker));
+          fill: var(--neutral-marker-color);
           stroke-width: 8;
           pointer-events: all;
           opacity: var(--marker-opacity);
@@ -155,7 +161,9 @@ defmodule FlyMapEx.Components.WorldMap do
       <path d={@btmpath} stroke={@colours.border} stroke-width="1" />
 
       <!-- All regions as interactive elements -->
-      <.fly_region_markers marker_base_radius={@marker_base_radius} />
+      <%= if @show_regions do %>
+        <.fly_region_markers marker_base_radius={@marker_base_radius} />
+      <% end %>
 
       <!-- Dynamic node group markers -->
       <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
@@ -287,7 +295,9 @@ defmodule FlyMapEx.Components.WorldMap do
   # Helper function to get the appropriate region marker color
   defp get_region_marker_color(colours) do
     case Map.get(colours, :neutral_marker) do
-      "oklch" <> _ = css_var -> css_var
+      "oklch" <> _ ->
+        # For CSS variables, provide fallback that inherits from document
+        "var(--color-base-content, #6b7280)"
       color when is_binary(color) -> color
       _ -> Map.get(colours, :background, "#6b7280")
     end
@@ -296,7 +306,9 @@ defmodule FlyMapEx.Components.WorldMap do
   # Helper function to get the appropriate region text color
   defp get_region_text_color(colours) do
     case Map.get(colours, :neutral_text) do
-      "oklch" <> _ = css_var -> css_var
+      "oklch" <> _ ->
+        # For CSS variables, provide fallback that inherits from document
+        "var(--color-base-content, #374151)"
       color when is_binary(color) -> color
       _ -> Map.get(colours, :background, "#374151")
     end

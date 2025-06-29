@@ -230,7 +230,7 @@ defmodule DemoWeb.MachineMapLive do
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
           marker_groups={@marker_groups}
-          theme={:dark}
+          background={FlyMapEx.Theme.responsive_background()}
           selected_apps={@selected_apps}
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}

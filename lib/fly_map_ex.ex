@@ -49,6 +49,7 @@ defmodule FlyMapEx do
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool)
   * `background` - Custom background colors (overrides theme)
   * `class` - Additional CSS classes for the container
+  * `show_regions` - Whether to show region markers (default: nil, uses config default)
 
   ## Examples
 
@@ -106,6 +107,7 @@ defmodule FlyMapEx do
   attr(:selected_apps, :list, default: [])
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
+  attr(:show_regions, :boolean, default: nil)
 
   def render(assigns) do
     # Use custom background or theme background
@@ -127,6 +129,7 @@ defmodule FlyMapEx do
           <WorldMap.render
             marker_groups={@marker_groups}
             colours={@background}
+            show_regions={@show_regions}
           />
         </div>
 

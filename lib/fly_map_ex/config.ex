@@ -80,4 +80,15 @@ defmodule FlyMapEx.Config do
   def neutral_text_dark do
     Application.get_env(:fly_map_ex, :neutral_text_dark, "#d1d5db")
   end
+
+  @doc """
+  Default visibility setting for Fly region markers.
+  
+  When true, shows small gray region markers for all Fly.io regions.
+  When false, hides region markers completely.
+  Default: true
+  """
+  def show_regions_default do
+    Application.get_env(:fly_map_ex, :show_regions, true)
+  end
 end

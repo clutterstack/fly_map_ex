@@ -30,7 +30,7 @@ defmodule FlyMapEx.Components.LegendComponent do
     <!-- Enhanced Legend -->
         <div class="text-xs text-base-content/70 space-y-1">
           <div class="flex items-center justify-between mb-1">
-            <h3 class="text-sm font-medium text-base-content">Legend</h3>
+            <h3 class="text-sm font-medium text-base-content">Legend (click to toggle group visibility)</h3>
             <div class="text-xs text-base-content/50">
               <%= total_active_regions(@marker_groups) %>/<%= total_available_regions() %> active regions, <%= total_machine_count(@marker_groups) %> items
             </div>
