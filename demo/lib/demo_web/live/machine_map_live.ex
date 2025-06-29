@@ -275,7 +275,7 @@ defmodule DemoWeb.MachineMapLive do
             <%= for {region, machines} <- @all_selected_machines |> Enum.group_by(fn {_, region, _} -> region end) do %>
               <div class="border border-base-300 rounded-lg p-4 bg-base-200/30">
                 <h4 class="font-semibold text-primary">{region}</h4>
-                <p class="text-sm text-base-content/60 mb-2">{length(machines)} machines</p>
+                <p class="text-sm text-base-content/60 mb-2">{pluralize_machines(machines)}</p>
                 <div class="space-y-1">
                   <%= for {machine_id, _, app} <- machines do %>
                     <div class="text-xs">
@@ -298,6 +298,22 @@ defmodule DemoWeb.MachineMapLive do
       </div>
     </div>
     """
+  end
+
+  # Helper functions
+
+  @doc """
+  Returns a properly pluralized string for machine counts.
+  """
+  def pluralize_machines(count) when is_integer(count) do
+    case count do
+      1 -> "1 machine"
+      n -> "#{n} machines"
+    end
+  end
+
+  def pluralize_machines(list) when is_list(list) do
+    pluralize_machines(length(list))
   end
 
   # Private functions

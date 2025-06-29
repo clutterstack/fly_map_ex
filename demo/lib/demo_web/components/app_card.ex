@@ -70,7 +70,7 @@ defmodule DemoWeb.Components.AppCard do
           ]}>{@app_name}</h4>
         </div>
         <div class="flex items-center gap-2 text-xs text-base-content/60">
-          <span>{length(machs_from_app_name(@all_instances_data, @app_name))} machines</span>
+          <span>{DemoWeb.MachineMapLive.pluralize_machines(machs_from_app_name(@all_instances_data, @app_name))}</span>
           <span>•</span>
           <span>{@region_string}</span>
           <%= if @is_selected do %>
