@@ -235,6 +235,7 @@ defmodule DemoWeb.MachineMapLive do
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
           class="machine-map"
+          show_regions={false}
         />
 
         <LoadingOverlay.render
