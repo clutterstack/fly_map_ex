@@ -99,14 +99,26 @@ defmodule FlyMapEx.Components.WorldMap do
         :root {
           --marker-opacity: <%= @marker_opacity %>;
           --hover-opacity: <%= @hover_opacity %>;
+          --neutral-marker-color: <%= get_region_marker_color(@colours) %>;
+          --neutral-text-color: <%= get_region_text_color(@colours) %>;
+          /* Fallback colors when CSS variables fail */
+          --fallback-neutral-marker: #6b7280;
+          --fallback-neutral-text: #374151;
+        }
+        /* Dark mode fallbacks */
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --fallback-neutral-marker: #9ca3af;
+            --fallback-neutral-text: #d1d5db;
+          }
         }
         svg circle {
           pointer-events: none;
         }
         .region-group text {
           opacity: 0;
-          stroke: {@colours.background};
-          fill: {@colours.background};
+          stroke: var(--neutral-text-color, var(--fallback-neutral-text));
+          fill: var(--neutral-text-color, var(--fallback-neutral-text));
           transition: opacity 0.2s;
           pointer-events: none;
           user-select: none;
@@ -117,7 +129,7 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         .region-group circle {
           stroke: transparent;
-          fill: {@colours.background};
+          fill: var(--neutral-marker-color, var(--fallback-neutral-marker));
           stroke-width: 8;
           pointer-events: all;
           opacity: var(--marker-opacity);
@@ -270,5 +282,23 @@ defmodule FlyMapEx.Components.WorldMap do
     y = y_percent * svg_height
 
     {x, y}
+  end
+
+  # Helper function to get the appropriate region marker color
+  defp get_region_marker_color(colours) do
+    case Map.get(colours, :neutral_marker) do
+      "oklch" <> _ = css_var -> css_var
+      color when is_binary(color) -> color
+      _ -> Map.get(colours, :background, "#6b7280")
+    end
+  end
+
+  # Helper function to get the appropriate region text color
+  defp get_region_text_color(colours) do
+    case Map.get(colours, :neutral_text) do
+      "oklch" <> _ = css_var -> css_var
+      color when is_binary(color) -> color
+      _ -> Map.get(colours, :background, "#374151")
+    end
   end
 end

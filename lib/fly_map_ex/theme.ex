@@ -34,7 +34,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#888888",
       ocean: "#aaaaaa",
-      border: "#0f172a"
+      border: "#0f172a",
+      neutral_marker: "#6b7280",
+      neutral_text: "#374151"
     }
   end
 
@@ -42,7 +44,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#0f172a",
       ocean: "#aaaaaa",
-      border: "#334155"
+      border: "#334155",
+      neutral_marker: "#9ca3af",
+      neutral_text: "#d1d5db"
     }
   end
 
@@ -50,7 +54,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#ffffff",
       ocean: "#aaaaaa",
-      border: "#e5e7eb"
+      border: "#e5e7eb",
+      neutral_marker: "#6b7280",
+      neutral_text: "#374151"
     }
   end
 
@@ -58,7 +64,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#f1f5f9",
       ocean: "#aaaaaa",
-      border: "#64748b"
+      border: "#64748b",
+      neutral_marker: "#64748b",
+      neutral_text: "#334155"
     }
   end
 
@@ -66,7 +74,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#fef7ed",
       ocean: "#aaaaaa",
-      border: "#c2410c"
+      border: "#c2410c",
+      neutral_marker: "#92400e",
+      neutral_text: "#451a03"
     }
   end
 
@@ -74,7 +84,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "#ffffff",
       ocean: "#aaaaaa",
-      border: "#000000"
+      border: "#000000",
+      neutral_marker: "#404040",
+      neutral_text: "#000000"
     }
   end
 
@@ -99,7 +111,9 @@ defmodule FlyMapEx.Theme do
     %{
       land: "oklch(var(--color-base-100) / 1)",
       ocean: "oklch(var(--color-base-200) / 1)",
-      border: "oklch(var(--color-base-300) / 1)"
+      border: "oklch(var(--color-base-300) / 1)",
+      neutral_marker: "oklch(var(--color-base-content) / 0.6)",
+      neutral_text: "oklch(var(--color-base-content) / 0.8)"
     }
   end
 end
