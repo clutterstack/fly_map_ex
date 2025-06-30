@@ -19,6 +19,7 @@ defmodule DemoWeb.Router do
 
     get "/", PageController, :home
     live "/map", MachineMapLive, :index
+    live "/demo", MapDemoLive, :index
   end
 
   # Other scopes may use custom stacks.
