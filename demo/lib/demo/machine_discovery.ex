@@ -242,8 +242,6 @@ defmodule Demo.MachineDiscovery do
       ]
   """
   def from_app_machines(app_machines) when is_map(app_machines) do
-    base_radius = FlyMapEx.Config.marker_base_radius()
-
     app_machines
     |> Enum.filter(fn {_app, result} ->
       match?({:ok, [_ | _]}, result)
@@ -252,17 +250,20 @@ defmodule Demo.MachineDiscovery do
       nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
       machine_count = length(machines)
 
-      # Use cycling colors with size/animation based on machine count for visual variety
-      style_opts =
+      # Use highly distinct styles for maximum visual distinction
+      # Get a stable style based on app name hash
+      style_index = stable_style_index(app_name)
+      base_style = Enum.at(distinct_app_styles(), style_index)
+
+      # Optionally adjust size based on machine count for additional context
+      adjusted_size =
         case machine_count do
-          count when count >= 5 -> [size: round(1.4 * base_radius), animated: true]
-          count when count >= 3 -> [size: round(1.2 * base_radius), animated: true]
-          _ -> [size: base_radius, animated: false]
+          count when count >= 10 -> round(base_style.size * 1.3)
+          count when count >= 5 -> round(base_style.size * 1.1)
+          _ -> base_style.size
         end
 
-      # Use stable color assignment based on app name hash instead of position
-      color_index = stable_color_index(app_name)
-      style = FlyMapEx.Style.cycle(color_index, style_opts)
+      style = Map.put(base_style, :size, adjusted_size)
 
       label =
         case machine_count do
@@ -282,20 +283,65 @@ defmodule Demo.MachineDiscovery do
 
   def from_app_machines(_), do: []
 
-  # Private helper to generate a stable color index for an app name
-  # Uses a simple hash to ensure the same app always gets the same color
-  defp stable_color_index(app_name) do
-    # Get the number of available colors
-    color_count = length(FlyMapEx.Style.colours())
-    
+  # Private helper to generate a stable style index for an app name
+  # Uses a simple hash to ensure the same app always gets the same style
+  defp stable_style_index(app_name) do
+    # Get the number of available distinct styles
+    style_count = length(distinct_app_styles())
+
     # Create a simple hash of the app name
-    hash = 
+    hash =
       app_name
       |> String.to_charlist()
       |> Enum.reduce(0, fn char, acc -> acc + char end)
-    
-    # Map to color index
-    rem(hash, color_count)
+
+    # Map to style index
+    rem(hash, style_count)
+  end
+
+  # Define highly distinct styles for different apps
+  # Uses bright, visually distinct colors with consistent sizing for maximum clarity
+  defp distinct_app_styles do
+    base_radius = FlyMapEx.Config.marker_base_radius()
+    # standard_size = round(1.3 * base_radius)
+
+    [
+      # Bright blue
+      %{colour: "#2563eb", size: round( base_radius), animated: false, gradient: false},
+
+      # Bright green
+      %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, gradient: false},
+
+      # Bright red
+      %{colour: "#ec2626", size: round(1.2 * base_radius), animated: false, gradient: false},
+
+      # Bright purple
+      %{colour: "#b333ea", size: round(1.4 * base_radius), animated: false, gradient: false},
+
+      # Bright orange
+      %{colour: "#ea580c", size: round(1.6 * base_radius), animated: false, gradient: false},
+
+      # Bright cyan
+      %{colour: "#08b1b2", size: round(1.8 * base_radius), animated: false, gradient: false},
+
+      # Bright yellow
+      %{colour: "#cafa04", size: round(2 * base_radius), animated: false, gradient: false},
+
+      # Bright pink
+      %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, gradient: false},
+
+      # Bright teal
+      %{colour: "#0d9488", size: round(2.4* base_radius), animated: false, gradient: false},
+
+      # Bright lime
+      %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, gradient: false},
+
+      # Bright amber
+      %{colour: "#d97706", size: round(2.8* base_radius), animated: false, gradient: false},
+
+      # Bright indigo
+      %{colour: "#4338ca", size: round(3 * base_radius), animated: false, gradient: false}
+    ]
   end
 
   @doc """

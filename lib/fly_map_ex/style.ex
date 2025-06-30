@@ -29,28 +29,32 @@ defmodule FlyMapEx.Style do
       %{nodes: ["fra"], style: [color: "var(--primary)", size: 6], label: "CSS Variable"}
   """
 
-  # Colour palette for non-semantic cycling
+  # Colour palette for non-semantic cycling - maximum visual distinction
   @cycle_colours [
-    # blue
-    "#3b82f6",
-    # emerald
-    "#10b981",
-    # amber
-    "#f59e0b",
-    # red
-    "#ef4444",
-    # violet
-    "#8b5cf6",
-    # cyan
-    "#06b6d4",
-    # lime
-    "#84cc16",
-    # orange
-    "#f97316",
-    # pink
-    "#ec4899",
-    # teal
-    "#14b8a6"
+    # bright blue
+    "#2563eb",
+    # bright green
+    "#16a34a",
+    # bright red
+    "#dc2626",
+    # bright purple
+    "#9333ea",
+    # bright orange
+    "#ea580c",
+    # bright cyan
+    "#0891b2",
+    # bright yellow
+    "#ca8a04",
+    # bright pink
+    "#db2777",
+    # bright teal
+    "#0d9488",
+    # bright lime
+    "#65a30d",
+    # bright amber
+    "#d97706",
+    # bright indigo
+    "#4338ca"
   ]
 
   @doc """
@@ -75,7 +79,7 @@ defmodule FlyMapEx.Style do
   ## Examples
 
       FlyMapEx.Style.cycle(0)  # blue
-      FlyMapEx.Style.cycle(1)  # emerald  
+      FlyMapEx.Style.cycle(1)  # emerald
       FlyMapEx.Style.cycle(10) # blue again (wraps around)
   """
   def cycle(index, opts \\ []) when is_integer(index) do
@@ -119,7 +123,7 @@ defmodule FlyMapEx.Style do
   def operational(opts \\ []) do
     custom(
       "#10b981",
-      Keyword.merge([size: 7, animated: true, animation: :pulse, gradient: true], opts)
+      Keyword.merge([size: 7, animated: true, animation: :pulse, gradient: false], opts)
     )
   end
 
@@ -131,7 +135,7 @@ defmodule FlyMapEx.Style do
   def warning(opts \\ []) do
     custom(
       "#f59e0b",
-      Keyword.merge([size: 8, animated: false, gradient: true], opts)
+      Keyword.merge([size: 8, animated: false, gradient: false], opts)
     )
   end
 
@@ -143,7 +147,7 @@ defmodule FlyMapEx.Style do
   def danger(opts \\ []) do
     custom(
       "#ef4444",
-      Keyword.merge([size: 9, animated: true, animation: :bounce, gradient: true], opts)
+      Keyword.merge([size: 9, animated: true, animation: :bounce, gradient: false], opts)
     )
   end
 
@@ -166,7 +170,7 @@ defmodule FlyMapEx.Style do
   def primary(opts \\ []) do
     custom(
       "#3b82f6",
-      Keyword.merge([size: 7, animated: false, gradient: true], opts)
+      Keyword.merge([size: 7, animated: false, gradient: false], opts)
     )
   end
 
@@ -220,18 +224,18 @@ defmodule FlyMapEx.Style do
   Resolves semantic and non-semantic style atoms:
 
   * `:operational`, `:warning`, `:danger`, `:inactive` - Core semantic styles
-  * `:primary`, `:secondary`, `:info` - General purpose styles  
+  * `:primary`, `:secondary`, `:info` - General purpose styles
   * `:active`, `:success` - Backward compatibility (map to `:operational`)
   * Unknown atoms fall back to `:info` style
 
   ## Examples
 
       iex> FlyMapEx.Style.normalize(:operational)
-      %{color: "#10b981", size: 7, animated: true, animation: :pulse, gradient: true}
-      
+      %{color: "#10b981", size: 7, animated: true, animation: :pulse, gradient: false}
+
       iex> FlyMapEx.Style.normalize([color: "#000", size: 10])
       %{color: "#000", size: 10, animated: false, animation: :none, gradient: false}
-      
+
       iex> FlyMapEx.Style.normalize(%{color: "#fff"})
       %{color: "#fff", size: 6, animated: false, animation: :none, gradient: false}
   """
