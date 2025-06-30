@@ -62,7 +62,7 @@ defmodule FlyMapEx.Components.LegendComponent do
                   if(Map.get(group.style, :animated, false), do: "animate-pulse"),
                   if(Map.has_key?(group, :group_label) and group.group_label in @selected_groups, do: "ring-2 ring-primary/30")
                 ]}
-                style={"background-color: #{Map.get(group.style, :color, "#6b7280")};"}
+                style={"background-color: #{Map.get(group.style, :colour, "#6b7280")};"}
               >
               </span>
             </div>

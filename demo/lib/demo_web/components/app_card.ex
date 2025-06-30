@@ -53,8 +53,8 @@ defmodule DemoWeb.Components.AppCard do
           else: "border-base-300 hover:border-base-content/20"
         )
       ]}
-      phx-click="toggle_app"
-      phx-value-app={@app_name}
+      phx-click="toggle_marker_group"
+      phx-value-group-label={@app_name}
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center">

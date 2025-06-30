@@ -50,14 +50,14 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_event("toggle_app", %{"app" => app_name}, socket) do
+  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
     selected_apps = socket.assigns.selected_apps
 
     new_selected_apps =
-      if app_name in selected_apps do
-        List.delete(selected_apps, app_name)
+      if group_label in selected_apps do
+        List.delete(selected_apps, group_label)
       else
-        [app_name | selected_apps]
+        [group_label | selected_apps]
       end
 
     socket =
@@ -66,11 +66,6 @@ defmodule DemoWeb.MachineMapLive do
       |> refresh_machines_for_selected_apps()
 
     {:noreply, socket}
-  end
-
-  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
-    # Reuse the same logic as toggle_app since they operate on the same state
-    handle_event("toggle_app", %{"app" => group_label}, socket)
   end
 
   def handle_event("select_all_apps", _params, socket) do

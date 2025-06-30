@@ -245,11 +245,10 @@ defmodule Demo.MachineDiscovery do
     base_radius = FlyMapEx.Config.marker_base_radius()
 
     app_machines
-    |> Enum.with_index()
-    |> Enum.filter(fn {{_app, result}, _index} ->
+    |> Enum.filter(fn {_app, result} ->
       match?({:ok, [_ | _]}, result)
     end)
-    |> Enum.map(fn {{app_name, {:ok, machines}}, index} ->
+    |> Enum.map(fn {app_name, {:ok, machines}} ->
       nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
       machine_count = length(machines)
 
@@ -261,8 +260,9 @@ defmodule Demo.MachineDiscovery do
           _ -> [size: base_radius, animated: false]
         end
 
-      # Use FlyMapEx.Style.cycle/1 for automatic color cycling
-      style = FlyMapEx.Style.cycle(index, style_opts)
+      # Use stable color assignment based on app name hash instead of position
+      color_index = stable_color_index(app_name)
+      style = FlyMapEx.Style.cycle(color_index, style_opts)
 
       label =
         case machine_count do
@@ -281,6 +281,22 @@ defmodule Demo.MachineDiscovery do
   end
 
   def from_app_machines(_), do: []
+
+  # Private helper to generate a stable color index for an app name
+  # Uses a simple hash to ensure the same app always gets the same color
+  defp stable_color_index(app_name) do
+    # Get the number of available colors
+    color_count = length(FlyMapEx.Style.colours())
+    
+    # Create a simple hash of the app name
+    hash = 
+      app_name
+      |> String.to_charlist()
+      |> Enum.reduce(0, fn char, acc -> acc + char end)
+    
+    # Map to color index
+    rem(hash, color_count)
+  end
 
   @doc """
   Discover machines periodically and send results to a process.
