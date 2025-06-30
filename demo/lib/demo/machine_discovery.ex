@@ -242,7 +242,8 @@ defmodule Demo.MachineDiscovery do
       ]
   """
   def from_app_machines(app_machines) when is_map(app_machines) do
-    base_radius=FlyMapEx.Config.marker_base_radius()
+    base_radius = FlyMapEx.Config.marker_base_radius()
+
     app_machines
     |> Enum.with_index()
     |> Enum.filter(fn {{_app, result}, _index} ->
@@ -255,8 +256,8 @@ defmodule Demo.MachineDiscovery do
       # Use cycling colors with size/animation based on machine count for visual variety
       style_opts =
         case machine_count do
-          count when count >= 5 -> [size: round(1.4*base_radius), animated: true]
-          count when count >= 3 -> [size: round(1.2*base_radius), animated: true]
+          count when count >= 5 -> [size: round(1.4 * base_radius), animated: true]
+          count when count >= 3 -> [size: round(1.2 * base_radius), animated: true]
           _ -> [size: base_radius, animated: false]
         end
 

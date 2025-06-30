@@ -123,7 +123,6 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-
   # Private helper function to discover and cache all instance data
   defp discover_and_cache_instances(socket) do
     socket = assign(socket, :apps_loading, true)
@@ -197,7 +196,7 @@ defmodule DemoWeb.MachineMapLive do
         <Layouts.theme_toggle />
       </div>
       <h2 class="text-xl mb-4 text-base-content">Apps with active Machines on this network</h2>
-
+      
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
         <div class="bg-info/10 border border-info/20 rounded-lg p-6 mb-6">
@@ -224,8 +223,7 @@ defmodule DemoWeb.MachineMapLive do
           </div>
         </div>
       <% end %>
-
-
+      
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
@@ -243,12 +241,12 @@ defmodule DemoWeb.MachineMapLive do
           message={if @map_refreshing, do: "Refreshing Map Data", else: "Loading Map Data"}
         />
       </div>
-
-      <!-- Machine Details -->
+      
+    <!-- Machine Details -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">Mapped Machines</h2>
-
-        <!-- Summary Stats -->
+        
+    <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="bg-info/10 p-4 rounded-lg">
             <h3 class="text-info font-semibold">Total Machines</h3>
@@ -268,8 +266,8 @@ defmodule DemoWeb.MachineMapLive do
             </p>
           </div>
         </div>
-
-      <!-- Machines by Region -->
+        
+    <!-- Machines by Region -->
         <div class="mt-6">
           <h3 class="text-lg font-medium mb-4 text-base-content">By region</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -280,7 +278,9 @@ defmodule DemoWeb.MachineMapLive do
                 <div class="space-y-1">
                   <%= for {machine_id, _, app} <- machines do %>
                     <div class="text-xs">
-                      <span class="font-mono text-base-content/50">{String.slice(machine_id, 0, 8)}...</span>
+                      <span class="font-mono text-base-content/50">
+                        {String.slice(machine_id, 0, 8)}...
+                      </span>
                       <span class="text-secondary ml-2">({app})</span>
                     </div>
                   <% end %>
@@ -289,7 +289,7 @@ defmodule DemoWeb.MachineMapLive do
             <% end %>
           </div>
         </div>
-        </div>
+      </div>
 
       <div class="mt-8 text-xs text-base-content/50">
         <p>This demo queries Fly.io internal DNS for app discovery and machine information.</p>
@@ -325,7 +325,6 @@ defmodule DemoWeb.MachineMapLive do
       System.get_env("FLY_APP_NAME")
   end
 
-
   # A group is a map
   #   %{nodes: ["sjc", "fra"], style: FlyMapEx.Style.primary(), label: "Active Regions"},
   #  We could define a function like the following and add it to the list in the marker_groups
@@ -338,6 +337,4 @@ defmodule DemoWeb.MachineMapLive do
   #     label: "Fly.io regions"
   #   }
   # end
-
-
 end

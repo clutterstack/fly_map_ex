@@ -5,24 +5,34 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
-
   alias DemoWeb.Layouts
   alias DemoWeb.Components.LoadingOverlay
 
   def mount(_params, _session, socket) do
-
     marker_groups = [
       %{
-        nodes: [%{label: "NYC Server", coordinates: {40.7128, -74.0060}}, %{label: "floating server", coordinates: {49, -33}}],
+        nodes: [
+          %{label: "NYC Server", coordinates: {40.7128, -74.0060}},
+          %{label: "floating server", coordinates: {49, -33}}
+        ],
         style: FlyMapEx.Style.primary(),
         label: "Custom Locations"
+      },
+      %{
+        nodes: [
+          # Fly region
+          "sjc",
+          %{label: "Custom Server", coordinates: {40.7128, -74.0060}}
+        ],
+        style: FlyMapEx.Style.cycle(1),
+        label: "Mixed Deployment"
       }
     ]
-
 
     socket =
       socket
       |> assign(:marker_groups, marker_groups)
+
     {:ok, socket}
   end
 
@@ -34,8 +44,7 @@ defmodule DemoWeb.MapDemoLive do
         <Layouts.theme_toggle />
       </div>
       <h2 class="text-xl mb-4 text-base-content">Displaying marker groups however</h2>
-
-
+      
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
@@ -64,9 +73,6 @@ defmodule DemoWeb.MapDemoLive do
     pluralize_machines(length(list))
   end
 
-
-
-
   # A group is a map
   #   %{nodes: ["sjc", "fra"], style: FlyMapEx.Style.primary(), label: "Active Regions"},
   #  We could define a function like the following and add it to the list in the marker_groups
@@ -79,6 +85,4 @@ defmodule DemoWeb.MapDemoLive do
   #     label: "Fly.io regions"
   #   }
   # end
-
-
 end
