@@ -68,9 +68,9 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_event("toggle_marker_group", %{"app" => app_name}, socket) do
+  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
     # Reuse the same logic as toggle_app since they operate on the same state
-    handle_event("toggle_app", %{"app" => app_name}, socket)
+    handle_event("toggle_app", %{"app" => group_label}, socket)
   end
 
   def handle_event("select_all_apps", _params, socket) do
@@ -229,7 +229,7 @@ defmodule DemoWeb.MachineMapLive do
         <FlyMapEx.render
           marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
-          selected_apps={@selected_apps}
+          selected_groups={@selected_apps}
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
           class="machine-map"

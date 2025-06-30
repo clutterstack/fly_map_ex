@@ -274,7 +274,7 @@ defmodule Demo.MachineDiscovery do
         nodes: nodes,
         style: style,
         label: label,
-        app_name: app_name,
+        group_label: app_name,
         machine_count: machine_count
       }
     end)

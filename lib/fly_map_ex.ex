@@ -103,7 +103,7 @@ defmodule FlyMapEx do
   attr(:theme, :atom, default: :light)
   attr(:background, :map, default: nil)
   attr(:class, :string, default: "")
-  attr(:selected_apps, :list, default: [])
+  attr(:selected_groups, :list, default: [])
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
   attr(:show_regions, :boolean, default: nil)
@@ -117,11 +117,15 @@ defmodule FlyMapEx do
 
     # Normalize marker group styles
     normalized_groups = normalize_marker_groups(assigns.marker_groups)
+    
+    # Filter marker groups based on selected_groups (only show selected groups)
+    visible_groups = filter_visible_groups(normalized_groups, assigns.selected_groups)
 
     assigns =
       assigns
       |> assign(:background, background)
-      |> assign(:marker_groups, normalized_groups)
+      |> assign(:marker_groups, visible_groups)
+      |> assign(:all_marker_groups, normalized_groups)
       |> assign(:show_regions, show_regions)
 
     ~H"""
@@ -137,8 +141,8 @@ defmodule FlyMapEx do
         </div>
 
         <LegendComponent.legend
-          marker_groups={@marker_groups}
-          selected_apps={@selected_apps}
+          marker_groups={@all_marker_groups}
+          selected_groups={@selected_groups}
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
           region_marker_colour={WorldMap.get_region_marker_color(@background)}
@@ -181,4 +185,21 @@ defmodule FlyMapEx do
       default_group
     end
   end
+
+  defp filter_visible_groups(marker_groups, selected_groups) when is_list(selected_groups) do
+    if selected_groups == [] do
+      # If no groups are selected, show all groups
+      marker_groups
+    else
+      # Only show groups that are selected (have group_label in selected_groups)
+      Enum.filter(marker_groups, fn group ->
+        case Map.get(group, :group_label) do
+          nil -> true  # Groups without group_label are always shown
+          group_label -> group_label in selected_groups
+        end
+      end)
+    end
+  end
+
+  defp filter_visible_groups(marker_groups, _), do: marker_groups
 end

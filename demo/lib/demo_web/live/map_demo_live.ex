@@ -34,6 +34,7 @@ defmodule DemoWeb.MapDemoLive do
       socket
       |> assign(:code_input, String.trim(default_code))
       |> assign(:marker_groups, [])
+      |> assign(:selected_groups, [])
       |> assign(:validation_errors, [])
       |> assign(:generated_heex, "")
       |> parse_and_validate_code(default_code)
@@ -51,6 +52,20 @@ defmodule DemoWeb.MapDemoLive do
     {:noreply, socket}
   end
 
+  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
+    selected_groups = socket.assigns.selected_groups
+
+    new_selected_groups =
+      if group_label in selected_groups do
+        List.delete(selected_groups, group_label)
+      else
+        [group_label | selected_groups]
+      end
+
+    socket = assign(socket, :selected_groups, new_selected_groups)
+    {:noreply, socket}
+  end
+
   defp parse_and_validate_code(socket, code) do
     socket =
       socket
@@ -65,10 +80,16 @@ defmodule DemoWeb.MapDemoLive do
       errors = validate_marker_groups(marker_groups)
       
       if errors == [] do
+        # Add group_label field to each marker group for toggle functionality
+        marker_groups_with_labels = add_group_labels(marker_groups)
         heex_code = generate_heex_code(marker_groups)
         
+        # Initialize selected_groups with all group labels (all visible by default)
+        all_group_labels = Enum.map(marker_groups_with_labels, & &1.group_label)
+        
         socket
-        |> assign(:marker_groups, marker_groups)
+        |> assign(:marker_groups, marker_groups_with_labels)
+        |> assign(:selected_groups, all_group_labels)
         |> assign(:generated_heex, heex_code)
       else
         socket
@@ -157,6 +178,12 @@ defmodule DemoWeb.MapDemoLive do
     ["Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string or coordinate map"]
   end
 
+  defp add_group_labels(marker_groups) do
+    Enum.map(marker_groups, fn group ->
+      Map.put(group, :group_label, group.label)
+    end)
+  end
+
   defp generate_heex_code(marker_groups) do
     marker_groups_code = inspect(marker_groups, pretty: true, width: 60)
     
@@ -230,6 +257,7 @@ defmodule DemoWeb.MapDemoLive do
               <FlyMapEx.render
                 marker_groups={@marker_groups}
                 background={FlyMapEx.Theme.responsive_background()}
+                selected_groups={@selected_groups}
                 class="demo-map"
               />
             <% else %>

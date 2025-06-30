@@ -164,6 +164,41 @@ FlyMapEx.Style.cycle(2)  # Amber
 FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :bounce)
 ```
 
+
+ 1. Application Configuration
+
+  Configure global defaults in your config/config.exs:
+
+  config :fly_map_ex,
+    marker_opacity: 0.9,
+    marker_base_radius: 3,
+    neutral_marker_light: "#your-brand-color"
+
+  2. Custom Style Modules
+
+  Create your own style builders:
+
+  defmodule MyApp.MapStyles do
+    def brand_primary(opts \\ []) do
+      FlyMapEx.Style.custom(
+        "#your-brand-color",
+        Keyword.merge([size: 8, animated: true, animation: :pulse], opts)
+      )
+    end
+  end
+
+  # Usage
+  %{nodes: ["sjc"], style: MyApp.MapStyles.brand_primary(), label: "Primary"}
+
+  3. CSS Variable Theming
+
+  Use CSS variables for dynamic theming:
+
+  %{nodes: ["sjc"], style: [colour: "var(--primary-color)"], label: "Dynamic"}
+
+  The system supports atoms, maps, keyword lists, and builder functions for maximum flexibility.
+
+
 #### Inline Styles
 
 ```elixir
