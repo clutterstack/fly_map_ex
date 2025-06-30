@@ -1,17 +1,17 @@
 defmodule DemoWeb.Components.LoadingOverlay do
   @moduledoc """
   A loading overlay component that displays over content during loading operations.
-  
+
   Provides a semi-transparent overlay with spinner and loading message.
   """
-  
+
   use Phoenix.Component
 
   @doc """
   Renders a loading overlay that can be positioned over other content.
-  
+
   ## Attributes
-  
+
   * `show` - Boolean indicating whether to show the overlay
   * `message` - Loading message to display (default: "Loading...")
   * `class` - Additional CSS classes for the overlay container
@@ -19,7 +19,7 @@ defmodule DemoWeb.Components.LoadingOverlay do
   attr(:show, :boolean, default: false)
   attr(:message, :string, default: "Loading...")
   attr(:class, :string, default: "")
-  
+
   def render(assigns) do
     ~H"""
     <%= if @show do %>
@@ -46,7 +46,7 @@ defmodule DemoWeb.Components.LoadingOverlay do
               </path>
             </svg>
             <div>
-              <h3 class="text-info font-semibold"><%= @message %></h3>
+              <h3 class="text-info font-semibold">{@message}</h3>
               <p class="text-info/80 text-sm">Please wait...</p>
             </div>
           </div>

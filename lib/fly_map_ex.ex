@@ -112,6 +112,9 @@ defmodule FlyMapEx do
     # Use custom background or theme background
     background = assigns.background || Theme.background(assigns.theme)
 
+    # Determine if regions should be shown (attribute overrides config default)
+    show_regions = if is_nil(assigns.show_regions), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
+
     # Normalize marker group styles
     normalized_groups = normalize_marker_groups(assigns.marker_groups)
 
@@ -119,6 +122,7 @@ defmodule FlyMapEx do
       assigns
       |> assign(:background, background)
       |> assign(:marker_groups, normalized_groups)
+      |> assign(:show_regions, show_regions)
 
     ~H"""
     <div class={@class}>
@@ -139,6 +143,7 @@ defmodule FlyMapEx do
           all_instances_data={@all_instances_data}
           region_marker_colour={WorldMap.get_region_marker_color(@background)}
           marker_opacity={FlyMapEx.Config.marker_opacity()}
+          show_regions={@show_regions}
         />
       </div>
     </div>

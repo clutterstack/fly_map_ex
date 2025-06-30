@@ -15,15 +15,21 @@ defmodule FlyMapEx.Components.LegendComponent do
   attr(:all_instances_data, :map, default: %{})
   attr(:region_marker_colour, :string, required: true)
   attr(:marker_opacity, :float, required: true)
+  attr(:show_regions, :boolean, required: true)
 
   def legend(%{marker_groups: marker_groups} = assigns) do
-    # Create legend entries for all available apps
+    # Create legend entries - use app-based logic if available_apps provided, otherwise use marker_groups directly
     all_legend_entries =
-      create_all_app_legend_entries(
-        assigns.available_apps,
-        assigns.all_instances_data,
+      if assigns.available_apps != [] do
+        create_all_app_legend_entries(
+          assigns.available_apps,
+          assigns.all_instances_data,
+          marker_groups
+        )
+      else
+        # For generic usage, show the marker groups as-is
         marker_groups
-      )
+      end
 
     assigns = assign(assigns, :all_legend_entries, all_legend_entries)
 
@@ -53,10 +59,10 @@ defmodule FlyMapEx.Components.LegendComponent do
               <span
                 class={[
                   "inline-block w-2 h-2 rounded-full",
-                  if(group.style.animated, do: "animate-pulse"),
+                  if(Map.get(group.style, :animated, false), do: "animate-pulse"),
                   if(Map.has_key?(group, :app_name) and group.app_name in @selected_apps, do: "ring-2 ring-primary/30")
                 ]}
-                style={"background-color: #{group.style.color};"}
+                style={"background-color: #{Map.get(group.style, :color, "#6b7280")};"}
               >
               </span>
             </div>
@@ -80,8 +86,8 @@ defmodule FlyMapEx.Components.LegendComponent do
             </div>
           </div>
 
-          <!-- Available regions with or without Machines -->
-          <div class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50">
+          <!-- All Fly.io regions -->
+          <div :if= {@show_regions} class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50">
             <div class="flex-shrink-0 mt-0.5">
               <span
                 class="inline-block w-2 h-2 rounded-full"
