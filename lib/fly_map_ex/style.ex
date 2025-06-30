@@ -29,8 +29,8 @@ defmodule FlyMapEx.Style do
       %{nodes: ["fra"], style: [color: "var(--primary)", size: 6], label: "CSS Variable"}
   """
 
-  # Color palette for non-semantic cycling
-  @cycle_colors [
+  # Colour palette for non-semantic cycling
+  @cycle_colours [
     # blue
     "#3b82f6",
     # emerald
@@ -54,9 +54,9 @@ defmodule FlyMapEx.Style do
   ]
 
   @doc """
-  Get the available non-semantic colors for cycling.
+  Get the available non-semantic colours for cycling.
 
-  Returns a list of hex color strings that provide good visual distinction
+  Returns a list of hex colour strings that provide good visual distinction
   when used for multiple groups without semantic meaning.
 
   ## Examples
@@ -64,13 +64,13 @@ defmodule FlyMapEx.Style do
       iex> FlyMapEx.Style.colors()
       ["#3b82f6", "#10b981", "#f59e0b", ...]
   """
-  def colors, do: @cycle_colors
+  def colours, do: @cycle_colours
 
   @doc """
-  Get a non-semantic style by cycling through predefined colors.
+  Get a non-semantic style by cycling through predefined colours.
 
   Useful when you have multiple groups but don't want to assign semantic meaning.
-  Colors are chosen to provide good visual distinction.
+  Colours are chosen to provide good visual distinction.
 
   ## Examples
 
@@ -79,8 +79,8 @@ defmodule FlyMapEx.Style do
       FlyMapEx.Style.cycle(10) # blue again (wraps around)
   """
   def cycle(index, opts \\ []) when is_integer(index) do
-    color = Enum.at(@cycle_colors, rem(index, length(@cycle_colors)))
-    custom(color, Keyword.merge([size: 7], opts))
+    colour = Enum.at(@cycle_colours, rem(index, length(@cycle_colours)))
+    custom(colour, Keyword.merge([size: 7], opts))
   end
 
   @doc """
@@ -88,7 +88,7 @@ defmodule FlyMapEx.Style do
 
   ## Options
 
-  * `color` - Hex color string or CSS variable (required)
+  * `colour` - Hex colour string or CSS variable (required)
   * `size` - Base marker size in pixels (default: 6)
   * `animated` - Whether marker should animate (default: false)
   * `animation` - Animation type: :none, :pulse, :bounce, :fade (default: :none)
@@ -97,11 +97,11 @@ defmodule FlyMapEx.Style do
   ## Examples
 
       FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true)
-      FlyMapEx.Style.custom("var(--danger-color)", animation: :bounce)
+      FlyMapEx.Style.custom("var(--danger-colour)", animation: :bounce)
   """
-  def custom(color, opts \\ []) do
+  def custom(colour, opts \\ []) do
     %{
-      color: color,
+      colour: colour,
       size: Keyword.get(opts, :size, 6),
       animated: Keyword.get(opts, :animated, false),
       animation: Keyword.get(opts, :animation, :none),
@@ -260,7 +260,7 @@ defmodule FlyMapEx.Style do
 
   def normalize(style) when is_map(style) do
     defaults = %{
-      color: "#6b7280",
+      colour: "#6b7280",
       size: 6,
       animated: false,
       animation: :none,

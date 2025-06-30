@@ -13,7 +13,7 @@ defmodule FlyMapEx do
 
   - Interactive SVG world map with Fly.io region coordinates
   - Flexible styling system with semantic style names
-  - Any number of custom node groups
+  - Any number of custom marker groups
   - Built-in legends
   - Phoenix LiveView compatible
   - Responsive design
@@ -41,7 +41,7 @@ defmodule FlyMapEx do
 
   ## Attributes
 
-  * `marker_groups` - List of region/node group maps, each containing:
+  * `marker_groups` - List of marker group maps, each containing:
     * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
     * `style` - Style definition (keyword list or map) or FlyMapEx.Style builder result
     * `label` - Display label for this group
@@ -56,12 +56,12 @@ defmodule FlyMapEx do
       <FlyMapEx.render marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style: [color: "#10b981", size: 8, animated: true],
+          style: [colour: "#10b981", size: 8, animated: true],
           label: "Production Servers"
         },
         %{
           nodes: ["ams"],
-          style: [color: "#ef4444", size: 10, animation: :bounce],
+          style: [colour: "#ef4444", size: 10, animation: :bounce],
           label: "Critical Issues"
         }
       ]} theme={:dark} />
@@ -87,7 +87,7 @@ defmodule FlyMapEx do
             %{label: "Custom Server", coordinates: {40.7128, -74.0060}},
             "fra"  # Mix with region codes
           ],
-          style: FlyMapEx.Style.active(color: "#custom"),
+          style: FlyMapEx.Style.active(colour: "#custom"),
           label: "Mixed Deployment"
         }
       ]} />
@@ -95,7 +95,7 @@ defmodule FlyMapEx do
       # CSS variables for dynamic theming
       <div style="--primary: #ff6b6b;">
         <FlyMapEx.render marker_groups={[
-          %{nodes: ["sjc"], style: [color: "var(--primary)", size: 8], label: "Dynamic"}
+          %{nodes: ["sjc"], style: [colour: "var(--primary)", size: 8], label: "Dynamic"}
         ]} />
       </div>
   """
@@ -162,7 +162,7 @@ defmodule FlyMapEx do
     group = Map.put(group, :style, normalized_style)
 
     if Map.has_key?(group, :nodes) do
-      Nodes.process_node_group(group)
+      Nodes.process_marker_group_legacy(group)
     else
       group
     end
@@ -176,7 +176,7 @@ defmodule FlyMapEx do
     default_group = Map.put_new(group, :style, Style.normalize([]))
 
     if Map.has_key?(default_group, :nodes) do
-      Nodes.process_node_group(default_group)
+      Nodes.process_marker_group_legacy(default_group)
     else
       default_group
     end

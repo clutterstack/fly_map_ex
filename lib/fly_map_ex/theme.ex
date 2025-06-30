@@ -14,7 +14,7 @@ defmodule FlyMapEx.Theme do
   """
 
   @doc """
-  Get a background color scheme by name.
+  Get a background colour scheme by name.
 
   ## Available Themes
 

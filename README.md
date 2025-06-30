@@ -1,23 +1,24 @@
 # FlyMapEx
 
-A Phoenix LiveView library for displaying a world map with styled markers for groups of 
-"nodes." 
+A Phoenix LiveView library for displaying interactive world maps with styled markers representing node deployments across regions.
 
-Includes utilities for ingesting Fly.io region markers.
+Provides comprehensive utilities for visualizing Fly.io region deployments with configurable styles, animations, and themes.
 
 ## Overview
 
-FlyMapEx provides Phoenix components and utilities for visualizing node deployments across Fly.io regions with different marker styles, animations, and legends.
+FlyMapEx provides Phoenix LiveView components for creating interactive world maps with markers representing nodes, servers, or deployments. It supports both Fly.io region codes and custom geographic coordinates with a powerful theming and styling system.
 
 ## Features
 
-- SVG world map 
-- Accepts Fly.io region codes or `{lat, long}` tuples
-- Multiple marker types with configurable colors and animations
-- Built-in legends
-- Phoenix LiveView compatible
-- Predefined themes and color schemes
-- Custom styling support
+- Interactive SVG world map with hover effects
+- Support for Fly.io region codes and custom coordinates `{lat, lng}`
+- Semantic marker styles (operational, warning, danger, inactive)
+- Color cycling system for multiple marker groups
+- Configurable animations (pulse, bounce, fade)
+- Built-in themes (light, dark, minimal, cool, warm, high contrast)
+- Real-time data integration with LiveView
+- Machine discovery utilities for Fly.io deployments
+- Comprehensive styling API with gradients and custom colors
 
 ## Installation
 
@@ -37,8 +38,16 @@ end
 
 ```heex
 <FlyMapEx.render marker_groups={[
-  %{regions: ["sjc"], style_key: :primary, label: "Our Node"},
-  %{regions: ["fra", "ams"], style_key: :active, label: "Active Regions"}
+  %{
+    nodes: ["sjc"],
+    style: FlyMapEx.Style.operational(),
+    label: "Production Server"
+  },
+  %{
+    nodes: ["fra", "ams"],
+    style: FlyMapEx.Style.warning(),
+    label: "Staging Servers"
+  }
 ]} />
 ```
 
@@ -46,17 +55,28 @@ end
 
 ```heex
 <FlyMapEx.render
-  marker_groups={[%{regions: ["sjc"], style_key: :primary}]}
-  theme={:dashboard}
+  marker_groups={[%{
+    nodes: ["sjc"],
+    style: FlyMapEx.Style.operational(),
+    label: "Production"
+  }]}
+  theme={:dark}
 />
 ```
 
-### Custom Styling
+### Custom Coordinates and Styling
 
 ```heex
 <FlyMapEx.render
-  marker_groups={[%{regions: ["sjc"], style_key: :primary}]}
-  colours={%{primary: "#00ff00"}}
+  marker_groups={[%{
+    nodes: [
+      %{label: "NYC Office", coordinates: {40.7128, -74.0060}},
+      "sjc"
+    ],
+    style: FlyMapEx.Style.custom("#00ff00", size: 10, animation: :pulse),
+    label: "Global Infrastructure"
+  }]}
+  background={%{land: "#1f2937", ocean: "#111827"}}
   class="my-custom-map"
 />
 ```
@@ -69,56 +89,95 @@ The main entry point component that renders a complete world map with regions, l
 
 #### Attributes
 
-- `marker_groups` - List of marker group maps, each containing:
-  - `regions` - List of region codes for this group
-  - `style_key` - Atom referencing a style from group_styles config (e.g., :primary, :active)
-  - `label` - Display label for this group (optional, falls back to style label)
-- `colors` - Map of color overrides (optional)
+- `marker_groups` (required) - List of marker group maps, each containing:
+  - `nodes` - List of region codes or coordinate maps
+  - `style` - Style definition (FlyMapEx.Style function result, map, or keyword list)
+  - `label` - Display label for this group
+- `theme` - Background theme (`:light`, `:dark`, `:minimal`, `:cool`, `:warm`, `:high_contrast`)
+- `background` - Custom background color map (overrides theme)
 - `class` - Additional CSS classes for the container
-- `legend_config` - Map with legend customization options
-- `group_styles` - Map of custom group styles (optional, uses theme defaults)
-- `theme` - Predefined theme name (optional)
+- `show_regions` - Boolean to show/hide Fly.io region markers
+- `selected_apps` - List for app-specific functionality
+- `available_apps` - List for app-specific functionality
+- `all_instances_data` - Map for app-specific functionality
 
 ### FlyMapEx.Components.WorldMap.render/1
 
 Just the SVG map component without card wrapper.
 
-### FlyMapEx.Components.WorldMapCard.render/1
-
-Map with card wrapper, legend, and progress tracking.
+**Parameters:**
+- `marker_groups` - List of processed marker groups
+- `colours` - Map of color overrides
+- `id` - HTML id for SVG element
+- `show_regions` - Boolean for region marker visibility
 
 ## Configuration
 
-### Themes
+### Background Themes
 
-FlyMapEx includes several predefined themes:
-- `:light` - Light theme
-- `:minimal` - Clean minimal theme
-- `:dark` - Dark theme
+FlyMapEx includes predefined background themes:
+- `:light` - Light background with dark borders
+- `:dark` - Dark background with subtle borders
+- `:minimal` - Clean white background
+- `:cool` - Cool blue tones
+- `:warm` - Warm earth tones
+- `:high_contrast` - Maximum contrast for accessibility
 
-### Color Schemes
+### Application Configuration
 
-Available color schemes:
+Set in `config.exs`:
 
-- `:default` - Blue, yellow, orange, violet
-- `:cool` - Cool blues and teals
-- `:warm` - Warm oranges and reds
-- `:minimal` - Grayscale with subtle accents
-- `:high_contrast` - High contrast colors for accessibility
-- `:dark` - Dark theme colors
-- `:neon` - Bright neon colors
+```elixir
+config :fly_map_ex,
+  marker_opacity: 0.8,
+  show_regions: true,
+  marker_base_radius: 2,
+  animation_opacity_range: {0.3, 1.0}
+```
 
-### Group Styles
+### Style System
 
-Available marker styles:
+#### Semantic Styles
 
-- `:primary` - Blue animated markers for primary/local nodes
-- `:active` - Yellow markers for active/healthy nodes
-- `:expected` - Orange animated markers for expected/planned nodes
-- `:acknowledged` - Violet markers for acknowledged/responding nodes
-- `:secondary` - Green markers for secondary/backup nodes
-- `:warning` - Red markers for problematic nodes
-- `:inactive` - Gray markers for inactive nodes
+```elixir
+FlyMapEx.Style.operational()  # Green, animated (healthy/running)
+FlyMapEx.Style.warning()      # Amber, static with gradient (degraded)
+FlyMapEx.Style.danger()       # Red, bouncing animation (failed/critical)
+FlyMapEx.Style.inactive()     # Gray, small and static (stopped/offline)
+FlyMapEx.Style.primary()      # Blue, static with gradient
+FlyMapEx.Style.secondary()    # Teal, static
+FlyMapEx.Style.info()         # Light blue, static
+```
+
+#### Color Cycling
+
+```elixir
+FlyMapEx.Style.cycle(0)  # Blue
+FlyMapEx.Style.cycle(1)  # Emerald
+FlyMapEx.Style.cycle(2)  # Amber
+# Cycles through 10 predefined colors
+```
+
+#### Custom Styles
+
+```elixir
+FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :bounce)
+```
+
+#### Inline Styles
+
+```elixir
+style: [color: "#10b981", size: 8, animated: true]
+style: %{color: "#ef4444", animation: :bounce}
+```
+
+#### Style Options
+
+- `color` - Hex color string or CSS variable (required)
+- `size` - Base marker size in pixels (default: 6)
+- `animated` - Boolean for animation (default: false)
+- `animation` - Animation type: `:pulse`, `:bounce`, `:fade` (default: `:none`)
+- `gradient` - Boolean for gradient fill (default: false)
 
 ## Utilities
 
@@ -134,11 +193,18 @@ Provides region data and coordinate utilities:
 
 ### FlyMapEx.Config
 
-Configuration presets and themes:
+Configuration utilities:
 
-- `color_scheme/1` - Get predefined color schemes
-- `group_styles/0` - Get marker style configurations
-- `theme/1` - Get complete theme configurations
+- `marker_opacity/0` - Get configured marker opacity
+- `show_regions_default/0` - Get default region visibility
+- `animation_opacity_range/0` - Get animation opacity range
+
+### FlyMapEx.Theme
+
+Background theme utilities:
+
+- `get/1` - Get theme configuration by name
+- `responsive_background/0` - CSS custom properties for DaisyUI
 
 ### FlyMapEx.Adapters
 
@@ -186,7 +252,7 @@ def handle_info({:machines_updated, {:ok, machines}}, socket) do
   marker_groups = FlyMapEx.Adapters.from_machine_tuples(
     machines, 
     "Running Machines", 
-    :primary
+    :operational
   )
   
   socket = assign(socket, marker_groups: marker_groups)
@@ -196,6 +262,8 @@ end
 
 ### DNS Machine Discovery
 
+
+
 Parse Fly.io DNS TXT records containing machine data:
 
 ```elixir
@@ -204,10 +272,10 @@ machines = FlyMapEx.Adapters.from_fly_dns_txt("683d314fdd4d68 yyz,568323e9b54dd8
 # Returns: [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}]
 
 # Convert to marker groups with counts
-marker_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :primary)
+marker_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :operational)
 # Returns: [
-#   %{regions: ["yyz"], style_key: :primary, label: "Active (1)"},
-#   %{regions: ["lhr"], style_key: :primary, label: "Active (1)"}
+#   %{nodes: ["yyz"], style: FlyMapEx.Style.operational(), label: "Active (1)", machine_count: 1},
+#   %{nodes: ["lhr"], style: FlyMapEx.Style.operational(), label: "Active (1)", machine_count: 1}
 # ]
 ```
 
@@ -228,7 +296,3 @@ mix docs
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.

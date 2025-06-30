@@ -107,22 +107,54 @@ defmodule FlyMapEx.Regions do
   end
 
   @doc """
-  Get coordinates for a region code.
+  Get coordinates for a region code with error handling.
 
-  Returns {longitude, latitude} tuple or handles special cases.
+  Returns {:ok, {longitude, latitude}} for valid regions or {:error, reason} for failures.
 
   ## Examples
 
       iex> FlyMapEx.Regions.coordinates("sjc")
-      {-122, 37}
+      {:ok, {-122, 37}}
 
       iex> FlyMapEx.Regions.coordinates("dev")
-      {-122, 47}  # Seattle for development
+      {:ok, {-122, 47}}  # Seattle for development
 
       iex> FlyMapEx.Regions.coordinates("unknown")
-      {-190, 0}   # Off-screen position
+      {:error, :unknown_region}
+
+      iex> FlyMapEx.Regions.coordinates(123)
+      {:error, :invalid_input}
   """
   def coordinates(region) when is_binary(region) do
+    try do
+      region_atom = String.to_existing_atom(region)
+
+      case @regions[region_atom] do
+        {lat, long} -> {:ok, {lat, long}}
+        nil -> handle_special_region_with_error(region)
+      end
+    rescue
+      ArgumentError -> handle_special_region_with_error(region)
+    end
+  end
+
+  def coordinates(_), do: {:error, :invalid_input}
+
+  @doc """
+  Get coordinates for a region code (backward compatibility).
+
+  Returns {longitude, latitude} tuple or handles special cases with fallback coordinates.
+  **Deprecated**: Use coordinates/1 instead for better error handling.
+
+  ## Examples
+
+      iex> FlyMapEx.Regions.coordinates_legacy("sjc")
+      {-122, 37}
+
+      iex> FlyMapEx.Regions.coordinates_legacy("unknown")
+      {-190, 0}   # Off-screen position
+  """
+  def coordinates_legacy(region) when is_binary(region) do
     try do
       region_atom = String.to_existing_atom(region)
 
@@ -135,20 +167,53 @@ defmodule FlyMapEx.Regions do
     end
   end
 
-  def coordinates(_), do: handle_special_region("unknown")
+  def coordinates_legacy(_), do: handle_special_region("unknown")
 
   @doc """
-  Get human-readable name for a region code.
+  Get human-readable name for a region code with error handling.
+
+  Returns {:ok, name} for valid regions or {:error, reason} for failures.
 
   ## Examples
 
       iex> FlyMapEx.Regions.name("sjc")
-      "San Jose"
+      {:ok, "San Jose"}
 
       iex> FlyMapEx.Regions.name("unknown")
-      nil
+      {:error, :unknown_region}
+
+      iex> FlyMapEx.Regions.name(123)
+      {:error, :invalid_input}
   """
   def name(region) when is_binary(region) do
+    try do
+      region_atom = String.to_existing_atom(region)
+      case @region_names[region_atom] do
+        nil -> {:error, :unknown_region}
+        name -> {:ok, name}
+      end
+    rescue
+      ArgumentError -> {:error, :unknown_region}
+    end
+  end
+
+  def name(_), do: {:error, :invalid_input}
+
+  @doc """
+  Get human-readable name for a region code (backward compatibility).
+
+  Returns string name or nil for unknown regions.
+  **Deprecated**: Use name/1 instead for better error handling.
+
+  ## Examples
+
+      iex> FlyMapEx.Regions.name_legacy("sjc")
+      "San Jose"
+
+      iex> FlyMapEx.Regions.name_legacy("unknown")
+      nil
+  """
+  def name_legacy(region) when is_binary(region) do
     try do
       region_atom = String.to_existing_atom(region)
       @region_names[region_atom]
@@ -157,7 +222,7 @@ defmodule FlyMapEx.Regions do
     end
   end
 
-  def name(_), do: nil
+  def name_legacy(_), do: nil
 
   @doc """
   Get formatted display name for a list of regions.
@@ -174,7 +239,7 @@ defmodule FlyMapEx.Regions do
       "sjc, fra"
   """
   def display_name([region]) when is_binary(region) do
-    case name(region) do
+    case name_legacy(region) do
       nil -> region
       human_name -> human_name
     end
@@ -215,4 +280,8 @@ defmodule FlyMapEx.Regions do
   defp handle_special_region("unknown"), do: {-190, 0}
   # Default off-screen for any other case
   defp handle_special_region(_), do: {-190, 0}
+
+  # Error-handling version of special region handling
+  defp handle_special_region_with_error("dev"), do: {:ok, {-122, 47}}
+  defp handle_special_region_with_error(_), do: {:error, :unknown_region}
 end

@@ -135,9 +135,8 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   defp region_display_name(region) do
     case Regions.name(region) do
-      # Fall back to region code if no name found
-      nil -> region
-      name -> name
+      {:ok, name} -> name
+      {:error, _} -> region  # Fall back to region code if no name found
     end
   end
 
@@ -200,7 +199,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         %{
           nodes: nodes,
           # muted gray
-          style: %{color: "#94a3b8", size: 6, animated: false},
+          style: %{colour: "#94a3b8", size: 6, animated: false},
           label: label,
           app_name: app_name,
           machine_count: machine_count
@@ -211,7 +210,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         %{
           nodes: [],
           # very light gray
-          style: %{color: "#e2e8f0", size: 4, animated: false},
+          style: %{colour: "#e2e8f0", size: 4, animated: false},
           label: "#{app_name} (no machines)",
           app_name: app_name,
           machine_count: 0

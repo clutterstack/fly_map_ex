@@ -14,8 +14,8 @@ defmodule FlyMapEx.WorldMapPaths do
   ## Attributes
 
   * `colours` - Map with styling colours including:
-    * `background` - Fill color for landmasses
-    * `border` - Stroke color for borders
+    * `background` - Fill colour for landmasses
+    * `border` - Stroke colour for borders
   """
   attr(:colours, :map, required: true)
 
