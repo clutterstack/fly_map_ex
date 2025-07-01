@@ -12,25 +12,11 @@ defmodule DemoWeb.Stage1Live do
       }
     ]
 
-    {:ok, assign(socket, marker_groups: marker_groups, selected_groups: ["My Servers"])}
-  end
-
-  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
-    selected_groups = socket.assigns.selected_groups
-
-    new_selected_groups =
-      if group_label in selected_groups do
-        List.delete(selected_groups, group_label)
-      else
-        [group_label | selected_groups]
-      end
-
-    socket = assign(socket, :selected_groups, new_selected_groups)
-    {:noreply, socket}
+    {:ok, assign(socket, marker_groups: marker_groups)}
   end
 
   def render(assigns) do
-    code_example = """
+    assigns = assign(assigns, :code_example, """
 marker_groups = [
   %{
     nodes: ["sjc", "fra", "ams", "lhr"],
@@ -40,7 +26,7 @@ marker_groups = [
 ]
 
 <FlyMapEx.render marker_groups={marker_groups} />
-"""
+""")
 
     ~H"""
     <div class="container mx-auto p-8">
@@ -61,7 +47,6 @@ marker_groups = [
           <FlyMapEx.render 
             marker_groups={@marker_groups} 
             background={FlyMapEx.Theme.responsive_background()}
-            selected_groups={@selected_groups}
           />
         </div>
 
@@ -69,7 +54,7 @@ marker_groups = [
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-gray-700">Code Example</h2>
           <div class="bg-gray-50 rounded-lg p-4">
-            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= code_example %></code></pre>
+            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_example %></code></pre>
           </div>
 
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">

@@ -16,6 +16,7 @@ defmodule FlyMapEx.Components.LegendComponent do
   attr(:region_marker_colour, :string, required: true)
   attr(:marker_opacity, :float, required: true)
   attr(:show_regions, :boolean, required: true)
+  attr(:target, :any, default: nil)
 
   def legend(%{marker_groups: marker_groups} = assigns) do
     # Create legend entries - use app-based logic if available_apps provided, otherwise use marker_groups directly
@@ -53,6 +54,7 @@ defmodule FlyMapEx.Components.LegendComponent do
                 else: "hover:border-base-content/10 border border-transparent")
             ]}
             phx-click={if Map.has_key?(group, :group_label), do: "toggle_marker_group", else: nil}
+            phx-target={@target}
             phx-value-group-label={if Map.has_key?(group, :group_label), do: group.group_label, else: nil}
           >
             <div class="flex-shrink-0 mt-0.5">

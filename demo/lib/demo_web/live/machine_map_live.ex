@@ -50,23 +50,6 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-  def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
-    selected_apps = socket.assigns.selected_apps
-
-    new_selected_apps =
-      if group_label in selected_apps do
-        List.delete(selected_apps, group_label)
-      else
-        [group_label | selected_apps]
-      end
-
-    socket =
-      socket
-      |> assign(:selected_apps, new_selected_apps)
-      |> refresh_machines_for_selected_apps()
-
-    {:noreply, socket}
-  end
 
   def handle_event("select_all_apps", _params, socket) do
     available_apps = socket.assigns.available_apps
@@ -224,7 +207,6 @@ defmodule DemoWeb.MachineMapLive do
         <FlyMapEx.render
           marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
-          selected_groups={@selected_apps}
           available_apps={@available_apps}
           all_instances_data={@all_instances_data}
           class="machine-map"

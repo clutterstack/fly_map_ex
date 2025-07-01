@@ -32,9 +32,6 @@ defmodule FlyMapEx do
 
   use Phoenix.Component
 
-  alias FlyMapEx.{Theme, Style, Nodes}
-  alias FlyMapEx.Components.{WorldMap, LegendComponent}
-
   @doc """
   This is the main entry point for the library. It renders a card containing
   the world map and legend.
@@ -99,6 +96,7 @@ defmodule FlyMapEx do
         ]} />
       </div>
   """
+  # Legacy attributes for backward compatibility when used as function component
   attr(:marker_groups, :list, default: [])
   attr(:theme, :atom, default: :light)
   attr(:background, :map, default: nil)
@@ -109,97 +107,30 @@ defmodule FlyMapEx do
   attr(:show_regions, :boolean, default: nil)
 
   def render(assigns) do
-    # Use custom background or theme background
-    background = assigns.background || Theme.background(assigns.theme)
-
-    # Determine if regions should be shown (attribute overrides config default)
-    show_regions = if is_nil(assigns.show_regions), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
-
-    # Normalize marker group styles
-    normalized_groups = normalize_marker_groups(assigns.marker_groups)
-    
-    # Filter marker groups based on selected_groups (only show selected groups)
-    visible_groups = filter_visible_groups(normalized_groups, assigns.selected_groups)
-
-    assigns =
-      assigns
-      |> assign(:background, background)
-      |> assign(:marker_groups, visible_groups)
-      |> assign(:all_marker_groups, normalized_groups)
-      |> assign(:show_regions, show_regions)
-
+    # For backward compatibility, delegate to the new LiveView component
+    # This allows existing code to continue working without changes
     ~H"""
-    <div class={@class}>
-         <div class={"card bg-base-100"}>
-      <div class="card-body">
-        <div class="rounded-lg border overflow-hidden" style={"background-color: #{@background.land}"}>
-          <WorldMap.render
-            marker_groups={@marker_groups}
-            colours={@background}
-            show_regions={@show_regions}
-          />
-        </div>
-
-        <LegendComponent.legend
-          marker_groups={@all_marker_groups}
-          selected_groups={@selected_groups}
-          available_apps={@available_apps}
-          all_instances_data={@all_instances_data}
-          region_marker_colour={WorldMap.get_region_marker_color(@background)}
-          marker_opacity={FlyMapEx.Config.marker_opacity()}
-          show_regions={@show_regions}
-        />
-      </div>
-    </div>
-    </div>
+    <.live_component
+      module={FlyMapEx.Component}
+      id={assigns[:id] || "fly-map-#{System.unique_integer([:positive])}"}
+      marker_groups={@marker_groups}
+      theme={@theme}
+      background={@background}
+      class={@class}
+      initially_visible={determine_initially_visible(@marker_groups, @selected_groups)}
+      available_apps={@available_apps}
+      all_instances_data={@all_instances_data}
+      show_regions={@show_regions}
+    />
     """
   end
 
-  # Private function to normalize marker groups and styles
-  defp normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    Enum.map(marker_groups, &normalize_marker_group/1)
+  # Helper function to determine initially_visible from legacy selected_groups
+  defp determine_initially_visible(_marker_groups, selected_groups) when is_list(selected_groups) and selected_groups != [] do
+    selected_groups
   end
-
-  defp normalize_marker_group(%{style: style} = group) when not is_nil(style) do
-    # Normalize the style and process nodes
-    normalized_style = Style.normalize(style)
-    group = Map.put(group, :style, normalized_style)
-
-    if Map.has_key?(group, :nodes) do
-      Nodes.process_marker_group_legacy(group)
-    else
-      group
-    end
+  
+  defp determine_initially_visible(_marker_groups, _selected_groups) do
+    :all
   end
-
-  defp normalize_marker_group(group) do
-    # No style specified - use default
-    require Logger
-    Logger.warning("Marker group missing style, using default: #{inspect(group)}")
-
-    default_group = Map.put_new(group, :style, Style.normalize([]))
-
-    if Map.has_key?(default_group, :nodes) do
-      Nodes.process_marker_group_legacy(default_group)
-    else
-      default_group
-    end
-  end
-
-  defp filter_visible_groups(marker_groups, selected_groups) when is_list(selected_groups) do
-    if selected_groups == [] do
-      # If no groups are selected, show all groups
-      marker_groups
-    else
-      # Only show groups that are selected (have group_label in selected_groups)
-      Enum.filter(marker_groups, fn group ->
-        case Map.get(group, :group_label) do
-          nil -> true  # Groups without group_label are always shown
-          group_label -> group_label in selected_groups
-        end
-      end)
-    end
-  end
-
-  defp filter_visible_groups(marker_groups, _), do: marker_groups
 end
