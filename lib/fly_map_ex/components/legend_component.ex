@@ -8,6 +8,7 @@ defmodule FlyMapEx.Components.LegendComponent do
   require Logger
 
   alias FlyMapEx.Regions
+  alias FlyMapEx.Components.Marker
 
   attr(:marker_groups, :list, required: true)
   attr(:selected_groups, :list, default: [])
@@ -58,15 +59,11 @@ defmodule FlyMapEx.Components.LegendComponent do
             phx-value-group-label={if Map.has_key?(group, :group_label), do: group.group_label, else: nil}
           >
             <div class="flex-shrink-0 mt-0.5">
-              <span
-                class={[
-                  "inline-block w-2 h-2 rounded-full",
-                  if(Map.get(group.style, :animated, false), do: "animate-pulse"),
-                  if(Map.has_key?(group, :group_label) and group.group_label in @selected_groups, do: "ring-2 ring-primary/30")
-                ]}
-                style={"background-color: #{Map.get(group.style, :colour, "#6b7280")};"}
-              >
-              </span>
+              <div class={[
+                if(Map.has_key?(group, :group_label) and group.group_label in @selected_groups, do: "ring-2 ring-primary/30 rounded-full p-0.5")
+              ]}>
+                <Marker.marker style={group.style} mode={:legend} size_override={6} />
+              </div>
             </div>
             <div class="flex-grow min-w-0">
               <div class={[
@@ -201,7 +198,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         %{
           nodes: nodes,
           # muted gray
-          style: %{colour: "#94a3b8", size: 6, animated: false},
+          style: %{colour: "#94a3b8", size: 6, animation: :none},
           label: label,
           group_label: app_name,
           machine_count: machine_count
@@ -212,7 +209,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         %{
           nodes: [],
           # very light gray
-          style: %{colour: "#e2e8f0", size: 4, animated: false},
+          style: %{colour: "#e2e8f0", size: 4, animation: :none},
           label: "#{app_name} (no machines)",
           group_label: app_name,
           machine_count: 0

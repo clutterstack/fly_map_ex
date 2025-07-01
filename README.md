@@ -14,7 +14,7 @@ FlyMapEx provides Phoenix LiveView components for creating interactive world map
 - Support for Fly.io region codes and custom coordinates `{lat, lng}`
 - Semantic marker styles (operational, warning, danger, inactive)
 - Color cycling system for multiple marker groups
-- Configurable animations (pulse, bounce, fade)
+- Configurable animations (pulse, fade)
 - Built-in themes (light, dark, minimal, cool, warm, high contrast)
 - Real-time data integration with LiveView
 - Machine discovery utilities for Fly.io deployments
@@ -161,7 +161,7 @@ FlyMapEx.Style.cycle(2)  # Amber
 #### Custom Styles
 
 ```elixir
-FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :bounce)
+FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :pulse)
 ```
 
 
@@ -203,7 +203,7 @@ FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :bounce)
 
 ```elixir
 style: [color: "#10b981", size: 8, animated: true]
-style: %{color: "#ef4444", animation: :bounce}
+style: %{color: "#ef4444", animation: :pulse}
 ```
 
 #### Style Options
@@ -211,7 +211,7 @@ style: %{color: "#ef4444", animation: :bounce}
 - `color` - Hex color string or CSS variable (required)
 - `size` - Base marker size in pixels (default: 6)
 - `animated` - Boolean for animation (default: false)
-- `animation` - Animation type: `:pulse`, `:bounce`, `:fade` (default: `:none`)
+- `animation` - Animation type: `:pulse`, `:fade` (default: `:none`)
 - `gradient` - Boolean for gradient fill (default: false)
 
 ## Utilities

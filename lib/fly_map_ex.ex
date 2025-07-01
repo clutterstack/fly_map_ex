@@ -53,12 +53,12 @@ defmodule FlyMapEx do
       <FlyMapEx.render marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style: [colour: "#10b981", size: 8, animated: true],
+          style: [colour: "#10b981", size: 8],
           label: "Production Servers"
         },
         %{
           nodes: ["ams"],
-          style: [colour: "#ef4444", size: 10, animation: :bounce],
+          style: [colour: "#ef4444", size: 10, animation: :pulse],
           label: "Critical Issues"
         }
       ]} theme={:dark} />
@@ -129,7 +129,7 @@ defmodule FlyMapEx do
   defp determine_initially_visible(_marker_groups, selected_groups) when is_list(selected_groups) and selected_groups != [] do
     selected_groups
   end
-  
+
   defp determine_initially_visible(_marker_groups, _selected_groups) do
     :all
   end

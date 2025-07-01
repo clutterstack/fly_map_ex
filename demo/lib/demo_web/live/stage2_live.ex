@@ -93,10 +93,10 @@ defmodule DemoWeb.Stage2Live do
                 </span>
               </div>
               <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full animate-bounce" style="background-color: #ef4444;">
+                <div class="w-3 h-3 rounded-full animate-pulse" style="background-color: #ef4444;">
                 </div>
                 <span class="text-green-700">
-                  <strong>danger()</strong> - Red, bounce animation - Critical issues
+                  <strong>danger()</strong> - Red, pulse animation - Critical issues
                 </span>
               </div>
               <div class="flex items-center space-x-2">
@@ -143,7 +143,7 @@ defmodule DemoWeb.Stage2Live do
           </div>
         </div>
       </div>
-      
+
       <!-- Navigation -->
       <div class="mt-8 flex justify-between">
         <.link navigate={~p"/stage1"} class="btn btn-outline">

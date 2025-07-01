@@ -83,7 +83,7 @@ marker_groups = [
 **Features to demonstrate**:
 - Non-semantic colour cycling with `cycle(index)`
 - Custom styles with `custom()` function
-- Animation options: `:pulse`, `:bounce`, `:fade`
+- Animation options: `:pulse`, `:fade`
 - Gradient fills and size variations
 - CSS variable integration
 
@@ -97,7 +97,7 @@ marker_groups = [
   },
   %{
     nodes: ["fra"],
-    style: FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :bounce),
+    style: FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :fade),
     label: "Custom Style"
   },
   %{

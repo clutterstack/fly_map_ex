@@ -8,6 +8,7 @@ defmodule FlyMapEx.Components.WorldMap do
   use Phoenix.Component
 
   alias FlyMapEx.Regions
+  alias FlyMapEx.Components.Marker
   alias FlyMapEx.WorldMapPaths
 
   # Map dims determined by svg and some cropping
@@ -248,66 +249,29 @@ defmodule FlyMapEx.Components.WorldMap do
   end
 
   defp render_marker(group, _group_index, x, y, gradient_groups, default_radius) do
-    base_size = Map.get(group.style, :size, default_radius)
-    animation = Map.get(group.style, :animation, :none)
     gradient = Map.get(group.style, :gradient, false)
 
-    fill =
+    fill_override =
       if gradient do
         # Find this group's gradient index
         gradient_index = Enum.find_index(gradient_groups, fn g -> g == group end)
         if gradient_index, do: "url(#gradient#{gradient_index})", else: group.style.colour
       else
-        group.style.colour
+        nil  # Let Marker component use the style's colour
       end
 
-    case animation do
-      :pulse ->
-        {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size, min_opacity: min_opacity, max_opacity: max_opacity}
+    assigns = %{
+      style: group.style,
+      x: x,
+      y: y,
+      mode: :svg,
+      size_override: default_radius,
+      fill_override: fill_override
+    }
 
-        ~H"""
-        <g class="marker-group animated">
-          <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
-            <animate attributeName="r" values={"#{@base_size};#{@base_size + 4};#{@base_size}"} dur="2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values={"#{@min_opacity};#{@max_opacity};#{@min_opacity}"} dur="2s" repeatCount="indefinite" />
-          </circle>
-        </g>
-        """
-
-      :bounce ->
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
-
-        ~H"""
-        <g class="marker-group static">
-          <circle cx={@x} cy={@y} stroke="none" fill={@fill}>
-            <animate attributeName="r" values={"#{@base_size};#{@base_size + 6};#{@base_size};#{@base_size + 2};#{@base_size}"} dur="1.5s" repeatCount="indefinite" />
-          </circle>
-        </g>
-        """
-
-      :fade ->
-        {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size, min_opacity: min_opacity, max_opacity: max_opacity}
-
-        ~H"""
-        <g class="marker-group animated">
-          <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@fill}>
-            <animate attributeName="opacity" values={"#{@min_opacity};#{@max_opacity};#{@min_opacity}"} dur="3s" repeatCount="indefinite" />
-          </circle>
-        </g>
-        """
-
-      # :none or any other value
-      _ ->
-        assigns = %{x: x, y: y, fill: fill, base_size: base_size}
-
-        ~H"""
-        <g class="marker-group static">
-          <circle cx={@x} cy={@y} r={@base_size} fill={@fill} />
-        </g>
-        """
-    end
+    ~H"""
+    <Marker.marker {assigns} />
+    """
   end
 
   defp all_regions_with_coords do

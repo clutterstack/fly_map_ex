@@ -10,7 +10,6 @@ defmodule DemoWeb.Stage4Live do
       |> assign(:current_demo, "color_cycling")
       |> assign(:custom_colour, "#3b82f6")
       |> assign(:custom_size, 8)
-      |> assign(:custom_animated, true)
       |> assign(:custom_animation, "pulse")
       |> assign(:custom_gradient, false)
       |> update_marker_groups()
@@ -32,7 +31,6 @@ defmodule DemoWeb.Stage4Live do
       socket
       |> assign(:custom_colour, Map.get(params, "colour", socket.assigns.custom_colour))
       |> assign(:custom_size, String.to_integer(Map.get(params, "size", "8")))
-      |> assign(:custom_animated, Map.get(params, "animated") == "true")
       |> assign(:custom_animation, Map.get(params, "animation", "pulse"))
       |> assign(:custom_gradient, Map.get(params, "gradient") == "true")
       |> update_marker_groups()
@@ -70,7 +68,7 @@ defmodule DemoWeb.Stage4Live do
     [
       %{
         nodes: ["sjc", "fra"],
-        style: FlyMapEx.Style.custom("var(--primary)", size: 10, animated: true),
+        style: FlyMapEx.Style.custom("var(--primary)", size: 10, animation: :pulse),
         label: "Primary Brand Colour"
       },
       %{
@@ -80,7 +78,7 @@ defmodule DemoWeb.Stage4Live do
       },
       %{
         nodes: ["ord"],
-        style: FlyMapEx.Style.custom("#1f2937", size: 12, animated: true, animation: :bounce),
+        style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :pulse),
         label: "Custom Corporate Gray"
       },
       %{
@@ -95,22 +93,17 @@ defmodule DemoWeb.Stage4Live do
     [
       %{
         nodes: ["sjc"],
-        style: FlyMapEx.Style.custom("#ef4444", size: 10, animated: true, animation: :pulse),
+        style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse),
         label: "Pulse Animation"
       },
       %{
-        nodes: ["fra"],
-        style: FlyMapEx.Style.custom("#f59e0b", size: 10, animated: true, animation: :bounce),
-        label: "Bounce Animation"
-      },
-      %{
         nodes: ["ams"],
-        style: FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :fade),
+        style: FlyMapEx.Style.custom("#3b82f6", size: 10, animation: :fade),
         label: "Fade Animation"
       },
       %{
         nodes: ["lhr"],
-        style: FlyMapEx.Style.custom("#10b981", size: 10, animated: false),
+        style: FlyMapEx.Style.custom("#10b981", size: 10, animation: :none),
         label: "No Animation (Static)"
       }
     ]
@@ -121,7 +114,6 @@ defmodule DemoWeb.Stage4Live do
       FlyMapEx.Style.custom(
         assigns.custom_colour,
         size: assigns.custom_size,
-        animated: assigns.custom_animated,
         animation: String.to_atom(assigns.custom_animation),
         gradient: assigns.custom_gradient
       )
@@ -140,10 +132,10 @@ defmodule DemoWeb.Stage4Live do
       r = Integer.parse(String.slice(hex_color, 1, 2), 16) |> elem(0)
       g = Integer.parse(String.slice(hex_color, 3, 2), 16) |> elem(0)
       b = Integer.parse(String.slice(hex_color, 5, 2), 16) |> elem(0)
-      
+
       # Calculate relative luminance
       luminance = 0.299 * r + 0.587 * g + 0.114 * b
-      
+
       if luminance > 128, do: "#000", else: "#fff"
     else
       "#000"
@@ -167,7 +159,7 @@ defmodule DemoWeb.Stage4Live do
         marker_groups = [
           %{
             nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.custom("var(--primary)", size: 10, animated: true),
+            style: FlyMapEx.Style.custom("var(--primary)", animation: :pulse),
             label: "Primary Brand Colour"
           },
           %{
@@ -177,7 +169,7 @@ defmodule DemoWeb.Stage4Live do
           },
           %{
             nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :bounce),
+            style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :pulse),
             label: "Custom Corporate Color"
           }
         ]
@@ -186,14 +178,9 @@ defmodule DemoWeb.Stage4Live do
         # Different animations for different purposes
         marker_groups = [
           %{
-            nodes: ["sjc"],
-            style: FlyMapEx.Style.custom("#ef4444", animation: :pulse),
-            label: "Pulse - Health Status"
-          },
-          %{
             nodes: ["fra"],
-            style: FlyMapEx.Style.custom("#f59e0b", animation: :bounce),
-            label: "Bounce - Critical Alerts"
+            style: FlyMapEx.Style.custom("#f59e0b", animation: :pulse),
+            label: "Pulse - Critical Alerts"
           },
           %{
             nodes: ["ams"],
@@ -207,7 +194,6 @@ defmodule DemoWeb.Stage4Live do
         style = FlyMapEx.Style.custom(
           "#{assigns.custom_colour}",
           size: #{assigns.custom_size},
-          animated: #{assigns.custom_animated},
           animation: :#{assigns.custom_animation},
           gradient: #{assigns.custom_gradient}
         )
@@ -340,7 +326,7 @@ defmodule DemoWeb.Stage4Live do
                       name="animation"
                       class="select select-bordered w-full"
                     >
-                      <%= for anim <- ["pulse", "bounce", "fade"] do %>
+                      <%= for anim <- ["pulse", "fade"] do %>
                         <option value={anim} selected={@custom_animation == anim}>
                           {String.capitalize(anim)}
                         </option>
@@ -350,17 +336,6 @@ defmodule DemoWeb.Stage4Live do
                 </div>
 
                 <div class="space-y-2">
-                  <label class="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name="animated"
-                      value="true"
-                      checked={@custom_animated}
-                      class="checkbox"
-                    />
-                    <span class="text-sm text-gray-700">Animated</span>
-                  </label>
-
                   <label class="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -416,12 +391,6 @@ defmodule DemoWeb.Stage4Live do
                     <div class="w-3 h-3 rounded-full animate-pulse bg-red-500"></div>
                     <span class="text-green-700">
                       <strong>:pulse</strong> - Radius + opacity (health status)
-                    </span>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full animate-bounce bg-amber-500"></div>
-                    <span class="text-green-700">
-                      <strong>:bounce</strong> - Complex bounce (critical alerts)
                     </span>
                   </div>
                   <div class="flex items-center space-x-2">
