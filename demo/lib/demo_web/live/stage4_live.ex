@@ -3,6 +3,7 @@ defmodule DemoWeb.Stage4Live do
 
   alias DemoWeb.Layouts
   import DemoWeb.Components.DemoNavigation
+  import DemoWeb.Components.MapWithCodeComponent
 
   def mount(_params, _session, socket) do
     socket =
@@ -143,66 +144,6 @@ defmodule DemoWeb.Stage4Live do
   end
 
   def render(assigns) do
-    assigns =
-      assign(assigns, :code_examples, %{
-        "color_cycling" => """
-        # Perfect for multiple apps without semantic meaning
-        marker_groups = [
-          %{nodes: ["sjc"], style: FlyMapEx.Style.cycle(0), label: "App Server 1"},
-          %{nodes: ["fra"], style: FlyMapEx.Style.cycle(1), label: "App Server 2"},
-          %{nodes: ["ams"], style: FlyMapEx.Style.cycle(2), label: "Database Cluster"},
-          # ... continues with cycle(3), cycle(4), etc.
-        ]
-        """,
-        "brand_integration" => """
-        # CSS variables adapt to your theme
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.custom("var(--primary)", animation: :pulse),
-            label: "Primary Brand Colour"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.custom("var(--accent)", gradient: true),
-            label: "Accent with Gradient"
-          },
-          %{
-            nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :pulse),
-            label: "Custom Corporate Color"
-          }
-        ]
-        """,
-        "animation_showcase" => """
-        # Different animations for different purposes
-        marker_groups = [
-          %{
-            nodes: ["fra"],
-            style: FlyMapEx.Style.custom("#f59e0b", animation: :pulse),
-            label: "Pulse - Critical Alerts"
-          },
-          %{
-            nodes: ["ams"],
-            style: FlyMapEx.Style.custom("#3b82f6", animation: :fade),
-            label: "Fade - Background Process"
-          }
-        ]
-        """,
-        "custom_builder" => """
-        # Live preview of your custom style
-        style = FlyMapEx.Style.custom(
-          "#{assigns.custom_colour}",
-          size: #{assigns.custom_size},
-          animation: :#{assigns.custom_animation},
-          gradient: #{assigns.custom_gradient}
-        )
-
-        marker_groups = [
-          %{nodes: ["sjc", "fra", "ams"], style: style, label: "Custom Style"}
-        ]
-        """
-      })
 
     ~H"""
     <.demo_navigation current_page={:stage4} />
@@ -263,27 +204,17 @@ defmodule DemoWeb.Stage4Live do
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Map Display -->
-        <div class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-700">
-            <%= case @current_demo do %>
-              <% "color_cycling" -> %>
-                Multiple Apps with Color Cycling
-              <% "brand_integration" -> %>
-                Brand Color Integration
-              <% "animation_showcase" -> %>
-                Animation Types Comparison
-              <% "custom_builder" -> %>
-                Interactive Style Builder
-            <% end %>
-          </h2>
-
-          <FlyMapEx.render
-            marker_groups={@marker_groups}
-            background={FlyMapEx.Theme.responsive_background()}
-          />
-
+      <.map_with_code
+        marker_groups={@marker_groups}
+        background={FlyMapEx.Theme.responsive_background()}
+        map_title={case @current_demo do
+          "color_cycling" -> "Multiple Apps with Color Cycling"
+          "brand_integration" -> "Brand Color Integration"  
+          "animation_showcase" -> "Animation Types Comparison"
+          "custom_builder" -> "Interactive Style Builder"
+        end}
+      >
+        <:extra_content>
           <%= if @current_demo == "custom_builder" do %>
             <!-- Custom Style Builder Controls -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
@@ -326,7 +257,7 @@ defmodule DemoWeb.Stage4Live do
                       name="animation"
                       class="select select-bordered w-full"
                     >
-                      <%= for anim <- ["pulse", "fade"] do %>
+                      <%= for anim <- ["pulse", "fade", "none"] do %>
                         <option value={anim} selected={@custom_animation == anim}>
                           {String.capitalize(anim)}
                         </option>
@@ -350,16 +281,8 @@ defmodule DemoWeb.Stage4Live do
               </form>
             </div>
           <% end %>
-        </div>
 
-    <!-- Code Example and Info -->
-        <div class="space-y-4">
-          <h2 class="text-xl font-semibold text-gray-700">Code Example</h2>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_examples[@current_demo] %></code></pre>
-          </div>
-
-    <!-- Context-specific info panels -->
+          <!-- Context-specific info panels -->
           <%= case @current_demo do %>
             <% "color_cycling" -> %>
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -421,7 +344,7 @@ defmodule DemoWeb.Stage4Live do
               </div>
           <% end %>
 
-    <!-- Best Practices Panel -->
+          <!-- Best Practices Panel -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 class="font-semibold text-gray-800 mb-2">Best Practices</h3>
             <ul class="text-gray-700 text-sm space-y-1">
@@ -447,8 +370,8 @@ defmodule DemoWeb.Stage4Live do
               </li>
             </ul>
           </div>
-        </div>
-      </div>
+        </:extra_content>
+      </.map_with_code>
 
     <!-- Navigation -->
       <div class="mt-8 flex justify-between">

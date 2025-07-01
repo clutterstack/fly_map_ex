@@ -248,7 +248,7 @@ defmodule FlyMapEx.Components.WorldMap do
     {lat, lng}
   end
 
-  defp render_marker(group, _group_index, x, y, gradient_groups, default_radius) do
+  defp render_marker(group, _group_index, x, y, gradient_groups, _default_radius) do
     gradient = Map.get(group.style, :gradient, false)
 
     fill_override =
@@ -265,7 +265,6 @@ defmodule FlyMapEx.Components.WorldMap do
       x: x,
       y: y,
       mode: :svg,
-      size_override: default_radius,
       fill_override: fill_override
     }
 
