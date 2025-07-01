@@ -42,22 +42,12 @@ defmodule FlyMapEx.Components.Marker do
     colour = assigns.fill_override || Map.get(style, :colour, "#6b7280")
     glow = Map.get(style, :glow, false)
 
-    # Get the marker's base opacity (1.0 for static, or animation range for animated)
-    marker_opacity = case animation do
-      :none -> FlyMapEx.Config.marker_opacity()
-      _ -> 
-        {_, max_opacity} = FlyMapEx.Config.animation_opacity_range()
-        max_opacity
-    end
-
     assigns
     |> assign(:base_size, base_size)
     |> assign(:animation, animation)
     |> assign(:colour, colour)
     |> assign(:glow, glow)
-    |> assign(:glow_size, base_size * 2.2)
-    |> assign(:marker_opacity, marker_opacity)
-    |> assign(:glow_id, "glow-#{:erlang.unique_integer([:positive])}")
+    |> assign(:glow_size, base_size * 1.2)
     |> assign_animation_props(animation)
   end
 
@@ -111,20 +101,22 @@ defmodule FlyMapEx.Components.Marker do
     ~H"""
     <svg class="inline-block" width={@base_size * 2} height={@base_size * 2} viewBox={viewbox(@base_size)}>
       <%= if @glow do %>
-        <defs>
-          <radialGradient id={@glow_id} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color={@colour} stop-opacity="1" />
-            <stop offset="45%" stop-color={@colour} stop-opacity="0.7" />
-            <stop offset="100%" stop-color={@colour} stop-opacity="0" />
-          </radialGradient>
-        </defs>
+        <!-- Glow effect for legend: larger circle with reduced opacity behind main circle -->
+        <circle
+          cx={@base_size}
+          cy={@base_size}
+          r={@glow_radius}
+          stroke="none"
+          fill={@colour}
+          opacity="0.3"
+        />
       <% end %>
-      <circle 
-        cx={@base_size} 
-        cy={@base_size} 
-        r={if @glow, do: @glow_radius, else: @static_radius} 
-        stroke="none" 
-        fill={if @glow, do: "url(##{@glow_id})", else: @colour}
+      <circle
+        cx={@base_size}
+        cy={@base_size}
+        r={@static_radius}
+        stroke="none"
+        fill={@colour}
       >
         <%= if @radius_attrs do %>
           <animate
@@ -156,21 +148,12 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <g class={@css_class}>
-      <%= if @glow do %>
-        <defs>
-          <radialGradient id={@glow_id} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color={@colour} stop-opacity="1" />
-            <stop offset="45%" stop-color={@colour} stop-opacity="0.7" />
-            <stop offset="100%" stop-color={@colour} stop-opacity="0" />
-          </radialGradient>
-        </defs>
-      <% end %>
-      <circle 
-        cx={@x} 
-        cy={@y} 
-        r={if @glow, do: @glow_size, else: @base_size} 
-        stroke="none" 
-        fill={if @glow, do: "url(##{@glow_id})", else: @colour}
+      <circle
+        cx={@x}
+        cy={@y}
+        r={if @glow, do: @glow_size, else: @base_size}
+        stroke="none"
+        fill={@colour}
       >
         <%= if @radius_attrs do %>
           <animate
