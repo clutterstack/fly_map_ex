@@ -23,7 +23,7 @@ defmodule DemoWeb.Stage4Live do
       |> assign(:current_demo, demo)
       |> update_marker_groups()
 
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   def handle_event("update_custom", params, socket) do
@@ -36,7 +36,7 @@ defmodule DemoWeb.Stage4Live do
       |> assign(:custom_gradient, Map.get(params, "gradient") == "true")
       |> update_marker_groups()
 
-    {:ok, socket}
+    {:noreply, socket}
   end
 
   defp update_marker_groups(socket) do
@@ -134,6 +134,21 @@ defmodule DemoWeb.Stage4Live do
     ]
   end
 
+  def text_color_for_background(hex_color) do
+    if String.starts_with?(hex_color, "#") and String.length(hex_color) == 7 do
+      r = Integer.parse(String.slice(hex_color, 1, 2), 16) |> elem(0)
+      g = Integer.parse(String.slice(hex_color, 3, 2), 16) |> elem(0)
+      b = Integer.parse(String.slice(hex_color, 5, 2), 16) |> elem(0)
+      
+      # Calculate relative luminance
+      luminance = 0.299 * r + 0.587 * g + 0.114 * b
+      
+      if luminance > 128, do: "#000", else: "#fff"
+    else
+      "#000"
+    end
+  end
+
   def render(assigns) do
     assigns =
       assign(assigns, :code_examples, %{
@@ -150,17 +165,17 @@ defmodule DemoWeb.Stage4Live do
         # CSS variables adapt to your theme
         marker_groups = [
           %{
-            nodes: ["sjc", "fra"], 
+            nodes: ["sjc", "fra"],
             style: FlyMapEx.Style.custom("var(--primary)", size: 10, animated: true),
             label: "Primary Brand Colour"
           },
           %{
-            nodes: ["ams", "lhr"], 
+            nodes: ["ams", "lhr"],
             style: FlyMapEx.Style.custom("var(--accent)", gradient: true),
             label: "Accent with Gradient"
           },
           %{
-            nodes: ["ord"], 
+            nodes: ["ord"],
             style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :bounce),
             label: "Custom Corporate Color"
           }
@@ -170,17 +185,17 @@ defmodule DemoWeb.Stage4Live do
         # Different animations for different purposes
         marker_groups = [
           %{
-            nodes: ["sjc"], 
+            nodes: ["sjc"],
             style: FlyMapEx.Style.custom("#ef4444", animation: :pulse),
             label: "Pulse - Health Status"
           },
           %{
-            nodes: ["fra"], 
+            nodes: ["fra"],
             style: FlyMapEx.Style.custom("#f59e0b", animation: :bounce),
             label: "Bounce - Critical Alerts"
           },
           %{
-            nodes: ["ams"], 
+            nodes: ["ams"],
             style: FlyMapEx.Style.custom("#3b82f6", animation: :fade),
             label: "Fade - Background Process"
           }
@@ -213,7 +228,7 @@ defmodule DemoWeb.Stage4Live do
           Advanced styling capabilities: color cycling, brand integration, animations, and custom style building.
         </p>
       </div>
-      
+
     <!-- Demo Selector -->
       <div class="mb-6">
         <div class="flex flex-wrap gap-2">
@@ -286,49 +301,58 @@ defmodule DemoWeb.Stage4Live do
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
               <h3 class="font-semibold text-gray-800">Style Builder</h3>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Colour</label>
-                  <input
-                    type="color"
-                    value={@custom_colour}
-                    phx-change="update_custom"
-                    name="colour"
-                    class="h-10 w-full rounded border border-gray-300"
-                  />
-                </div>
+              <form phx-change="update_custom">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Colour</label>
+                    <div class="flex items-center gap-2">
+                      <.input
+                        type="color"
+                        value={@custom_colour}
+                        name="colour"
+                        class="h-10 w-16 rounded border border-gray-300"
+                        phx-hook="ColorPicker"
+                        id="custom-colour-picker"
+                      />
+                      <div
+                        class="h-10 w-20 rounded border border-gray-300 flex items-center justify-center text-xs font-mono"
+                        style={"background-color: #{@custom_colour}; color: #{text_color_for_background(@custom_colour)}"}
+                      >
+                        {@custom_colour}
+                      </div>
+                    </div>
+                  </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                  <select phx-change="update_custom" name="size" class="select select-bordered w-full">
-                    <%= for size <- [4, 6, 8, 10, 12, 16, 20] do %>
-                      <option value={size} selected={@custom_size == size}>{size}px</option>
-                    <% end %>
-                  </select>
-                </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                    <select name="size" class="select select-bordered w-full">
+                      <%= for size <- [4, 6, 8, 10, 12, 16, 20] do %>
+                        <option value={size} selected={@custom_size == size}>{size}px</option>
+                      <% end %>
+                    </select>
+                  </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Animation</label>
-                  <select
-                    phx-change="update_custom"
-                    name="animation"
-                    class="select select-bordered w-full"
-                  >
-                    <%= for anim <- ["pulse", "bounce", "fade"] do %>
-                      <option value={anim} selected={@custom_animation == anim}>
-                        {String.capitalize(anim)}
-                      </option>
-                    <% end %>
-                  </select>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Animation</label>
+                    <select
+                      name="animation"
+                      class="select select-bordered w-full"
+                    >
+                      <%= for anim <- ["pulse", "bounce", "fade"] do %>
+                        <option value={anim} selected={@custom_animation == anim}>
+                          {String.capitalize(anim)}
+                        </option>
+                      <% end %>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="space-y-2">
                   <label class="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      phx-change="update_custom"
                       name="animated"
-                      value={@custom_animated}
+                      value="true"
                       checked={@custom_animated}
                       class="checkbox"
                     />
@@ -338,27 +362,26 @@ defmodule DemoWeb.Stage4Live do
                   <label class="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      phx-change="update_custom"
                       name="gradient"
-                      value={@custom_gradient}
+                      value="true"
                       checked={@custom_gradient}
                       class="checkbox"
                     />
                     <span class="text-sm text-gray-700">Gradient</span>
                   </label>
-                </div>
-              </div>
+            </div>
+              </form>
             </div>
           <% end %>
         </div>
-        
+
     <!-- Code Example and Info -->
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-gray-700">Code Example</h2>
           <div class="bg-gray-50 rounded-lg p-4">
             <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_examples[@current_demo] %></code></pre>
           </div>
-          
+
     <!-- Context-specific info panels -->
           <%= case @current_demo do %>
             <% "color_cycling" -> %>
@@ -426,7 +449,7 @@ defmodule DemoWeb.Stage4Live do
                 </ul>
               </div>
           <% end %>
-          
+
     <!-- Best Practices Panel -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 class="font-semibold text-gray-800 mb-2">Best Practices</h3>
@@ -455,7 +478,7 @@ defmodule DemoWeb.Stage4Live do
           </div>
         </div>
       </div>
-      
+
     <!-- Navigation -->
       <div class="mt-8 flex justify-between">
         <.link navigate="/stage3" class="btn btn-outline">
