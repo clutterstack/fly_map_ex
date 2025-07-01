@@ -10,6 +10,7 @@ defmodule DemoWeb.MachineMapLive do
   alias Demo.MachineDiscovery
   alias DemoWeb.Layouts
   alias DemoWeb.Components.LoadingOverlay
+  import DemoWeb.Components.DemoNavigation
 
   def mount(_params, _session, socket) do
     socket =
@@ -167,6 +168,7 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
+    <.demo_navigation current_page={:machine_map} />
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-base-content">Fly.io Multi-App Machine Map</h1>

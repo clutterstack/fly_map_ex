@@ -25,22 +25,9 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-// Color picker hook for real-time updates
-const Hooks = {
-  ColorPicker: {
-    mounted() {
-      this.el.addEventListener('input', (e) => {
-        // Dispatch immediate update for real-time preview
-        this.pushEvent('update_custom', { colour: e.target.value })
-      })
-    }
-  }
-}
-
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
-  hooks: Hooks
+  params: {_csrf_token: csrfToken}
 })
 
 // Show progress bar on live navigation and form submits
@@ -56,6 +43,19 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// Handle color input real-time updates
+// Color inputs only fire 'change' when picker closes, but we want real-time updates
+document.addEventListener('DOMContentLoaded', function() {
+  // Use event delegation to handle dynamically added color inputs
+  document.addEventListener('input', function(e) {
+    if (e.target.type === 'color' && e.target.hasAttribute('phx-change')) {
+      // Trigger the form's change event to maintain consistent LiveView handling
+      const changeEvent = new Event('change', { bubbles: true })
+      e.target.dispatchEvent(changeEvent)
+    }
+  })
+})
 
 // The lines below enable quality of life phoenix_live_reload
 // development features:

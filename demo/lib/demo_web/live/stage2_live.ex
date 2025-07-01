@@ -3,6 +3,7 @@ defmodule DemoWeb.Stage2Live do
 
   alias DemoWeb.Layouts
   import DemoWeb.Components.MapWithCodeComponent
+  import DemoWeb.Components.DemoNavigation
 
   def mount(_params, _session, socket) do
     marker_groups = [
@@ -33,6 +34,7 @@ defmodule DemoWeb.Stage2Live do
 
   def render(assigns) do
     ~H"""
+    <.demo_navigation current_page={:stage2} />
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">

@@ -2,6 +2,7 @@ defmodule DemoWeb.Stage4Live do
   use DemoWeb, :live_view
 
   alias DemoWeb.Layouts
+  import DemoWeb.Components.DemoNavigation
 
   def mount(_params, _session, socket) do
     socket =
@@ -134,7 +135,7 @@ defmodule DemoWeb.Stage4Live do
     ]
   end
 
-  def text_color_for_background(hex_color) do
+  defp text_color_for_background(hex_color) do
     if String.starts_with?(hex_color, "#") and String.length(hex_color) == 7 do
       r = Integer.parse(String.slice(hex_color, 1, 2), 16) |> elem(0)
       g = Integer.parse(String.slice(hex_color, 3, 2), 16) |> elem(0)
@@ -218,6 +219,7 @@ defmodule DemoWeb.Stage4Live do
       })
 
     ~H"""
+    <.demo_navigation current_page={:stage4} />
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
@@ -311,7 +313,7 @@ defmodule DemoWeb.Stage4Live do
                         value={@custom_colour}
                         name="colour"
                         class="h-10 w-16 rounded border border-gray-300"
-                        phx-hook="ColorPicker"
+                        phx-change="update_custom"
                         id="custom-colour-picker"
                       />
                       <div

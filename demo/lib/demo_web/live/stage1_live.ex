@@ -3,6 +3,7 @@ defmodule DemoWeb.Stage1Live do
 
   alias DemoWeb.Layouts
   import DemoWeb.Components.MapWithCodeComponent
+  import DemoWeb.Components.DemoNavigation
 
   def mount(_params, _session, socket) do
     single_region = [
@@ -59,6 +60,7 @@ defmodule DemoWeb.Stage1Live do
 
   def render(assigns) do
     ~H"""
+    <.demo_navigation current_page={:stage1} />
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
