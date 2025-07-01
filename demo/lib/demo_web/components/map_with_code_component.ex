@@ -15,7 +15,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
   * `marker_groups` - List of marker groups to display
   * `theme` - Theme atom (optional, conflicts with background)
-  * `background` - Background configuration (optional, conflicts with theme)  
+  * `background` - Background configuration (optional, conflicts with theme)
   * `map_title` - Title for the map section (optional)
   * `code_title` - Title for the code section (optional, default: "Code Example")
   * `show_code` - Whether to show the code section (default: true)
@@ -53,7 +53,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           <FlyMapEx.render {@map_attrs} />
         </div>
       </div>
-      
+
       <!-- Code Display -->
       <%= if @show_code do %>
         <div class={["space-y-4", @code_class]}>
@@ -61,7 +61,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           <div class="bg-gray-50 rounded-lg p-4">
             <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_string %></code></pre>
           </div>
-          
+
           <%= render_slot(@extra_content) %>
         </div>
       <% end %>
@@ -120,13 +120,25 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Format marker groups as readable Elixir code
     groups_lines =
       Enum.map(marker_groups, fn group ->
-        nodes_str = format_nodes(group.nodes || group[:nodes])
         style_str = format_style(group.style || group[:style])
         label_str = inspect(group.label || group[:label])
 
-        "    %{\n      nodes: " <>
-          nodes_str <>
-          ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+        cond do
+          Map.has_key?(group, :nodes) or Map.has_key?(group, "nodes") ->
+            nodes_str = format_nodes(group[:nodes] || Map.get(group, "nodes"))
+            "    %{\n      nodes: " <>
+              nodes_str <>
+              ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+
+          Map.has_key?(group, :markers) or Map.has_key?(group, "markers") ->
+            markers_str = format_markers(group[:markers] || Map.get(group, "markers"))
+            "    %{\n      nodes: " <>
+              markers_str <>
+              ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+
+          true ->
+            "    %{\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+        end
       end)
 
     groups_content = Enum.join(groups_lines, ",\n")
@@ -148,6 +160,18 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
       end)
 
     "[" <> Enum.join(formatted_nodes, ", ") <> "]"
+  end
+
+  defp format_markers(markers) when is_list(markers) do
+    formatted_markers =
+      Enum.map(markers, fn marker ->
+        label = inspect(marker.label || marker[:label])
+        lat = marker.lat || marker[:lat]
+        lng = marker.lng || marker[:lng]
+        "\n      %{coordinates: {#{lat}, #{lng}}, label: #{label}}"
+      end)
+
+    "[" <> Enum.join(formatted_markers, ",") <> "\n    ]"
   end
 
   defp format_coordinates({lat, lng}) when is_number(lat) and is_number(lng) do

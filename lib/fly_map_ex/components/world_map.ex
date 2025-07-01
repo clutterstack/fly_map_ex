@@ -171,7 +171,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
       <!-- Dynamic marker group markers -->
       <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
-        <%= for {x, y} <- node_coordinates(group.nodes, @bbox) do %>
+        <%= for {x, y} <- get_group_coordinates(group, @bbox) do %>
           <%= render_marker(group, group_index, x, y, @gradient_groups, @marker_base_radius) %>
         <% end %>
       <% end %>
@@ -209,9 +209,23 @@ defmodule FlyMapEx.Components.WorldMap do
 
   # Private functions
 
+  defp get_group_coordinates(group, bbox) do
+    cond do
+      Map.has_key?(group, :nodes) -> node_coordinates(group.nodes, bbox)
+      Map.has_key?(group, :markers) -> marker_coordinates(group.markers, bbox)
+      true -> []
+    end
+  end
+
   defp node_coordinates(nodes, bbox) when is_list(nodes) do
     nodes
     |> Enum.map(&coords_lookup/1)
+    |> Enum.map(&wgs84_to_svg(&1, bbox))
+  end
+
+  defp marker_coordinates(markers, bbox) when is_list(markers) do
+    markers
+    |> Enum.map(&marker_coords_lookup/1)
     |> Enum.map(&wgs84_to_svg(&1, bbox))
   end
 
@@ -222,6 +236,15 @@ defmodule FlyMapEx.Components.WorldMap do
       {:ok, coords} -> coords
       {:error, _} -> {-190, 0}  # Off-screen fallback
     end
+  end
+
+  defp marker_coords_lookup(%{lat: lat, lng: lng}), do: {lat, lng}
+  defp marker_coords_lookup(%{"lat" => lat, "lng" => lng}), do: {lat, lng}
+  defp marker_coords_lookup(marker) when is_map(marker) do
+    # Handle alternative key formats
+    lat = marker[:lat] || marker["lat"] || marker[:latitude] || marker["latitude"]
+    lng = marker[:lng] || marker["lng"] || marker[:longitude] || marker["longitude"]
+    {lat, lng}
   end
 
   defp render_marker(group, _group_index, x, y, gradient_groups, default_radius) do
