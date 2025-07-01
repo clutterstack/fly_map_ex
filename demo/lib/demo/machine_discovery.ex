@@ -307,40 +307,40 @@ defmodule Demo.MachineDiscovery do
 
     [
       # Bright blue
-      %{colour: "#2563eb", size: round(base_radius), animated: false, gradient: false},
+      %{colour: "#2563eb", size: round(base_radius), animated: false, glow: false},
 
       # Bright green
-      %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, gradient: false},
+      %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, glow: false},
 
       # Bright red
-      %{colour: "#ec2626", size: round(1.2 * base_radius), animated: false, gradient: false},
+      %{colour: "#ec2626", size: round(1.2 * base_radius), animated: false, glow: false},
 
       # Bright purple
-      %{colour: "#b333ea", size: round(1.4 * base_radius), animated: false, gradient: false},
+      %{colour: "#b333ea", size: round(1.4 * base_radius), animated: false, glow: false},
 
       # Bright orange
-      %{colour: "#ea580c", size: round(1.6 * base_radius), animated: false, gradient: false},
+      %{colour: "#ea580c", size: round(1.6 * base_radius), animated: false, glow: false},
 
       # Bright cyan
-      %{colour: "#08b1b2", size: round(1.8 * base_radius), animated: false, gradient: false},
+      %{colour: "#08b1b2", size: round(1.8 * base_radius), animated: false, glow: false},
 
       # Bright yellow
-      %{colour: "#cafa04", size: round(2 * base_radius), animated: false, gradient: false},
+      %{colour: "#cafa04", size: round(2 * base_radius), animated: false, glow: false},
 
       # Bright pink
-      %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, gradient: false},
+      %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, glow: false},
 
       # Bright teal
-      %{colour: "#0d9488", size: round(2.4 * base_radius), animated: false, gradient: false},
+      %{colour: "#0d9488", size: round(2.4 * base_radius), animated: false, glow: false},
 
       # Bright lime
-      %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, gradient: false},
+      %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, glow: false},
 
       # Bright amber
-      %{colour: "#d97706", size: round(2.8 * base_radius), animated: false, gradient: false},
+      %{colour: "#d97706", size: round(2.8 * base_radius), animated: false, glow: false},
 
       # Bright indigo
-      %{colour: "#4338ca", size: round(3 * base_radius), animated: false, gradient: false}
+      %{colour: "#4338ca", size: round(3 * base_radius), animated: false, glow: false}
     ]
   end
 

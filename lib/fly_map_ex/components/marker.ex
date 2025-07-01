@@ -12,12 +12,12 @@ defmodule FlyMapEx.Components.Marker do
 
   ## Attributes
 
-  * `style` - Map containing marker styling (colour, size, animation, gradient, etc.)
+  * `style` - Map containing marker styling (colour, size, animation, glow, etc.)
   * `x` - X coordinate (for SVG positioning, ignored in legend mode)
   * `y` - Y coordinate (for SVG positioning, ignored in legend mode)
   * `mode` - :svg for map markers, :legend for legend indicators
   * `size_override` - Optional size override for legend mode
-  * `fill_override` - Optional fill override (for gradients in map mode)
+  * `fill_override` - Optional fill override
   """
   attr(:style, :map, required: true)
   attr(:x, :float, default: 0.0)
@@ -40,17 +40,30 @@ defmodule FlyMapEx.Components.Marker do
     base_size = assigns.size_override || Map.get(style, :size, 6)
     animation = Map.get(style, :animation, :none)
     colour = assigns.fill_override || Map.get(style, :colour, "#6b7280")
+    glow = Map.get(style, :glow, false)
+
+    # Get the marker's base opacity (1.0 for static, or animation range for animated)
+    marker_opacity = case animation do
+      :none -> FlyMapEx.Config.marker_opacity()
+      _ -> 
+        {_, max_opacity} = FlyMapEx.Config.animation_opacity_range()
+        max_opacity
+    end
 
     assigns
     |> assign(:base_size, base_size)
     |> assign(:animation, animation)
     |> assign(:colour, colour)
+    |> assign(:glow, glow)
+    |> assign(:glow_size, base_size * 2.2)
+    |> assign(:marker_opacity, marker_opacity)
+    |> assign(:glow_id, "glow-#{:erlang.unique_integer([:positive])}")
     |> assign_animation_props(animation)
   end
 
   defp assign_animation_props(assigns, animation) when animation in [:pulse, :fade] do
     {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
-    
+
     assigns
     |> assign(:min_opacity, min_opacity)
     |> assign(:max_opacity, max_opacity)
@@ -93,24 +106,40 @@ defmodule FlyMapEx.Components.Marker do
       |> assign(:radius_attrs, build_radius_animation_attributes(:legend, assigns.base_size, assigns.animation))
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
       |> assign(:static_radius, assigns.base_size * FlyMapEx.Config.legend_size_ratio())
+      |> assign(:glow_radius, assigns.glow_size * FlyMapEx.Config.legend_size_ratio())
 
     ~H"""
     <svg class="inline-block" width={@base_size * 2} height={@base_size * 2} viewBox={viewbox(@base_size)}>
-      <circle cx={@base_size} cy={@base_size} r={@static_radius} stroke="none" fill={@colour}>
+      <%= if @glow do %>
+        <defs>
+          <radialGradient id={@glow_id} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color={@colour} stop-opacity="1" />
+            <stop offset="45%" stop-color={@colour} stop-opacity="0.7" />
+            <stop offset="100%" stop-color={@colour} stop-opacity="0" />
+          </radialGradient>
+        </defs>
+      <% end %>
+      <circle 
+        cx={@base_size} 
+        cy={@base_size} 
+        r={if @glow, do: @glow_radius, else: @static_radius} 
+        stroke="none" 
+        fill={if @glow, do: "url(##{@glow_id})", else: @colour}
+      >
         <%= if @radius_attrs do %>
-          <animate 
-            attributeName={@radius_attrs.attributeName} 
-            values={@radius_attrs.values} 
-            dur={@radius_attrs.dur} 
-            repeatCount={@radius_attrs.repeatCount} 
+          <animate
+            attributeName={@radius_attrs.attributeName}
+            values={@radius_attrs.values}
+            dur={@radius_attrs.dur}
+            repeatCount={@radius_attrs.repeatCount}
           />
         <% end %>
         <%= if @opacity_attrs do %>
-          <animate 
-            attributeName={@opacity_attrs.attributeName} 
-            values={@opacity_attrs.values} 
-            dur={@opacity_attrs.dur} 
-            repeatCount={@opacity_attrs.repeatCount} 
+          <animate
+            attributeName={@opacity_attrs.attributeName}
+            values={@opacity_attrs.values}
+            dur={@opacity_attrs.dur}
+            repeatCount={@opacity_attrs.repeatCount}
           />
         <% end %>
       </circle>
@@ -127,21 +156,36 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <g class={@css_class}>
-      <circle cx={@x} cy={@y} r={@base_size} stroke="none" fill={@colour}>
+      <%= if @glow do %>
+        <defs>
+          <radialGradient id={@glow_id} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color={@colour} stop-opacity="1" />
+            <stop offset="45%" stop-color={@colour} stop-opacity="0.7" />
+            <stop offset="100%" stop-color={@colour} stop-opacity="0" />
+          </radialGradient>
+        </defs>
+      <% end %>
+      <circle 
+        cx={@x} 
+        cy={@y} 
+        r={if @glow, do: @glow_size, else: @base_size} 
+        stroke="none" 
+        fill={if @glow, do: "url(##{@glow_id})", else: @colour}
+      >
         <%= if @radius_attrs do %>
-          <animate 
-            attributeName={@radius_attrs.attributeName} 
-            values={@radius_attrs.values} 
-            dur={@radius_attrs.dur} 
-            repeatCount={@radius_attrs.repeatCount} 
+          <animate
+            attributeName={@radius_attrs.attributeName}
+            values={@radius_attrs.values}
+            dur={@radius_attrs.dur}
+            repeatCount={@radius_attrs.repeatCount}
           />
         <% end %>
         <%= if @opacity_attrs do %>
-          <animate 
-            attributeName={@opacity_attrs.attributeName} 
-            values={@opacity_attrs.values} 
-            dur={@opacity_attrs.dur} 
-            repeatCount={@opacity_attrs.repeatCount} 
+          <animate
+            attributeName={@opacity_attrs.attributeName}
+            values={@opacity_attrs.values}
+            dur={@opacity_attrs.dur}
+            repeatCount={@opacity_attrs.repeatCount}
           />
         <% end %>
       </circle>

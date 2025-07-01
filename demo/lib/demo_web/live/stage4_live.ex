@@ -12,7 +12,7 @@ defmodule DemoWeb.Stage4Live do
       |> assign(:custom_colour, "#3b82f6")
       |> assign(:custom_size, 8)
       |> assign(:custom_animation, "pulse")
-      |> assign(:custom_gradient, false)
+      |> assign(:custom_glow, false)
       |> update_marker_groups()
 
     {:ok, socket}
@@ -31,9 +31,13 @@ defmodule DemoWeb.Stage4Live do
     socket =
       socket
       |> assign(:custom_colour, Map.get(params, "colour", socket.assigns.custom_colour))
-      |> assign(:custom_size, String.to_integer(Map.get(params, "size", "8")))
-      |> assign(:custom_animation, Map.get(params, "animation", "pulse"))
-      |> assign(:custom_gradient, Map.get(params, "gradient") == "true")
+      |> assign(:custom_size, 
+          case Map.get(params, "size") do
+            nil -> socket.assigns.custom_size
+            size_str -> String.to_integer(size_str)
+          end)
+      |> assign(:custom_animation, Map.get(params, "animation", socket.assigns.custom_animation))
+      |> assign(:custom_glow, Map.get(params, "glow") == "true")
       |> update_marker_groups()
 
     {:noreply, socket}
@@ -74,8 +78,8 @@ defmodule DemoWeb.Stage4Live do
       },
       %{
         nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.custom("var(--accent)", size: 8, gradient: true),
-        label: "Accent with Gradient"
+        style: FlyMapEx.Style.custom("var(--accent)", size: 8, glow: true),
+        label: "Accent with Glow"
       },
       %{
         nodes: ["ord"],
@@ -84,7 +88,7 @@ defmodule DemoWeb.Stage4Live do
       },
       %{
         nodes: ["nrt", "syd"],
-        style: FlyMapEx.Style.custom("#059669", size: 6, gradient: true),
+        style: FlyMapEx.Style.custom("#059669", size: 6, glow: true),
         label: "Brand Green"
       }
     ]
@@ -111,18 +115,18 @@ defmodule DemoWeb.Stage4Live do
   end
 
   defp custom_builder_groups(assigns) do
-    style =
+    custom_marker_style =
       FlyMapEx.Style.custom(
         assigns.custom_colour,
         size: assigns.custom_size,
         animation: String.to_atom(assigns.custom_animation),
-        gradient: assigns.custom_gradient
+        glow: assigns.custom_glow
       )
 
     [
       %{
         nodes: ["sjc", "fra", "ams"],
-        style: style,
+        style: custom_marker_style,
         label: "Custom Style Preview"
       }
     ]
@@ -230,7 +234,6 @@ defmodule DemoWeb.Stage4Live do
                         value={@custom_colour}
                         name="colour"
                         class="h-10 w-16 rounded border border-gray-300"
-                        phx-change="update_custom"
                         id="custom-colour-picker"
                       />
                       <div
@@ -270,12 +273,12 @@ defmodule DemoWeb.Stage4Live do
                   <label class="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      name="gradient"
+                      name="glow"
                       value="true"
-                      checked={@custom_gradient}
+                      checked={@custom_glow}
                       class="checkbox"
                     />
-                    <span class="text-sm text-gray-700">Gradient</span>
+                    <span class="text-sm text-gray-700">Glow</span>
                   </label>
             </div>
               </form>
@@ -301,7 +304,7 @@ defmodule DemoWeb.Stage4Live do
                 <ul class="text-purple-700 text-sm space-y-1">
                   <li>• <strong>CSS Variables:</strong> Use "var(--primary)" for theme adaptation</li>
                   <li>• <strong>Custom Hex:</strong> Corporate colours like "#1f2937"</li>
-                  <li>• <strong>Gradient Effects:</strong> Add depth with radial gradients</li>
+                  <li>• <strong>Glow Effects:</strong> Add depth with glowing halos</li>
                   <li>• <strong>Size Variations:</strong> Create visual hierarchy</li>
                   <li>• <strong>Theme Responsive:</strong> Colours adapt to light/dark themes</li>
                 </ul>
@@ -334,12 +337,23 @@ defmodule DemoWeb.Stage4Live do
             <% "custom_builder" -> %>
               <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                 <h3 class="font-semibold text-orange-800 mb-2">Custom Style Builder</h3>
+                <div class="mb-3 p-3 bg-white rounded border text-sm font-mono">
+                  <div class="text-orange-600 mb-1"># Variable assignment</div>
+                  <div>custom_marker_style = FlyMapEx.Style.custom(</div>
+                  <div class="ml-4">"{@custom_colour}",</div>
+                  <div class="ml-4">size: {@custom_size},</div>
+                  <div class="ml-4">animation: :{@custom_animation},</div>
+                  <div class="ml-4">glow: {@custom_glow}</div>
+                  <div>)</div>
+                  <div class="mt-2 text-orange-600"># Usage in marker groups</div>
+                  <div>style: custom_marker_style</div>
+                </div>
                 <ul class="text-orange-700 text-sm space-y-1">
                   <li>• <strong>Live Preview:</strong> See changes immediately</li>
-                  <li>• <strong>Full Control:</strong> Colour, size, animation, gradient</li>
-                  <li>• <strong>Code Generation:</strong> Copy the exact Style.custom() call</li>
+                  <li>• <strong>Variable Pattern:</strong> Store style in custom_marker_style</li>
+                  <li>• <strong>Reusable:</strong> Assign once, use in multiple groups</li>
                   <li>• <strong>Visual Editor:</strong> No need to remember parameters</li>
-                  <li>• <strong>Experimentation:</strong> Test ideas before implementation</li>
+                  <li>• <strong>Code Generation:</strong> Copy the exact implementation</li>
                 </ul>
               </div>
           <% end %>

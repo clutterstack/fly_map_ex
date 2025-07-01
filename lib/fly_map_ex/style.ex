@@ -95,19 +95,19 @@ defmodule FlyMapEx.Style do
   * `colour` - Hex colour string or CSS variable (required)
   * `size` - Base marker size in pixels (default: 6)
   * `animation` - Animation type: :none, :pulse, :fade (default: :none)
-  * `gradient` - Whether to use gradient fill (default: false)
+  * `glow` - Whether to add a glow effect around the marker (default: false)
 
   ## Examples
 
       FlyMapEx.Style.custom("#3b82f6", size: 10)
-      FlyMapEx.Style.custom("var(--danger-colour)", animation: :pulse)
+      FlyMapEx.Style.custom("var(--danger-colour)", animation: :pulse, glow: true)
   """
   def custom(colour, opts \\ []) do
     %{
       colour: colour,
       size: Keyword.get(opts, :size, 6),
       animation: Keyword.get(opts, :animation, :none),
-      gradient: Keyword.get(opts, :gradient, false)
+      glow: Keyword.get(opts, :glow, false)
     }
   end
 
@@ -121,19 +121,19 @@ defmodule FlyMapEx.Style do
   def operational(opts \\ []) do
     custom(
       "#10b981",
-      Keyword.merge([size: 7, animation: :pulse, gradient: false], opts)
+      Keyword.merge([size: 7, animation: :pulse, glow: false], opts)
     )
   end
 
   @doc """
-  Warning/degraded state style - amber, static with gradient.
+  Warning/degraded state style - amber, static without glow.
 
   Use for nodes that are running but experiencing issues.
   """
   def warning(opts \\ []) do
     custom(
       "#f59e0b",
-      Keyword.merge([size: 8, animation: :none, gradient: false], opts)
+      Keyword.merge([size: 8, animation: :none, glow: false], opts)
     )
   end
 
@@ -145,7 +145,7 @@ defmodule FlyMapEx.Style do
   def danger(opts \\ []) do
     custom(
       "#ef4444",
-      Keyword.merge([size: 9, animation: :pulse, gradient: false], opts)
+      Keyword.merge([size: 9, animation: :pulse, glow: false], opts)
     )
   end
 
@@ -161,14 +161,14 @@ defmodule FlyMapEx.Style do
   # Additional useful styles
 
   @doc """
-  Primary accent style - blue, static with gradient.
+  Primary accent style - blue, static without glow.
 
   General purpose primary accent color.
   """
   def primary(opts \\ []) do
     custom(
       "#3b82f6",
-      Keyword.merge([size: 7, animation: :none, gradient: false], opts)
+      Keyword.merge([size: 7, animation: :none, glow: false], opts)
     )
   end
 
@@ -229,13 +229,13 @@ defmodule FlyMapEx.Style do
   ## Examples
 
       iex> FlyMapEx.Style.normalize(:operational)
-      %{color: "#10b981", size: 7, animation: :pulse, gradient: false}
+      %{color: "#10b981", size: 7, animation: :pulse, glow: false}
 
       iex> FlyMapEx.Style.normalize([color: "#000", size: 10])
-      %{color: "#000", size: 10, animation: :none, gradient: false}
+      %{color: "#000", size: 10, animation: :none, glow: false}
 
       iex> FlyMapEx.Style.normalize(%{color: "#fff"})
-      %{color: "#fff", size: 6, animation: :none, gradient: false}
+      %{color: "#fff", size: 6, animation: :none, glow: false}
   """
   def normalize(style_atom) when is_atom(style_atom) do
     case style_atom do
@@ -265,7 +265,7 @@ defmodule FlyMapEx.Style do
       colour: "#6b7280",
       size: 6,
       animation: :none,
-      gradient: false
+      glow: false
     }
 
     Map.merge(defaults, style)

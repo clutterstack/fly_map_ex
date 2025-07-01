@@ -54,10 +54,10 @@ defmodule FlyMapEx.Components.WorldMap do
     # Merge user colours with defaults
     colours = Map.merge(@colours, assigns.colours)
 
-    # Generate gradients for all groups with gradients enabled
-    gradient_groups =
+    # Generate gradients for all groups with glow enabled
+    glow_groups =
       Enum.filter(assigns.marker_groups, fn group ->
-        Map.get(group.style, :gradient, false)
+        Map.get(group.style, :glow, false)
       end)
 
     # Determine if regions should be shown (attribute overrides config default)
@@ -71,7 +71,7 @@ defmodule FlyMapEx.Components.WorldMap do
         width: @width,
         height: @height,
         viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
-        gradient_groups: gradient_groups,
+        glow_groups: glow_groups,
         bbox: @bbox,
         toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
@@ -91,8 +91,8 @@ defmodule FlyMapEx.Components.WorldMap do
       id={@id}
     >
       <defs>
-        <!-- Dynamic gradients for groups with gradient enabled -->
-        <%= for {group, index} <- Enum.with_index(@gradient_groups) do %>
+        <!-- Dynamic gradients for groups with glow enabled -->
+        <%= for {group, index} <- Enum.with_index(@glow_groups) do %>
           <radialGradient id={"gradient#{index}"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
             <stop offset="40%" stop-color={group.style.colour} stop-opacity="1" />
             <stop offset="70%" stop-color={group.style.colour} stop-opacity="0.7" />
@@ -173,7 +173,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- Dynamic marker group markers -->
       <%= for {group, group_index} <- Enum.with_index(@marker_groups) do %>
         <%= for {x, y} <- get_group_coordinates(group, @bbox) do %>
-          <%= render_marker(group, group_index, x, y, @gradient_groups, @marker_base_radius) %>
+          <%= render_marker(group, group_index, x, y, @glow_groups, @marker_base_radius) %>
         <% end %>
       <% end %>
 
@@ -248,14 +248,14 @@ defmodule FlyMapEx.Components.WorldMap do
     {lat, lng}
   end
 
-  defp render_marker(group, _group_index, x, y, gradient_groups, _default_radius) do
-    gradient = Map.get(group.style, :gradient, false)
+  defp render_marker(group, _group_index, x, y, glow_groups, _default_radius) do
+    glow = Map.get(group.style, :glow, false)
 
     fill_override =
-      if gradient do
+      if glow do
         # Find this group's gradient index
-        gradient_index = Enum.find_index(gradient_groups, fn g -> g == group end)
-        if gradient_index, do: "url(#gradient#{gradient_index})", else: group.style.colour
+        glow_index = Enum.find_index(glow_groups, fn g -> g == group end)
+        if glow_index, do: "url(#gradient#{glow_index})", else: group.style.colour
       else
         nil  # Let Marker component use the style's colour
       end
