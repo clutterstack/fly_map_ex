@@ -2,6 +2,7 @@ defmodule DemoWeb.Stage2Live do
   use DemoWeb, :live_view
 
   alias DemoWeb.Layouts
+  import DemoWeb.Components.MapWithCodeComponent
 
   def mount(_params, _session, socket) do
     marker_groups = [
@@ -31,36 +32,6 @@ defmodule DemoWeb.Stage2Live do
   end
 
   def render(assigns) do
-    assigns = assign(assigns, :code_example, """
-marker_groups = [
-  %{
-    nodes: ["sjc", "fra"],
-    style: FlyMapEx.Style.operational(),
-    label: "Production Servers"
-  },
-  %{
-    nodes: ["ams", "lhr"], 
-    style: FlyMapEx.Style.warning(),
-    label: "Maintenance Mode"
-  },
-  %{
-    nodes: ["ord"],
-    style: FlyMapEx.Style.danger(),
-    label: "Failed Nodes"
-  },
-  %{
-    nodes: ["nrt", "syd"],
-    style: FlyMapEx.Style.inactive(),
-    label: "Offline Nodes"
-  }
-]
-
-<FlyMapEx.render 
-  marker_groups={marker_groups}
-  background={FlyMapEx.Theme.responsive_background()}
-/>
-""")
-
     ~H"""
     <div class="container mx-auto p-8">
       <div class="mb-8">
@@ -77,11 +48,13 @@ marker_groups = [
         <!-- Map Display -->
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-gray-700">Interactive Map</h2>
-          <FlyMapEx.render 
-            marker_groups={@marker_groups} 
-            background={FlyMapEx.Theme.responsive_background()}
-          />
-          
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <FlyMapEx.render
+              marker_groups={@marker_groups}
+              background={FlyMapEx.Theme.responsive_background()}
+            />
+          </div>
+
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 class="font-semibold text-blue-800 mb-2">Interactive Features</h3>
             <ul class="text-blue-700 text-sm space-y-1">
@@ -93,31 +66,42 @@ marker_groups = [
           </div>
         </div>
 
-        <!-- Code Example and Styling Info -->
+        <!-- Code and Info Display -->
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-gray-700">Code Example</h2>
+          <% {_map_attrs, code_string} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{marker_groups: @marker_groups, background: FlyMapEx.Theme.responsive_background()}) %>
           <div class="bg-gray-50 rounded-lg p-4">
-            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_example %></code></pre>
+            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= code_string %></code></pre>
           </div>
 
           <div class="bg-green-50 border border-green-200 rounded-lg p-4">
             <h3 class="font-semibold text-green-800 mb-2">Semantic Styles</h3>
             <div class="space-y-2 text-sm">
               <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full animate-pulse" style="background-color: #10b981;"></div>
-                <span class="text-green-700"><strong>operational()</strong> - Emerald, animated - Running services</span>
+                <div class="w-3 h-3 rounded-full animate-pulse" style="background-color: #10b981;">
+                </div>
+                <span class="text-green-700">
+                  <strong>operational()</strong> - Emerald, animated - Running services
+                </span>
               </div>
               <div class="flex items-center space-x-2">
                 <div class="w-3 h-3 rounded-full" style="background-color: #f59e0b;"></div>
-                <span class="text-green-700"><strong>warning()</strong> - Amber, static - Needs attention</span>
+                <span class="text-green-700">
+                  <strong>warning()</strong> - Amber, static - Needs attention
+                </span>
               </div>
               <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full animate-bounce" style="background-color: #ef4444;"></div>
-                <span class="text-green-700"><strong>danger()</strong> - Red, bounce animation - Critical issues</span>
+                <div class="w-3 h-3 rounded-full animate-bounce" style="background-color: #ef4444;">
+                </div>
+                <span class="text-green-700">
+                  <strong>danger()</strong> - Red, bounce animation - Critical issues
+                </span>
               </div>
               <div class="flex items-center space-x-2">
                 <div class="w-3 h-3 rounded-full" style="background-color: #6b7280;"></div>
-                <span class="text-green-700"><strong>inactive()</strong> - Gray, static - Not running</span>
+                <span class="text-green-700">
+                  <strong>inactive()</strong> - Gray, static - Not running
+                </span>
               </div>
             </div>
           </div>
@@ -126,10 +110,19 @@ marker_groups = [
             <h3 class="font-semibold text-purple-800 mb-2">Key Features</h3>
             <ul class="text-purple-700 text-sm space-y-1">
               <li>• <strong>Multiple Groups:</strong> Organize nodes by purpose or state</li>
-              <li>• <strong>Semantic Styling:</strong> Meaningful colours convey status at a glance</li>
-              <li>• <strong>Colour Consistency:</strong> Groups maintain their colours when toggled</li>
-              <li>• <strong>Animation Logic:</strong> Critical states get attention with animation</li>
-              <li>• <strong>Legend Integration:</strong> Built-in legend shows all groups with toggle controls</li>
+              <li>
+                • <strong>Semantic Styling:</strong> Meaningful colours convey status at a glance
+              </li>
+              <li>
+                • <strong>Colour Consistency:</strong> Groups maintain their colours when toggled
+              </li>
+              <li>
+                • <strong>Animation Logic:</strong> Critical states get attention with animation
+              </li>
+              <li>
+                • <strong>Legend Integration:</strong>
+                Built-in legend shows all groups with toggle controls
+              </li>
             </ul>
           </div>
 
@@ -138,25 +131,23 @@ marker_groups = [
             <ul class="text-orange-700 text-sm space-y-1">
               <li>• <strong>Health Monitoring:</strong> Visualize service health across regions</li>
               <li>• <strong>Deployment Status:</strong> Track rollout progress and failures</li>
-              <li>• <strong>Maintenance Planning:</strong> Show which nodes are offline for maintenance</li>
-              <li>• <strong>Alert Dashboards:</strong> Quick visual status of entire infrastructure</li>
+              <li>
+                • <strong>Maintenance Planning:</strong> Show which nodes are offline for maintenance
+              </li>
+              <li>
+                • <strong>Alert Dashboards:</strong> Quick visual status of entire infrastructure
+              </li>
             </ul>
           </div>
         </div>
       </div>
-
+      
       <!-- Navigation -->
       <div class="mt-8 flex justify-between">
-        <.link 
-          navigate={~p"/stage1"} 
-          class="btn btn-outline"
-        >
+        <.link navigate={~p"/stage1"} class="btn btn-outline">
           ← Stage 1: Basic Display
         </.link>
-        <.link 
-          navigate={~p"/stage3"} 
-          class="btn btn-primary"
-        >
+        <.link navigate={~p"/stage3"} class="btn btn-primary">
           Stage 3: Themes & Backgrounds →
         </.link>
       </div>

@@ -1,7 +1,7 @@
 defmodule DemoWeb.MapDemoLive do
   @moduledoc """
   Interactive code builder for FlyMapEx components.
-  
+
   Allows users to build marker groups through a live code editor with:
   - Real-time validation for region codes and syntax
   - Autocomplete hints for regions and styles
@@ -43,14 +43,13 @@ defmodule DemoWeb.MapDemoLive do
 
   def handle_event("update_code", %{"code" => code}, socket) do
     socket = parse_and_validate_code(socket, code)
-    {:noreply, socket}  
+    {:noreply, socket}
   end
 
   def handle_event("copy_heex", _params, socket) do
     # JavaScript will handle the actual clipboard copy
     {:noreply, socket}
   end
-
 
   defp parse_and_validate_code(socket, code) do
     socket =
@@ -61,15 +60,15 @@ defmodule DemoWeb.MapDemoLive do
     try do
       # Parse the code as Elixir AST
       {marker_groups, _binding} = Code.eval_string(code)
-      
+
       # Validate the structure
       errors = validate_marker_groups(marker_groups)
-      
+
       if errors == [] do
         # Add group_label field to each marker group for toggle functionality
         marker_groups_with_labels = add_group_labels(marker_groups)
         heex_code = generate_heex_code(marker_groups)
-        
+
         socket
         |> assign(:marker_groups, marker_groups_with_labels)
         |> assign(:generated_heex, heex_code)
@@ -98,17 +97,29 @@ defmodule DemoWeb.MapDemoLive do
 
   defp validate_group(group, index) when is_map(group) do
     errors = []
-    
+
     # Check required fields
-    errors = if Map.has_key?(group, :nodes), do: errors, else: ["Group #{index + 1}: Missing 'nodes' field" | errors]
-    errors = if Map.has_key?(group, :style), do: errors, else: ["Group #{index + 1}: Missing 'style' field" | errors]
-    errors = if Map.has_key?(group, :label), do: errors, else: ["Group #{index + 1}: Missing 'label' field" | errors]
-    
+    errors =
+      if Map.has_key?(group, :nodes),
+        do: errors,
+        else: ["Group #{index + 1}: Missing 'nodes' field" | errors]
+
+    errors =
+      if Map.has_key?(group, :style),
+        do: errors,
+        else: ["Group #{index + 1}: Missing 'style' field" | errors]
+
+    errors =
+      if Map.has_key?(group, :label),
+        do: errors,
+        else: ["Group #{index + 1}: Missing 'label' field" | errors]
+
     # Validate nodes if present
     if Map.has_key?(group, :nodes) do
       case group.nodes do
         nodes when is_list(nodes) ->
           validate_nodes(nodes, index) ++ errors
+
         _ ->
           ["Group #{index + 1}: 'nodes' must be a list" | errors]
       end
@@ -137,19 +148,39 @@ defmodule DemoWeb.MapDemoLive do
   defp validate_node(node, group_index, node_index) when is_map(node) do
     # Custom coordinate node - validate it has label and coordinates
     errors = []
-    errors = if Map.has_key?(node, :label), do: errors, else: ["Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'label'" | errors]
-    errors = if Map.has_key?(node, :coordinates), do: errors, else: ["Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'" | errors]
-    
+
+    errors =
+      if Map.has_key?(node, :label),
+        do: errors,
+        else: [
+          "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'label'" | errors
+        ]
+
+    errors =
+      if Map.has_key?(node, :coordinates),
+        do: errors,
+        else: [
+          "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'"
+          | errors
+        ]
+
     if Map.has_key?(node, :coordinates) do
       case node.coordinates do
         {lat, lng} when is_number(lat) and is_number(lng) ->
           if lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180 do
             errors
           else
-            ["Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180" | errors]
+            [
+              "Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180"
+              | errors
+            ]
           end
+
         _ ->
-          ["Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple" | errors]
+          [
+            "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
+            | errors
+          ]
       end
     else
       errors
@@ -157,7 +188,9 @@ defmodule DemoWeb.MapDemoLive do
   end
 
   defp validate_node(_, group_index, node_index) do
-    ["Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string or coordinate map"]
+    [
+      "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string or coordinate map"
+    ]
   end
 
   defp add_group_labels(marker_groups) do
@@ -168,7 +201,7 @@ defmodule DemoWeb.MapDemoLive do
 
   defp generate_heex_code(marker_groups) do
     marker_groups_code = inspect(marker_groups, pretty: true, width: 60)
-    
+
     """
     <FlyMapEx.render
       marker_groups={#{marker_groups_code}}
@@ -185,7 +218,7 @@ defmodule DemoWeb.MapDemoLive do
         <h1 class="text-3xl font-bold text-base-content">FlyMapEx Interactive Code Builder</h1>
         <Layouts.theme_toggle />
       </div>
-      
+
       <p class="text-lg mb-6 text-base-content/80">
         Build marker groups for FlyMapEx with real-time validation and live preview.
       </p>
@@ -195,7 +228,7 @@ defmodule DemoWeb.MapDemoLive do
         <div class="space-y-4">
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <h2 class="text-xl font-semibold mb-4 text-base-content">Marker Groups Code</h2>
-            
+
             <form phx-change="update_code">
               <textarea
                 name="code"
@@ -205,7 +238,7 @@ defmodule DemoWeb.MapDemoLive do
               >{@code_input}</textarea>
             </form>
             
-            <!-- Validation Errors -->
+    <!-- Validation Errors -->
             <%= if @validation_errors != [] do %>
               <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
                 <h3 class="text-error font-semibold mb-2">Validation Errors:</h3>
@@ -217,24 +250,27 @@ defmodule DemoWeb.MapDemoLive do
               </div>
             <% end %>
             
-            <!-- Hints Section -->
+    <!-- Hints Section -->
             <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
               <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
               <div class="text-sm text-info/80 space-y-1">
-                <p><strong>Available Styles:</strong> operational(), warning(), danger(), primary(), cycle(0)</p>
+                <p>
+                  <strong>Available Styles:</strong>
+                  operational(), warning(), danger(), primary(), cycle(0)
+                </p>
                 <p><strong>Sample Regions:</strong> "sjc", "fra", "ams", "lhr", "ord", "dfw"</p>
                 <p><strong>Custom Coordinates:</strong> Use maps with label and coordinates fields</p>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Preview Section -->
+        
+    <!-- Preview Section -->
         <div class="space-y-4">
           <!-- Live Map Preview -->
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <h2 class="text-xl font-semibold mb-4 text-base-content">Live Preview</h2>
-            
+
             <%= if @marker_groups != [] do %>
               <FlyMapEx.render
                 marker_groups={@marker_groups}
@@ -247,8 +283,8 @@ defmodule DemoWeb.MapDemoLive do
               </div>
             <% end %>
           </div>
-
-          <!-- Generated HEEx Code -->
+          
+    <!-- Generated HEEx Code -->
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-semibold text-base-content">Generated HEEx Code</h2>
@@ -263,7 +299,7 @@ defmodule DemoWeb.MapDemoLive do
                 <div class="hidden">{@generated_heex}</div>
               <% end %>
             </div>
-            
+
             <%= if @generated_heex != "" do %>
               <pre class="bg-base-200 p-4 rounded-lg overflow-x-auto text-sm"><code>{@generated_heex}</code></pre>
             <% else %>
@@ -274,8 +310,8 @@ defmodule DemoWeb.MapDemoLive do
           </div>
         </div>
       </div>
-
-      <!-- Documentation Section -->
+      
+    <!-- Documentation Section -->
       <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>
         <div class="prose prose-sm max-w-none">
@@ -285,7 +321,7 @@ defmodule DemoWeb.MapDemoLive do
             <li>Watch the live map preview update automatically</li>
             <li>Copy the generated HEEx code to use in your project</li>
           </ol>
-          
+
           <h3 class="text-lg font-semibold mt-6 mb-3 text-base-content">Marker Group Structure</h3>
           <div class="bg-base-200 p-4 rounded-lg text-sm">
             <p>Each marker group is a map with nodes, style, and label fields.</p>

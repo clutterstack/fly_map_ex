@@ -307,7 +307,7 @@ defmodule Demo.MachineDiscovery do
 
     [
       # Bright blue
-      %{colour: "#2563eb", size: round( base_radius), animated: false, gradient: false},
+      %{colour: "#2563eb", size: round(base_radius), animated: false, gradient: false},
 
       # Bright green
       %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, gradient: false},
@@ -331,13 +331,13 @@ defmodule Demo.MachineDiscovery do
       %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, gradient: false},
 
       # Bright teal
-      %{colour: "#0d9488", size: round(2.4* base_radius), animated: false, gradient: false},
+      %{colour: "#0d9488", size: round(2.4 * base_radius), animated: false, gradient: false},
 
       # Bright lime
       %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, gradient: false},
 
       # Bright amber
-      %{colour: "#d97706", size: round(2.8* base_radius), animated: false, gradient: false},
+      %{colour: "#d97706", size: round(2.8 * base_radius), animated: false, gradient: false},
 
       # Bright indigo
       %{colour: "#4338ca", size: round(3 * base_radius), animated: false, gradient: false}

@@ -1,0 +1,166 @@
+defmodule DemoWeb.Components.MapWithCodeComponent do
+  @moduledoc """
+  Reusable component that renders both a FlyMapEx map and its corresponding code.
+
+  This ensures the displayed code always matches what's actually being rendered,
+  making it perfect for documentation and demo purposes.
+  """
+
+  use Phoenix.Component
+
+  @doc """
+  Renders a map alongside its generated code.
+
+  ## Attributes
+
+  * `marker_groups` - List of marker groups to display
+  * `theme` - Theme atom (optional, conflicts with background)
+  * `background` - Background configuration (optional, conflicts with theme)  
+  * `map_title` - Title for the map section (optional)
+  * `code_title` - Title for the code section (optional, default: "Code Example")
+  * `show_code` - Whether to show the code section (default: true)
+  * `class` - Additional CSS classes for the container
+  * `map_class` - Additional CSS classes for the map container
+  * `code_class` - Additional CSS classes for the code container
+  * `extra_content` - Optional slot for additional content in code section
+  """
+  attr :marker_groups, :list, required: true
+  attr :theme, :atom, default: nil
+  attr :background, :any, default: nil
+  attr :map_title, :string, default: nil
+  attr :code_title, :string, default: "Code Example"
+  attr :show_code, :boolean, default: true
+  attr :class, :string, default: ""
+  attr :map_class, :string, default: ""
+  attr :code_class, :string, default: ""
+
+  slot :extra_content
+
+  def map_with_code(assigns) do
+    # Generate both the map attributes and code representation
+    {map_attrs, code_string} = build_map_and_code(assigns)
+    assigns = assign(assigns, map_attrs: map_attrs, code_string: code_string)
+
+    ~H"""
+    <div class={["grid grid-cols-1 lg:grid-cols-2 gap-8", @class]}>
+      <!-- Map Display -->
+      <div class={["space-y-4", @map_class]}>
+        <%= if @map_title do %>
+          <h2 class="text-xl font-semibold text-gray-700"><%= @map_title %></h2>
+        <% end %>
+
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <FlyMapEx.render {@map_attrs} />
+        </div>
+      </div>
+      
+      <!-- Code Display -->
+      <%= if @show_code do %>
+        <div class={["space-y-4", @code_class]}>
+          <h2 class="text-xl font-semibold text-gray-700"><%= @code_title %></h2>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_string %></code></pre>
+          </div>
+          
+          <%= render_slot(@extra_content) %>
+        </div>
+      <% end %>
+    </div>
+    """
+  end
+
+  @doc """
+  Helper that can be used independently to get map attributes and code string.
+
+  Returns `{map_attributes, code_string}` tuple.
+  """
+  def build_map_and_code(config) do
+    marker_groups = Map.get(config, :marker_groups) || Map.get(config, "marker_groups")
+    theme = Map.get(config, :theme) || Map.get(config, "theme")
+    background = Map.get(config, :background) || Map.get(config, "background")
+
+    # Build map attributes
+    map_attrs = %{marker_groups: marker_groups}
+
+    map_attrs =
+      cond do
+        background != nil -> Map.put(map_attrs, :background, background)
+        theme != nil -> Map.put(map_attrs, :theme, theme)
+        true -> map_attrs
+      end
+
+    # Generate code string
+    code_string = generate_code_string(marker_groups, theme, background)
+
+    {map_attrs, code_string}
+  end
+
+  defp generate_code_string(marker_groups, theme, background) do
+    # Generate the marker_groups code representation
+    marker_groups_code = format_marker_groups_code(marker_groups)
+
+    # Generate the component call
+    component_attrs =
+      cond do
+        background != nil ->
+          "\n  background={FlyMapEx.Theme.responsive_background()}"
+
+        theme != nil ->
+          "\n  theme={:#{theme}}"
+
+        true ->
+          ""
+      end
+
+    marker_groups_code <>
+      "\n\n<FlyMapEx.render\n  marker_groups={marker_groups}" <> component_attrs <> "\n/>"
+  end
+
+  defp format_marker_groups_code(marker_groups) do
+    # Format marker groups as readable Elixir code
+    groups_lines =
+      Enum.map(marker_groups, fn group ->
+        nodes_str = format_nodes(group.nodes || group[:nodes])
+        style_str = format_style(group.style || group[:style])
+        label_str = inspect(group.label || group[:label])
+
+        "    %{\n      nodes: " <>
+          nodes_str <>
+          ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+      end)
+
+    groups_content = Enum.join(groups_lines, ",\n")
+
+    "marker_groups = [\n" <> groups_content <> "\n]"
+  end
+
+  defp format_nodes(nodes) when is_list(nodes) do
+    formatted_nodes =
+      Enum.map(nodes, fn
+        node when is_binary(node) ->
+          inspect(node)
+
+        node when is_map(node) ->
+          # Handle custom coordinate nodes
+          label = inspect(node.label || node[:label])
+          coords = format_coordinates(node.coordinates || node[:coordinates])
+          "%{label: #{label}, coordinates: #{coords}}"
+      end)
+
+    "[" <> Enum.join(formatted_nodes, ", ") <> "]"
+  end
+
+  defp format_coordinates({lat, lng}) when is_number(lat) and is_number(lng) do
+    "{#{lat}, #{lng}}"
+  end
+
+  defp format_coordinates(coords), do: inspect(coords)
+
+  defp format_style(style) when is_map(style) do
+    # For now, just inspect the style map
+    # Could be enhanced to detect known FlyMapEx.Style functions
+    inspect(style)
+  end
+
+  defp format_style(style), do: inspect(style)
+end

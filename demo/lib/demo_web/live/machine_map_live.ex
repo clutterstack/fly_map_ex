@@ -50,7 +50,6 @@ defmodule DemoWeb.MachineMapLive do
     {:noreply, socket}
   end
 
-
   def handle_event("select_all_apps", _params, socket) do
     available_apps = socket.assigns.available_apps
 
