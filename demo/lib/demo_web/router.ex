@@ -22,6 +22,8 @@ defmodule DemoWeb.Router do
     live "/demo", MapDemoLive, :index
     live "/stage1", Stage1Live
     live "/stage2", Stage2Live
+    live "/stage3", Stage3Live
+    live "/stage4", Stage4Live
   end
 
   # Other scopes may use custom stacks.
