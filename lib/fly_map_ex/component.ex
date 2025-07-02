@@ -13,7 +13,7 @@ defmodule FlyMapEx.Component do
   
   @impl true
   def mount(socket) do
-    {:ok, assign(socket, :selected_groups, [])}
+    {:ok, socket}
   end
   
   @impl true
@@ -24,7 +24,7 @@ defmodule FlyMapEx.Component do
     # Normalize marker groups
     normalized_groups = normalize_marker_groups(assigns.marker_groups || [])
     
-    # Determine initial selected groups
+    # Determine initial selected groups based on initially_visible
     selected_groups = determine_initial_selection(normalized_groups, initially_visible)
     
     # Use custom background or theme background

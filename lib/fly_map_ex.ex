@@ -101,7 +101,7 @@ defmodule FlyMapEx do
   attr(:theme, :atom, default: :light)
   attr(:background, :map, default: nil)
   attr(:class, :string, default: "")
-  attr(:selected_groups, :list, default: [])
+  attr(:initially_visible, :any, default: :all)
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
   attr(:show_regions, :boolean, default: nil)
@@ -118,7 +118,7 @@ defmodule FlyMapEx do
       theme={@theme}
       background={@background}
       class={@class}
-      initially_visible={determine_initially_visible(@marker_groups, @selected_groups)}
+      initially_visible={@initially_visible}
       available_apps={@available_apps}
       all_instances_data={@all_instances_data}
       show_regions={@show_regions}
@@ -127,12 +127,4 @@ defmodule FlyMapEx do
     """
   end
 
-  # Helper function to determine initially_visible from legacy selected_groups
-  defp determine_initially_visible(_marker_groups, selected_groups) when is_list(selected_groups) and selected_groups != [] do
-    selected_groups
-  end
-
-  defp determine_initially_visible(_marker_groups, _selected_groups) do
-    :all
-  end
 end
