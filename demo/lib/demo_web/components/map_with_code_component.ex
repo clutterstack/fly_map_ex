@@ -181,10 +181,87 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   defp format_coordinates(coords), do: inspect(coords)
 
   defp format_style(style) when is_map(style) do
-    # For now, just inspect the style map
-    # Could be enhanced to detect known FlyMapEx.Style functions
-    inspect(style)
+    # Check if this looks like a FlyMapEx.Style result
+    case style do
+      %{colour: colour, size: size, animation: animation} = style_map ->
+        format_flymap_style(style_map, colour)
+
+      _ ->
+        inspect(style)
+    end
   end
 
   defp format_style(style), do: inspect(style)
+
+  defp format_flymap_style(style_map, colour) do
+    # Determine the style function and default size based on the colour pattern
+    {function_name, params, default_size} = 
+      cond do
+        is_integer(colour) and colour >= 0 and colour <= 11 ->
+          {"FlyMapEx.Style.cycle", [Integer.to_string(colour)], 7}
+        
+        colour in [:red, :orange, :green, :blue, :purple, :gray] ->
+          function_name = "FlyMapEx.Style.#{colour}"
+          {function_name, [], 6}
+        
+        colour == "#10b981" ->
+          {"FlyMapEx.Style.operational", [], 7}
+        
+        colour == "#f59e0b" ->
+          {"FlyMapEx.Style.warning", [], 8}
+        
+        colour == "#ef4444" ->
+          {"FlyMapEx.Style.danger", [], 9}
+        
+        colour == "#6b7280" ->
+          {"FlyMapEx.Style.inactive", [], 5}
+        
+        true ->
+          # Custom style
+          {"FlyMapEx.Style.custom", [inspect(colour)], 6}
+      end
+
+    # Build list of additional parameters (those that differ from defaults)
+    additional_params = 
+      []
+      |> maybe_add_param(:size, Map.get(style_map, :size), default_size)
+      |> maybe_add_param(:animation, Map.get(style_map, :animation), :none)
+      |> maybe_add_param(:glow, Map.get(style_map, :glow), false)
+      |> maybe_add_param(:gradient, Map.get(style_map, :gradient), false)
+
+    # Combine all parameters
+    all_params = params ++ additional_params
+
+    # Format with multi-line if we have additional parameters
+    if length(additional_params) > 0 do
+      param_lines = Enum.map(all_params, fn param -> "        #{param}" end)
+      function_name <> "(\n" <> Enum.join(param_lines, ",\n") <> "\n      )"
+    else
+      # Single line for simple cases
+      if length(all_params) > 0 do
+        function_name <> "(" <> Enum.join(all_params, ", ") <> ")"
+      else
+        function_name <> "()"
+      end
+    end
+  end
+
+  # Helper to conditionally add parameters that differ from defaults
+  defp maybe_add_param(params, :size, value, default) when value != default do
+    params ++ ["size: #{value}"]
+  end
+
+  defp maybe_add_param(params, :animation, value, default) when value != default do
+    params ++ ["animation: :#{value}"]
+  end
+
+  defp maybe_add_param(params, :glow, true, false) do
+    params ++ ["glow: true"]
+  end
+
+  defp maybe_add_param(params, :gradient, true, false) do
+    params ++ ["gradient: true"]
+  end
+
+  defp maybe_add_param(params, _key, _value, _default), do: params
 end
