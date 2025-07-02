@@ -12,28 +12,13 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   attr(:marker_groups, :list, required: true)
   attr(:selected_groups, :list, default: [])
-  attr(:available_apps, :list, default: [])
-  attr(:all_instances_data, :map, default: %{})
   attr(:region_marker_colour, :string, required: true)
   attr(:marker_opacity, :float, required: true)
   attr(:show_regions, :boolean, required: true)
   attr(:target, :any, default: nil)
 
   def legend(%{marker_groups: marker_groups} = assigns) do
-    # Create legend entries - use app-based logic if available_apps provided, otherwise use marker_groups directly
-    all_legend_entries =
-      if assigns.available_apps != [] do
-        create_all_app_legend_entries(
-          assigns.available_apps,
-          assigns.all_instances_data,
-          marker_groups
-        )
-      else
-        # For generic usage, show the marker groups as-is
-        marker_groups
-      end
-
-    assigns = assign(assigns, :all_legend_entries, all_legend_entries)
+    assigns = assign(assigns, :all_legend_entries, marker_groups)
 
     ~H"""
     <!-- Enhanced Legend -->
@@ -159,61 +144,4 @@ defmodule FlyMapEx.Components.LegendComponent do
     |> Enum.sum()
   end
 
-  defp create_all_app_legend_entries(available_apps, all_instances_data, marker_groups) do
-    # Create a map of group_label -> existing group for selected apps
-    existing_groups =
-      marker_groups
-      |> Enum.filter(&Map.has_key?(&1, :group_label))
-      |> Enum.into(%{}, fn group -> {group.group_label, group} end)
-
-    # Create legend entries for all available apps
-    available_apps
-    |> Enum.map(fn app_name ->
-      case Map.get(existing_groups, app_name) do
-        nil ->
-          # App is not selected, create a placeholder entry
-          create_unselected_app_entry(app_name, all_instances_data)
-
-        existing_group ->
-          # App is selected, use the existing group
-          existing_group
-      end
-    end)
-  end
-
-  defp create_unselected_app_entry(app_name, all_instances_data) do
-    # Get machine data for this app
-    case Map.get(all_instances_data, app_name) do
-      {:ok, machines} ->
-        nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
-        machine_count = length(machines)
-
-        label =
-          case machine_count do
-            1 -> "#{app_name} (1 machine)"
-            n -> "#{app_name} (#{n} machines)"
-          end
-
-        # Use a muted style for unselected apps
-        %{
-          nodes: nodes,
-          # muted gray
-          style: %{colour: "#94a3b8", size: 6, animation: :none},
-          label: label,
-          group_label: app_name,
-          machine_count: machine_count
-        }
-
-      _ ->
-        # No machine data available
-        %{
-          nodes: [],
-          # very light gray
-          style: %{colour: "#e2e8f0", size: 4, animation: :none},
-          label: "#{app_name} (no machines)",
-          group_label: app_name,
-          machine_count: 0
-        }
-    end
-  end
 end

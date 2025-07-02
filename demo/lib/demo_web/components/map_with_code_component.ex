@@ -16,6 +16,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   * `marker_groups` - List of marker groups to display
   * `theme` - Theme atom (optional, conflicts with background)
   * `background` - Background configuration (optional, conflicts with theme)
+  * `title` - Title for the map section (optional, alias for map_title)
   * `map_title` - Title for the map section (optional)
   * `code_title` - Title for the code section (optional, default: "Code Example")
   * `show_code` - Whether to show the code section (default: true)
@@ -27,6 +28,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   attr :marker_groups, :list, required: true
   attr :theme, :atom, default: nil
   attr :background, :any, default: nil
+  attr :title, :string, default: nil
   attr :map_title, :string, default: nil
   attr :code_title, :string, default: "Code Example"
   attr :show_code, :boolean, default: true
@@ -43,11 +45,11 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     assigns = assign(assigns, map_attrs: map_attrs, code_string: code_string)
 
     ~H"""
-    <div class={["grid grid-cols-1 lg:grid-cols-2 gap-8", @class]}>
+    <div class={get_container_classes(assigns)}>
       <!-- Map Display -->
       <div class={["space-y-4", @map_class]}>
-        <%= if @map_title do %>
-          <h2 class="text-xl font-semibold text-gray-700"><%= @map_title %></h2>
+        <%= if @map_title || @title do %>
+          <h2 class="text-xl font-semibold text-gray-700"><%= @map_title || @title %></h2>
         <% end %>
 
         <div class="p-4 bg-gray-50 rounded-lg">
@@ -68,6 +70,15 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
       <% end %>
     </div>
     """
+  end
+
+  defp get_container_classes(assigns) do
+    base_classes = ["gap-8", assigns.class]
+    
+    case assigns.map_layout do
+      :side_by_side -> ["space-y-8"] ++ base_classes
+      _ -> ["grid grid-cols-1 lg:grid-cols-2"] ++ base_classes
+    end
   end
 
   @doc """

@@ -42,8 +42,6 @@ defmodule FlyMapEx.Component do
       |> assign(:selected_groups, selected_groups)
       |> assign(:background, background)
       |> assign(:show_regions, show_regions)
-      |> assign(:available_apps, assigns[:available_apps] || [])
-      |> assign(:all_instances_data, assigns[:all_instances_data] || %{})
       |> assign(:class, assigns[:class] || "")
       |> assign(:layout, layout)
       |> assign(:on_toggle, assigns[:on_toggle])
@@ -98,8 +96,6 @@ defmodule FlyMapEx.Component do
               <LegendComponent.legend
                 marker_groups={@marker_groups}
                 selected_groups={@selected_groups}
-                available_apps={@available_apps}
-                all_instances_data={@all_instances_data}
                 region_marker_colour={WorldMap.get_region_marker_color(@background)}
                 marker_opacity={FlyMapEx.Config.marker_opacity()}
                 show_regions={@show_regions}
