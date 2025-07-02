@@ -47,9 +47,22 @@ defmodule FlyMapEx.Components.Marker do
     |> assign(:animation, animation)
     |> assign(:colour, colour)
     |> assign(:glow, glow)
-    |> assign(:glow_size, base_size * 1.3)
+    |> assign(:glow_size, base_size * FlyMapEx.Config.glow_size_multiplier())
     |> assign_animation_props(animation)
+    |> assign_glow_props(glow, colour)
   end
+
+  defp assign_glow_props(assigns, true, colour) do
+    # Generate unique filter ID to avoid conflicts between markers
+    filter_id = "glow-#{:erlang.phash2({assigns.x, assigns.y, colour})}"
+    
+    assigns
+    |> assign(:filter_id, filter_id)
+    |> assign(:glow_blur, FlyMapEx.Config.glow_blur_radius())
+    |> assign(:glow_opacity, FlyMapEx.Config.glow_opacity())
+  end
+
+  defp assign_glow_props(assigns, false, _colour), do: assigns
 
   defp assign_animation_props(assigns, animation) when animation in [:pulse, :fade] do
     {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
@@ -101,6 +114,11 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <svg class="inline-block" width={@base_size * 2} height={@base_size * 2} viewBox={viewbox(@base_size)}>
+      <%= if @glow do %>
+        <defs>
+          <.render_glow_filter {assigns} />
+        </defs>
+      <% end %>
       <.render_marker_svg {assigns} />
     </svg>
     """
@@ -116,10 +134,23 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <g class={@css_class}>
+      <%= if @glow do %>
+        <!-- Glow effect background circle -->
+        <circle
+          cx={@x}
+          cy={@y}
+          r={@glow_size}
+          stroke="none"
+          fill={@colour}
+          opacity={@glow_opacity}
+          filter={"url(##{@filter_id})"}
+        />
+      <% end %>
+      <!-- Main marker circle -->
       <circle
         cx={@x}
         cy={@y}
-        r={if @glow, do: @glow_size, else: @base_size}
+        r={@base_size}
         stroke="none"
         fill={@colour}
       >
@@ -141,6 +172,18 @@ defmodule FlyMapEx.Components.Marker do
         <% end %>
       </circle>
     </g>
+    """
+  end
+
+  defp render_glow_filter(assigns) do
+    ~H"""
+    <filter id={@filter_id} x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation={@glow_blur} result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
     """
   end
 

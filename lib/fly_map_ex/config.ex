@@ -169,4 +169,34 @@ defmodule FlyMapEx.Config do
   def layout_mode do
     Application.get_env(:fly_map_ex, :layout_mode, :stacked)
   end
+
+  @doc """
+  Blur radius for glow effects in pixels.
+
+  Controls how spread out the glow effect appears around markers.
+  Default: 3
+  """
+  def glow_blur_radius do
+    Application.get_env(:fly_map_ex, :glow_blur_radius, 3)
+  end
+
+  @doc """
+  Opacity for glow effects.
+
+  Controls how transparent/opaque the glow appears.
+  Default: 0.6
+  """
+  def glow_opacity do
+    Application.get_env(:fly_map_ex, :glow_opacity, 0.6)
+  end
+
+  @doc """
+  Size multiplier for glow effects relative to marker size.
+
+  Determines how much larger the glow is compared to the base marker.
+  Default: 1.8
+  """
+  def glow_size_multiplier do
+    Application.get_env(:fly_map_ex, :glow_size_multiplier, 1.8)
+  end
 end
