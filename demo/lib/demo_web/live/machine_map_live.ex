@@ -19,7 +19,6 @@ defmodule DemoWeb.MachineMapLive do
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
       |> assign(:marker_groups, [])
-      |> assign(:all_legend_entries, [])
       |> assign(:all_selected_machines, [])
       # Cache complete instance data for instant filtering
       |> assign(:all_instances_data, %{})
@@ -139,7 +138,6 @@ defmodule DemoWeb.MachineMapLive do
       socket
       |> assign(:app_machines, %{})
       |> assign(:marker_groups, [])
-      |> assign(:all_legend_entries, [])
       |> assign(:all_selected_machines, [])
       |> assign(:last_updated, DateTime.utc_now())
     else
@@ -147,8 +145,6 @@ defmodule DemoWeb.MachineMapLive do
       app_machines = Map.take(all_instances_data, selected_apps)
       marker_groups = MachineDiscovery.from_app_machines(app_machines)
 
-      # Create complete legend entries (selected + unselected apps)
-      all_legend_entries = create_complete_legend_entries(socket.assigns.available_apps, all_instances_data, marker_groups)
 
       all_selected_machines =
         app_machines
@@ -165,73 +161,12 @@ defmodule DemoWeb.MachineMapLive do
       socket
       |> assign(:app_machines, app_machines)
       |> assign(:marker_groups, marker_groups)
-      |> assign(:all_legend_entries, all_legend_entries)
       |> assign(:all_selected_machines, all_selected_machines)
       |> assign(:last_updated, DateTime.utc_now())
       |> assign(:error, nil)
     end
   end
 
-  # Application-specific logic to create complete legend entries for all apps
-  defp create_complete_legend_entries(available_apps, all_instances_data, marker_groups) do
-    # Create a map of group_label -> existing group for selected apps
-    existing_groups =
-      marker_groups
-      |> Enum.filter(&Map.has_key?(&1, :group_label))
-      |> Enum.into(%{}, fn group -> {group.group_label, group} end)
-
-    # Create legend entries for all available apps
-    available_apps
-    |> Enum.map(fn app_name ->
-      case Map.get(existing_groups, app_name) do
-        nil ->
-          # App is not selected, create a placeholder entry
-          create_unselected_app_entry(app_name, all_instances_data)
-
-        existing_group ->
-          # App is selected, use the existing group
-          existing_group
-      end
-    end)
-  end
-
-  # Create a muted legend entry for unselected apps
-  defp create_unselected_app_entry(app_name, all_instances_data) do
-    case Map.get(all_instances_data, app_name) do
-      {:ok, machines} ->
-        machine_count = length(machines)
-        unique_regions = machines |> Enum.map(&elem(&1, 1)) |> Enum.uniq()
-        
-        %{
-          nodes: unique_regions,
-          style: FlyMapEx.Style.inactive(),
-          label: "#{app_name} (#{machine_count} #{if machine_count == 1, do: "machine", else: "machines"})",
-          group_label: app_name,
-          machine_count: machine_count,
-          selected: false
-        }
-
-      {:error, _} ->
-        %{
-          nodes: [],
-          style: FlyMapEx.Style.inactive(),
-          label: "#{app_name} (no machines)",
-          group_label: app_name,
-          machine_count: 0,
-          selected: false
-        }
-
-      nil ->
-        %{
-          nodes: [],
-          style: FlyMapEx.Style.inactive(),
-          label: "#{app_name} (no machines)",
-          group_label: app_name,
-          machine_count: 0,
-          selected: false
-        }
-    end
-  end
 
   def render(assigns) do
     ~H"""
@@ -273,7 +208,7 @@ defmodule DemoWeb.MachineMapLive do
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
-          marker_groups={@all_legend_entries}
+          marker_groups={@marker_groups}
           background={FlyMapEx.Theme.responsive_background()}
           class="machine-map"
           show_regions={false}
