@@ -84,7 +84,8 @@ defmodule FlyMapEx.Style do
   """
   def cycle(index, opts \\ []) when is_integer(index) do
     colour = Enum.at(@cycle_colours, rem(index, length(@cycle_colours)))
-    custom(colour, Keyword.merge([size: 7], opts))
+    result = custom(colour, Keyword.merge([size: 7], opts))
+    Map.put(result, :__source__, {:cycle, [index], opts})
   end
 
   @doc """
@@ -107,7 +108,8 @@ defmodule FlyMapEx.Style do
       colour: colour,
       size: Keyword.get(opts, :size, 6),
       animation: Keyword.get(opts, :animation, :none),
-      glow: Keyword.get(opts, :glow, false)
+      glow: Keyword.get(opts, :glow, false),
+      __source__: {:custom, [colour], opts}
     }
   end
 
@@ -119,10 +121,11 @@ defmodule FlyMapEx.Style do
   Use for nodes that are running normally and healthy.
   """
   def operational(opts \\ []) do
-    custom(
+    result = custom(
       "#10b981",
-      Keyword.merge([size: 7, animation: :pulse, glow: false], opts)
+      Keyword.merge([size: 7, animation: :none, glow: false], opts)
     )
+    %{result | __source__: {:operational, [], opts}}
   end
 
   @doc """
@@ -131,10 +134,11 @@ defmodule FlyMapEx.Style do
   Use for nodes that are running but experiencing issues.
   """
   def warning(opts \\ []) do
-    custom(
+    result = custom(
       "#f59e0b",
       Keyword.merge([size: 8, animation: :none, glow: false], opts)
     )
+    %{result | __source__: {:warning, [], opts}}
   end
 
   @doc """
@@ -143,10 +147,11 @@ defmodule FlyMapEx.Style do
   Use for nodes that are failed or experiencing critical issues.
   """
   def danger(opts \\ []) do
-    custom(
+    result = custom(
       "#ef4444",
-      Keyword.merge([size: 9, animation: :pulse, glow: false], opts)
+      Keyword.merge([size: 7, animation: :pulse, glow: true], opts)
     )
+    %{result | __source__: {:danger, [], opts}}
   end
 
   @doc """
@@ -155,7 +160,8 @@ defmodule FlyMapEx.Style do
   Use for nodes that are intentionally stopped or offline.
   """
   def inactive(opts \\ []) do
-    custom("#6b7280", Keyword.merge([size: 5, animation: :none], opts))
+    result = custom("#6b7280", Keyword.merge([size: 5, animation: :none], opts))
+    %{result | __source__: {:inactive, [], opts}}
   end
 
   # Additional useful styles
@@ -166,10 +172,11 @@ defmodule FlyMapEx.Style do
   General purpose primary accent color.
   """
   def primary(opts \\ []) do
-    custom(
+    result = custom(
       "#3b82f6",
       Keyword.merge([size: 7, animation: :none, glow: false], opts)
     )
+    %{result | __source__: {:primary, [], opts}}
   end
 
   @doc """
@@ -178,7 +185,8 @@ defmodule FlyMapEx.Style do
   General purpose secondary accent color.
   """
   def secondary(opts \\ []) do
-    custom("#14b8a6", Keyword.merge([size: 6, animation: :none], opts))
+    result = custom("#14b8a6", Keyword.merge([size: 6, animation: :none], opts))
+    %{result | __source__: {:secondary, [], opts}}
   end
 
   @doc """
@@ -187,7 +195,8 @@ defmodule FlyMapEx.Style do
   For informational or neutral states.
   """
   def info(opts \\ []) do
-    custom("#0ea5e9", Keyword.merge([size: 6, animation: :none], opts))
+    result = custom("#0ea5e9", Keyword.merge([size: 6, animation: :none], opts))
+    %{result | __source__: {:info, [], opts}}
   end
 
   # Backward compatibility aliases (deprecated)

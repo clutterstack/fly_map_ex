@@ -31,7 +31,7 @@ defmodule FlyMapEx.Components.Marker do
 
     case assigns.mode do
       :legend -> render_legend_marker(assigns)
-      :svg -> render_svg_marker(assigns)
+      :svg -> render_marker_svg(assigns)
     end
   end
 
@@ -47,7 +47,7 @@ defmodule FlyMapEx.Components.Marker do
     |> assign(:animation, animation)
     |> assign(:colour, colour)
     |> assign(:glow, glow)
-    |> assign(:glow_size, base_size * 1.2)
+    |> assign(:glow_size, base_size * 1.3)
     |> assign_animation_props(animation)
   end
 
@@ -77,8 +77,8 @@ defmodule FlyMapEx.Components.Marker do
 
   defp build_opacity_animation_attributes(animation) do
     case animation do
-      anim when anim in [:pulse, :fade] ->
-        dur = if anim == :pulse, do: FlyMapEx.Config.pulse_duration(), else: FlyMapEx.Config.fade_duration()
+      anim when anim == :fade ->
+        dur = FlyMapEx.Config.fade_duration()
         %{
           attributeName: "opacity",
           values: FlyMapEx.Config.opacity_animation_values(),
@@ -95,51 +95,19 @@ defmodule FlyMapEx.Components.Marker do
       assigns
       |> assign(:radius_attrs, build_radius_animation_attributes(:legend, assigns.base_size, assigns.animation))
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
-      |> assign(:static_radius, assigns.base_size * FlyMapEx.Config.legend_size_ratio())
-      |> assign(:glow_radius, assigns.glow_size * FlyMapEx.Config.legend_size_ratio())
+      |> assign(:css_class, if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated"))
+      |> assign(:x, assigns.base_size)
+      |> assign(:y, assigns.base_size)
 
     ~H"""
     <svg class="inline-block" width={@base_size * 2} height={@base_size * 2} viewBox={viewbox(@base_size)}>
-      <%= if @glow do %>
-        <!-- Glow effect for legend: larger circle with reduced opacity behind main circle -->
-        <circle
-          cx={@base_size}
-          cy={@base_size}
-          r={@glow_radius}
-          stroke="none"
-          fill={@colour}
-          opacity="0.3"
-        />
-      <% end %>
-      <circle
-        cx={@base_size}
-        cy={@base_size}
-        r={@static_radius}
-        stroke="none"
-        fill={@colour}
-      >
-        <%= if @radius_attrs do %>
-          <animate
-            attributeName={@radius_attrs.attributeName}
-            values={@radius_attrs.values}
-            dur={@radius_attrs.dur}
-            repeatCount={@radius_attrs.repeatCount}
-          />
-        <% end %>
-        <%= if @opacity_attrs do %>
-          <animate
-            attributeName={@opacity_attrs.attributeName}
-            values={@opacity_attrs.values}
-            dur={@opacity_attrs.dur}
-            repeatCount={@opacity_attrs.repeatCount}
-          />
-        <% end %>
-      </circle>
+      <.render_marker_svg {assigns} />
     </svg>
     """
   end
 
-  defp render_svg_marker(assigns) do
+
+  defp render_marker_svg(assigns) do
     assigns =
       assigns
       |> assign(:radius_attrs, build_radius_animation_attributes(:svg, assigns.base_size, assigns.animation))

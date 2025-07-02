@@ -94,8 +94,8 @@ defmodule FlyMapEx.Components.WorldMap do
         <!-- Dynamic gradients for groups with glow enabled -->
         <%= for {group, index} <- Enum.with_index(@glow_groups) do %>
           <radialGradient id={"gradient#{index}"} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="80%" stop-color={group.style.colour} stop-opacity="1" />
-            <stop offset="90%" stop-color={group.style.colour} stop-opacity="0.7" />
+            <stop offset="70%" stop-color={group.style.colour} stop-opacity="1" />
+            <stop offset="85%" stop-color={group.style.colour} stop-opacity="0.7" />
             <stop offset="100%" stop-color={group.style.colour} stop-opacity="0.2" />
           </radialGradient>
         <% end %>

@@ -14,9 +14,9 @@ config :demo,
 
 # FlyMapEx opacity and radius configuration
 config :fly_map_ex,
-  marker_opacity: 0.6,
+  marker_opacity: 1.0,
   hover_opacity: 0.9,
-  animation_opacity_range: {0.2, 0.8},
+  animation_opacity_range: {0.4, 1.0},
   marker_base_radius: 3
 
 # Configures the endpoint

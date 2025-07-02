@@ -183,7 +183,11 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   defp format_style(style) when is_map(style) do
     # Check if this looks like a FlyMapEx.Style result
     case style do
-      %{colour: colour, size: size, animation: animation} = style_map ->
+      %{__source__: source_info} = style_map ->
+        format_flymap_style_from_source(style_map, source_info)
+
+      %{colour: colour, size: _size, animation: _animation} = style_map ->
+        # Fallback for styles without source metadata (legacy)
         format_flymap_style(style_map, colour)
 
       _ ->
@@ -193,39 +197,100 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
   defp format_style(style), do: inspect(style)
 
+  defp format_flymap_style_from_source(style_map, {function_name, args, _opts}) do
+    # Build the function call using source metadata
+    function_call = "FlyMapEx.Style.#{function_name}"
+    
+    # Get the expected defaults for this function
+    defaults = get_function_defaults(function_name)
+    
+    # Build list of parameters that differ from defaults
+    additional_params = 
+      []
+      |> maybe_add_param(:size, Map.get(style_map, :size), defaults.size)
+      |> maybe_add_param(:animation, Map.get(style_map, :animation), defaults.animation)
+      |> maybe_add_param(:glow, Map.get(style_map, :glow), defaults.glow)
+      |> maybe_add_param(:gradient, Map.get(style_map, :gradient), defaults.gradient)
+
+    # Combine with original args
+    all_params = args ++ additional_params
+
+    # Format with multi-line if we have additional parameters
+    if length(additional_params) > 0 do
+      param_lines = Enum.map(all_params, fn param -> "        #{param}" end)
+      function_call <> "(\n" <> Enum.join(param_lines, ",\n") <> "\n      )"
+    else
+      # Single line for simple cases
+      if length(all_params) > 0 do
+        formatted_args = Enum.map(args, &format_arg/1)
+        function_call <> "(" <> Enum.join(formatted_args, ", ") <> ")"
+      else
+        function_call <> "()"
+      end
+    end
+  end
+
+  defp format_arg(arg) when is_binary(arg), do: inspect(arg)
+  defp format_arg(arg) when is_integer(arg), do: Integer.to_string(arg)
+  defp format_arg(arg), do: inspect(arg)
+
+  defp get_function_defaults(function_name) do
+    case function_name do
+      :operational -> %{size: 7, animation: :none, glow: false, gradient: false}
+      :warning -> %{size: 8, animation: :none, glow: false, gradient: false}
+      :danger -> %{size: 7, animation: :pulse, glow: true, gradient: false}
+      :inactive -> %{size: 5, animation: :none, glow: false, gradient: false}
+      :primary -> %{size: 7, animation: :none, glow: false, gradient: false}
+      :secondary -> %{size: 6, animation: :none, glow: false, gradient: false}
+      :info -> %{size: 6, animation: :none, glow: false, gradient: false}
+      :cycle -> %{size: 7, animation: :none, glow: false, gradient: false}
+      :custom -> %{size: 6, animation: :none, glow: false, gradient: false}
+      _ -> %{size: 6, animation: :none, glow: false, gradient: false}
+    end
+  end
+
   defp format_flymap_style(style_map, colour) do
-    # Determine the style function and default size based on the colour pattern
-    {function_name, params, default_size} = 
+    # Determine the style function and its actual defaults based on the colour pattern
+    {function_name, params, default_size, default_animation} = 
       cond do
         is_integer(colour) and colour >= 0 and colour <= 11 ->
-          {"FlyMapEx.Style.cycle", [Integer.to_string(colour)], 7}
+          {"FlyMapEx.Style.cycle", [Integer.to_string(colour)], 7, :none}
         
         colour in [:red, :orange, :green, :blue, :purple, :gray] ->
           function_name = "FlyMapEx.Style.#{colour}"
-          {function_name, [], 6}
+          {function_name, [], 6, :none}
         
         colour == "#10b981" ->
-          {"FlyMapEx.Style.operational", [], 7}
+          {"FlyMapEx.Style.operational", [], 7, :pulse}
         
         colour == "#f59e0b" ->
-          {"FlyMapEx.Style.warning", [], 8}
+          {"FlyMapEx.Style.warning", [], 8, :none}
         
         colour == "#ef4444" ->
-          {"FlyMapEx.Style.danger", [], 9}
+          {"FlyMapEx.Style.danger", [], 9, :pulse}
         
         colour == "#6b7280" ->
-          {"FlyMapEx.Style.inactive", [], 5}
+          {"FlyMapEx.Style.inactive", [], 5, :none}
+        
+        colour == "#3b82f6" ->
+          {"FlyMapEx.Style.primary", [], 7, :none}
+        
+        colour == "#14b8a6" ->
+          {"FlyMapEx.Style.secondary", [], 6, :none}
+        
+        colour == "#0ea5e9" ->
+          {"FlyMapEx.Style.info", [], 6, :none}
         
         true ->
           # Custom style
-          {"FlyMapEx.Style.custom", [inspect(colour)], 6}
+          {"FlyMapEx.Style.custom", [inspect(colour)], 6, :none}
       end
 
-    # Build list of additional parameters (those that differ from defaults)
+    # Build list of additional parameters (those that differ from actual defaults)
     additional_params = 
       []
       |> maybe_add_param(:size, Map.get(style_map, :size), default_size)
-      |> maybe_add_param(:animation, Map.get(style_map, :animation), :none)
+      |> maybe_add_param(:animation, Map.get(style_map, :animation), default_animation)
       |> maybe_add_param(:glow, Map.get(style_map, :glow), false)
       |> maybe_add_param(:gradient, Map.get(style_map, :gradient), false)
 
