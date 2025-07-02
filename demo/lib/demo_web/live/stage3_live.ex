@@ -80,7 +80,7 @@ defmodule DemoWeb.Stage3Live do
           Explore FlyMapEx's built-in themes and see how they transform your map's appearance.
         </p>
       </div>
-      
+
     <!-- Theme Selector -->
       <div class="mb-8">
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Choose a Theme</h2>
@@ -109,13 +109,14 @@ defmodule DemoWeb.Stage3Live do
 
       <MapWithCodeComponent.map_with_code
         marker_groups={@marker_groups}
+        map_layout={:side_by_side}
         theme={if @selected_theme == :responsive, do: nil, else: @selected_theme}
         background={
           if @selected_theme == :responsive, do: FlyMapEx.Theme.responsive_background(), else: nil
         }
         title={"Map Preview: #{@theme_info.name}"}
       />
-      
+
     <!-- Theme Properties -->
       <div class="mt-8 bg-blue-50 rounded-lg p-4">
         <h3 class="font-semibold text-blue-900 mb-2">Theme Properties</h3>
@@ -138,7 +139,7 @@ defmodule DemoWeb.Stage3Live do
           <% end %>
         </div>
       </div>
-      
+
     <!-- Navigation -->
       <div class="mt-8 flex justify-between">
         <.link navigate="/stage2" class="btn btn-outline">

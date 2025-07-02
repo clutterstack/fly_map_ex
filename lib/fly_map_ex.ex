@@ -105,6 +105,7 @@ defmodule FlyMapEx do
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
   attr(:show_regions, :boolean, default: nil)
+  attr(:layout, :atom, default: nil)
 
   def render(assigns) do
     # For backward compatibility, delegate to the new LiveView component
@@ -121,6 +122,7 @@ defmodule FlyMapEx do
       available_apps={@available_apps}
       all_instances_data={@all_instances_data}
       show_regions={@show_regions}
+      layout={@layout}
     />
     """
   end

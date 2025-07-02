@@ -157,4 +157,16 @@ defmodule FlyMapEx.Config do
     {min_opacity, max_opacity} = animation_opacity_range()
     "#{min_opacity};#{max_opacity};#{min_opacity}"
   end
+
+  @doc """
+  Default layout mode for the map and legend.
+
+  - :stacked - Legend below the map (default)
+  - :side_by_side - Legend beside the map with 65% width for map, 35% for legend
+
+  Default: :stacked
+  """
+  def layout_mode do
+    Application.get_env(:fly_map_ex, :layout_mode, :stacked)
+  end
 end

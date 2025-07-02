@@ -33,6 +33,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   attr :class, :string, default: ""
   attr :map_class, :string, default: ""
   attr :code_class, :string, default: ""
+  attr :map_layout, :atom, default: nil
 
   slot :extra_content
 
@@ -78,9 +79,10 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     marker_groups = Map.get(config, :marker_groups) || Map.get(config, "marker_groups")
     theme = Map.get(config, :theme) || Map.get(config, "theme")
     background = Map.get(config, :background) || Map.get(config, "background")
+    layout = Map.get(config, :map_layout)
 
     # Build map attributes
-    map_attrs = %{marker_groups: marker_groups}
+    map_attrs = %{marker_groups: marker_groups, layout: layout}
 
     map_attrs =
       cond do
@@ -200,12 +202,12 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   defp format_flymap_style_from_source(style_map, {function_name, args, _opts}) do
     # Build the function call using source metadata
     function_call = "FlyMapEx.Style.#{function_name}"
-    
+
     # Get the expected defaults for this function
     defaults = get_function_defaults(function_name)
-    
+
     # Build list of parameters that differ from defaults
-    additional_params = 
+    additional_params =
       []
       |> maybe_add_param(:size, Map.get(style_map, :size), defaults.size)
       |> maybe_add_param(:animation, Map.get(style_map, :animation), defaults.animation)
@@ -251,43 +253,43 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
   defp format_flymap_style(style_map, colour) do
     # Determine the style function and its actual defaults based on the colour pattern
-    {function_name, params, default_size, default_animation} = 
+    {function_name, params, default_size, default_animation} =
       cond do
         is_integer(colour) and colour >= 0 and colour <= 11 ->
           {"FlyMapEx.Style.cycle", [Integer.to_string(colour)], 7, :none}
-        
+
         colour in [:red, :orange, :green, :blue, :purple, :gray] ->
           function_name = "FlyMapEx.Style.#{colour}"
           {function_name, [], 6, :none}
-        
+
         colour == "#10b981" ->
           {"FlyMapEx.Style.operational", [], 7, :pulse}
-        
+
         colour == "#f59e0b" ->
           {"FlyMapEx.Style.warning", [], 8, :none}
-        
+
         colour == "#ef4444" ->
           {"FlyMapEx.Style.danger", [], 9, :pulse}
-        
+
         colour == "#6b7280" ->
           {"FlyMapEx.Style.inactive", [], 5, :none}
-        
+
         colour == "#3b82f6" ->
           {"FlyMapEx.Style.primary", [], 7, :none}
-        
+
         colour == "#14b8a6" ->
           {"FlyMapEx.Style.secondary", [], 6, :none}
-        
+
         colour == "#0ea5e9" ->
           {"FlyMapEx.Style.info", [], 6, :none}
-        
+
         true ->
           # Custom style
           {"FlyMapEx.Style.custom", [inspect(colour)], 6, :none}
       end
 
     # Build list of additional parameters (those that differ from actual defaults)
-    additional_params = 
+    additional_params =
       []
       |> maybe_add_param(:size, Map.get(style_map, :size), default_size)
       |> maybe_add_param(:animation, Map.get(style_map, :animation), default_animation)

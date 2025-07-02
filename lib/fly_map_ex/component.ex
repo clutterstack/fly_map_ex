@@ -33,6 +33,9 @@ defmodule FlyMapEx.Component do
     # Determine if regions should be shown
     show_regions = if is_nil(assigns[:show_regions]), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
     
+    # Determine layout mode
+    layout = assigns[:layout] || FlyMapEx.Config.layout_mode()
+    
     socket =
       socket
       |> assign(:marker_groups, normalized_groups)
@@ -42,6 +45,7 @@ defmodule FlyMapEx.Component do
       |> assign(:available_apps, assigns[:available_apps] || [])
       |> assign(:all_instances_data, assigns[:all_instances_data] || %{})
       |> assign(:class, assigns[:class] || "")
+      |> assign(:layout, layout)
       |> assign(:on_toggle, assigns[:on_toggle])
     
     {:ok, socket}
@@ -79,24 +83,30 @@ defmodule FlyMapEx.Component do
     <div class={@class}>
       <div class="card bg-base-100">
         <div class="card-body">
-          <div class="rounded-lg border overflow-hidden" style={"background-color: #{@background.land}"}>
-            <WorldMap.render
-              marker_groups={@visible_groups}
-              colours={@background}
-              show_regions={@show_regions}
-            />
+          <div class={layout_container_class(@layout)}>
+            <div class={map_container_class(@layout)}>
+              <div class="rounded-lg border overflow-hidden" style={"background-color: #{@background.land}"}>
+                <WorldMap.render
+                  marker_groups={@visible_groups}
+                  colours={@background}
+                  show_regions={@show_regions}
+                />
+              </div>
+            </div>
+            
+            <div class={legend_container_class(@layout)}>
+              <LegendComponent.legend
+                marker_groups={@marker_groups}
+                selected_groups={@selected_groups}
+                available_apps={@available_apps}
+                all_instances_data={@all_instances_data}
+                region_marker_colour={WorldMap.get_region_marker_color(@background)}
+                marker_opacity={FlyMapEx.Config.marker_opacity()}
+                show_regions={@show_regions}
+                target={@myself}
+              />
+            </div>
           </div>
-
-          <LegendComponent.legend
-            marker_groups={@marker_groups}
-            selected_groups={@selected_groups}
-            available_apps={@available_apps}
-            all_instances_data={@all_instances_data}
-            region_marker_colour={WorldMap.get_region_marker_color(@background)}
-            marker_opacity={FlyMapEx.Config.marker_opacity()}
-            show_regions={@show_regions}
-            target={@myself}
-          />
         </div>
       </div>
     </div>
@@ -175,5 +185,30 @@ defmodule FlyMapEx.Component do
         label -> Map.put(group, :group_label, label)
       end
     end
+  end
+  
+  # Layout helper functions
+  defp layout_container_class(:side_by_side) do
+    "flex flex-col lg:flex-row gap-4"
+  end
+  
+  defp layout_container_class(_) do
+    "space-y-4"
+  end
+  
+  defp map_container_class(:side_by_side) do
+    "lg:w-[65%] flex-shrink-0"
+  end
+  
+  defp map_container_class(_) do
+    ""
+  end
+  
+  defp legend_container_class(:side_by_side) do
+    "lg:w-[35%] flex-shrink-0"
+  end
+  
+  defp legend_container_class(_) do
+    ""
   end
 end
