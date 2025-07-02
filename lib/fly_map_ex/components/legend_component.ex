@@ -44,9 +44,7 @@ defmodule FlyMapEx.Components.LegendComponent do
             phx-value-group-label={if Map.has_key?(group, :group_label), do: group.group_label, else: nil}
           >
             <div class="flex-shrink-0 mt-0.5">
-              <div class={[
-                if(Map.has_key?(group, :group_label) and group.group_label in @selected_groups, do: "ring-2 ring-primary/30 rounded-full p-0.5")
-              ]}>
+              <div>
                 <Marker.marker style={group.style} mode={:legend} size_override={6} />
               </div>
             </div>
