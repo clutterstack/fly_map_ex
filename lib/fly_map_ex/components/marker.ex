@@ -99,8 +99,6 @@ defmodule FlyMapEx.Components.Marker do
 
   use Phoenix.Component
 
-  alias FlyMapEx.Components.GlowFilter
-
   @doc """
   Renders a marker with the given style and position.
 
@@ -178,6 +176,7 @@ defmodule FlyMapEx.Components.Marker do
   attr(:x, :float, default: 0.0)
   attr(:y, :float, default: 0.0)
   attr(:dim, :float, default: 0.0)
+  attr(:gradient_id, :string, default: nil)
 
   def marker(assigns) do
     assigns = assign_marker_props(assigns)
@@ -192,8 +191,12 @@ defmodule FlyMapEx.Components.Marker do
     style = assigns.style
     base_size = assigns.size_override || Map.get(style, :size, FlyMapEx.Config.default_marker_size())
     animation = Map.get(style, :animation, :none)
-    colour = assigns.fill_override || Map.get(style, :colour, "#6b7280")
+    base_colour = assigns.fill_override || Map.get(style, :colour, "#6b7280")
     glow = Map.get(style, :glow, false)
+    gradient_id = assigns.gradient_id
+
+    # For glow markers, use gradient fill if available, otherwise use solid colour
+    colour = if glow && gradient_id, do: "url(##{gradient_id})", else: base_colour
 
     assigns
     |> assign(:base_size, base_size)
@@ -201,21 +204,10 @@ defmodule FlyMapEx.Components.Marker do
     |> assign(:colour, colour)
     |> assign(:glow, glow)
     |> assign(:glow_size, base_size * FlyMapEx.Config.glow_size_multiplier())
-    |> assign_animation_props(animation)
-    |> assign_glow_props(glow, colour)
-  end
-
-  defp assign_glow_props(assigns, true, colour) do
-    # Generate unique filter ID to avoid conflicts between markers
-    filter_id = "glow-#{:erlang.phash2({0.5 * assigns.dim, 0.5 * assigns.dim, colour})}"
-
-    assigns
-    |> assign(:filter_id, filter_id)
-    |> assign(:glow_blur, FlyMapEx.Config.glow_blur_radius())
     |> assign(:glow_opacity, FlyMapEx.Config.glow_opacity())
+    |> assign_animation_props(animation)
   end
 
-  defp assign_glow_props(assigns, false, _colour), do: assigns
 
   defp assign_animation_props(assigns, animation) when animation == :fade do
     {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
@@ -269,15 +261,11 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <svg class="inline-block" width={trunc(@base_size * FlyMapEx.Config.legend_container_multiplier())} height={trunc(@base_size * FlyMapEx.Config.legend_container_multiplier())} viewBox={viewbox(@dim)}>
-      <%= if @glow do %>
-        <defs>
-          <GlowFilter.glow_filter filter_id={@filter_id} blur_radius={@glow_blur} />
-        </defs>
-      <% end %>
       <.render_marker_svg {assigns} />
     </svg>
     """
   end
+
 
   defp render_marker_svg(assigns) do
     assigns =
@@ -288,18 +276,6 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <g class={@css_class}>
-      <%= if @glow do %>
-        <!-- Glow effect background circle -->
-        <circle
-          cx={@x}
-          cy={@y}
-          r={@glow_size}
-          stroke="none"
-          fill={@colour}
-          opacity={@glow_opacity}
-          filter={"url(##{@filter_id})"}
-        />
-      <% end %>
       <!-- Main marker circle -->
       <circle
         cx={@x}

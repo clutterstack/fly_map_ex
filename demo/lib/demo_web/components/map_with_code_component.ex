@@ -126,24 +126,30 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Format marker groups as readable Elixir code
     groups_lines =
       Enum.map(marker_groups, fn group ->
-        style_str = format_style(group.style || group[:style])
+        style_str = format_style(Map.get(group, :style) || Map.get(group, "style"))
         label_str = inspect(group.label || group[:label])
 
+        style_field = if style_str, do: ",\n      style: " <> style_str, else: ""
+        
         cond do
           Map.has_key?(group, :nodes) or Map.has_key?(group, "nodes") ->
             nodes_str = format_nodes(group[:nodes] || Map.get(group, "nodes"))
             "    %{\n      nodes: " <>
               nodes_str <>
-              ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+              style_field <> ",\n      label: " <> label_str <> "\n    }"
 
           Map.has_key?(group, :markers) or Map.has_key?(group, "markers") ->
             markers_str = format_markers(group[:markers] || Map.get(group, "markers"))
             "    %{\n      nodes: " <>
               markers_str <>
-              ",\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+              style_field <> ",\n      label: " <> label_str <> "\n    }"
 
           true ->
-            "    %{\n      style: " <> style_str <> ",\n      label: " <> label_str <> "\n    }"
+            if style_str do
+              "    %{" <> style_field <> ",\n      label: " <> label_str <> "\n    }"
+            else
+              "    %{\n      label: " <> label_str <> "\n    }"
+            end
         end
       end)
 
@@ -201,6 +207,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     end
   end
 
+  defp format_style(nil), do: nil
   defp format_style(style), do: inspect(style)
 
   defp format_flymap_style_from_source(style_map, {function_name, args, _opts}) do

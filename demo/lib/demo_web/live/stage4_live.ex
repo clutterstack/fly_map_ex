@@ -57,14 +57,14 @@ defmodule DemoWeb.Stage4Live do
 
   defp color_cycling_groups do
     [
-      %{nodes: ["sjc"], style: FlyMapEx.Style.cycle(0), label: "App Server 1"},
-      %{nodes: ["fra"], style: FlyMapEx.Style.cycle(1), label: "App Server 2"},
-      %{nodes: ["ams"], style: FlyMapEx.Style.cycle(2), label: "Database Cluster"},
-      %{nodes: ["lhr"], style: FlyMapEx.Style.cycle(3), label: "Cache Layer"},
-      %{nodes: ["ord"], style: FlyMapEx.Style.cycle(4), label: "Background Jobs"},
-      %{nodes: ["nrt"], style: FlyMapEx.Style.cycle(5), label: "Analytics Engine"},
-      %{nodes: ["syd"], style: FlyMapEx.Style.cycle(6), label: "File Storage"},
-      %{nodes: ["sin"], style: FlyMapEx.Style.cycle(7), label: "Message Queue"}
+      %{nodes: ["sjc"], label: "App Server 1"},
+      %{nodes: ["fra"], label: "App Server 2"},
+      %{nodes: ["ams"], label: "Database Cluster"},
+      %{nodes: ["lhr"], label: "Cache Layer"},
+      %{nodes: ["ord"], label: "Background Jobs"},
+      %{nodes: ["nrt"], label: "Analytics Engine"},
+      %{nodes: ["syd"], label: "File Storage"},
+      %{nodes: ["sin"], label: "Message Queue"}
     ]
   end
 
@@ -236,6 +236,20 @@ defmodule DemoWeb.Stage4Live do
                       <% end %>
                     </select>
                   </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Glow Effect</label>
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="glow"
+                        value="true"
+                        checked={@custom_glow}
+                        class="checkbox checkbox-primary"
+                      />
+                      <span class="ml-2 text-sm text-gray-600">Enable glow effect</span>
+                    </div>
+                  </div>
                 </div>
               </form>
             </div>
@@ -348,7 +362,7 @@ defmodule DemoWeb.Stage4Live do
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
       }
-      
+
       .slider::-webkit-slider-thumb {
         appearance: none;
         height: 20px;
@@ -359,7 +373,7 @@ defmodule DemoWeb.Stage4Live do
         border: 2px solid #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
-      
+
       .slider::-moz-range-thumb {
         height: 20px;
         width: 20px;

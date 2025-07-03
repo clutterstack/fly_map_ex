@@ -110,7 +110,7 @@ defmodule FlyMapEx.Config do
   Default: "2.5s"
   """
   def pulse_duration do
-    Application.get_env(:fly_map_ex, :pulse_duration, "2.5s")
+    Application.get_env(:fly_map_ex, :pulse_duration, "2s")
   end
 
   @doc """
@@ -119,7 +119,7 @@ defmodule FlyMapEx.Config do
   Default: "3s"
   """
   def fade_duration do
-    Application.get_env(:fly_map_ex, :fade_duration, "3s")
+    Application.get_env(:fly_map_ex, :fade_duration, "2s")
   end
 
   @doc """

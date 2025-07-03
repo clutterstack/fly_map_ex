@@ -47,7 +47,7 @@ defmodule DemoWeb.Stage3Live do
       %{
         key: :minimal,
         name: "Minimal Theme",
-        description: "Clean white background for presentations"
+        description: "Transparent background for presentations"
       },
       %{key: :cool, name: "Cool Theme", description: "Cool blue tones for technical dashboards"},
       %{key: :warm, name: "Warm Theme", description: "Warm earth tones for friendly interfaces"},
@@ -165,7 +165,7 @@ defmodule DemoWeb.Stage3Live do
       },
       minimal: %{
         name: "Minimal Theme",
-        description: "Clean white background ideal for presentations and minimalist designs",
+        description: "Transparent background ideal for presentations and minimalist designs",
         properties: %{land: "#ffffff", ocean: "#aaaaaa", border: "#e5e7eb"}
       },
       cool: %{

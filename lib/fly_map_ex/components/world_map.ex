@@ -114,7 +114,6 @@ defmodule FlyMapEx.Components.WorldMap do
 
   alias FlyMapEx.Regions
   alias FlyMapEx.Components.Marker
-  alias FlyMapEx.Components.GlowFilter
   alias FlyMapEx.WorldMapPaths
 
   # Map dims determined by svg and some cropping
@@ -217,7 +216,7 @@ defmodule FlyMapEx.Components.WorldMap do
     show_regions = if is_nil(assigns.show_regions), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
 
     # Collect unique glow filter requirements for map-level filters
-    glow_filters = collect_glow_filters(assigns.marker_groups)
+    radial_gradients = collect_radial_gradients(assigns.marker_groups)
 
     assigns =
       assign(assigns, %{
@@ -227,7 +226,7 @@ defmodule FlyMapEx.Components.WorldMap do
         width: @width,
         height: @height,
         viewbox: "#{@minx} #{@miny} #{@width} #{@height}",
-        glow_filters: glow_filters,
+        radial_gradients: radial_gradients,
         bbox: @bbox,
         toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
@@ -247,9 +246,13 @@ defmodule FlyMapEx.Components.WorldMap do
       id={@id}
     >
       <defs>
-        <!-- Glow filters for map markers -->
-        <%= for glow_filter <- @glow_filters do %>
-          <GlowFilter.glow_filter filter_id={glow_filter.filter_id} blur_radius={glow_filter.blur_radius} />
+        <!-- Radial gradients for glow markers -->
+        <%= for radial_gradient <- @radial_gradients do %>
+          <radialGradient id={radial_gradient.id} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="60%" stop-color={radial_gradient.colour} stop-opacity="1"/>
+            <stop offset="80%" stop-color={radial_gradient.colour} stop-opacity="0.6"/>
+            <stop offset="100%" stop-color={radial_gradient.colour} stop-opacity="0.2"/>
+          </radialGradient>
         <% end %>
       </defs>
 
@@ -362,6 +365,21 @@ defmodule FlyMapEx.Components.WorldMap do
 
   # Private functions
 
+  defp collect_radial_gradients(marker_groups) do
+    marker_groups
+    |> Enum.filter(fn group -> 
+      Map.get(group.style, :glow, false) 
+    end)
+    |> Enum.map(fn group ->
+      colour = Map.get(group.style, :colour, "#6b7280")
+      %{
+        id: "glow-gradient-#{String.replace(colour, "#", "")}",
+        colour: colour
+      }
+    end)
+    |> Enum.uniq_by(& &1.id)
+  end
+
   defp get_group_coordinates(group, bbox) do
     cond do
       Map.has_key?(group, :nodes) -> node_coordinates(group.nodes, bbox)
@@ -401,11 +419,20 @@ defmodule FlyMapEx.Components.WorldMap do
   end
 
   defp render_marker(group, x, y, _default_radius) do
+    # Generate gradient ID for glow-enabled markers
+    gradient_id = if Map.get(group.style, :glow, false) do
+      colour = Map.get(group.style, :colour, "#6b7280")
+      "glow-gradient-#{String.replace(colour, "#", "")}"
+    else
+      nil
+    end
+
     assigns = %{
       style: group.style,
       x: x,
       y: y,
-      mode: :svg
+      mode: :svg,
+      gradient_id: gradient_id
     }
 
     ~H"""
@@ -413,22 +440,6 @@ defmodule FlyMapEx.Components.WorldMap do
     """
   end
 
-  defp collect_glow_filters(marker_groups) do
-    marker_groups
-    |> Enum.filter(fn group -> Map.get(group.style, :glow, false) end)
-    |> Enum.flat_map(fn group ->
-      get_group_coordinates(group, @bbox)
-      |> Enum.map(fn {x, y} ->
-        colour = Map.get(group.style, :colour, "#6b7280")
-        filter_id = "glow-#{:erlang.phash2({x, y, colour})}"
-        %{
-          filter_id: filter_id,
-          blur_radius: FlyMapEx.Config.glow_blur_radius()
-        }
-      end)
-    end)
-    |> Enum.uniq_by(& &1.filter_id)
-  end
 
   defp all_regions_with_coords do
     for {region_atom, coords} <- Regions.all() do
