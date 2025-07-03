@@ -172,7 +172,7 @@ defmodule FlyMapEx do
   """
   # Legacy attributes for backward compatibility when used as function component
   attr(:marker_groups, :list, default: [])
-  attr(:theme, :any, default: :light)
+  attr(:theme, :any, default: nil)
   attr(:class, :string, default: "")
   attr(:initially_visible, :any, default: :all)
   attr(:available_apps, :list, default: [])
@@ -181,7 +181,7 @@ defmodule FlyMapEx do
   attr(:layout, :atom, default: nil)
 
   def render(assigns) do
-    # For backward compatibility, delegate to the new LiveView component
+    # Delegate to the LiveView component
     # This allows existing code to continue working without changes
     ~H"""
     <.live_component

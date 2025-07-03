@@ -11,7 +11,7 @@ defmodule DemoWeb.Stage4Live do
       |> assign(:current_demo, "color_cycling")
       |> assign(:custom_colour, "#3b82f6")
       |> assign(:custom_size, 8)
-      |> assign(:custom_animation, "pulse")
+      |> assign(:custom_animation, "none")
       |> assign(:custom_glow, false)
       |> update_marker_groups()
 
@@ -174,8 +174,7 @@ defmodule DemoWeb.Stage4Live do
 
       <.map_with_code
         marker_groups={@marker_groups}
-        theme={:responsive}
-        map_title={case @current_demo do
+          map_title={case @current_demo do
           "color_cycling" -> "Multiple Apps with Color Cycling"
           "animation_showcase" -> "Animation Types Comparison"
           "custom_builder" -> "Interactive Style Builder"
@@ -210,11 +209,18 @@ defmodule DemoWeb.Stage4Live do
 
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                    <select name="size" class="select select-bordered w-full">
-                      <%= for size <- [2, 4, 6, 8, 10, 12, 16, 20] do %>
-                        <option value={size} selected={@custom_size == size}>{size}px</option>
-                      <% end %>
-                    </select>
+                    <div class="flex items-center gap-3">
+                      <input
+                        type="range"
+                        name="size"
+                        min="2"
+                        max="20"
+                        step="2"
+                        value={@custom_size}
+                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                      />
+                      <span class="text-sm font-mono text-gray-600 min-w-[3rem]">{@custom_size}px</span>
+                    </div>
                   </div>
 
                   <div>
@@ -341,6 +347,27 @@ defmodule DemoWeb.Stage4Live do
       @keyframes fade {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
+      }
+      
+      .slider::-webkit-slider-thumb {
+        appearance: none;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      
+      .slider::-moz-range-thumb {
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
     </style>
     """

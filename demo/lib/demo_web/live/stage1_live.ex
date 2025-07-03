@@ -94,8 +94,7 @@ defmodule DemoWeb.Stage1Live do
 
       <.map_with_code
         marker_groups={current_marker_groups(assigns)}
-        theme={:responsive}
-        map_title="Interactive Map Demo"
+                map_title="Interactive Map Demo"
       >
         <:extra_content>
           <div class="space-y-4">

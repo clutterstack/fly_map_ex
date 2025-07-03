@@ -20,13 +20,15 @@ defmodule DemoWeb.MapDemoLive do
     [
       %{
         nodes: ["sjc", "fra"],
-        style: FlyMapEx.Style.operational(),
         label: "Production Servers"
       },
       %{
         nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.warning(),
-        label: "Maintenance Mode"
+        label: "Staging Servers"
+      },
+      %{
+        nodes: ["ord", "dfw"],
+        label: "Development Servers"
       }
     ]
     """
@@ -105,10 +107,7 @@ defmodule DemoWeb.MapDemoLive do
         do: errors,
         else: ["Group #{index + 1}: Missing 'nodes' field" | errors]
 
-    errors =
-      if Map.has_key?(group, :style),
-        do: errors,
-        else: ["Group #{index + 1}: Missing 'style' field" | errors]
+    # Style field is now optional - will auto-cycle if not provided
 
     errors =
       if Map.has_key?(group, :label),
@@ -206,7 +205,6 @@ defmodule DemoWeb.MapDemoLive do
     """
     <FlyMapEx.render
       marker_groups={#{marker_groups_code}}
-      theme={:responsive}
       class="my-map"
     />
     """
@@ -257,9 +255,10 @@ defmodule DemoWeb.MapDemoLive do
               <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
               <div class="text-sm text-info/80 space-y-1">
                 <p>
-                  <strong>Available Styles:</strong>
+                  <strong>Styles (optional):</strong>
                   operational(), warning(), danger(), primary(), cycle(0)
                 </p>
+                <p><strong>Auto-cycling:</strong> Groups without styles get distinct colours automatically</p>
                 <p><strong>Sample Regions:</strong> "sjc", "fra", "ams", "lhr", "ord", "dfw"</p>
                 <p><strong>Custom Coordinates:</strong> Use maps with label and coordinates fields</p>
               </div>
@@ -276,7 +275,6 @@ defmodule DemoWeb.MapDemoLive do
             <%= if @marker_groups != [] do %>
               <FlyMapEx.render
                 marker_groups={@marker_groups}
-                theme={:responsive}
                 class="demo-map"
               />
             <% else %>

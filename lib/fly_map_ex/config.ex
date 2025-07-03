@@ -217,4 +217,15 @@ defmodule FlyMapEx.Config do
   def default_marker_size do
     Application.get_env(:fly_map_ex, :default_marker_size, 6)
   end
+
+  @doc """
+  Default theme for maps when no theme is specified.
+
+  Available themes: :light, :dark, :minimal, :cool, :warm, :high_contrast, :responsive
+  or custom theme maps.
+  Default: :light
+  """
+  def default_theme do
+    Application.get_env(:fly_map_ex, :default_theme, :light)
+  end
 end

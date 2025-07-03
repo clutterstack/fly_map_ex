@@ -53,8 +53,7 @@ defmodule DemoWeb.Stage2Live do
           <div class="p-4 bg-gray-50 rounded-lg">
             <FlyMapEx.render
               marker_groups={@marker_groups}
-              theme={:responsive}
-            />
+                          />
           </div>
 
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">

@@ -175,7 +175,7 @@ defmodule FlyMapEx.Component do
     selected_groups = determine_initial_selection(normalized_groups, initially_visible)
 
     # Use theme colours - theme can be atom or map
-    map_theme = Theme.map_theme(assigns[:theme] || :light)
+    map_theme = Theme.map_theme(assigns[:theme] || FlyMapEx.Config.default_theme())
 
     # Determine if regions should be shown
     show_regions = if is_nil(assigns[:show_regions]), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
@@ -281,10 +281,12 @@ defmodule FlyMapEx.Component do
   # Private functions moved from FlyMapEx module
 
   defp normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    Enum.map(marker_groups, &normalize_marker_group/1)
+    marker_groups
+    |> Enum.with_index()
+    |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
   end
 
-  defp normalize_marker_group(%{style: style} = group) when not is_nil(style) do
+  defp normalize_marker_group(%{style: style} = group, _index) when not is_nil(style) do
     # Normalize the style and process nodes
     normalized_style = Style.normalize(style)
     group = Map.put(group, :style, normalized_style)
@@ -299,20 +301,18 @@ defmodule FlyMapEx.Component do
     end
   end
 
-  defp normalize_marker_group(group) do
-    # No style specified - use default
-    require Logger
-    Logger.warning("Marker group missing style, using default: #{inspect(group)}")
-
-    default_group = Map.put_new(group, :style, Style.normalize([]))
+  defp normalize_marker_group(group, index) do
+    # No style specified - automatically assign using Style.cycle/1
+    cycled_style = Style.cycle(index)
+    group = Map.put(group, :style, cycled_style)
 
     # Add group_label from label if not already present (for toggle functionality)
-    default_group = add_group_label_if_needed(default_group)
+    group = add_group_label_if_needed(group)
 
-    if Map.has_key?(default_group, :nodes) do
-      Nodes.process_marker_group_legacy(default_group)
+    if Map.has_key?(group, :nodes) do
+      Nodes.process_marker_group_legacy(group)
     else
-      default_group
+      group
     end
   end
 

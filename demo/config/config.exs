@@ -18,10 +18,11 @@ config :fly_map_ex,
   hover_opacity: 0.9,
   animation_opacity_range: {0.4, 1.0},
   marker_base_radius: 3,
+  default_theme: :responsive,
   custom_themes: %{
     corporate: %{
       land: "#f8fafc",
-      ocean: "#e2e8f0", 
+      ocean: "#e2e8f0",
       border: "#475569",
       neutral_marker: "#64748b",
       neutral_text: "#334155"

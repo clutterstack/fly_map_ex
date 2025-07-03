@@ -224,13 +224,13 @@ defmodule FlyMapEx.Theme do
       :responsive -> responsive_map_theme()
       _ ->
         case get_custom_theme(theme_name) do
-          nil -> map_theme(:light)
+          nil -> map_theme(FlyMapEx.Config.default_theme())
           custom_theme -> custom_theme
         end
     end
   end
 
-  def map_theme(_), do: map_theme(:light)
+  def map_theme(_), do: map_theme(FlyMapEx.Config.default_theme())
 
   @doc """
   Create a custom theme map for advanced users.
@@ -274,7 +274,7 @@ defmodule FlyMapEx.Theme do
       }
   """
   def custom_theme(theme_map) when is_map(theme_map) do
-    defaults = map_theme(:light)
+    defaults = map_theme(FlyMapEx.Config.default_theme())
     Map.merge(defaults, theme_map)
   end
 
