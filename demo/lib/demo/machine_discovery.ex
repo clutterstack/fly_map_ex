@@ -302,7 +302,7 @@ defmodule Demo.MachineDiscovery do
   # Define highly distinct styles for different apps
   # Uses bright, visually distinct colors with consistent sizing for maximum clarity
   defp distinct_app_styles do
-    base_radius = FlyMapEx.Config.marker_base_radius()
+    base_radius = FlyMapEx.Config.default_marker_size()
     # standard_size = round(1.3 * base_radius)
 
     [

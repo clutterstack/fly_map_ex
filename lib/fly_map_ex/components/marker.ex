@@ -203,8 +203,6 @@ defmodule FlyMapEx.Components.Marker do
     |> assign(:animation, animation)
     |> assign(:colour, colour)
     |> assign(:glow, glow)
-    |> assign(:glow_size, base_size * FlyMapEx.Config.glow_size_multiplier())
-    |> assign(:glow_opacity, FlyMapEx.Config.glow_opacity())
     |> assign_animation_props(animation)
   end
 

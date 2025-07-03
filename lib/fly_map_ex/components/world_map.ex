@@ -232,8 +232,8 @@ defmodule FlyMapEx.Components.WorldMap do
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
         marker_opacity: FlyMapEx.Config.marker_opacity(),
         hover_opacity: FlyMapEx.Config.hover_opacity(),
-        marker_base_radius: FlyMapEx.Config.marker_base_radius(),
-        region_marker_radius: round(0.5*FlyMapEx.Config.marker_base_radius()),
+        default_marker_size: FlyMapEx.Config.default_marker_size(),
+        region_marker_radius: FlyMapEx.Config.region_marker_radius(),
         show_regions: show_regions
       })
 
@@ -328,7 +328,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- Dynamic marker group markers -->
       <%= for group <- @marker_groups do %>
         <%= for {x, y} <- get_group_coordinates(group, @bbox) do %>
-          <%= render_marker(group, x, y, @marker_base_radius) %>
+          <%= render_marker(group, x, y, @default_marker_size) %>
         <% end %>
       <% end %>
 
@@ -344,6 +344,7 @@ defmodule FlyMapEx.Components.WorldMap do
   attr :region_marker_radius, :integer, default: 2
 
   def fly_region_markers(assigns) do
+    assigns.region_marker_radius
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class={"region-group region-#{region}"} id={"region-#{region}"}>
@@ -367,8 +368,8 @@ defmodule FlyMapEx.Components.WorldMap do
 
   defp collect_radial_gradients(marker_groups) do
     marker_groups
-    |> Enum.filter(fn group -> 
-      Map.get(group.style, :glow, false) 
+    |> Enum.filter(fn group ->
+      Map.get(group.style, :glow, false)
     end)
     |> Enum.map(fn group ->
       colour = Map.get(group.style, :colour, "#6b7280")

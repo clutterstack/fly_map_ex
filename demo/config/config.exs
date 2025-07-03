@@ -17,7 +17,8 @@ config :fly_map_ex,
   marker_opacity: 1.0,
   hover_opacity: 0.9,
   animation_opacity_range: {0.4, 1.0},
-  marker_base_radius: 3,
+  # region_marker_radius: 3,
+  marker_base_radius: 9,
   default_theme: :responsive,
   custom_themes: %{
     corporate: %{

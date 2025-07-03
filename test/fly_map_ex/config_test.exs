@@ -14,8 +14,8 @@ defmodule FlyMapEx.ConfigTest do
       assert Config.hover_opacity() == 1.0
     end
 
-    test "marker_base_radius/0 returns default value" do
-      assert Config.marker_base_radius() == 2
+    test "default_marker_size/0 returns default value" do
+      assert Config.default_marker_size() == 2
     end
 
     test "animation_opacity_range/0 returns default tuple" do

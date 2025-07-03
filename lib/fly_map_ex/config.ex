@@ -47,13 +47,14 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.marker_base_radius()
+      iex> FlyMapEx.Config.region_marker_radius()
       2
 
   """
-  def marker_base_radius do
-    Application.get_env(:fly_map_ex, :marker_base_radius, 2)
+  def region_marker_radius do
+    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5*default_marker_size()))
   end
+
 
   @doc """
   Neutral colour for Fly region markers in light mode.
@@ -166,35 +167,6 @@ defmodule FlyMapEx.Config do
     Application.get_env(:fly_map_ex, :layout_mode, :stacked)
   end
 
-  @doc """
-  Blur radius for glow effects in pixels.
-
-  Controls how spread out the glow effect appears around markers.
-  Default: 2
-  """
-  def glow_blur_radius do
-    Application.get_env(:fly_map_ex, :glow_blur_radius, 2)
-  end
-
-  @doc """
-  Opacity for glow effects.
-
-  Controls how transparent/opaque the glow appears.
-  Default: 0.6
-  """
-  def glow_opacity do
-    Application.get_env(:fly_map_ex, :glow_opacity, 0.6)
-  end
-
-  @doc """
-  Size multiplier for glow effects relative to marker size.
-
-  Determines how much larger the glow is compared to the base marker.
-  Default: 1.5
-  """
-  def glow_size_multiplier do
-    Application.get_env(:fly_map_ex, :glow_size_multiplier, 1.5)
-  end
 
   @doc """
   Size multiplier for legend marker SVG containers relative to marker size.
