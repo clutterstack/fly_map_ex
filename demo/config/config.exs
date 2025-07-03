@@ -17,7 +17,23 @@ config :fly_map_ex,
   marker_opacity: 1.0,
   hover_opacity: 0.9,
   animation_opacity_range: {0.4, 1.0},
-  marker_base_radius: 3
+  marker_base_radius: 3,
+  custom_themes: %{
+    corporate: %{
+      land: "#f8fafc",
+      ocean: "#e2e8f0", 
+      border: "#475569",
+      neutral_marker: "#64748b",
+      neutral_text: "#334155"
+    },
+    sunset: %{
+      land: "#fef3c7",
+      ocean: "#fbbf24",
+      border: "#d97706",
+      neutral_marker: "#b45309",
+      neutral_text: "#92400e"
+    }
+  }
 
 # Configures the endpoint
 config :demo, DemoWeb.Endpoint,

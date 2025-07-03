@@ -23,11 +23,86 @@ defmodule FlyMapEx do
   - `FlyMapEx.render/1` - Complete map with card and legend.
   - `FlyMapEx.Components.WorldMap.render/1` - Just the SVG map
 
-  ## Utilities
+  ## Module Architecture
 
-  - `FlyMapEx.Regions` - Region data and coordinate utilities
-  - `FlyMapEx.Config` - Configuration, themes, and style helpers
-  - `FlyMapEx.Adapters` - Data transformation helpers
+  ### Core Components
+  - `FlyMapEx.render/1` - Main entry point with card layout
+  - `FlyMapEx.Component` - Stateful LiveView component with interactive legend
+  - `FlyMapEx.Components.WorldMap` - SVG world map rendering
+  - `FlyMapEx.Components.LegendComponent` - Interactive legend with group toggling
+
+  ### Supporting Components
+  - `FlyMapEx.Components.Marker` - Reusable marker rendering (map + legend)
+  - `FlyMapEx.Components.GlowFilter` - SVG glow effects for markers
+  - `FlyMapEx.WorldMapPaths` - Static SVG path definitions for world geography
+
+  ### Data and Configuration
+  - `FlyMapEx.Regions` - Fly.io region coordinates and name mapping
+  - `FlyMapEx.Nodes` - Node normalization and processing utilities
+  - `FlyMapEx.Theme` - Predefined colour themes and styling
+  - `FlyMapEx.Style` - Marker style definitions and helpers
+  - `FlyMapEx.Config` - Application-wide configuration settings
+  - `FlyMapEx.Adapters` - Data transformation utilities
+
+  ## Component Relationships
+
+  ```
+  FlyMapEx.render/1 (main entry)
+  ├── FlyMapEx.Theme (theme colours)
+  ├── FlyMapEx.Components.WorldMap
+  │   ├── FlyMapEx.WorldMapPaths (geography)
+  │   ├── FlyMapEx.Components.Marker (markers)
+  │   │   └── FlyMapEx.Components.GlowFilter (effects)
+  │   ├── FlyMapEx.Regions (coordinates)
+  │   └── FlyMapEx.Nodes (data processing)
+  └── FlyMapEx.Components.LegendComponent
+      ├── FlyMapEx.Components.Marker (indicators)
+      └── FlyMapEx.Regions (region info)
+
+  FlyMapEx.Component (stateful alternative)
+  ├── [same as above]
+  └── [includes state management for interactive toggling]
+  ```
+
+  ## Data Flow
+
+  1. **Input Processing**: Raw marker groups → `FlyMapEx.Nodes` → normalized nodes
+  2. **Style Application**: Style definitions → `FlyMapEx.Style` → resolved styles
+  3. **Theme Resolution**: Theme names → `FlyMapEx.Theme` → colour schemes
+  4. **Coordinate Transformation**: Region codes → `FlyMapEx.Regions` → lat/lng → SVG coordinates
+  5. **Rendering**: Processed data → Components → SVG/HTML output
+
+  ## Integration Patterns
+
+  ### Basic Usage (Stateless)
+  ```elixir
+  <FlyMapEx.render
+    marker_groups={@groups}
+    theme={:dark}
+    show_regions={true}
+  />
+  ```
+
+  ### Advanced Usage (Stateful)
+  ```elixir
+  <.live_component
+    module={FlyMapEx.Component}
+    id="interactive-map"
+    marker_groups={@groups}
+    theme={:dashboard}
+    initially_visible={["production"]}
+    on_toggle={true}
+  />
+  ```
+
+  ### Direct Component Usage
+  ```elixir
+  <FlyMapEx.Components.WorldMap.render
+    marker_groups={processed_groups}
+    colours={theme_colours}
+    show_regions={false}
+  />
+  ```
   """
 
   use Phoenix.Component
@@ -43,7 +118,6 @@ defmodule FlyMapEx do
     * `style` - Style definition (keyword list or map) or FlyMapEx.Style builder result
     * `label` - Display label for this group
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool)
-  * `background` - Custom background colors (overrides theme)
   * `class` - Additional CSS classes for the container
   * `show_regions` - Whether to show region markers (default: nil, uses config default)
 
@@ -99,7 +173,6 @@ defmodule FlyMapEx do
   # Legacy attributes for backward compatibility when used as function component
   attr(:marker_groups, :list, default: [])
   attr(:theme, :atom, default: :light)
-  attr(:background, :map, default: nil)
   attr(:class, :string, default: "")
   attr(:initially_visible, :any, default: :all)
   attr(:available_apps, :list, default: [])
@@ -116,7 +189,6 @@ defmodule FlyMapEx do
       id={assigns[:id] || "fly-map-#{System.unique_integer([:positive])}"}
       marker_groups={@marker_groups}
       theme={@theme}
-      background={@background}
       class={@class}
       initially_visible={@initially_visible}
       available_apps={@available_apps}

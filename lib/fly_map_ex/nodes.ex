@@ -2,8 +2,132 @@ defmodule FlyMapEx.Nodes do
   @moduledoc """
   Utilities for working with generic nodes that have coordinates and labels.
 
-  This module provides functions for coordinate transformation, node validation,
-  and backward compatibility with Fly.io region codes.
+  This module provides functions for node normalization, coordinate transformation,
+  and validation. It supports both Fly.io region codes and custom node definitions,
+  ensuring consistent data structures throughout the FlyMapEx system.
+
+  ## Features
+
+  - **Node normalization**: Convert various input formats to standard node structure
+  - **Fly.io integration**: Built-in support for Fly.io region codes
+  - **Custom nodes**: Support for arbitrary geographic locations
+  - **Error handling**: Comprehensive validation with clear error messages
+  - **Backward compatibility**: Legacy functions for existing integrations
+  - **Coordinate validation**: Ensures valid latitude/longitude values
+
+  ## Node Structure
+
+  All nodes are normalized to a consistent structure:
+
+      %{
+        label: "Display Name",           # Human-readable label
+        coordinates: {latitude, longitude}  # WGS84 coordinates
+      }
+
+  ## Input Formats
+
+  The module accepts various input formats and normalizes them:
+
+  ### Fly.io Region Codes
+
+      # Simple region code string
+      "sjc"  # San Jose, California
+      "fra"  # Frankfurt, Germany
+      "lhr"  # London Heathrow, UK
+
+  ### Custom Node Maps
+
+      # Full node specification
+      %{
+        label: "Custom Server",
+        coordinates: {40.7128, -74.0060}  # New York City
+      }
+
+      # Coordinates only (label will be generated)
+      %{
+        coordinates: {51.5074, -0.1278}  # London
+      }
+
+  ## Usage Examples
+
+  ### Processing Marker Groups
+
+      # Process a marker group with mixed node types
+      marker_group = %{
+        label: "Production Servers",
+        nodes: [
+          "sjc",                                    # Fly.io region
+          "fra",                                    # Fly.io region
+          %{label: "Custom", coordinates: {40.0, -74.0}}  # Custom node
+        ]
+      }
+
+      case FlyMapEx.Nodes.process_marker_group(marker_group) do
+        {:ok, processed_group} ->
+          # All nodes normalized successfully
+          render_map(processed_group)
+        
+        {:error, reasons} ->
+          # Handle validation errors
+          handle_errors(reasons)
+      end
+
+  ### Individual Node Processing
+
+      # Process Fly.io region
+      {:ok, node} = FlyMapEx.Nodes.normalize_node("sjc")
+      # => {:ok, %{label: "San Jose", coordinates: {37.3382, -121.8863}}}
+
+      # Process custom node
+      {:ok, node} = FlyMapEx.Nodes.normalize_node(%{
+        label: "Data Center",
+        coordinates: {52.5200, 13.4050}
+      })
+
+  ### Error Handling
+
+      # Invalid region code
+      {:error, :unknown_region} = FlyMapEx.Nodes.normalize_node("invalid")
+
+      # Invalid coordinates
+      {:error, :invalid_coordinates} = FlyMapEx.Nodes.normalize_node(%{
+        coordinates: "not a tuple"
+      })
+
+  ## Coordinate System
+
+  All coordinates use the WGS84 coordinate system:
+  - **Latitude**: -90 to 90 degrees (South to North)
+  - **Longitude**: -180 to 180 degrees (West to East)
+  - **Format**: `{latitude, longitude}` tuple of numbers
+
+  ## Legacy Support
+
+  The module provides legacy functions for backward compatibility:
+  - `process_marker_group_legacy/1`: Uses fallback coordinates for unknown regions
+  - `normalize_node_legacy/1`: Raises exceptions instead of returning error tuples
+
+  These functions are deprecated and should be avoided in new code.
+
+  ## Error Types
+
+  - `:unknown_region`: Fly.io region code not found
+  - `:invalid_coordinates`: Malformed coordinate data
+  - `:invalid_format`: Input doesn't match any expected format
+
+  ## Performance Considerations
+
+  - Node normalization is performed once during marker group processing
+  - Fly.io region lookups are cached for performance
+  - Coordinate validation is minimal overhead
+  - Legacy functions may have higher error handling costs
+
+  ## Integration
+
+  This module is primarily used by:
+  - `FlyMapEx.Component` for marker group processing
+  - `FlyMapEx.Components.WorldMap` for coordinate transformation
+  - Custom components requiring node normalization
   """
 
   alias FlyMapEx.Regions
@@ -25,6 +149,7 @@ defmodule FlyMapEx.Nodes do
 
   def process_marker_group(group), do: {:ok, group}
 
+  @deprecated "Use process_marker_group/1 instead for better error handling"
   @doc """
   Process a single marker group to normalize nodes (backward compatibility).
   
@@ -100,6 +225,7 @@ defmodule FlyMapEx.Nodes do
     {:error, :invalid_format}
   end
 
+  @deprecated "Use normalize_node/1 instead for better error handling"
   @doc """
   Normalize a node to the standard format (backward compatibility).
 

@@ -14,8 +14,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   ## Attributes
 
   * `marker_groups` - List of marker groups to display
-  * `theme` - Theme atom (optional, conflicts with background)
-  * `background` - Background configuration (optional, conflicts with theme)
+  * `theme` - Theme atom (optional)
   * `title` - Title for the map section (optional, alias for map_title)
   * `map_title` - Title for the map section (optional)
   * `code_title` - Title for the code section (optional, default: "Code Example")
@@ -27,7 +26,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   """
   attr :marker_groups, :list, required: true
   attr :theme, :atom, default: nil
-  attr :background, :any, default: nil
+  attr :map_theme, :any, default: nil
   attr :title, :string, default: nil
   attr :map_title, :string, default: nil
   attr :code_title, :string, default: "Code Example"
@@ -89,7 +88,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   def build_map_and_code(config) do
     marker_groups = Map.get(config, :marker_groups) || Map.get(config, "marker_groups")
     theme = Map.get(config, :theme) || Map.get(config, "theme")
-    background = Map.get(config, :background) || Map.get(config, "background")
+    map_theme = Map.get(config, :map_theme) || Map.get(config, "map_theme")
     layout = Map.get(config, :map_layout)
 
     # Build map attributes
@@ -97,26 +96,26 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
     map_attrs =
       cond do
-        background != nil -> Map.put(map_attrs, :background, background)
+        map_theme != nil -> Map.put(map_attrs, :map_theme, map_theme)
         theme != nil -> Map.put(map_attrs, :theme, theme)
         true -> map_attrs
       end
 
     # Generate code string
-    code_string = generate_code_string(marker_groups, theme, background)
+    code_string = generate_code_string(marker_groups, theme, map_theme)
 
     {map_attrs, code_string}
   end
 
-  defp generate_code_string(marker_groups, theme, background) do
+  defp generate_code_string(marker_groups, theme, map_theme) do
     # Generate the marker_groups code representation
     marker_groups_code = format_marker_groups_code(marker_groups)
 
     # Generate the component call
     component_attrs =
       cond do
-        background != nil ->
-          "\n  background={FlyMapEx.Theme.responsive_background()}"
+        map_theme != nil ->
+          "\n  map_theme={FlyMapEx.Theme.responsive_map_theme()}"
 
         theme != nil ->
           "\n  theme={:#{theme}}"

@@ -140,6 +140,7 @@ defmodule FlyMapEx.Regions do
 
   def coordinates(_), do: {:error, :invalid_input}
 
+  @deprecated "Use coordinates/1 instead for better error handling"
   @doc """
   Get coordinates for a region code (backward compatibility).
 
@@ -199,6 +200,7 @@ defmodule FlyMapEx.Regions do
 
   def name(_), do: {:error, :invalid_input}
 
+  @deprecated "Use name/1 instead for better error handling"
   @doc """
   Get human-readable name for a region code (backward compatibility).
 

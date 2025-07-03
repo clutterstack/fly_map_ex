@@ -111,8 +111,8 @@ defmodule DemoWeb.Stage3Live do
         marker_groups={@marker_groups}
         map_layout={:side_by_side}
         theme={if @selected_theme == :responsive, do: nil, else: @selected_theme}
-        background={
-          if @selected_theme == :responsive, do: FlyMapEx.Theme.responsive_background(), else: nil
+        map_theme={
+          if @selected_theme == :responsive, do: FlyMapEx.Theme.responsive_map_theme(), else: nil
         }
         title={"Map Preview: #{@theme_info.name}"}
       />

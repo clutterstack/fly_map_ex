@@ -31,7 +31,7 @@ defmodule DemoWeb.Stage4Live do
     socket =
       socket
       |> assign(:custom_colour, Map.get(params, "colour", socket.assigns.custom_colour))
-      |> assign(:custom_size, 
+      |> assign(:custom_size,
           case Map.get(params, "size") do
             nil -> socket.assigns.custom_size
             size_str -> String.to_integer(size_str)
@@ -210,10 +210,10 @@ defmodule DemoWeb.Stage4Live do
 
       <.map_with_code
         marker_groups={@marker_groups}
-        background={FlyMapEx.Theme.responsive_background()}
+        map_theme{FlyMapEx.Theme.responsive_map_theme()}
         map_title={case @current_demo do
           "color_cycling" -> "Multiple Apps with Color Cycling"
-          "brand_integration" -> "Brand Color Integration"  
+          "brand_integration" -> "Brand Color Integration"
           "animation_showcase" -> "Animation Types Comparison"
           "custom_builder" -> "Interactive Style Builder"
         end}

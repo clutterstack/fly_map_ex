@@ -9,7 +9,13 @@ defmodule FlyMapEx.Config do
   @doc """
   Base opacity for markers in their default state.
 
-  Default: 0.8
+  Default: 1.0
+
+  ## Examples
+
+      iex> FlyMapEx.Config.marker_opacity()
+      1.0
+
   """
   def marker_opacity do
     Application.get_env(:fly_map_ex, :marker_opacity, 1.0)
@@ -38,6 +44,12 @@ defmodule FlyMapEx.Config do
   Base radius for marker circles in pixels.
 
   Default: 2
+
+  ## Examples
+
+      iex> FlyMapEx.Config.marker_base_radius()
+      2
+
   """
   def marker_base_radius do
     Application.get_env(:fly_map_ex, :marker_base_radius, 2)

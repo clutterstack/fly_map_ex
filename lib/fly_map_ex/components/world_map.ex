@@ -2,7 +2,112 @@ defmodule FlyMapEx.Components.WorldMap do
   @moduledoc """
   SVG world map component for displaying Fly.io regions with different marker types.
 
-  Renders an interactive SVG world map with configurable markers, colours, and animations.
+  This component renders an interactive SVG world map with configurable markers, colours,
+  and animations. It handles coordinate transformation from WGS84 geographic coordinates
+  to SVG pixel coordinates and provides a complete mapping solution.
+
+  ## Features
+
+  - **SVG-based rendering**: Scalable vector graphics for crisp display at any size
+  - **Coordinate transformation**: Converts WGS84 coordinates to SVG pixel coordinates
+  - **Interactive markers**: Hover effects and visual feedback for region exploration
+  - **Configurable styling**: Theme-based colour schemes and marker styles
+  - **Glow effects**: Optional glow filters for enhanced visual appeal
+  - **Region labels**: Dynamic text labels that appear on hover
+  - **Responsive design**: Adapts to container size while maintaining aspect ratio
+
+  ## Map Specifications
+
+  - **Viewbox**: 800x391 pixels (cropped from original SVG)
+  - **Coordinate system**: WGS84 to SVG transformation
+  - **Bounding box**: {0, 0, 800, 391} for marker positioning
+  - **Projection**: Simple linear transformation suitable for world overview
+
+  ## Usage
+
+  The WorldMap component is typically used within other components like `FlyMapEx.Component`:
+
+      <WorldMap.render
+        marker_groups={[
+          %{
+            label: "Production",
+            nodes: ["sjc", "fra", "lhr"],
+            style: %{colour: "#3b82f6", size: 8, animation: true}
+          }
+        ]}
+        colours={%{
+          background: "#1f2937",
+          border: "#d1d5db",
+          neutral_marker: "#6b7280"
+        }}
+        show_regions={true}
+      />
+
+  ## Coordinate Transformation
+
+  The component performs coordinate transformation from geographic coordinates
+  (latitude/longitude) to SVG pixel coordinates:
+
+  1. **Input**: WGS84 coordinates (latitude: -90 to 90, longitude: -180 to 180)
+  2. **Transformation**: Linear mapping to SVG coordinate space
+  3. **Output**: Pixel coordinates within the SVG viewbox
+
+  ### Transformation Algorithm
+
+      # Calculate percentage position along each axis
+      x_percent = (longitude - (-180)) / (180 - (-180))
+      y_percent = 1 - (latitude - (-90)) / (90 - (-90))  # Inverted for SVG
+
+      # Convert to pixel positions
+      x = x_percent * svg_width
+      y = y_percent * svg_height
+
+  ## Marker Groups
+
+  The component accepts marker groups with the following structure:
+
+      %{
+        label: "Production Nodes",
+        nodes: ["sjc", "fra", "lhr"],           # Fly.io region codes
+        style: %{
+          colour: "#3b82f6",                    # Marker colour
+          size: 8,                              # Marker radius
+          animation: true,                      # Enable animation
+          glow: true                            # Enable glow effect
+        }
+      }
+
+  ## Styling and Theming
+
+  The component supports comprehensive theming through the `colours` attribute:
+
+      colours = %{
+        background: "#1f2937",                  # Map background
+        border: "#d1d5db",                      # Map border
+        neutral_marker: "#6b7280",              # Region marker colour
+        neutral_text: "#374151"                 # Region text colour
+      }
+
+  ## Interactive Features
+
+  - **Hover effects**: Region markers change appearance on hover
+  - **Text labels**: Region codes appear when hovering over markers
+  - **Responsive styling**: Adapts to light/dark mode preferences
+  - **Pointer events**: Configurable interaction behaviour
+
+  ## Performance Considerations
+
+  - **Efficient rendering**: Only visible markers are rendered
+  - **Optimized filters**: Glow filters are collected and deduplicated
+  - **CSS variables**: Theme colours are cached for performance
+  - **Minimal DOM updates**: Static SVG structure with dynamic markers
+
+  ## Accessibility
+
+  - **Screen reader support**: Proper ARIA labels and semantic markup
+  - **Keyboard navigation**: Interactive elements are focusable
+  - **High contrast**: Respects system colour preferences
+  - **Scalable graphics**: Vector-based for all display densities
   """
 
   use Phoenix.Component
@@ -38,13 +143,66 @@ defmodule FlyMapEx.Components.WorldMap do
   @doc """
   Renders the SVG world map with dynamic marker group markers.
 
+  This function creates a complete SVG world map with the following elements:
+  - World map paths and geographic features
+  - Dynamic marker groups with custom styling
+  - Optional Fly.io region markers
+  - Interactive hover effects and text labels
+  - Glow filters for enhanced visual appeal
+
   ## Attributes
 
-  * `marker_groups` - List of processed marker groups with styles
-  * `colours` - Map of colour overrides (optional)
-  * `group_styles` - Map of group styles configuration (optional)
+  * `marker_groups` - List of processed marker groups with styles and coordinates
+  * `colours` - Map of colour overrides for theming (optional, uses defaults)
   * `id` - HTML id for the SVG element (default: "fly-region-map")
-  * `show_regions` - Whether to show region markers (default: nil, uses config default)
+  * `show_regions` - Whether to show all Fly.io region markers (default: nil, uses config)
+
+  ## Examples
+
+      # Basic world map with marker groups
+      <WorldMap.render
+        marker_groups={[
+          %{
+            label: "Production",
+            nodes: ["sjc", "fra", "lhr"],
+            style: %{colour: "#3b82f6", size: 8, animation: true}
+          }
+        ]}
+      />
+
+      # Themed map with custom colours
+      <WorldMap.render
+        marker_groups={@marker_groups}
+        colours={%{
+          background: "#1f2937",
+          border: "#d1d5db",
+          neutral_marker: "#6b7280"
+        }}
+        show_regions={true}
+        id="custom-map"
+      />
+
+  ## Rendering Process
+
+  1. **Colour merging**: User colours are merged with default colour scheme
+  2. **Glow filter collection**: Unique glow filters are identified and generated
+  3. **Coordinate transformation**: Geographic coordinates are converted to SVG space
+  4. **Marker rendering**: Each marker group is rendered with appropriate styling
+  5. **Interactive elements**: Hover effects and text labels are added
+
+  ## Performance Notes
+
+  - Glow filters are deduplicated to minimize DOM overhead
+  - CSS variables are used for efficient colour management
+  - Only visible markers within the viewbox are rendered
+  - Static SVG elements are cached for optimal performance
+
+  ## Interactive Behaviour
+
+  - Hover over region markers to see region codes
+  - Marker groups respond to mouse events
+  - Text labels appear/disappear based on hover state
+  - Smooth transitions for visual feedback
   """
   attr(:marker_groups, :list, default: [])
   attr(:colours, :map, default: %{})
@@ -280,6 +438,39 @@ defmodule FlyMapEx.Components.WorldMap do
     end
   end
 
+  @doc false
+  # Converts WGS84 geographic coordinates to SVG pixel coordinates.
+  #
+  # This function performs a linear transformation from the WGS84 coordinate system
+  # (latitude: -90 to 90, longitude: -180 to 180) to SVG pixel coordinates within
+  # the specified bounding box.
+  #
+  # ## Parameters
+  #
+  # - `{lat, long}`: WGS84 coordinates (latitude, longitude)
+  # - `{x_min, y_min, x_max, y_max}`: SVG bounding box coordinates
+  #
+  # ## Returns
+  #
+  # `{x, y}` tuple representing pixel coordinates within the SVG viewbox
+  #
+  # ## Algorithm
+  #
+  # The transformation uses a simple linear mapping:
+  # 1. Calculate the percentage position along each axis
+  # 2. Apply the percentage to the SVG dimensions
+  # 3. Invert the Y-axis to match SVG coordinate system
+  #
+  # ## Examples
+  #
+  #     # Equator and Prime Meridian -> center of map
+  #     wgs84_to_svg({0, 0}, {0, 0, 800, 400})
+  #     # => {400.0, 200.0}
+  #
+  #     # North Pole -> top center
+  #     wgs84_to_svg({90, 0}, {0, 0, 800, 400})
+  #     # => {400.0, 0.0}
+  #
   defp wgs84_to_svg({lat, long}, {x_min, y_min, x_max, y_max}) do
     svg_width = x_max - x_min
     svg_height = y_max - y_min
@@ -298,7 +489,31 @@ defmodule FlyMapEx.Components.WorldMap do
     {x, y}
   end
 
-  # Helper function to get the appropriate region marker color
+  @doc """
+  Gets the appropriate region marker colour from the colour scheme.
+
+  This function handles different colour formats including CSS variables
+  and provides fallback colours for robust theming support.
+
+  ## Parameters
+
+  - `colours`: Map containing colour scheme configuration
+
+  ## Returns
+
+  String representing the CSS colour value
+
+  ## Examples
+
+      # Standard hex colour
+      get_region_marker_color(%{neutral_marker: "#6b7280"})
+      # => "#6b7280"
+
+      # CSS variable with fallback
+      get_region_marker_color(%{neutral_marker: "oklch(0.5 0.1 180)"})
+      # => "var(--color-base-content, #6b7280)"
+
+  """
   def get_region_marker_color(colours) do
     case Map.get(colours, :neutral_marker) do
       "oklch" <> _ ->

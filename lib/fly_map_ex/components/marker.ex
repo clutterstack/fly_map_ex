@@ -2,7 +2,99 @@ defmodule FlyMapEx.Components.Marker do
   @moduledoc """
   Reusable marker component for rendering consistent markers in both maps and legends.
 
-  Supports all animation types with proper SVG animations.
+  This component provides a unified interface for rendering markers with various styles,
+  animations, and effects. It supports both SVG map markers and legend indicators,
+  ensuring visual consistency across the entire FlyMapEx interface.
+
+  ## Features
+
+  - **Dual rendering modes**: SVG markers for maps and scaled indicators for legends
+  - **Animation support**: Pulse, fade, and static marker types
+  - **Glow effects**: Optional glow filters for enhanced visual appeal
+  - **Consistent styling**: Shared styling logic between map and legend markers
+  - **Configurable sizing**: Responsive sizing based on context and overrides
+  - **Performance optimization**: Efficient SVG animations and filter reuse
+
+  ## Rendering Modes
+
+  ### SVG Mode (`:svg`)
+  Used for markers positioned on the world map. Markers are rendered as SVG
+  circles with precise coordinate positioning.
+
+  ### Legend Mode (`:legend`)
+  Used for legend indicators. Markers are rendered in a contained SVG with
+  standardized sizing and centered positioning.
+
+  ## Animation Types
+
+  ### Static Markers (`:none`)
+  Simple circular markers without animation, ideal for stable reference points.
+
+  ### Pulse Animation (`:pulse`)
+  Markers that pulse by changing radius, drawing attention to important locations.
+
+  ### Fade Animation (`:fade`)
+  Markers that fade in and out by changing opacity, suitable for dynamic content.
+
+  ## Style Configuration
+
+  Markers accept a style map with the following options:
+
+      %{
+        colour: "#3b82f6",        # Hex colour for the marker
+        size: 8,                  # Base radius in pixels
+        animation: :pulse,        # Animation type (:none, :pulse, :fade)
+        glow: true               # Enable glow effect
+      }
+
+  ## Usage Examples
+
+  ### Basic Map Marker
+
+      <Marker.marker
+        style={%{colour: "#3b82f6", size: 8, animation: :pulse}}
+        mode={:svg}
+        x={100}
+        y={200}
+      />
+
+  ### Legend Indicator
+
+      <Marker.marker
+        style={%{colour: "#ef4444", size: 6, animation: :fade}}
+        mode={:legend}
+        size_override={4}
+      />
+
+  ### Glow Effect Marker
+
+      <Marker.marker
+        style={%{colour: "#10b981", size: 10, animation: :pulse, glow: true}}
+        mode={:svg}
+        x={300}
+        y={150}
+      />
+
+  ## Performance Considerations
+
+  - **Filter reuse**: Glow filters are generated with unique IDs to prevent conflicts
+  - **Animation optimization**: SVG animations are hardware-accelerated when possible
+  - **Conditional rendering**: Glow effects are only rendered when enabled
+  - **Efficient sizing**: Legend markers use optimized viewBox calculations
+
+  ## Accessibility
+
+  - **Screen reader support**: Markers can be enhanced with ARIA labels
+  - **High contrast**: Colour choices respect system preferences
+  - **Reduced motion**: Animations can be disabled based on user preferences
+  - **Scalable graphics**: Vector-based rendering for all display densities
+
+  ## Integration
+
+  The Marker component is designed to be used by:
+  - `FlyMapEx.Components.WorldMap` for map markers
+  - `FlyMapEx.Components.LegendComponent` for legend indicators
+  - Custom components requiring consistent marker styling
   """
 
   use Phoenix.Component
@@ -12,14 +104,72 @@ defmodule FlyMapEx.Components.Marker do
   @doc """
   Renders a marker with the given style and position.
 
+  This function creates a marker component that adapts its rendering based on the
+  specified mode. It handles all styling, animation, and positioning logic to
+  provide consistent marker appearance across different contexts.
+
   ## Attributes
 
-  * `style` - Map containing marker styling (colour, size, animation, glow, etc.)
-  * `mode` - :svg for map markers, :legend for legend indicators
-  * `x` - X coordinate (for SVG positioning, ignored in legend mode)
-  * `y` - Y coordinate (for SVG positioning, ignored in legend mode)
-  * `size_override` - Optional size override for legend mode
-  * `fill_override` - Optional fill override
+  * `style` - Map containing marker styling configuration
+    * `:colour` - Hex colour string for the marker (e.g., "#3b82f6")
+    * `:size` - Base radius in pixels (defaults to config value)
+    * `:animation` - Animation type (`:none`, `:pulse`, `:fade`)
+    * `:glow` - Boolean to enable glow effect (default: false)
+  * `mode` - Rendering mode (`:svg` for map markers, `:legend` for legend indicators)
+  * `x` - X coordinate for SVG positioning (ignored in legend mode)
+  * `y` - Y coordinate for SVG positioning (ignored in legend mode)
+  * `size_override` - Optional size override, particularly useful for legend mode
+  * `fill_override` - Optional colour override for the marker fill
+  * `dim` - Dimension parameter for internal calculations (default: 0.0)
+
+  ## Examples
+
+      # Map marker with pulse animation
+      <Marker.marker
+        style={%{colour: "#3b82f6", size: 8, animation: :pulse}}
+        mode={:svg}
+        x={120.5}
+        y={85.0}
+      />
+
+      # Legend indicator with custom size
+      <Marker.marker
+        style={%{colour: "#ef4444", size: 6, animation: :fade}}
+        mode={:legend}
+        size_override={4}
+      />
+
+      # Glowing marker with static animation
+      <Marker.marker
+        style={%{colour: "#10b981", size: 10, animation: :none, glow: true}}
+        mode={:svg}
+        x={200.0}
+        y={150.0}
+      />
+
+  ## Rendering Behaviour
+
+  ### SVG Mode
+  - Renders markers as positioned SVG circles
+  - Coordinates are used directly for positioning
+  - Suitable for placement on maps and charts
+
+  ### Legend Mode
+  - Renders markers in a contained SVG viewBox
+  - Ignores x/y coordinates, centers marker automatically
+  - Optimized sizing for legend display
+
+  ## Animation Details
+
+  - **Pulse**: Radius changes cyclically to draw attention
+  - **Fade**: Opacity changes to create subtle movement
+  - **Static**: No animation, solid appearance
+
+  ## Performance Notes
+
+  - Glow filters are generated with unique IDs to prevent conflicts
+  - Animation attributes are only added when needed
+  - SVG animations are hardware-accelerated when possible
   """
   attr(:style, :map, required: true)
   attr(:mode, :atom, default: :svg)

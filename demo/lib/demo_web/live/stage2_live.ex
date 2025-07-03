@@ -53,7 +53,7 @@ defmodule DemoWeb.Stage2Live do
           <div class="p-4 bg-gray-50 rounded-lg">
             <FlyMapEx.render
               marker_groups={@marker_groups}
-              background={FlyMapEx.Theme.responsive_background()}
+              map_theme{FlyMapEx.Theme.responsive_map_theme()}
             />
           </div>
 
@@ -71,7 +71,7 @@ defmodule DemoWeb.Stage2Live do
         <!-- Code and Info Display -->
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-gray-700">Code Example</h2>
-          <% {_map_attrs, code_string} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{marker_groups: @marker_groups, background: FlyMapEx.Theme.responsive_background()}) %>
+          <% {_map_attrs, code_string} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{marker_groups: @marker_groups, map_theme: FlyMapEx.Theme.responsive_map_theme()}) %>
           <div class="bg-gray-50 rounded-lg p-4">
             <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= code_string %></code></pre>
           </div>

@@ -76,7 +76,7 @@ end
     style: FlyMapEx.Style.custom("#00ff00", size: 10, animation: :pulse),
     label: "Global Infrastructure"
   }]}
-  background={%{land: "#1f2937", ocean: "#111827"}}
+  map_theme{%{land: "#1f2937", ocean: "#111827"}}
   class="my-custom-map"
 />
 ```
@@ -118,7 +118,7 @@ Just the SVG map component without card wrapper.
 FlyMapEx includes predefined background themes:
 - `:light` - Light background with dark borders
 - `:dark` - Dark background with subtle borders
-- `:minimal` - Clean white background
+- `:transparent` - Transparent background with neutral borders
 - `:cool` - Cool blue tones
 - `:warm` - Warm earth tones
 - `:high_contrast` - Maximum contrast for accessibility
@@ -210,7 +210,6 @@ style: %{color: "#ef4444", animation: :pulse}
 
 - `color` - Hex color string or CSS variable (required)
 - `size` - Base marker size in pixels (default: 6)
-- `animated` - Boolean for animation (default: false)
 - `animation` - Animation type: `:pulse`, `:fade` (default: `:none`)
 - `gradient` - Boolean for gradient fill (default: false)
 
@@ -239,7 +238,7 @@ Configuration utilities:
 Background theme utilities:
 
 - `get/1` - Get theme configuration by name
-- `responsive_background/0` - CSS custom properties for DaisyUI
+- `responsive_map_theme/0` - CSS custom properties for DaisyUI
 
 ### FlyMapEx.Adapters
 

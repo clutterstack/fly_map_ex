@@ -1,6 +1,58 @@
 defmodule FlyMapEx.Components.LegendComponent do
   @moduledoc """
-  The legend to go with the WorldMap.
+  Interactive legend component for the FlyMapEx world map.
+
+  The LegendComponent provides a visual legend that displays marker groups with their
+  corresponding colours, labels, and region information. It supports interactive
+  functionality to toggle marker group visibility on the map.
+
+  ## Features
+
+  - **Interactive toggling**: Click on legend entries to show/hide marker groups
+  - **Region information**: Displays active regions and total machine counts
+  - **Visual feedback**: Highlights selected groups with primary colour styling
+  - **Responsive design**: Adapts to different screen sizes with hover effects
+  - **Fly.io regions**: Optional display of all available Fly.io regions
+
+  ## Usage
+
+  The legend component is typically used alongside `FlyMapEx.Components.WorldMap`
+  to provide an interactive control panel for map visualization.
+
+      <.legend
+        marker_groups={@marker_groups}
+        selected_groups={@selected_groups}
+        region_marker_colour="#94a3b8"
+        marker_opacity={0.6}
+        show_regions={true}
+        target={@myself}
+      />
+
+  ## Data Structure
+
+  The `marker_groups` attribute expects a list of maps with the following structure:
+
+      %{
+        label: "Production Nodes",
+        group_label: "production",
+        nodes: ["sjc", "fra", "lhr"],
+        style: %{colour: "#3b82f6", size: 8, animation: true},
+        machine_count: 15  # Optional, defaults to length of nodes
+      }
+
+  ## Interactive Behaviour
+
+  When a user clicks on a legend entry:
+  1. A `"toggle_marker_group"` event is sent to the specified target
+  2. The `phx-value-group-label` contains the group identifier
+  3. The parent component should handle this event to update `selected_groups`
+  4. Visual feedback is provided through colour changes and checkmarks
+
+  ## Styling
+
+  The component uses Tailwind CSS classes and adapts to the current theme.
+  Selected groups are highlighted with primary colours, while inactive
+  groups maintain subtle hover effects.
   """
 
   use Phoenix.Component
@@ -10,13 +62,73 @@ defmodule FlyMapEx.Components.LegendComponent do
   alias FlyMapEx.Regions
   alias FlyMapEx.Components.Marker
 
-  attr(:marker_groups, :list, required: true)
-  attr(:selected_groups, :list, default: [])
-  attr(:region_marker_colour, :string, required: true)
-  attr(:marker_opacity, :float, required: true)
-  attr(:show_regions, :boolean, required: true)
-  attr(:target, :any, default: nil)
+  attr(:marker_groups, :list, required: true,
+    doc: "List of marker groups to display in the legend. Each group should contain :label, :nodes, :style, and optionally :group_label and :machine_count.")
+  attr(:selected_groups, :list, default: [],
+    doc: "List of currently selected group labels. These groups will be highlighted in the legend.")
+  attr(:region_marker_colour, :string, required: true,
+    doc: "Hex colour code for the Fly.io regions marker (e.g., '#94a3b8').")
+  attr(:marker_opacity, :float, required: true,
+    doc: "Opacity value for region markers, between 0.0 and 1.0.")
+  attr(:show_regions, :boolean, required: true,
+    doc: "Whether to show the 'All Fly.io Regions' entry in the legend.")
+  attr(:target, :any, default: nil,
+    doc: "Phoenix LiveView target for handling toggle events. Usually set to @myself in a LiveComponent.")
 
+  @doc """
+  Renders the interactive legend component.
+
+  This function creates a legend that displays marker groups with their visual
+  representation, labels, and region information. Users can click on legend
+  entries to toggle the visibility of marker groups on the map.
+
+  ## Examples
+
+      # Basic legend with marker groups
+      <.legend
+        marker_groups={[
+          %{
+            label: "Production",
+            group_label: "prod",
+            nodes: ["sjc", "fra"],
+            style: %{colour: "#3b82f6", size: 8, animation: true}
+          }
+        ]}
+        selected_groups={["prod"]}
+        region_marker_colour="#94a3b8"
+        marker_opacity={0.6}
+        show_regions={true}
+        target={@myself}
+      />
+
+      # Legend without region markers
+      <.legend
+        marker_groups={@marker_groups}
+        selected_groups={@selected_groups}
+        region_marker_colour="#94a3b8"
+        marker_opacity={0.6}
+        show_regions={false}
+        target={@myself}
+      />
+
+  ## Interactive Events
+
+  The legend sends `"toggle_marker_group"` events when users click on entries.
+  Handle these events in your LiveView or LiveComponent:
+
+      def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
+        selected_groups = toggle_group_selection(socket.assigns.selected_groups, group_label)
+        {:noreply, assign(socket, :selected_groups, selected_groups)}
+      end
+
+  ## Styling
+
+  The component automatically adapts to the current theme and provides:
+  - Hover effects on legend entries
+  - Primary colour highlighting for selected groups
+  - Checkmark icons for active selections
+  - Responsive spacing and typography
+  """
   def legend(%{marker_groups: marker_groups} = assigns) do
     assigns = assign(assigns, :all_legend_entries, marker_groups)
 
@@ -91,6 +203,10 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   # Helper functions
 
+  @doc false
+  # Formats a list of nodes for display in the legend.
+  # Converts node structures to human-readable names and joins them with commas.
+  # Returns the empty_message if no displayable nodes are found.
   defp format_nodes_display(nodes, empty_message) do
     # Convert nodes to display names
     display_names =
@@ -120,6 +236,9 @@ defmodule FlyMapEx.Components.LegendComponent do
     end
   end
 
+  @doc false
+  # Calculates the total number of unique active regions across all marker groups.
+  # Used to display the "X/Y active regions" counter in the legend header.
   defp total_active_regions(marker_groups) do
     marker_groups
     |> Enum.flat_map(fn group -> group.nodes end)
@@ -127,11 +246,17 @@ defmodule FlyMapEx.Components.LegendComponent do
     |> length()
   end
 
+  @doc false
+  # Returns the total number of available Fly.io regions.
+  # Used to display the "X/Y active regions" counter in the legend header.
   defp total_available_regions() do
     Regions.all()
     |> map_size()
   end
 
+  @doc false
+  # Calculates the total machine count across all marker groups.
+  # Uses the explicit machine_count if provided, otherwise falls back to the number of nodes.
   defp total_machine_count(marker_groups) do
     marker_groups
     |> Enum.map(fn group ->
