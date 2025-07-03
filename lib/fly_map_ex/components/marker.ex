@@ -40,7 +40,7 @@ defmodule FlyMapEx.Components.Marker do
 
   defp assign_marker_props(assigns) do
     style = assigns.style
-    base_size = assigns.size_override || Map.get(style, :size, 6)
+    base_size = assigns.size_override || Map.get(style, :size, FlyMapEx.Config.default_marker_size())
     animation = Map.get(style, :animation, :none)
     colour = assigns.fill_override || Map.get(style, :colour, "#6b7280")
     glow = Map.get(style, :glow, false)

@@ -84,7 +84,7 @@ defmodule FlyMapEx.Style do
   """
   def cycle(index, opts \\ []) when is_integer(index) do
     colour = Enum.at(@cycle_colours, rem(index, length(@cycle_colours)))
-    result = custom(colour, Keyword.merge([size: 4], opts))
+    result = custom(colour, Keyword.merge([size: FlyMapEx.Config.default_marker_size()], opts))
     Map.put(result, :__source__, {:cycle, [index], opts})
   end
 
@@ -106,7 +106,7 @@ defmodule FlyMapEx.Style do
   def custom(colour, opts \\ []) do
     %{
       colour: colour,
-      size: Keyword.get(opts, :size, 4),
+      size: Keyword.get(opts, :size, FlyMapEx.Config.default_marker_size()),
       animation: Keyword.get(opts, :animation, :none),
       glow: Keyword.get(opts, :glow, false),
       __source__: {:custom, [colour], opts}

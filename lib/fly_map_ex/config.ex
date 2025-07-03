@@ -194,4 +194,15 @@ defmodule FlyMapEx.Config do
   def legend_container_multiplier do
     Application.get_env(:fly_map_ex, :legend_container_multiplier, 2.0)
   end
+
+  @doc """
+  Default marker size in pixels when no size is specified in style.
+
+  This is used as the fallback size for markers when neither size_override
+  nor style.size is provided.
+  Default: 6
+  """
+  def default_marker_size do
+    Application.get_env(:fly_map_ex, :default_marker_size, 6)
+  end
 end
