@@ -47,7 +47,6 @@ defmodule DemoWeb.Stage4Live do
     marker_groups =
       case socket.assigns.current_demo do
         "color_cycling" -> color_cycling_groups()
-        "brand_integration" -> brand_integration_groups()
         "animation_showcase" -> animation_showcase_groups()
         "custom_builder" -> custom_builder_groups(socket.assigns)
         _ -> color_cycling_groups()
@@ -66,31 +65,6 @@ defmodule DemoWeb.Stage4Live do
       %{nodes: ["nrt"], style: FlyMapEx.Style.cycle(5), label: "Analytics Engine"},
       %{nodes: ["syd"], style: FlyMapEx.Style.cycle(6), label: "File Storage"},
       %{nodes: ["sin"], style: FlyMapEx.Style.cycle(7), label: "Message Queue"}
-    ]
-  end
-
-  defp brand_integration_groups do
-    [
-      %{
-        nodes: ["sjc", "fra"],
-        style: FlyMapEx.Style.custom("var(--primary)", size: 10, animation: :pulse),
-        label: "Primary Brand Colour"
-      },
-      %{
-        nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.custom("var(--accent)", size: 8, glow: true),
-        label: "Accent with Glow"
-      },
-      %{
-        nodes: ["ord"],
-        style: FlyMapEx.Style.custom("#1f2937", size: 12, animation: :pulse),
-        label: "Custom Corporate Gray"
-      },
-      %{
-        nodes: ["nrt", "syd"],
-        style: FlyMapEx.Style.custom("#059669", size: 6, glow: true),
-        label: "Brand Green"
-      }
     ]
   end
 
@@ -158,7 +132,7 @@ defmodule DemoWeb.Stage4Live do
           <Layouts.theme_toggle />
         </div>
         <p class="text-gray-600 mb-6">
-          Advanced styling capabilities: color cycling, brand integration, animations, and custom style building.
+          Advanced styling capabilities: color cycling, animations, and custom style building.
         </p>
       </div>
 
@@ -174,16 +148,6 @@ defmodule DemoWeb.Stage4Live do
             phx-value-demo="color_cycling"
           >
             Color Cycling
-          </button>
-          <button
-            class={[
-              "btn",
-              if(@current_demo == "brand_integration", do: "btn-primary", else: "btn-outline")
-            ]}
-            phx-click="demo_change"
-            phx-value-demo="brand_integration"
-          >
-            Brand Integration
           </button>
           <button
             class={[
@@ -213,7 +177,6 @@ defmodule DemoWeb.Stage4Live do
         theme={:responsive}
         map_title={case @current_demo do
           "color_cycling" -> "Multiple Apps with Color Cycling"
-          "brand_integration" -> "Brand Color Integration"
           "animation_showcase" -> "Animation Types Comparison"
           "custom_builder" -> "Interactive Style Builder"
         end}
@@ -248,7 +211,7 @@ defmodule DemoWeb.Stage4Live do
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
                     <select name="size" class="select select-bordered w-full">
-                      <%= for size <- [4, 6, 8, 10, 12, 16, 20] do %>
+                      <%= for size <- [2, 4, 6, 8, 10, 12, 16, 20] do %>
                         <option value={size} selected={@custom_size == size}>{size}px</option>
                       <% end %>
                     </select>
@@ -268,19 +231,6 @@ defmodule DemoWeb.Stage4Live do
                     </select>
                   </div>
                 </div>
-
-                <div class="space-y-2">
-                  <label class="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name="glow"
-                      value="true"
-                      checked={@custom_glow}
-                      class="checkbox"
-                    />
-                    <span class="text-sm text-gray-700">Glow</span>
-                  </label>
-            </div>
               </form>
             </div>
           <% end %>
@@ -296,17 +246,6 @@ defmodule DemoWeb.Stage4Live do
                   <li>• 12 distinct colours available in the cycle</li>
                   <li>• Each group maintains consistent colour when toggled</li>
                   <li>• No need to manually pick colours for each group</li>
-                </ul>
-              </div>
-            <% "brand_integration" -> %>
-              <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h3 class="font-semibold text-purple-800 mb-2">Brand Integration</h3>
-                <ul class="text-purple-700 text-sm space-y-1">
-                  <li>• <strong>CSS Variables:</strong> Use "var(--primary)" for theme adaptation</li>
-                  <li>• <strong>Custom Hex:</strong> Corporate colours like "#1f2937"</li>
-                  <li>• <strong>Glow Effects:</strong> Add depth with glowing halos</li>
-                  <li>• <strong>Size Variations:</strong> Create visual hierarchy</li>
-                  <li>• <strong>Theme Responsive:</strong> Colours adapt to light/dark themes</li>
                 </ul>
               </div>
             <% "animation_showcase" -> %>
