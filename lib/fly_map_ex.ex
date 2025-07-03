@@ -117,7 +117,7 @@ defmodule FlyMapEx do
     * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
     * `style` - Style definition (keyword list or map) or FlyMapEx.Style builder result
     * `label` - Display label for this group
-  * `theme` - Background theme name (e.g., :dark, :minimal, :cool)
+  * `theme` - Background theme name (e.g., :dark, :minimal, :cool) or custom theme map
   * `class` - Additional CSS classes for the container
   * `show_regions` - Whether to show region markers (default: nil, uses config default)
 
@@ -172,7 +172,7 @@ defmodule FlyMapEx do
   """
   # Legacy attributes for backward compatibility when used as function component
   attr(:marker_groups, :list, default: [])
-  attr(:theme, :atom, default: :light)
+  attr(:theme, :any, default: :light)
   attr(:class, :string, default: "")
   attr(:initially_visible, :any, default: :all)
   attr(:available_apps, :list, default: [])

@@ -94,7 +94,7 @@ defmodule DemoWeb.Stage1Live do
 
       <.map_with_code
         marker_groups={current_marker_groups(assigns)}
-        map_theme{FlyMapEx.Theme.responsive_map_theme()}
+        theme={:responsive}
         map_title="Interactive Map Demo"
       >
         <:extra_content>

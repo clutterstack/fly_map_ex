@@ -55,7 +55,7 @@ defmodule FlyMapEx.Component do
   ## Attributes
 
   - `marker_groups` (required): List of marker groups to display
-  - `theme`: Theme preset (`:light`, `:dark`, `:dashboard`, etc.)
+  - `theme`: Theme preset (`:light`, `:dark`, `:dashboard`, etc.) or custom theme map
   - `layout`: Layout mode (`:stacked` or `:side_by_side`)
   - `initially_visible`: Which groups to show initially (`:all`, `:none`, or list of labels)
   - `show_regions`: Whether to show all Fly.io regions
@@ -159,7 +159,7 @@ defmodule FlyMapEx.Component do
 
   - `marker_groups`: Normalized and processed for rendering
   - `initially_visible`: Determines which groups are visible on load
-  - `theme`: Applied to create map theme configuration
+  - `theme`: Applied to create map theme configuration (atom or map)
   - `show_regions`: Controls Fly.io region visibility
   - `layout`: Sets the component layout mode
   - `on_toggle`: Configures event callback behaviour
@@ -174,7 +174,7 @@ defmodule FlyMapEx.Component do
     # Determine initial selected groups based on initially_visible
     selected_groups = determine_initial_selection(normalized_groups, initially_visible)
 
-    # Use theme colours
+    # Use theme colours - theme can be atom or map
     map_theme = Theme.map_theme(assigns[:theme] || :light)
 
     # Determine if regions should be shown

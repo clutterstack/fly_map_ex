@@ -132,7 +132,7 @@ defmodule FlyMapEx.Theme do
   """
 
   @doc """
-  Get a map colour scheme by name.
+  Get a map colour scheme by name or return a custom theme map.
 
   ## Available Themes
 
@@ -141,6 +141,7 @@ defmodule FlyMapEx.Theme do
   * `:cool` - Cool blue tones
   * `:warm` - Warm earth tones
   * `:high_contrast` - Maximum contrast for accessibility
+  * `:responsive` - CSS variable-based theme for automatic light/dark adaptation
 
   ## Examples
 
@@ -149,7 +150,15 @@ defmodule FlyMapEx.Theme do
 
       iex> FlyMapEx.Theme.map_theme(:light)
       %{land: "#888888", ocean: "#aaaaaa", border: "#0f172a", neutral_marker: "#6b7280", neutral_text: "#374151"}
+
+      iex> FlyMapEx.Theme.map_theme(%{land: "#custom", ocean: "#custom"})
+      %{land: "#custom", ocean: "#custom"}
+
+      iex> FlyMapEx.Theme.map_theme(:responsive)
+      %{land: "oklch(var(--color-base-100) / 1)", ocean: "oklch(var(--color-base-200) / 1)", border: "oklch(var(--color-base-300) / 1)", neutral_marker: "oklch(var(--color-base-content) / 0.6)", neutral_text: "oklch(var(--color-base-content) / 0.8)"}
   """
+  def map_theme(theme) when is_map(theme), do: theme
+
   def map_theme(:light) do
     %{
       land: "#888888",
@@ -211,13 +220,63 @@ defmodule FlyMapEx.Theme do
   end
 
   def map_theme(theme_name) when is_atom(theme_name) do
-    case get_custom_theme(theme_name) do
-      nil -> map_theme(:light)
-      custom_theme -> custom_theme
+    case theme_name do
+      :responsive -> responsive_map_theme()
+      _ ->
+        case get_custom_theme(theme_name) do
+          nil -> map_theme(:light)
+          custom_theme -> custom_theme
+        end
     end
   end
 
   def map_theme(_), do: map_theme(:light)
+
+  @doc """
+  Create a custom theme map for advanced users.
+
+  This function validates that the theme map contains all required keys
+  and provides sensible defaults for missing values.
+
+  ## Required Keys
+
+  * `:land` - Background colour for land masses
+  * `:ocean` - Background colour for water bodies
+  * `:border` - Colour for country borders
+  * `:neutral_marker` - Default colour for region markers
+  * `:neutral_text` - Colour for text labels
+
+  ## Examples
+
+      iex> FlyMapEx.Theme.custom_theme(%{
+      ...>   land: "#f8fafc",
+      ...>   ocean: "#e2e8f0",
+      ...>   border: "#475569",
+      ...>   neutral_marker: "#64748b",
+      ...>   neutral_text: "#334155"
+      ...> })
+      %{
+        land: "#f8fafc",
+        ocean: "#e2e8f0",
+        border: "#475569",
+        neutral_marker: "#64748b",
+        neutral_text: "#334155"
+      }
+
+      # Partial theme with defaults
+      iex> FlyMapEx.Theme.custom_theme(%{land: "#custom"})
+      %{
+        land: "#custom",
+        ocean: "#aaaaaa",
+        border: "#0f172a",
+        neutral_marker: "#6b7280",
+        neutral_text: "#374151"
+      }
+  """
+  def custom_theme(theme_map) when is_map(theme_map) do
+    defaults = map_theme(:light)
+    Map.merge(defaults, theme_map)
+  end
 
   @doc """
   Get a custom theme from application configuration.

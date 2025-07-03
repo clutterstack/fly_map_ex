@@ -25,8 +25,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   * `extra_content` - Optional slot for additional content in code section
   """
   attr :marker_groups, :list, required: true
-  attr :theme, :atom, default: nil
-  attr :map_theme, :any, default: nil
+  attr :theme, :any, default: nil
   attr :title, :string, default: nil
   attr :map_title, :string, default: nil
   attr :code_title, :string, default: "Code Example"
@@ -88,40 +87,35 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   def build_map_and_code(config) do
     marker_groups = Map.get(config, :marker_groups) || Map.get(config, "marker_groups")
     theme = Map.get(config, :theme) || Map.get(config, "theme")
-    map_theme = Map.get(config, :map_theme) || Map.get(config, "map_theme")
     layout = Map.get(config, :map_layout)
 
     # Build map attributes
     map_attrs = %{marker_groups: marker_groups, layout: layout}
 
     map_attrs =
-      cond do
-        map_theme != nil -> Map.put(map_attrs, :map_theme, map_theme)
-        theme != nil -> Map.put(map_attrs, :theme, theme)
-        true -> map_attrs
+      if theme != nil do
+        Map.put(map_attrs, :theme, theme)
+      else
+        map_attrs
       end
 
     # Generate code string
-    code_string = generate_code_string(marker_groups, theme, map_theme)
+    code_string = generate_code_string(marker_groups, theme)
 
     {map_attrs, code_string}
   end
 
-  defp generate_code_string(marker_groups, theme, map_theme) do
+  defp generate_code_string(marker_groups, theme) do
     # Generate the marker_groups code representation
     marker_groups_code = format_marker_groups_code(marker_groups)
 
     # Generate the component call
     component_attrs =
-      cond do
-        map_theme != nil ->
-          "\n  map_theme={FlyMapEx.Theme.responsive_map_theme()}"
-
-        theme != nil ->
-          "\n  theme={:#{theme}}"
-
-        true ->
-          ""
+      if theme != nil do
+        theme_str = if is_atom(theme), do: ":#{theme}", else: "FlyMapEx.Theme.custom_theme(#{inspect(theme)})"
+        "\n  theme={#{theme_str}}"
+      else
+        ""
       end
 
     marker_groups_code <>

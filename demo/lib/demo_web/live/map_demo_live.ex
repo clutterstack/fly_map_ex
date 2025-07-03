@@ -206,7 +206,7 @@ defmodule DemoWeb.MapDemoLive do
     """
     <FlyMapEx.render
       marker_groups={#{marker_groups_code}}
-      map_theme{FlyMapEx.Theme.responsive_map_theme()}
+      theme={:responsive}
       class="my-map"
     />
     """
@@ -276,7 +276,7 @@ defmodule DemoWeb.MapDemoLive do
             <%= if @marker_groups != [] do %>
               <FlyMapEx.render
                 marker_groups={@marker_groups}
-                map_theme{FlyMapEx.Theme.responsive_map_theme()}
+                theme={:responsive}
                 class="demo-map"
               />
             <% else %>

@@ -110,10 +110,7 @@ defmodule DemoWeb.Stage3Live do
       <MapWithCodeComponent.map_with_code
         marker_groups={@marker_groups}
         map_layout={:side_by_side}
-        theme={if @selected_theme == :responsive, do: nil, else: @selected_theme}
-        map_theme={
-          if @selected_theme == :responsive, do: FlyMapEx.Theme.responsive_map_theme(), else: nil
-        }
+        theme={@selected_theme}
         title={"Map Preview: #{@theme_info.name}"}
       />
 

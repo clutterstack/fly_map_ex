@@ -209,7 +209,7 @@ defmodule DemoWeb.MachineMapLive do
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.render
           marker_groups={@marker_groups}
-          map_theme{FlyMapEx.Theme.responsive_map_theme()}
+          theme={:responsive}
           class="machine-map"
           show_regions={false}
           layout={:side_by_side}

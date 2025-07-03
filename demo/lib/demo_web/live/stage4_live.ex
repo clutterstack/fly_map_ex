@@ -210,7 +210,7 @@ defmodule DemoWeb.Stage4Live do
 
       <.map_with_code
         marker_groups={@marker_groups}
-        map_theme{FlyMapEx.Theme.responsive_map_theme()}
+        theme={:responsive}
         map_title={case @current_demo do
           "color_cycling" -> "Multiple Apps with Color Cycling"
           "brand_integration" -> "Brand Color Integration"
