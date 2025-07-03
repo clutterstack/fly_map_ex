@@ -52,7 +52,7 @@ defmodule FlyMapEx.Config do
 
   """
   def region_marker_radius do
-    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5*default_marker_size()))
+    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5*default_marker_radius()))
   end
 
 
@@ -136,13 +136,13 @@ defmodule FlyMapEx.Config do
   Generates pulse animation values for radius based on context and base size.
 
   ## Parameters
-  - base_size: base radius size
+  - marker_radius: base radius size
 
   Returns: string of animation values for SVG animate element
   """
-  def pulse_radius_values(context, base_size) do
-        max_size = base_size + svg_pulse_size_delta()
-        "#{base_size};#{max_size};#{base_size}"
+  def pulse_radius_values(context, marker_radius) do
+        max_size = marker_radius + svg_pulse_size_delta()
+        "#{marker_radius};#{max_size};#{marker_radius}"
   end
 
   @doc """
@@ -182,12 +182,11 @@ defmodule FlyMapEx.Config do
   @doc """
   Default marker size in pixels when no size is specified in style.
 
-  This is used as the fallback size for markers when neither size_override
-  nor style.size is provided.
+  This is used as the fallback size for markers when style.size is not provided.
   Default: 6
   """
-  def default_marker_size do
-    Application.get_env(:fly_map_ex, :default_marker_size, 6)
+  def default_marker_radius do
+    Application.get_env(:fly_map_ex, :default_marker_radius, 6)
   end
 
   @doc """

@@ -232,7 +232,7 @@ defmodule FlyMapEx.Components.WorldMap do
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
         marker_opacity: FlyMapEx.Config.marker_opacity(),
         hover_opacity: FlyMapEx.Config.hover_opacity(),
-        default_marker_size: FlyMapEx.Config.default_marker_size(),
+        default_marker_radius: FlyMapEx.Config.default_marker_radius(),
         region_marker_radius: FlyMapEx.Config.region_marker_radius(),
         show_regions: show_regions
       })
@@ -328,7 +328,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- Dynamic marker group markers -->
       <%= for group <- @marker_groups do %>
         <%= for {x, y} <- get_group_coordinates(group, @bbox) do %>
-          <%= render_marker(group, x, y, @default_marker_size) %>
+          <%= render_marker(group, x, y, @default_marker_radius) %>
         <% end %>
       <% end %>
 

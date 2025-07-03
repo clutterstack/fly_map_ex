@@ -13,33 +13,28 @@ defmodule DemoWeb.Stage1Live do
       single_coordinates: [
         %{
           nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
-          style: :primary,
           label: "Single Node"
         }
       ],
       single_region: [
         %{
           nodes: ["sjc"],
-          style: :primary,
           label: "Single Server"
         }
       ],
       multiple_nodes: [
         %{
           nodes: ["sjc", "fra", "ams", "lhr"],
-          style: :primary,
           label: "Global Deployment"
         }
       ],
       multiple_groups: [
         %{
           nodes: ["sjc", "fra"],
-          style: :primary,
           label: "Production Servers"
         },
         %{
           nodes: ["ams", "lhr"],
-          style: :secondary,
           label: "Staging Environment"
         }
       ]
@@ -126,7 +121,6 @@ defmodule DemoWeb.Stage1Live do
                   title: "Fly.io Regions (Shorthand)",
                   code: ~s|%{
   nodes: ["sjc", "fra"],
-  style: :primary,
   label: "My Servers"
 }|
                 },
@@ -137,7 +131,6 @@ defmodule DemoWeb.Stage1Live do
     %{coordinates: {37.7749, -122.4194},
       label: "San Francisco"}
   ],
-  style: :secondary,
   label: "Custom Locations"
 }|
                 }
