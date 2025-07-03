@@ -95,10 +95,10 @@ defmodule FlyMapEx.Config do
   @doc """
   Animation duration for pulse animations in seconds.
 
-  Default: "2s"
+  Default: "2.5s"
   """
   def pulse_duration do
-    Application.get_env(:fly_map_ex, :pulse_duration, "2s")
+    Application.get_env(:fly_map_ex, :pulse_duration, "2.5s")
   end
 
   @doc """
@@ -113,10 +113,10 @@ defmodule FlyMapEx.Config do
   @doc """
   Size multiplier for pulse animation radius changes in SVG context.
 
-  Default: 4 (adds 4 pixels to base radius during pulse)
+  Default: 2 (adds 2 pixels to base radius during pulse)
   """
   def svg_pulse_size_delta do
-    Application.get_env(:fly_map_ex, :svg_pulse_size_delta, 3)
+    Application.get_env(:fly_map_ex, :svg_pulse_size_delta, 2)
   end
 
   @doc """
@@ -158,10 +158,10 @@ defmodule FlyMapEx.Config do
   Blur radius for glow effects in pixels.
 
   Controls how spread out the glow effect appears around markers.
-  Default: 3
+  Default: 2
   """
   def glow_blur_radius do
-    Application.get_env(:fly_map_ex, :glow_blur_radius, 3)
+    Application.get_env(:fly_map_ex, :glow_blur_radius, 2)
   end
 
   @doc """
@@ -178,9 +178,20 @@ defmodule FlyMapEx.Config do
   Size multiplier for glow effects relative to marker size.
 
   Determines how much larger the glow is compared to the base marker.
-  Default: 1.8
+  Default: 1.5
   """
   def glow_size_multiplier do
-    Application.get_env(:fly_map_ex, :glow_size_multiplier, 1.8)
+    Application.get_env(:fly_map_ex, :glow_size_multiplier, 1.5)
+  end
+
+  @doc """
+  Size multiplier for legend marker SVG containers relative to marker size.
+
+  Determines how much larger the legend SVG container is compared to the base marker.
+  This affects the visual size of legend markers.
+  Default: 2.0
+  """
+  def legend_container_multiplier do
+    Application.get_env(:fly_map_ex, :legend_container_multiplier, 2.0)
   end
 end

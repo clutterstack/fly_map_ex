@@ -67,7 +67,7 @@ defmodule FlyMapEx.Components.Marker do
 
   defp assign_glow_props(assigns, false, _colour), do: assigns
 
-  defp assign_animation_props(assigns, animation) when animation in [:pulse, :fade] do
+  defp assign_animation_props(assigns, animation) when animation == :fade do
     {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
 
     assigns
@@ -118,7 +118,7 @@ defmodule FlyMapEx.Components.Marker do
       |> assign(:y, 0.5 * viewbox_dim)
 
     ~H"""
-    <svg class="inline-block" width={@base_size} height={@base_size} viewBox={viewbox(@dim)}>
+    <svg class="inline-block" width={trunc(@base_size * FlyMapEx.Config.legend_container_multiplier())} height={trunc(@base_size * FlyMapEx.Config.legend_container_multiplier())} viewBox={viewbox(@dim)}>
       <%= if @glow do %>
         <defs>
           <GlowFilter.glow_filter filter_id={@filter_id} blur_radius={@glow_blur} />

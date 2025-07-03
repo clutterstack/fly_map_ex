@@ -142,14 +142,14 @@ defmodule FlyMapEx.Style do
   end
 
   @doc """
-  Danger/failed state style - red, prominent bouncing animation.
+  Danger/failed state style - red, gentle pulse animation.
 
   Use for nodes that are failed or experiencing critical issues.
   """
   def danger(opts \\ []) do
     result = custom(
       "#ef4444",
-      Keyword.merge([size: 4, animation: :pulse, glow: true], opts)
+      Keyword.merge([size: 4, animation: :pulse, glow: false], opts)
     )
     %{result | __source__: {:danger, [], opts}}
   end

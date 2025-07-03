@@ -18,7 +18,7 @@ defmodule FlyMapEx.Components.GlowFilter do
 
   def glow_filter(assigns) do
     ~H"""
-    <filter id={@filter_id} x="-50%" y="-50%" width="200%" height="200%">
+    <filter id={@filter_id} x="-50%" y="-50%" width="120%" height="120%">
       <feGaussianBlur stdDeviation={@blur_radius} result="coloredBlur"/>
       <feMerge>
         <feMergeNode in="coloredBlur"/>
