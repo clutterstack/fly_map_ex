@@ -14,7 +14,7 @@ defmodule DemoWeb.Stage2Live do
       },
       %{
         nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.warning(),
+        style: :warning,
         label: "Maintenance Mode"
       },
       %{
@@ -128,19 +128,6 @@ defmodule DemoWeb.Stage2Live do
             </ul>
           </div>
 
-          <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h3 class="font-semibold text-orange-800 mb-2">Real-World Usage</h3>
-            <ul class="text-orange-700 text-sm space-y-1">
-              <li>• <strong>Health Monitoring:</strong> Visualize service health across regions</li>
-              <li>• <strong>Deployment Status:</strong> Track rollout progress and failures</li>
-              <li>
-                • <strong>Maintenance Planning:</strong> Show which nodes are offline for maintenance
-              </li>
-              <li>
-                • <strong>Alert Dashboards:</strong> Quick visual status of entire infrastructure
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
 

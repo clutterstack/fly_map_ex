@@ -9,6 +9,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
   alias FlyMapEx.Regions
   alias FlyMapEx.Components.Marker
+  alias FlyMapEx.Components.GlowFilter
   alias FlyMapEx.WorldMapPaths
 
   # Map dims determined by svg and some cropping
@@ -90,13 +91,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <defs>
         <!-- Glow filters for map markers -->
         <%= for glow_filter <- @glow_filters do %>
-          <filter id={glow_filter.filter_id} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation={glow_filter.blur_radius} result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
+          <GlowFilter.glow_filter filter_id={glow_filter.filter_id} blur_radius={glow_filter.blur_radius} />
         <% end %>
       </defs>
 

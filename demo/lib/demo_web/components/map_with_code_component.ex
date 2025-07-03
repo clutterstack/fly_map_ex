@@ -74,7 +74,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
   defp get_container_classes(assigns) do
     base_classes = ["gap-8", assigns.class]
-    
+
     case assigns.map_layout do
       :side_by_side -> ["space-y-8"] ++ base_classes
       _ -> ["grid grid-cols-1 lg:grid-cols-2"] ++ base_classes
@@ -249,16 +249,16 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
   defp get_function_defaults(function_name) do
     case function_name do
-      :operational -> %{size: 7, animation: :none, glow: false, gradient: false}
-      :warning -> %{size: 8, animation: :none, glow: false, gradient: false}
-      :danger -> %{size: 7, animation: :pulse, glow: true, gradient: false}
-      :inactive -> %{size: 5, animation: :none, glow: false, gradient: false}
-      :primary -> %{size: 7, animation: :none, glow: false, gradient: false}
-      :secondary -> %{size: 6, animation: :none, glow: false, gradient: false}
-      :info -> %{size: 6, animation: :none, glow: false, gradient: false}
-      :cycle -> %{size: 7, animation: :none, glow: false, gradient: false}
-      :custom -> %{size: 6, animation: :none, glow: false, gradient: false}
-      _ -> %{size: 6, animation: :none, glow: false, gradient: false}
+      :operational -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :warning -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :danger -> %{size: 4, animation: :pulse, glow: true, gradient: false}
+      :inactive -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :primary -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :secondary -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :info -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :cycle -> %{size: 4, animation: :none, glow: false, gradient: false}
+      :custom -> %{size: 4, animation: :none, glow: false, gradient: false}
+      _ -> %{size: 4, animation: :none, glow: false, gradient: false}
     end
   end
 

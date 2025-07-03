@@ -120,32 +120,16 @@ defmodule FlyMapEx.Config do
   end
 
   @doc """
-  Size multiplier for legend marker radius relative to base size.
-
-  Default: 0.7 (legend markers are 70% of base size)
-  """
-  def legend_size_ratio do
-    Application.get_env(:fly_map_ex, :legend_size_ratio, 0.7)
-  end
-
-  @doc """
   Generates pulse animation values for radius based on context and base size.
 
   ## Parameters
-  - context: :svg or :legend
   - base_size: base radius size
 
   Returns: string of animation values for SVG animate element
   """
   def pulse_radius_values(context, base_size) do
-    case context do
-      :svg ->
         max_size = base_size + svg_pulse_size_delta()
         "#{base_size};#{max_size};#{base_size}"
-      :legend ->
-        min_size = base_size * legend_size_ratio()
-        "#{min_size};#{base_size};#{min_size}"
-    end
   end
 
   @doc """

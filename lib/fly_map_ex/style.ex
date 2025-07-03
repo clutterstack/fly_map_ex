@@ -84,7 +84,7 @@ defmodule FlyMapEx.Style do
   """
   def cycle(index, opts \\ []) when is_integer(index) do
     colour = Enum.at(@cycle_colours, rem(index, length(@cycle_colours)))
-    result = custom(colour, Keyword.merge([size: 7], opts))
+    result = custom(colour, Keyword.merge([size: 4], opts))
     Map.put(result, :__source__, {:cycle, [index], opts})
   end
 
@@ -106,7 +106,7 @@ defmodule FlyMapEx.Style do
   def custom(colour, opts \\ []) do
     %{
       colour: colour,
-      size: Keyword.get(opts, :size, 6),
+      size: Keyword.get(opts, :size, 4),
       animation: Keyword.get(opts, :animation, :none),
       glow: Keyword.get(opts, :glow, false),
       __source__: {:custom, [colour], opts}
@@ -123,7 +123,7 @@ defmodule FlyMapEx.Style do
   def operational(opts \\ []) do
     result = custom(
       "#10b981",
-      Keyword.merge([size: 7, animation: :none, glow: false], opts)
+      Keyword.merge([size: 4, animation: :none, glow: false], opts)
     )
     %{result | __source__: {:operational, [], opts}}
   end
@@ -136,7 +136,7 @@ defmodule FlyMapEx.Style do
   def warning(opts \\ []) do
     result = custom(
       "#f59e0b",
-      Keyword.merge([size: 8, animation: :none, glow: false], opts)
+      Keyword.merge([size: 4, animation: :none, glow: false], opts)
     )
     %{result | __source__: {:warning, [], opts}}
   end
@@ -149,7 +149,7 @@ defmodule FlyMapEx.Style do
   def danger(opts \\ []) do
     result = custom(
       "#ef4444",
-      Keyword.merge([size: 7, animation: :pulse, glow: true], opts)
+      Keyword.merge([size: 4, animation: :pulse, glow: true], opts)
     )
     %{result | __source__: {:danger, [], opts}}
   end
@@ -160,7 +160,7 @@ defmodule FlyMapEx.Style do
   Use for nodes that are intentionally stopped or offline.
   """
   def inactive(opts \\ []) do
-    result = custom("#6b7280", Keyword.merge([size: 5, animation: :none], opts))
+    result = custom("#6b7280", Keyword.merge([size: 4, animation: :none], opts))
     %{result | __source__: {:inactive, [], opts}}
   end
 
@@ -174,7 +174,7 @@ defmodule FlyMapEx.Style do
   def primary(opts \\ []) do
     result = custom(
       "#3b82f6",
-      Keyword.merge([size: 7, animation: :none, glow: false], opts)
+      Keyword.merge([size: 4, animation: :none, glow: false], opts)
     )
     %{result | __source__: {:primary, [], opts}}
   end
@@ -185,7 +185,7 @@ defmodule FlyMapEx.Style do
   General purpose secondary accent color.
   """
   def secondary(opts \\ []) do
-    result = custom("#14b8a6", Keyword.merge([size: 6, animation: :none], opts))
+    result = custom("#14b8a6", Keyword.merge([size: 4, animation: :none], opts))
     %{result | __source__: {:secondary, [], opts}}
   end
 
@@ -195,7 +195,7 @@ defmodule FlyMapEx.Style do
   For informational or neutral states.
   """
   def info(opts \\ []) do
-    result = custom("#0ea5e9", Keyword.merge([size: 6, animation: :none], opts))
+    result = custom("#0ea5e9", Keyword.merge([size: 4, animation: :none], opts))
     %{result | __source__: {:info, [], opts}}
   end
 
@@ -237,14 +237,7 @@ defmodule FlyMapEx.Style do
 
   ## Examples
 
-      iex> FlyMapEx.Style.normalize(:operational)
-      %{color: "#10b981", size: 7, animation: :pulse, glow: false}
 
-      iex> FlyMapEx.Style.normalize([color: "#000", size: 10])
-      %{color: "#000", size: 10, animation: :none, glow: false}
-
-      iex> FlyMapEx.Style.normalize(%{color: "#fff"})
-      %{color: "#fff", size: 6, animation: :none, glow: false}
   """
   def normalize(style_atom) when is_atom(style_atom) do
     case style_atom do
@@ -272,7 +265,7 @@ defmodule FlyMapEx.Style do
   def normalize(style) when is_map(style) do
     defaults = %{
       colour: "#6b7280",
-      size: 6,
+      size: 4,
       animation: :none,
       glow: false
     }

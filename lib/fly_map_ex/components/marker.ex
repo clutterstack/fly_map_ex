@@ -7,24 +7,27 @@ defmodule FlyMapEx.Components.Marker do
 
   use Phoenix.Component
 
+  alias FlyMapEx.Components.GlowFilter
+
   @doc """
   Renders a marker with the given style and position.
 
   ## Attributes
 
   * `style` - Map containing marker styling (colour, size, animation, glow, etc.)
+  * `mode` - :svg for map markers, :legend for legend indicators
   * `x` - X coordinate (for SVG positioning, ignored in legend mode)
   * `y` - Y coordinate (for SVG positioning, ignored in legend mode)
-  * `mode` - :svg for map markers, :legend for legend indicators
   * `size_override` - Optional size override for legend mode
   * `fill_override` - Optional fill override
   """
   attr(:style, :map, required: true)
-  attr(:x, :float, default: 0.0)
-  attr(:y, :float, default: 0.0)
   attr(:mode, :atom, default: :svg)
   attr(:size_override, :integer, default: nil)
   attr(:fill_override, :string, default: nil)
+  attr(:x, :float, default: 0.0)
+  attr(:y, :float, default: 0.0)
+  attr(:dim, :float, default: 0.0)
 
   def marker(assigns) do
     assigns = assign_marker_props(assigns)
@@ -54,8 +57,8 @@ defmodule FlyMapEx.Components.Marker do
 
   defp assign_glow_props(assigns, true, colour) do
     # Generate unique filter ID to avoid conflicts between markers
-    filter_id = "glow-#{:erlang.phash2({assigns.x, assigns.y, colour})}"
-    
+    filter_id = "glow-#{:erlang.phash2({0.5 * assigns.dim, 0.5 * assigns.dim, colour})}"
+
     assigns
     |> assign(:filter_id, filter_id)
     |> assign(:glow_blur, FlyMapEx.Config.glow_blur_radius())
@@ -102,28 +105,29 @@ defmodule FlyMapEx.Components.Marker do
     end
   end
 
-
+ # Note the hardcoded values in here. Not great but:
   defp render_legend_marker(assigns) do
+    viewbox_dim = 3 * assigns.base_size
     assigns =
       assigns
       |> assign(:radius_attrs, build_radius_animation_attributes(:legend, assigns.base_size, assigns.animation))
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
       |> assign(:css_class, if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated"))
-      |> assign(:x, assigns.base_size)
-      |> assign(:y, assigns.base_size)
+      |> assign(:dim, viewbox_dim)
+      |> assign(:x, 0.5 * viewbox_dim)
+      |> assign(:y, 0.5 * viewbox_dim)
 
     ~H"""
-    <svg class="inline-block" width={@base_size * 2} height={@base_size * 2} viewBox={viewbox(@base_size)}>
+    <svg class="inline-block" width={@base_size} height={@base_size} viewBox={viewbox(@dim)}>
       <%= if @glow do %>
         <defs>
-          <.render_glow_filter {assigns} />
+          <GlowFilter.glow_filter filter_id={@filter_id} blur_radius={@glow_blur} />
         </defs>
       <% end %>
       <.render_marker_svg {assigns} />
     </svg>
     """
   end
-
 
   defp render_marker_svg(assigns) do
     assigns =
@@ -175,20 +179,8 @@ defmodule FlyMapEx.Components.Marker do
     """
   end
 
-  defp render_glow_filter(assigns) do
-    ~H"""
-    <filter id={@filter_id} x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation={@glow_blur} result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    """
-  end
 
   defp viewbox(size) do
-    total = size * 2
-    "0 0 #{total} #{total}"
+    "0 0 #{size} #{size}"
   end
 end
