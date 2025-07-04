@@ -80,7 +80,7 @@ defmodule DemoWeb.Components.DemoNavigation do
       {"/stage1", "Stage 1: Basics", :stage1},
       {"/stage2", "Stage 2: Groups", :stage2},
       {"/stage3", "Stage 3: Themes", :stage3},
-      {"/stage4", "Stage 4: Advanced", :stage4},
+      {"/stage4", "Stage 4: Builder", :stage4},
       {"/map", "Machine Map", :machine_map}
     ]
   end
