@@ -100,12 +100,28 @@ defmodule DemoWeb.Stage2Live do
       ]
     }
 
-    # Interactive control options
-    options = [
-      %{key: "automatic", label: "Automatic Styling", description: "Color cycling for multiple groups"},
-      %{key: "semantic", label: "Semantic Presets", description: "Meaningful styles for server states"},
-      %{key: "custom", label: "Custom Parameters", description: "Size, animation, and glow modifications"},
-      %{key: "mixed", label: "Mixed Approaches", description: "Combining different styling methods"}
+    # Tab content for the new tabbed interface
+    tabs = [
+      %{
+        key: "automatic",
+        label: "Automatic",
+        content: get_automatic_content()
+      },
+      %{
+        key: "semantic",
+        label: "Semantic",
+        content: get_semantic_content()
+      },
+      %{
+        key: "custom",
+        label: "Custom",
+        content: get_custom_content()
+      },
+      %{
+        key: "mixed",
+        label: "Mixed",
+        content: get_mixed_content()
+      }
     ]
 
     # Custom parameters for the custom example
@@ -118,7 +134,7 @@ defmodule DemoWeb.Stage2Live do
 
     {:ok, assign(socket,
       examples: examples,
-      options: options,
+      tabs: tabs,
       current_example: "automatic",
       custom_params: custom_params
     )}
@@ -171,56 +187,47 @@ defmodule DemoWeb.Stage2Live do
         </p>
       </div>
 
-      <!-- Key Concept Explanation (Above the Fold) -->
-      <.info_panel title="Key Concepts" color="blue" class="mb-6">
-        <ul class="text-sm space-y-1">
-          <li>• <strong>Automatic Styling:</strong> Use `FlyMapEx.Style.cycle/1` for consistent color cycling</li>
-          <li>• <strong>Semantic Presets:</strong> Meaningful styles like operational(), warning(), danger(), inactive()</li>
-          <li>• <strong>Custom Parameters:</strong> Modify size, animation, glow, and color for any preset</li>
-          <li>• <strong>Mixed Approaches:</strong> Combine different styling methods in one configuration</li>
-        </ul>
-      </.info_panel>
-
-      <!-- Interactive Controls & Presets -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-3">Try Different Styling Approaches:</h3>
-        <.preset_buttons
-          options={@options}
-          current={@current_example}
-          event="switch_example"
+      <!-- Full Width Map (Above the Fold) -->
+      <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+        <FlyMapEx.render
+          marker_groups={current_marker_groups(assigns)}
+          theme={:responsive}
+          layout={:side_by_side}
         />
       </div>
 
-      <!-- Live Map Preview & Generated Code -->
-      <.map_with_code
-        marker_groups={current_marker_groups(assigns)}
-        map_title="Interactive Styling Demo"
-      >
-        <:extra_content>
-          <div class="space-y-4">
-            <.info_panel title="Current Configuration" color="blue">
-              <ul class="text-sm space-y-1">
-                <li>• <strong>Approach:</strong> <%= get_current_description(@current_example) %></li>
-                <li>• <strong>Groups:</strong> <%= length(current_marker_groups(assigns)) %> group(s)</li>
-                <li>• <strong>Total Nodes:</strong> <%= count_total_nodes(current_marker_groups(assigns)) %></li>
-                <li>• <strong>Styling Method:</strong> <%= get_styling_method(@current_example) %></li>
-              </ul>
-            </.info_panel>
+      <!-- Side-by-Side: Tabbed Info Panel & Code Examples -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Tabbed Info Panel -->
+        <div>
+          <.tabbed_info_panel
+            tabs={@tabs}
+            current={@current_example}
+            event="switch_example"
+          />
+        </div>
 
-            <!-- Interactive Features Panel -->
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h3 class="font-semibold text-purple-800 mb-2">Interactive Features</h3>
-              <ul class="text-purple-700 text-sm space-y-1">
-                <li>• <strong>Legend Toggles:</strong> Click any group to show/hide markers</li>
-                <li>• <strong>Color Consistency:</strong> Groups maintain their colors when toggled</li>
-                <li>• <strong>Animation Preview:</strong> See pulse and fade effects in real-time</li>
-                <li>• <strong>Style Comparison:</strong> Switch between examples to see differences</li>
-                <li>• <strong>Code Generation:</strong> View the exact code for each configuration</li>
-              </ul>
+        <!-- Code Examples Panel -->
+        <div>
+          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <h3 class="font-semibold text-gray-800">Code Example</h3>
+            </div>
+            <div class="p-4">
+              <pre class="text-sm text-gray-800 overflow-x-auto bg-gray-50 p-3 rounded"><code><%= get_focused_code(@current_example, current_marker_groups(assigns)) %></code></pre>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-blue-50 border-t border-gray-200 px-4 py-3">
+              <div class="text-sm text-blue-700">
+                <strong>Current Configuration:</strong> <%= get_current_description(@current_example) %> •
+                <%= length(current_marker_groups(assigns)) %> groups •
+                <%= count_total_nodes(current_marker_groups(assigns)) %> nodes
+              </div>
             </div>
           </div>
-        </:extra_content>
-      </.map_with_code>
+        </div>
+      </div>
 
       <!-- Progressive Disclosure for Advanced Topics -->
       <.learn_more_section
@@ -391,5 +398,332 @@ config :fly_map_ex,
         """
       }
     ]
+  end
+
+  # Tab content creation functions
+  defp get_automatic_content do
+    ~s"""
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2">Automatic Color Cycling</h4>
+        <p class="text-sm text-gray-600 mb-3">
+          The <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.cycle/1</code> function automatically assigns consistent colors to multiple groups without manual specification.
+        </p>
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h5 class="font-medium text-blue-800 mb-2">Color Progression</h5>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-blue-600"></div>
+            <span class="text-blue-700">cycle(0) - Blue</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-green-600"></div>
+            <span class="text-blue-700">cycle(1) - Green</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-red-600"></div>
+            <span class="text-blue-700">cycle(2) - Red</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-purple-600"></div>
+            <span class="text-blue-700">cycle(3) - Purple</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 class="font-medium text-gray-800 mb-2">When to Use</h5>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• Multiple groups with equal importance</li>
+          <li>• Need consistent visual hierarchy</li>
+          <li>• Want to avoid color conflicts</li>
+          <li>• Building dashboard-style displays</li>
+        </ul>
+      </div>
+
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+        <p class="text-xs text-gray-600">
+          <strong>Pro Tip:</strong> cycle() automatically wraps after 12 colors, ensuring visual consistency across any number of groups.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_semantic_content do
+    ~s"""
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2">Semantic Styling</h4>
+        <p class="text-sm text-gray-600 mb-3">
+          Use meaningful preset functions that convey status and state at a glance.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-start space-x-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-green-600 mt-0.5"></div>
+          <div>
+            <h5 class="font-medium text-green-800">operational()</h5>
+            <p class="text-sm text-green-700">Healthy, running services. Green, static markers.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-amber-500 mt-0.5"></div>
+          <div>
+            <h5 class="font-medium text-amber-800">warning()</h5>
+            <p class="text-sm text-amber-700">Needs attention. Amber, static markers.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-red-600 animate-pulse mt-0.5"></div>
+          <div>
+            <h5 class="font-medium text-red-800">danger()</h5>
+            <p class="text-sm text-red-700">Critical issues. Red, pulsing animation for attention.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-gray-500 mt-0.5"></div>
+          <div>
+            <h5 class="font-medium text-gray-800">inactive()</h5>
+            <p class="text-sm text-gray-700">Not running or offline. Gray, static markers.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <p class="text-xs text-blue-700">
+          <strong>Best Practice:</strong> Use semantic styles for monitoring dashboards and status displays where color meaning is crucial.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_custom_content do
+    ~s"""
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2">Custom Parameters</h4>
+        <p class="text-sm text-gray-600 mb-3">
+          Build completely custom styles with <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.custom/2</code> for brand-specific or unique requirements.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="border border-gray-200 rounded-lg p-3">
+          <h5 class="font-medium text-gray-800 mb-2">Size Parameter</h5>
+          <div class="flex items-center space-x-3">
+            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+            <span class="text-sm">size: 4</span>
+            <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+            <span class="text-sm">size: 6 (default)</span>
+            <div class="w-4 h-4 rounded-full bg-blue-600"></div>
+            <span class="text-sm">size: 8</span>
+            <div class="w-5 h-5 rounded-full bg-blue-600"></div>
+            <span class="text-sm">size: 10</span>
+          </div>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg p-3">
+          <h5 class="font-medium text-gray-800 mb-2">Animation Options</h5>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-gray-600"></div>
+              <span>:none - Static markers</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-blue-600 animate-pulse"></div>
+              <span>:pulse - Radius grows/shrinks</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-green-600" style="animation: fade 2s infinite;"></div>
+              <span>:fade - Opacity changes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg p-3">
+          <h5 class="font-medium text-gray-800 mb-2">Glow Effect</h5>
+          <div class="flex items-center space-x-4">
+            <div class="text-center">
+              <div class="w-4 h-4 rounded-full bg-purple-600 mx-auto mb-1"></div>
+              <span class="text-xs">glow: false</span>
+            </div>
+            <div class="text-center">
+              <div class="w-4 h-4 rounded-full bg-purple-600 mx-auto mb-1" style="box-shadow: 0 0 8px #9333ea;"></div>
+              <span class="text-xs">glow: true</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+        <p class="text-xs text-purple-700">
+          <strong>Use Case:</strong> Perfect for brand-specific styling, special alerts, or when you need precise control over appearance.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_mixed_content do
+    ~s"""
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2">Mixed Approaches</h4>
+        <p class="text-sm text-gray-600 mb-3">
+          Combine different styling methods in one configuration for complex real-world scenarios.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div class="flex items-center space-x-2 mb-2">
+            <div class="w-3 h-3 rounded-full bg-green-600"></div>
+            <h5 class="font-medium text-green-800">Semantic Functions</h5>
+          </div>
+          <p class="text-sm text-green-700">Use operational(), warning(), etc. for critical status indicators.</p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div class="flex items-center space-x-2 mb-2">
+            <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+            <h5 class="font-medium text-blue-800">Auto-Cycling</h5>
+          </div>
+          <p class="text-sm text-blue-700">Use cycle() for equal-importance groupings.</p>
+        </div>
+
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+          <div class="flex items-center space-x-2 mb-2">
+            <div class="w-4 h-4 rounded-full bg-purple-600 animate-pulse" style="box-shadow: 0 0 6px #9333ea;"></div>
+            <h5 class="font-medium text-purple-800">Custom Styling</h5>
+          </div>
+          <p class="text-sm text-purple-700">Use custom() for special cases requiring unique appearance.</p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <div class="flex items-center space-x-2 mb-2">
+            <div class="w-3 h-3 rounded-full bg-gray-600"></div>
+            <h5 class="font-medium text-gray-800">Atom Shortcuts</h5>
+          </div>
+          <p class="text-sm text-gray-700">Use :inactive, :operational atoms for convenience.</p>
+        </div>
+      </div>
+
+      <div>
+        <h5 class="font-medium text-gray-800 mb-2">Common Patterns</h5>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>• <strong>Primary systems:</strong> Semantic styles for critical monitoring</li>
+          <li>• <strong>Secondary groups:</strong> Auto-cycling for organization</li>
+          <li>• <strong>Special alerts:</strong> Custom styles for unique cases</li>
+          <li>• <strong>Utility groups:</strong> Atom shortcuts for simple cases</li>
+        </ul>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <p class="text-xs text-amber-700">
+          <strong>Production Tip:</strong> Start with semantic styles for core functionality, then add cycling and custom styles as needed.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  # Generate focused code examples for each tab
+  defp get_focused_code(example, marker_groups) do
+    case example do
+      "automatic" ->
+        ~s"""
+marker_groups = [
+  %{
+    nodes: ["sjc", "fra"],
+    style: FlyMapEx.Style.cycle(0),
+    label: "Production Servers"
+  },
+  %{
+    nodes: ["ams", "lhr"],
+    style: FlyMapEx.Style.cycle(1),
+    label: "Staging Environment"
+  }
+]
+        """
+
+      "semantic" ->
+        ~s"""
+marker_groups = [
+  %{
+    nodes: ["sjc", "fra"],
+    style: FlyMapEx.Style.operational(),
+    label: "Production Servers"
+  },
+  %{
+    nodes: ["ams", "lhr"],
+    style: FlyMapEx.Style.warning(),
+    label: "Maintenance Mode"
+  },
+  %{
+    nodes: ["ord"],
+    style: FlyMapEx.Style.danger(),
+    label: "Failed Nodes"
+  }
+]
+        """
+
+      "custom" ->
+        ~s"""
+marker_groups = [
+  %{
+    nodes: ["sjc", "fra"],
+    style: FlyMapEx.Style.custom("#10b981", [
+      size: 8,
+      animation: :pulse,
+      glow: true
+    ]),
+    label: "High-Performance Servers"
+  }
+]
+        """
+
+      "mixed" ->
+        ~s"""
+marker_groups = [
+  %{
+    nodes: ["sjc", "fra"],
+    style: FlyMapEx.Style.operational(),  # Semantic
+    label: "Production (Semantic)"
+  },
+  %{
+    nodes: ["ams", "lhr"],
+    style: FlyMapEx.Style.cycle(1),      # Auto-cycle
+    label: "Staging (Auto-Cycle)"
+  },
+  %{
+    nodes: ["ord"],
+    style: FlyMapEx.Style.custom("#9333ea", [
+      size: 8, animation: :pulse, glow: true
+    ]),                                   # Custom
+    label: "Special Deploy (Custom)"
+  },
+  %{
+    nodes: ["nrt", "syd"],
+    style: :inactive,                    # Atom shorthand
+    label: "Offline (Atom)"
+  }
+]
+        """
+
+      _ ->
+        {_map_attrs, code_string} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{
+          marker_groups: marker_groups,
+          theme: :responsive
+        })
+        code_string
+    end
   end
 end

@@ -183,10 +183,10 @@ defmodule FlyMapEx.Config do
   Default marker size in pixels when no size is specified in style.
 
   This is used as the fallback size for markers when style.size is not provided.
-  Default: 6
+  Default: 8
   """
   def default_marker_radius do
-    Application.get_env(:fly_map_ex, :default_marker_radius, 6)
+    Application.get_env(:fly_map_ex, :default_marker_radius, 8)
   end
 
   @doc """

@@ -134,6 +134,59 @@ defmodule DemoWeb.Components.InteractiveControls do
     </div>
     """
   end
+
+  @doc """
+  Renders a tabbed info panel that combines navigation and content.
+  
+  ## Attributes
+  * `tabs` - List of tab maps with :key, :label, :content
+  * `current` - Current active tab key
+  * `event` - Phoenix event name to trigger on tab click
+  * `class` - Additional CSS classes
+  """
+  attr :tabs, :list, required: true
+  attr :current, :any, required: true
+  attr :event, :string, required: true
+  attr :class, :string, default: ""
+  
+  def tabbed_info_panel(assigns) do
+    ~H"""
+    <div class={["bg-white border border-gray-200 rounded-lg overflow-hidden", @class]}>
+      <!-- Tab Navigation -->
+      <div class="border-b border-gray-200 bg-gray-50">
+        <nav class="flex space-x-1 p-1">
+          <%= for tab <- @tabs do %>
+            <button
+              phx-click={@event}
+              phx-value-option={tab.key}
+              class={[
+                "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset",
+                get_tab_classes(tab.key == @current)
+              ]}
+            >
+              <%= tab.label %>
+            </button>
+          <% end %>
+        </nav>
+      </div>
+      
+      <!-- Tab Content -->
+      <div class="p-4">
+        <%= case Enum.find(@tabs, &(&1.key == @current)) do %>
+          <% %{content: content} when is_binary(content) -> %>
+            <%= Phoenix.HTML.raw(content) %>
+          <% %{content_slot: content_slot} -> %>
+            <%= render_slot(content_slot) %>
+          <% tab -> %>
+            <%= if tab do %>
+              <%= Phoenix.HTML.raw(tab.content) %>
+            <% end %>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
   
   # Private helper functions
   
@@ -198,5 +251,19 @@ defmodule DemoWeb.Components.InteractiveControls do
       "red" -> "text-red-700"
       _ -> "text-gray-700"
     end
+  end
+
+  defp get_tab_classes(true) do
+    [
+      "bg-white text-blue-600 shadow-sm border-blue-200",
+      "border-t border-l border-r"
+    ]
+  end
+
+  defp get_tab_classes(false) do
+    [
+      "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+      "border-transparent"
+    ]
   end
 end
