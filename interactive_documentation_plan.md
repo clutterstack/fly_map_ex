@@ -15,6 +15,13 @@ This document outlines the educational design for transforming the FlyMapEx demo
 ## Overall Structure: 4 Core Learning Stages
 
 ### Stage 1: Defining Marker Groups
+
+#### Implementation progress 
+[x] Phase 1: Foundation
+[-] Phase 2: Enhanced Interactivity (started)
+[ ] Phase 3: Advanced Features (later)
+[ ] Phase 4: Polish and Integration (later)
+
 **Learning Objective**: Understand the fundamental data structure and syntax options
 
 **Key Concepts**:
@@ -24,6 +31,12 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - Multiple groups organization
 
 ### Stage 2: Styling Markers
+#### Implementation progress 
+[ ] Phase 1: Foundation
+[ ] Phase 2: Enhanced Interactivity
+[ ] Phase 3: Advanced Features (later)
+[ ] Phase 4: Polish and Integration (later)
+
 **Learning Objective**: Master visual customization and semantic meaning
 
 **Key Concepts**:
@@ -33,6 +46,12 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - Configuration-based style presets
 
 ### Stage 3: Map Themes
+#### Implementation progress 
+[ ] Phase 1: Foundation
+[ ] Phase 2: Enhanced Interactivity
+[ ] Phase 3: Advanced Features (later)
+[ ] Phase 4: Polish and Integration (later)
+
 **Learning Objective**: Control overall visual presentation and branding
 
 **Key Concepts**:
@@ -42,6 +61,13 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - Configuration vs. inline theming
 
 ### Stage 4: Interactive Builder/Playground
+
+#### Implementation progress 
+[ ] Phase 1: Foundation
+[ ] Phase 2: Enhanced Interactivity
+[ ] Phase 3: Advanced Features (later)
+[ ] Phase 4: Polish and Integration (later)
+
 **Learning Objective**: Apply knowledge to real-world scenarios
 
 **Key Concepts**:
@@ -63,6 +89,7 @@ This document outlines the educational design for transforming the FlyMapEx demo
    - Same location using `"sjc"` region code
    - Explain region code convenience
    - Show region lookup and validation
+ 
 
 3. **Multiple Nodes in Group**
    - Single group with `["sjc", "fra", "ams", "lhr"]`
@@ -80,6 +107,9 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - **Later** Group management controls
 
 ### Stage 2: Styling Markers
+
+More implementation in ./stage2_implementation.md
+
 **Progression: Automatic → Semantic → Custom**
 
 1. **Automatic Styling**
