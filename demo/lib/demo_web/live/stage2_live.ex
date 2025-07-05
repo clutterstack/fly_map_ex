@@ -1,7 +1,6 @@
 defmodule DemoWeb.Stage2Live do
   use DemoWeb, :live_view
 
-  import DemoWeb.Components.MapWithCodeComponent
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
@@ -256,16 +255,6 @@ defmodule DemoWeb.Stage2Live do
     end
   end
 
-  defp get_styling_method(example) do
-    case example do
-      "automatic" -> "FlyMapEx.Style.cycle/1"
-      "semantic" -> "Semantic function calls"
-      "custom" -> "FlyMapEx.Style.custom/2"
-      "mixed" -> "Mixed function calls and atoms"
-      _ -> "Unknown"
-    end
-  end
-
   defp count_total_nodes(marker_groups) do
     Enum.reduce(marker_groups, 0, fn group, acc ->
       nodes = group[:nodes] || []
@@ -315,10 +304,10 @@ defmodule DemoWeb.Stage2Live do
             Build completely custom styles with <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.custom/2</code>:
           </p>
           <pre class="bg-base-200 p-4 rounded-lg text-sm"><code>FlyMapEx.Style.custom("#3b82f6", [
-  size: 10,        # radius in pixels
-  animation: :pulse,   # :none, :pulse, :fade
-  glow: true       # enable glow effect
-])</code></pre>
+            size: 10,        # radius in pixels
+            animation: :pulse,   # :none, :pulse, :fade
+            glow: true       # enable glow effect
+          ])</code></pre>
           <div class="mt-4">
             <h4 class="font-semibold text-base-content mb-2">Available Parameters</h4>
             <div class="space-y-2 text-sm">
@@ -371,15 +360,15 @@ defmodule DemoWeb.Stage2Live do
             Configure default styling in your application:
           </p>
           <pre class="bg-base-200 p-4 rounded-lg text-sm"><code># config/config.exs
-config :fly_map_ex,
-  default_style: :operational,
-  custom_presets: %{
-    brand_primary: FlyMapEx.Style.custom("#your-brand-color", [
-      size: 8,
-      animation: :pulse,
-      glow: true
-    ])
-  }</code></pre>
+          config :fly_map_ex,
+            default_style: :operational,
+            custom_presets: %{
+              brand_primary: FlyMapEx.Style.custom("#your-brand-color", [
+                size: 8,
+                animation: :pulse,
+                glow: true
+              ])
+            }</code></pre>
           <div class="mt-4">
             <h4 class="font-semibold text-base-content mb-2">Style Normalization</h4>
             <p class="text-sm text-base-content/70">
@@ -638,82 +627,82 @@ config :fly_map_ex,
     case example do
       "automatic" ->
         ~s"""
-marker_groups = [
-  %{
-    nodes: ["sjc", "fra"],
-    style: FlyMapEx.Style.cycle(0),
-    label: "Production Servers"
-  },
-  %{
-    nodes: ["ams", "lhr"],
-    style: FlyMapEx.Style.cycle(1),
-    label: "Staging Environment"
-  }
-]
+        marker_groups = [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.cycle(0),
+            label: "Production Servers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.cycle(1),
+            label: "Staging Environment"
+          }
+        ]
         """
 
       "semantic" ->
         ~s"""
-marker_groups = [
-  %{
-    nodes: ["sjc", "fra"],
-    style: FlyMapEx.Style.operational(),
-    label: "Production Servers"
-  },
-  %{
-    nodes: ["ams", "lhr"],
-    style: FlyMapEx.Style.warning(),
-    label: "Maintenance Mode"
-  },
-  %{
-    nodes: ["ord"],
-    style: FlyMapEx.Style.danger(),
-    label: "Failed Nodes"
-  }
-]
+        marker_groups = [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.operational(),
+            label: "Production Servers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.warning(),
+            label: "Maintenance Mode"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.danger(),
+            label: "Failed Nodes"
+          }
+        ]
         """
 
       "custom" ->
         ~s"""
-marker_groups = [
-  %{
-    nodes: ["sjc", "fra"],
-    style: FlyMapEx.Style.custom("#10b981", [
-      size: 8,
-      animation: :pulse,
-      glow: true
-    ]),
-    label: "High-Performance Servers"
-  }
-]
+        marker_groups = [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.custom("#10b981", [
+              size: 8,
+              animation: :pulse,
+              glow: true
+            ]),
+            label: "High-Performance Servers"
+          }
+        ]
         """
 
       "mixed" ->
         ~s"""
-marker_groups = [
-  %{
-    nodes: ["sjc", "fra"],
-    style: FlyMapEx.Style.operational(),  # Semantic
-    label: "Production (Semantic)"
-  },
-  %{
-    nodes: ["ams", "lhr"],
-    style: FlyMapEx.Style.cycle(1),      # Auto-cycle
-    label: "Staging (Auto-Cycle)"
-  },
-  %{
-    nodes: ["ord"],
-    style: FlyMapEx.Style.custom("#9333ea", [
-      size: 8, animation: :pulse, glow: true
-    ]),                                   # Custom
-    label: "Special Deploy (Custom)"
-  },
-  %{
-    nodes: ["nrt", "syd"],
-    style: :inactive,                    # Atom shorthand
-    label: "Offline (Atom)"
-  }
-]
+        marker_groups = [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.operational(),  # Semantic
+            label: "Production (Semantic)"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.cycle(1),      # Auto-cycle
+            label: "Staging (Auto-Cycle)"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.custom("#9333ea", [
+              size: 8, animation: :pulse, glow: true
+            ]),                                   # Custom
+            label: "Special Deploy (Custom)"
+          },
+          %{
+            nodes: ["nrt", "syd"],
+            style: :inactive,                    # Atom shorthand
+            label: "Offline (Atom)"
+          }
+        ]
         """
 
       _ ->

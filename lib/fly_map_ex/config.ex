@@ -139,7 +139,7 @@ defmodule FlyMapEx.Config do
 
   Returns: string of animation values for SVG animate element
   """
-  def pulse_radius_values(context, marker_radius) do
+  def pulse_radius_values(_context, marker_radius) do
     max_size = marker_radius + svg_pulse_size_delta()
     "#{marker_radius};#{max_size};#{marker_radius}"
   end

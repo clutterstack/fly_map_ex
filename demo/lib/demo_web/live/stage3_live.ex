@@ -264,18 +264,18 @@ defmodule DemoWeb.Stage3Live do
           <h4 class="font-medium text-warning mb-2">Implementation Example</h4>
           <p class="text-sm text-warning mb-2">Set up responsive theming in your CSS:</p>
           <pre class="text-xs text-warning/80 bg-warning/20 p-2 rounded"><code>:root {
-  --color-background: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-muted: #cbd5e1;
-}
+            --color-background: #f8fafc;
+            --color-border: #e2e8f0;
+            --color-muted: #cbd5e1;
+          }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #1e293b;
-    --color-border: #475569;
-    --color-muted: #334155;
-  }
-}</code></pre>
+          @media (prefers-color-scheme: dark) {
+            :root {
+              --color-background: #1e293b;
+              --color-border: #475569;
+              --color-muted: #334155;
+            }
+          }</code></pre>
         </div>
       </div>
 
@@ -393,9 +393,9 @@ defmodule DemoWeb.Stage3Live do
           <h4 class="font-medium text-primary mb-2">Application-Level Configuration</h4>
           <p class="text-sm text-primary mb-2">Set default themes in your config.exs:</p>
           <pre class="text-xs text-primary/80 bg-primary/20 p-2 rounded"><code># config/config.exs
-config :fly_map_ex,
-  default_theme: :responsive,
-  fallback_theme: :light</code></pre>
+          config :fly_map_ex,
+            default_theme: :responsive,
+            fallback_theme: :light</code></pre>
           <p class="text-sm text-primary mt-2">Components automatically use the configured theme when no explicit theme is provided.</p>
         </div>
 
@@ -447,13 +447,13 @@ config :fly_map_ex,
           <h4 class="font-medium text-base-content mb-2">Advanced Configuration</h4>
           <p class="text-sm text-base-content mb-2">For complex applications:</p>
           <pre class="text-xs text-base-content/80 bg-base-200 p-2 rounded"><code># Dynamic theme resolution
-def get_theme_for_user(user) do
-  case user.preferences do
-    %{theme: theme} when theme != nil -> theme
-    %{dark_mode: true} -> :dark
-    _ -> Application.get_env(:fly_map_ex, :default_theme)
-  end
-end</code></pre>
+          def get_theme_for_user(user) do
+            case user.preferences do
+              %{theme: theme} when theme != nil -> theme
+              %{dark_mode: true} -> :dark
+              _ -> Application.get_env(:fly_map_ex, :default_theme)
+            end
+          end</code></pre>
         </div>
       </div>
 
