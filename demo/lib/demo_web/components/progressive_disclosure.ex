@@ -36,7 +36,7 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
         class={[
           "w-full px-4 py-3 text-left flex items-center justify-between",
           "hover:bg-opacity-50 transition-colors duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset",
+          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
           get_header_classes(@color)
         ]}
         phx-click={JS.toggle(to: "##{@id}-content") |> JS.toggle_class("rotate-180", to: "##{@id}-icon")}
@@ -83,13 +83,13 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
     ~H"""
     <div class={["", @class]}>
       <!-- Tab Headers -->
-      <div class="flex space-x-1 border-b border-gray-200">
+      <div class="flex space-x-1 border-b border-base-300">
         <%= for tab <- @tabs do %>
           <button
             type="button"
             class={[
               "px-4 py-2 font-medium text-sm rounded-t-lg transition-colors duration-200",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset",
+              "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
               get_tab_classes(tab.id == @active_tab)
             ]}
             phx-click={show_tab(tab.id, @tabs)}
@@ -134,13 +134,13 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
       <div class="group">
         <%= render_slot(@inner_block) %>
         <div class={[
-          "absolute z-10 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm",
+          "absolute z-10 px-3 py-2 text-sm font-medium text-base-100 bg-neutral rounded-lg shadow-sm",
           "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
           "pointer-events-none whitespace-nowrap",
           get_tooltip_position(@position)
         ]}>
           <%= @text %>
-          <div class={["absolute w-2 h-2 bg-gray-900 transform rotate-45", get_tooltip_arrow(@position)]}>
+          <div class={["absolute w-2 h-2 bg-neutral transform rotate-45", get_tooltip_arrow(@position)]}>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
   def learn_more_section(assigns) do
     ~H"""
     <div class={["mt-8", @class]}>
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Learn More</h2>
+      <h2 class="text-2xl font-bold text-base-content mb-4">Learn More</h2>
       <div class="space-y-3">
         <%= for topic <- @topics do %>
           <.expandable_section
@@ -181,43 +181,43 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
 
   defp get_border_classes(color) do
     case color do
-      "blue" -> "border-blue-200"
-      "green" -> "border-green-200"
-      "purple" -> "border-purple-200"
-      "amber" -> "border-amber-200"
-      "red" -> "border-red-200"
-      _ -> "border-gray-200"
+      "blue" -> "border-primary/20"
+      "green" -> "border-success/20"
+      "purple" -> "border-secondary/20"
+      "amber" -> "border-warning/20"
+      "red" -> "border-error/20"
+      _ -> "border-base-300"
     end
   end
 
   defp get_header_classes(color) do
     case color do
-      "blue" -> "bg-blue-50 text-blue-900 hover:bg-blue-100"
-      "green" -> "bg-green-50 text-green-900 hover:bg-green-100"
-      "purple" -> "bg-purple-50 text-purple-900 hover:bg-purple-100"
-      "amber" -> "bg-amber-50 text-amber-900 hover:bg-amber-100"
-      "red" -> "bg-red-50 text-red-900 hover:bg-red-100"
-      _ -> "bg-gray-50 text-gray-900 hover:bg-gray-100"
+      "blue" -> "bg-primary/10 text-primary hover:bg-primary/20"
+      "green" -> "bg-success/10 text-success hover:bg-success/20"
+      "purple" -> "bg-secondary/10 text-secondary hover:bg-secondary/20"
+      "amber" -> "bg-warning/10 text-warning hover:bg-warning/20"
+      "red" -> "bg-error/10 text-error hover:bg-error/20"
+      _ -> "bg-base-200 text-base-content hover:bg-base-300"
     end
   end
 
   defp get_content_classes(color) do
     case color do
-      "blue" -> "bg-blue-25 border-blue-200"
-      "green" -> "bg-green-25 border-green-200"
-      "purple" -> "bg-purple-25 border-purple-200"
-      "amber" -> "bg-amber-25 border-amber-200"
-      "red" -> "bg-red-25 border-red-200"
-      _ -> "bg-gray-25 border-gray-200"
+      "blue" -> "bg-primary/5 border-primary/20"
+      "green" -> "bg-success/5 border-success/20"
+      "purple" -> "bg-secondary/5 border-secondary/20"
+      "amber" -> "bg-warning/5 border-warning/20"
+      "red" -> "bg-error/5 border-error/20"
+      _ -> "bg-base-100 border-base-300"
     end
   end
 
   defp get_tab_classes(true) do
-    "bg-white text-blue-600 border-b-2 border-blue-600"
+    "bg-base-100 text-primary border-b-2 border-primary"
   end
 
   defp get_tab_classes(false) do
-    "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+    "bg-base-200 text-base-content/80 hover:bg-base-300 hover:text-base-content"
   end
 
   defp get_tooltip_position("top") do
@@ -253,7 +253,7 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
   end
 
   defp show_tab(active_id, tabs) do
-    Enum.reduce(tabs, JS.new(), fn tab, js ->
+    Enum.reduce(tabs, %JS{}, fn tab, js ->
       if tab.id == active_id do
         JS.show(js, to: "#tab-#{tab.id}")
       else

@@ -47,10 +47,10 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
       <!-- Map Display -->
       <div class={["space-y-4", @map_class]}>
         <%= if @map_title || @title do %>
-          <h2 class="text-xl font-semibold text-gray-700"><%= @map_title || @title %></h2>
+          <h2 class="text-xl font-semibold text-base-content/80"><%= @map_title || @title %></h2>
         <% end %>
 
-        <div class="p-4 bg-gray-50 rounded-lg">
+        <div class="p-4 bg-base-200 rounded-lg">
           <FlyMapEx.render {@map_attrs} />
         </div>
       </div>
@@ -58,9 +58,9 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
       <!-- Code Display -->
       <%= if @show_code do %>
         <div class={["space-y-4", @code_class]}>
-          <h2 class="text-xl font-semibold text-gray-700"><%= @code_title %></h2>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <pre class="text-sm text-gray-800 overflow-x-auto"><code><%= @code_string %></code></pre>
+          <h2 class="text-xl font-semibold text-base-content/80"><%= @code_title %></h2>
+          <div class="bg-base-200 rounded-lg p-4">
+            <pre class="text-sm text-base-content overflow-x-auto"><code><%= @code_string %></code></pre>
           </div>
 
           <%= render_slot(@extra_content) %>

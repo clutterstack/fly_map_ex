@@ -30,7 +30,7 @@ defmodule DemoWeb.Components.InteractiveControls do
           phx-value-option={option.key}
           class={[
             "px-4 py-2 rounded-lg font-medium transition-all duration-200",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
             get_button_classes(option.key == @current)
           ]}
           title={option[:description]}
@@ -66,7 +66,7 @@ defmodule DemoWeb.Components.InteractiveControls do
       phx-click={@event}
       class={[
         "px-4 py-2 rounded-lg font-medium transition-all duration-200",
-        "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
         get_toggle_classes(@active, @active_color),
         @class
       ]}
@@ -121,13 +121,13 @@ defmodule DemoWeb.Components.InteractiveControls do
   
   def code_comparison(assigns) do
     ~H"""
-    <div class={["bg-gray-50 border border-gray-200 rounded-lg p-4", @class]}>
-      <h3 class="font-semibold text-gray-800 mb-2"><%= @title %></h3>
+    <div class={["bg-base-200 border border-base-300 rounded-lg p-4", @class]}>
+      <h3 class="font-semibold text-base-content mb-2"><%= @title %></h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <%= for comparison <- @comparisons do %>
           <div>
-            <h4 class="font-medium text-gray-700 mb-1"><%= comparison.title %></h4>
-            <pre class="bg-white p-2 rounded border text-gray-800 overflow-x-auto"><code><%= comparison.code %></code></pre>
+            <h4 class="font-medium text-base-content/80 mb-1"><%= comparison.title %></h4>
+            <pre class="bg-base-100 p-2 rounded border text-base-content overflow-x-auto"><code><%= comparison.code %></code></pre>
           </div>
         <% end %>
       </div>
@@ -151,9 +151,9 @@ defmodule DemoWeb.Components.InteractiveControls do
   
   def tabbed_info_panel(assigns) do
     ~H"""
-    <div class={["bg-white border border-gray-200 rounded-lg overflow-hidden", @class]}>
+    <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
       <!-- Tab Navigation -->
-      <div class="border-b border-gray-200 bg-gray-50">
+      <div class="border-b border-base-300 bg-base-200">
         <nav class="flex space-x-1 p-1">
           <%= for tab <- @tabs do %>
             <button
@@ -161,7 +161,7 @@ defmodule DemoWeb.Components.InteractiveControls do
               phx-value-option={tab.key}
               class={[
                 "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset",
+                "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
                 get_tab_classes(tab.key == @current)
               ]}
             >
@@ -192,77 +192,77 @@ defmodule DemoWeb.Components.InteractiveControls do
   
   defp get_button_classes(true) do
     [
-      "bg-blue-600 text-white shadow-md",
-      "hover:bg-blue-700 active:bg-blue-800",
-      "border-2 border-blue-600"
+      "bg-primary text-primary-content shadow-md",
+      "hover:bg-primary/80 active:bg-primary/60",
+      "border-2 border-primary"
     ]
   end
   
   defp get_button_classes(false) do
     [
-      "bg-gray-100 text-gray-700 border-2 border-gray-200",
-      "hover:bg-gray-200 hover:border-gray-300",
-      "active:bg-gray-300"
+      "bg-base-200 text-base-content border-2 border-base-300",
+      "hover:bg-base-300 hover:border-base-content/20",
+      "active:bg-base-content/20"
     ]
   end
   
   defp get_toggle_classes(true, color) do
     case color do
-      "blue" -> "bg-blue-600 text-white hover:bg-blue-700"
-      "green" -> "bg-green-600 text-white hover:bg-green-700"
-      "red" -> "bg-red-600 text-white hover:bg-red-700"
-      "purple" -> "bg-purple-600 text-white hover:bg-purple-700"
-      _ -> "bg-gray-600 text-white hover:bg-gray-700"
+      "blue" -> "bg-primary text-primary-content hover:bg-primary/80"
+      "green" -> "bg-success text-success-content hover:bg-success/80"
+      "red" -> "bg-error text-error-content hover:bg-error/80"
+      "purple" -> "bg-secondary text-secondary-content hover:bg-secondary/80"
+      _ -> "bg-neutral text-neutral-content hover:bg-neutral/80"
     end
   end
   
   defp get_toggle_classes(false, _color) do
-    "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    "bg-base-300 text-base-content hover:bg-base-content/20"
   end
   
   defp get_panel_classes(color) do
     case color do
-      "blue" -> "bg-blue-50 border-blue-200"
-      "green" -> "bg-green-50 border-green-200"
-      "purple" -> "bg-purple-50 border-purple-200"
-      "amber" -> "bg-amber-50 border-amber-200"
-      "red" -> "bg-red-50 border-red-200"
-      _ -> "bg-gray-50 border-gray-200"
+      "blue" -> "bg-primary/10 border-primary/20"
+      "green" -> "bg-success/10 border-success/20"
+      "purple" -> "bg-secondary/10 border-secondary/20"
+      "amber" -> "bg-warning/10 border-warning/20"
+      "red" -> "bg-error/10 border-error/20"
+      _ -> "bg-base-200 border-base-300"
     end
   end
   
   defp get_title_classes(color) do
     case color do
-      "blue" -> "text-blue-800"
-      "green" -> "text-green-800"
-      "purple" -> "text-purple-800"
-      "amber" -> "text-amber-800"
-      "red" -> "text-red-800"
-      _ -> "text-gray-800"
+      "blue" -> "text-primary"
+      "green" -> "text-success"
+      "purple" -> "text-secondary"
+      "amber" -> "text-warning"
+      "red" -> "text-error"
+      _ -> "text-base-content"
     end
   end
   
   defp get_content_classes(color) do
     case color do
-      "blue" -> "text-blue-700"
-      "green" -> "text-green-700"
-      "purple" -> "text-purple-700"
-      "amber" -> "text-amber-700"
-      "red" -> "text-red-700"
-      _ -> "text-gray-700"
+      "blue" -> "text-primary/80"
+      "green" -> "text-success/80"
+      "purple" -> "text-secondary/80"
+      "amber" -> "text-warning/80"
+      "red" -> "text-error/80"
+      _ -> "text-base-content/80"
     end
   end
 
   defp get_tab_classes(true) do
     [
-      "bg-white text-blue-600 shadow-sm border-blue-200",
+      "bg-base-100 text-primary shadow-sm border-primary/20",
       "border-t border-l border-r"
     ]
   end
 
   defp get_tab_classes(false) do
     [
-      "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+      "text-base-content/70 hover:text-base-content/80 hover:bg-base-200",
       "border-transparent"
     ]
   end

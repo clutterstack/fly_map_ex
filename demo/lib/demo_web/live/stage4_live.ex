@@ -1,7 +1,6 @@
 defmodule DemoWeb.Stage4Live do
   use DemoWeb, :live_view
 
-  alias DemoWeb.Layouts
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
@@ -63,16 +62,15 @@ defmodule DemoWeb.Stage4Live do
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
-          <h1 class="text-3xl font-bold text-gray-800">Stage 4: Interactive Builder</h1>
-          <Layouts.theme_toggle />
+          <h1 class="text-3xl font-bold text-base-content">Stage 4: Interactive Builder</h1>
         </div>
-        <p class="text-gray-600 mb-6">
+        <p class="text-base-content/70 mb-6">
           Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export.
         </p>
       </div>
 
       <!-- Full Width Map (Above the Fold) -->
-      <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+      <div class="mb-8 p-6 bg-base-200 rounded-lg">
         <FlyMapEx.render
           marker_groups={@marker_groups}
           theme={:responsive}
@@ -93,17 +91,17 @@ defmodule DemoWeb.Stage4Live do
 
         <!-- Code Examples Panel -->
         <div>
-          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-              <h3 class="font-semibold text-gray-800">Generated Code</h3>
+          <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+            <div class="bg-base-200 px-4 py-3 border-b border-base-300">
+              <h3 class="font-semibold text-base-content">Generated Code</h3>
             </div>
             <div class="p-4">
-              <pre class="text-sm text-gray-800 overflow-x-auto bg-gray-50 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @marker_groups, @export_format) %></code></pre>
+              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @marker_groups, @export_format) %></code></pre>
             </div>
 
             <!-- Quick Stats -->
-            <div class="bg-blue-50 border-t border-gray-200 px-4 py-3">
-              <div class="text-sm text-blue-700">
+            <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
+              <div class="text-sm text-primary">
                 <strong>Current:</strong> <%= get_current_description(@current_tab, @current_scenario) %> •
                 Format: <%= String.upcase(@export_format) %> •
                 <%= length(@marker_groups) %> groups • <%= count_total_nodes(@marker_groups) %> nodes
@@ -120,10 +118,10 @@ defmodule DemoWeb.Stage4Live do
 
       <!-- Navigation -->
       <div class="mt-8 flex justify-between">
-        <.link navigate={~p"/stage3"} class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+        <.link navigate={~p"/stage3"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
           ← Stage 3: Map Themes
         </.link>
-        <.link navigate={~p"/"} class="inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+        <.link navigate={~p"/"} class="inline-block bg-success text-success-content px-6 py-2 rounded-lg hover:bg-success/80 transition-colors">
           Complete Tour →
         </.link>
       </div>
@@ -136,59 +134,59 @@ defmodule DemoWeb.Stage4Live do
     """
     <div class="space-y-6">
       <div>
-        <h3 class="font-semibold text-gray-800 mb-3">Guided Scenarios</h3>
-        <p class="text-gray-600 text-sm mb-4">
+        <h3 class="font-semibold text-base-content mb-3">Guided Scenarios</h3>
+        <p class="text-base-content/70 text-sm mb-4">
           Learn by building real-world map configurations with step-by-step guidance.
           Each scenario demonstrates common patterns and best practices.
         </p>
       </div>
 
       <div class="space-y-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 class="font-medium text-blue-900 mb-2">Monitoring Dashboard</h4>
-          <p class="text-sm text-blue-800 mb-2">Track service health across multiple regions with status indicators.</p>
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Monitoring Dashboard</h4>
+          <p class="text-sm text-primary/80 mb-2">Track service health across multiple regions with status indicators.</p>
           <button 
             phx-click="switch_scenario" 
             phx-value-option="monitoring"
-            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+            class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
           >
             Load Scenario
           </button>
-          <ul class="text-sm text-blue-700 mt-2 space-y-1">
+          <ul class="text-sm text-primary/80 mt-2 space-y-1">
             <li>• Production servers marked as operational</li>
             <li>• Maintenance windows highlighted with warnings</li>
             <li>• Clear legend for status interpretation</li>
           </ul>
         </div>
 
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h4 class="font-medium text-green-900 mb-2">Deployment Map</h4>
-          <p class="text-sm text-green-800 mb-2">Visualize application rollouts and deployment status across regions.</p>
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Deployment Map</h4>
+          <p class="text-sm text-success/80 mb-2">Visualize application rollouts and deployment status across regions.</p>
           <button 
             phx-click="switch_scenario" 
             phx-value-option="deployment"
-            class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors"
+            class="bg-success text-success-content px-3 py-1 rounded text-sm hover:bg-success/80 transition-colors"
           >
             Load Scenario
           </button>
-          <ul class="text-sm text-green-700 mt-2 space-y-1">
+          <ul class="text-sm text-success/80 mt-2 space-y-1">
             <li>• Active deployments with animated markers</li>
             <li>• Completed deployments in stable states</li>
             <li>• Pending regions awaiting deployment</li>
           </ul>
         </div>
 
-        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <h4 class="font-medium text-purple-900 mb-2">Status Board</h4>
-          <p class="text-sm text-purple-800 mb-2">Create a comprehensive status overview for incident response and monitoring.</p>
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Status Board</h4>
+          <p class="text-sm text-secondary/80 mb-2">Create a comprehensive status overview for incident response and monitoring.</p>
           <button 
             phx-click="switch_scenario" 
             phx-value-option="status"
-            class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors"
+            class="bg-secondary text-secondary-content px-3 py-1 rounded text-sm hover:bg-secondary/80 transition-colors"
           >
             Load Scenario
           </button>
-          <ul class="text-sm text-purple-700 mt-2 space-y-1">
+          <ul class="text-sm text-secondary/80 mt-2 space-y-1">
             <li>• Critical issues highlighted with danger styling</li>
             <li>• Healthy services marked as operational</li>
             <li>• Maintenance and acknowledged states</li>
@@ -196,8 +194,8 @@ defmodule DemoWeb.Stage4Live do
         </div>
       </div>
 
-      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-        <p class="text-sm text-emerald-700">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+        <p class="text-sm text-success">
           <strong>Learning approach:</strong> Each scenario builds on concepts from previous stages,
           combining marker groups, styling, and theming into practical applications.
         </p>
@@ -210,56 +208,56 @@ defmodule DemoWeb.Stage4Live do
     """
     <div class="space-y-6">
       <div>
-        <h3 class="font-semibold text-gray-800 mb-3">Freeform Builder</h3>
-        <p class="text-gray-600 text-sm mb-4">
+        <h3 class="font-semibold text-base-content mb-3">Freeform Builder</h3>
+        <p class="text-base-content/70 text-sm mb-4">
           Build custom map configurations from scratch with full creative control.
           Perfect for unique requirements and experimental designs.
         </p>
       </div>
 
       <div class="space-y-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 class="font-medium text-blue-900 mb-2">Interactive Region Selection</h4>
-          <p class="text-sm text-blue-800 mb-2">Click regions on the map to build your marker groups dynamically.</p>
-          <ul class="text-sm text-blue-700 space-y-1">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Interactive Region Selection</h4>
+          <p class="text-sm text-primary/80 mb-2">Click regions on the map to build your marker groups dynamically.</p>
+          <ul class="text-sm text-primary space-y-1">
             <li>• Visual region picker with live preview</li>
             <li>• Drag and drop group organization</li>
             <li>• Real-time code generation</li>
           </ul>
-          <div class="mt-2 text-xs text-blue-600">
+          <div class="mt-2 text-xs text-primary/70">
             <em>Coming in Phase 2: Enhanced Interactivity</em>
           </div>
         </div>
 
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h4 class="font-medium text-green-900 mb-2">Custom Group Builder</h4>
-          <p class="text-sm text-green-800 mb-2">Create marker groups with custom styling and labels.</p>
-          <ul class="text-sm text-green-700 space-y-1">
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Custom Group Builder</h4>
+          <p class="text-sm text-success/80 mb-2">Create marker groups with custom styling and labels.</p>
+          <ul class="text-sm text-success space-y-1">
             <li>• Add/remove regions with search and autocomplete</li>
             <li>• Live style customization with sliders and pickers</li>
             <li>• Group management with reordering and duplication</li>
           </ul>
-          <div class="mt-2 text-xs text-green-600">
+          <div class="mt-2 text-xs text-success/70">
             <em>Coming in Phase 2: Enhanced Interactivity</em>
           </div>
         </div>
 
-        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <h4 class="font-medium text-purple-900 mb-2">Live Preview Canvas</h4>
-          <p class="text-sm text-purple-800 mb-2">See your changes instantly as you build.</p>
-          <ul class="text-sm text-purple-700 space-y-1">
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Live Preview Canvas</h4>
+          <p class="text-sm text-secondary/80 mb-2">See your changes instantly as you build.</p>
+          <ul class="text-sm text-secondary space-y-1">
             <li>• Real-time map updates during editing</li>
             <li>• Side-by-side comparison views</li>
             <li>• Undo/redo functionality</li>
           </ul>
-          <div class="mt-2 text-xs text-purple-600">
+          <div class="mt-2 text-xs text-secondary/70">
             <em>Coming in Phase 2: Enhanced Interactivity</em>
           </div>
         </div>
       </div>
 
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <p class="text-sm text-amber-700">
+      <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
+        <p class="text-sm text-warning">
           <strong>Current functionality:</strong> Use the guided scenarios to explore different configurations.
           Full freeform building tools will be added in Phase 2 with interactive controls and live editing.
         </p>
@@ -272,51 +270,51 @@ defmodule DemoWeb.Stage4Live do
     """
     <div class="space-y-6">
       <div>
-        <h3 class="font-semibold text-gray-800 mb-3">Export & Integration</h3>
-        <p class="text-gray-600 text-sm mb-4">
+        <h3 class="font-semibold text-base-content mb-3">Export & Integration</h3>
+        <p class="text-base-content/70 text-sm mb-4">
           Generate production-ready code in multiple formats for seamless integration
           into your Phoenix LiveView applications.
         </p>
       </div>
 
       <div class="space-y-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 class="font-medium text-blue-900 mb-2">Export Formats</h4>
-          <p class="text-sm text-blue-800 mb-2">Choose the format that best fits your integration needs:</p>
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Export Formats</h4>
+          <p class="text-sm text-primary/80 mb-2">Choose the format that best fits your integration needs:</p>
           <div class="flex gap-2 mb-2">
             <button 
               phx-click="switch_format" 
               phx-value-option="heex"
-              class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
             >
               HEEx Template
             </button>
             <button 
               phx-click="switch_format" 
               phx-value-option="elixir"
-              class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
             >
               Elixir Module
             </button>
             <button 
               phx-click="switch_format" 
               phx-value-option="json"
-              class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
             >
               JSON Config
             </button>
           </div>
-          <ul class="text-sm text-blue-700 space-y-1">
+          <ul class="text-sm text-primary space-y-1">
             <li>• <strong>HEEx:</strong> Direct template integration</li>
             <li>• <strong>Elixir:</strong> Reusable function modules</li>
             <li>• <strong>JSON:</strong> Configuration-driven approach</li>
           </ul>
         </div>
 
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h4 class="font-medium text-green-900 mb-2">Integration Patterns</h4>
-          <p class="text-sm text-green-800 mb-2">Common integration approaches:</p>
-          <ul class="text-sm text-green-700 space-y-1">
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Integration Patterns</h4>
+          <p class="text-sm text-success/80 mb-2">Common integration approaches:</p>
+          <ul class="text-sm text-success space-y-1">
             <li>• <strong>Direct Embed:</strong> Copy HEEx template into your LiveView</li>
             <li>• <strong>Function Component:</strong> Create reusable components</li>
             <li>• <strong>Configuration Module:</strong> Centralize map configurations</li>
@@ -324,10 +322,10 @@ defmodule DemoWeb.Stage4Live do
           </ul>
         </div>
 
-        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <h4 class="font-medium text-purple-900 mb-2">Production Considerations</h4>
-          <p class="text-sm text-purple-800 mb-2">Important factors for production deployment:</p>
-          <ul class="text-sm text-purple-700 space-y-1">
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Production Considerations</h4>
+          <p class="text-sm text-secondary/80 mb-2">Important factors for production deployment:</p>
+          <ul class="text-sm text-secondary space-y-1">
             <li>• <strong>Performance:</strong> Optimize for rendering speed</li>
             <li>• <strong>Maintainability:</strong> Structure for easy updates</li>
             <li>• <strong>Scalability:</strong> Handle growing data sets</li>
@@ -335,17 +333,17 @@ defmodule DemoWeb.Stage4Live do
           </ul>
         </div>
 
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <h4 class="font-medium text-amber-900 mb-2">Copy to Clipboard</h4>
-          <p class="text-sm text-amber-800 mb-2">Generated code is ready for immediate use:</p>
-          <div class="mt-2 text-xs text-amber-600">
+        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
+          <h4 class="font-medium text-warning mb-2">Copy to Clipboard</h4>
+          <p class="text-sm text-warning/80 mb-2">Generated code is ready for immediate use:</p>
+          <div class="mt-2 text-xs text-warning/70">
             <em>Coming in Phase 2: One-click clipboard integration</em>
           </div>
         </div>
       </div>
 
-      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-        <p class="text-sm text-emerald-700">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+        <p class="text-sm text-success">
           <strong>Integration tip:</strong> Start with HEEx templates for quick prototyping,
           then extract to Elixir modules for production applications with multiple maps.
         </p>
@@ -515,19 +513,19 @@ defmodule DemoWeb.Stage4Live do
         id: "scenario-templates",
         title: "Building Scenario Templates",
         description: "Create reusable templates for common map configurations",
-        content: "<p class='text-sm text-gray-700 mb-4'>Learn to build maintainable template systems for recurring map patterns.</p><ul class='text-sm text-gray-700 space-y-2'><li>• <strong>Template Structure:</strong> Design flexible, parameterized configurations</li><li>• <strong>Validation:</strong> Ensure template consistency and error handling</li><li>• <strong>Documentation:</strong> Create clear usage guides for template consumers</li></ul>"
+        content: "<p class='text-sm text-base-content/70 mb-4'>Learn to build maintainable template systems for recurring map patterns.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Template Structure:</strong> Design flexible, parameterized configurations</li><li>• <strong>Validation:</strong> Ensure template consistency and error handling</li><li>• <strong>Documentation:</strong> Create clear usage guides for template consumers</li></ul>"
       },
       %{
         id: "integration-patterns",
         title: "Production Integration Patterns",
         description: "Best practices for deploying maps in production applications",
-        content: "<p class='text-sm text-gray-700 mb-4'>Proven patterns for integrating FlyMapEx into production Phoenix applications.</p><ul class='text-sm text-gray-700 space-y-2'><li>• <strong>Data Loading:</strong> Efficient strategies for dynamic marker group loading</li><li>• <strong>Caching:</strong> Optimize performance with smart caching approaches</li><li>• <strong>Error Handling:</strong> Graceful degradation for missing regions or data</li></ul>"
+        content: "<p class='text-sm text-base-content/70 mb-4'>Proven patterns for integrating FlyMapEx into production Phoenix applications.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Data Loading:</strong> Efficient strategies for dynamic marker group loading</li><li>• <strong>Caching:</strong> Optimize performance with smart caching approaches</li><li>• <strong>Error Handling:</strong> Graceful degradation for missing regions or data</li></ul>"
       },
       %{
         id: "advanced-customization",
         title: "Advanced Customization Techniques",
         description: "Extend FlyMapEx with custom components and behaviors",
-        content: "<p class='text-sm text-gray-700 mb-4'>Advanced techniques for building custom map experiences beyond standard configurations.</p><ul class='text-sm text-gray-700 space-y-2'><li>• <strong>Custom Styles:</strong> Create entirely custom marker and map styles</li><li>• <strong>Interactive Elements:</strong> Add click handlers and hover effects</li><li>• <strong>Animation Control:</strong> Fine-tune animations for specific use cases</li></ul>"
+        content: "<p class='text-sm text-base-content/70 mb-4'>Advanced techniques for building custom map experiences beyond standard configurations.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Custom Styles:</strong> Create entirely custom marker and map styles</li><li>• <strong>Interactive Elements:</strong> Add click handlers and hover effects</li><li>• <strong>Animation Control:</strong> Fine-tune animations for specific use cases</li></ul>"
       }
     ]
   end

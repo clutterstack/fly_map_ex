@@ -1,7 +1,6 @@
 defmodule DemoWeb.Stage2Live do
   use DemoWeb, :live_view
 
-  alias DemoWeb.Layouts
   import DemoWeb.Components.MapWithCodeComponent
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
@@ -179,16 +178,15 @@ defmodule DemoWeb.Stage2Live do
       <!-- Stage Title & Progress -->
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
-          <h1 class="text-3xl font-bold text-gray-800">Stage 2: Styling Markers</h1>
-          <Layouts.theme_toggle />
+          <h1 class="text-3xl font-bold text-base-content">Stage 2: Styling Markers</h1>
         </div>
-        <p class="text-gray-600 mb-6">
+        <p class="text-base-content/70 mb-6">
           Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system.
         </p>
       </div>
 
       <!-- Full Width Map (Above the Fold) -->
-      <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+      <div class="mb-8 p-6 bg-base-200 rounded-lg">
         <FlyMapEx.render
           marker_groups={current_marker_groups(assigns)}
           theme={:responsive}
@@ -209,17 +207,17 @@ defmodule DemoWeb.Stage2Live do
 
         <!-- Code Examples Panel -->
         <div>
-          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-              <h3 class="font-semibold text-gray-800">Code Example</h3>
+          <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+            <div class="bg-base-200 px-4 py-3 border-b border-base-300">
+              <h3 class="font-semibold text-base-content">Code Example</h3>
             </div>
             <div class="p-4">
-              <pre class="text-sm text-gray-800 overflow-x-auto bg-gray-50 p-3 rounded"><code><%= get_focused_code(@current_example, current_marker_groups(assigns)) %></code></pre>
+              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_focused_code(@current_example, current_marker_groups(assigns)) %></code></pre>
             </div>
 
             <!-- Quick Stats -->
-            <div class="bg-blue-50 border-t border-gray-200 px-4 py-3">
-              <div class="text-sm text-blue-700">
+            <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
+              <div class="text-sm text-primary">
                 <strong>Current Configuration:</strong> <%= get_current_description(@current_example) %> •
                 <%= length(current_marker_groups(assigns)) %> groups •
                 <%= count_total_nodes(current_marker_groups(assigns)) %> nodes
@@ -236,10 +234,10 @@ defmodule DemoWeb.Stage2Live do
 
       <!-- Navigation -->
       <div class="mt-8 flex justify-between">
-        <.link navigate={~p"/stage1"} class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+        <.link navigate={~p"/stage1"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
           ← Stage 1: Defining Marker Groups
         </.link>
-        <.link navigate={~p"/stage3"} class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <.link navigate={~p"/stage3"} class="inline-block bg-primary text-primary-content px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors">
           Next: Stage 3 - Map Themes →
         </.link>
       </div>
@@ -282,26 +280,26 @@ defmodule DemoWeb.Stage2Live do
         title: "Style Function Reference",
         content: ~s"""
         <div class="space-y-4">
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-base-content/80">
             FlyMapEx provides multiple approaches to styling markers:
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 class="font-semibold text-gray-800 mb-2">Automatic Cycling</h4>
-              <ul class="text-sm text-gray-600 space-y-1">
-                <li>• <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.cycle(0)</code> - Blue</li>
-                <li>• <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.cycle(1)</code> - Green</li>
-                <li>• <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.cycle(2)</code> - Red</li>
+              <h4 class="font-semibold text-base-content mb-2">Automatic Cycling</h4>
+              <ul class="text-sm text-base-content/70 space-y-1">
+                <li>• <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.cycle(0)</code> - Blue</li>
+                <li>• <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.cycle(1)</code> - Green</li>
+                <li>• <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.cycle(2)</code> - Red</li>
                 <li>• Cycles through 12 predefined colors</li>
               </ul>
             </div>
             <div>
-              <h4 class="font-semibold text-gray-800 mb-2">Semantic Presets</h4>
-              <ul class="text-sm text-gray-600 space-y-1">
-                <li>• <code class="bg-gray-100 px-1 rounded">operational()</code> - Running services</li>
-                <li>• <code class="bg-gray-100 px-1 rounded">warning()</code> - Needs attention</li>
-                <li>• <code class="bg-gray-100 px-1 rounded">danger()</code> - Critical issues</li>
-                <li>• <code class="bg-gray-100 px-1 rounded">inactive()</code> - Not running</li>
+              <h4 class="font-semibold text-base-content mb-2">Semantic Presets</h4>
+              <ul class="text-sm text-base-content/70 space-y-1">
+                <li>• <code class="bg-base-200 px-1 rounded">operational()</code> - Running services</li>
+                <li>• <code class="bg-base-200 px-1 rounded">warning()</code> - Needs attention</li>
+                <li>• <code class="bg-base-200 px-1 rounded">danger()</code> - Critical issues</li>
+                <li>• <code class="bg-base-200 px-1 rounded">inactive()</code> - Not running</li>
               </ul>
             </div>
           </div>
@@ -313,16 +311,16 @@ defmodule DemoWeb.Stage2Live do
         title: "Custom Style Parameters",
         content: ~s"""
         <div class="space-y-4">
-          <p class="text-sm text-gray-700">
-            Build completely custom styles with <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.custom/2</code>:
+          <p class="text-sm text-base-content/80">
+            Build completely custom styles with <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.custom/2</code>:
           </p>
-          <pre class="bg-gray-100 p-4 rounded-lg text-sm"><code>FlyMapEx.Style.custom("#3b82f6", [
+          <pre class="bg-base-200 p-4 rounded-lg text-sm"><code>FlyMapEx.Style.custom("#3b82f6", [
   size: 10,        # radius in pixels
   animation: :pulse,   # :none, :pulse, :fade
   glow: true       # enable glow effect
 ])</code></pre>
           <div class="mt-4">
-            <h4 class="font-semibold text-gray-800 mb-2">Available Parameters</h4>
+            <h4 class="font-semibold text-base-content mb-2">Available Parameters</h4>
             <div class="space-y-2 text-sm">
               <div>
                 <strong>size:</strong> Marker radius in pixels (default: 6)
@@ -344,8 +342,8 @@ defmodule DemoWeb.Stage2Live do
         content: ~s"""
         <div class="space-y-4">
           <div>
-            <h4 class="font-semibold text-gray-800 mb-2">Performance Considerations</h4>
-            <ul class="text-sm text-gray-600 space-y-1">
+            <h4 class="font-semibold text-base-content mb-2">Performance Considerations</h4>
+            <ul class="text-sm text-base-content/70 space-y-1">
               <li>• Animated markers use CSS animations for smooth performance</li>
               <li>• Glow effects add minimal overhead with box-shadow</li>
               <li>• Use semantic presets for consistent styling across your app</li>
@@ -353,8 +351,8 @@ defmodule DemoWeb.Stage2Live do
             </ul>
           </div>
           <div>
-            <h4 class="font-semibold text-gray-800 mb-2">Styling Strategies</h4>
-            <ul class="text-sm text-gray-600 space-y-1">
+            <h4 class="font-semibold text-base-content mb-2">Styling Strategies</h4>
+            <ul class="text-sm text-base-content/70 space-y-1">
               <li>• <strong>Automatic:</strong> Use cycle() for consistent multi-group colors</li>
               <li>• <strong>Semantic:</strong> Use presets for meaningful status indicators</li>
               <li>• <strong>Custom:</strong> Use custom() for brand-specific styling</li>
@@ -369,10 +367,10 @@ defmodule DemoWeb.Stage2Live do
         title: "Production Configuration",
         content: ~s"""
         <div class="space-y-4">
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-base-content/80">
             Configure default styling in your application:
           </p>
-          <pre class="bg-gray-100 p-4 rounded-lg text-sm"><code># config/config.exs
+          <pre class="bg-base-200 p-4 rounded-lg text-sm"><code># config/config.exs
 config :fly_map_ex,
   default_style: :operational,
   custom_presets: %{
@@ -383,11 +381,11 @@ config :fly_map_ex,
     ])
   }</code></pre>
           <div class="mt-4">
-            <h4 class="font-semibold text-gray-800 mb-2">Style Normalization</h4>
-            <p class="text-sm text-gray-600">
+            <h4 class="font-semibold text-base-content mb-2">Style Normalization</h4>
+            <p class="text-sm text-base-content/70">
               FlyMapEx automatically normalizes various style formats:
             </p>
-            <ul class="text-sm text-gray-600 space-y-1 mt-2">
+            <ul class="text-sm text-base-content/70 space-y-1 mt-2">
               <li>• Atoms (`:operational`) → style maps</li>
               <li>• Function calls (`operational()`) → style maps</li>
               <li>• Keyword lists → normalized style maps</li>
@@ -405,37 +403,37 @@ config :fly_map_ex,
     ~s"""
     <div class="space-y-4">
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2">Automatic Color Cycling</h4>
-        <p class="text-sm text-gray-600 mb-3">
-          The <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.cycle/1</code> function automatically assigns consistent colors to multiple groups without manual specification.
+        <h4 class="font-semibold text-base-content mb-2">Automatic Color Cycling</h4>
+        <p class="text-sm text-base-content/70 mb-3">
+          The <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.cycle/1</code> function automatically assigns consistent colors to multiple groups without manual specification.
         </p>
       </div>
 
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h5 class="font-medium text-blue-800 mb-2">Color Progression</h5>
+      <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+        <h5 class="font-medium text-primary mb-2">Color Progression</h5>
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-blue-600"></div>
-            <span class="text-blue-700">cycle(0) - Blue</span>
+            <div class="w-4 h-4 rounded-full bg-primary"></div>
+            <span class="text-primary/80">cycle(0) - Blue</span>
           </div>
           <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-green-600"></div>
-            <span class="text-blue-700">cycle(1) - Green</span>
+            <div class="w-4 h-4 rounded-full bg-success"></div>
+            <span class="text-primary/80">cycle(1) - Green</span>
           </div>
           <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-red-600"></div>
-            <span class="text-blue-700">cycle(2) - Red</span>
+            <div class="w-4 h-4 rounded-full bg-error"></div>
+            <span class="text-primary/80">cycle(2) - Red</span>
           </div>
           <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 rounded-full bg-purple-600"></div>
-            <span class="text-blue-700">cycle(3) - Purple</span>
+            <div class="w-4 h-4 rounded-full bg-secondary"></div>
+            <span class="text-primary/80">cycle(3) - Purple</span>
           </div>
         </div>
       </div>
 
       <div>
-        <h5 class="font-medium text-gray-800 mb-2">When to Use</h5>
-        <ul class="text-sm text-gray-600 space-y-1">
+        <h5 class="font-medium text-base-content mb-2">When to Use</h5>
+        <ul class="text-sm text-base-content/70 space-y-1">
           <li>• Multiple groups with equal importance</li>
           <li>• Need consistent visual hierarchy</li>
           <li>• Want to avoid color conflicts</li>
@@ -443,8 +441,8 @@ config :fly_map_ex,
         </ul>
       </div>
 
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-        <p class="text-xs text-gray-600">
+      <div class="bg-base-200 border border-base-300 rounded-lg p-3">
+        <p class="text-xs text-base-content/70">
           <strong>Pro Tip:</strong> cycle() automatically wraps after 12 colors, ensuring visual consistency across any number of groups.
         </p>
       </div>
@@ -456,48 +454,48 @@ config :fly_map_ex,
     ~s"""
     <div class="space-y-4">
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2">Semantic Styling</h4>
-        <p class="text-sm text-gray-600 mb-3">
+        <h4 class="font-semibold text-base-content mb-2">Semantic Styling</h4>
+        <p class="text-sm text-base-content/70 mb-3">
           Use meaningful preset functions that convey status and state at a glance.
         </p>
       </div>
 
       <div class="space-y-3">
-        <div class="flex items-start space-x-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-green-600 mt-0.5"></div>
+        <div class="flex items-start space-x-3 p-3 bg-success/10 border border-success/20 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-success mt-0.5"></div>
           <div>
-            <h5 class="font-medium text-green-800">operational()</h5>
-            <p class="text-sm text-green-700">Healthy, running services. Green, static markers.</p>
+            <h5 class="font-medium text-success">operational()</h5>
+            <p class="text-sm text-success/80">Healthy, running services. Green, static markers.</p>
           </div>
         </div>
 
-        <div class="flex items-start space-x-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-amber-500 mt-0.5"></div>
+        <div class="flex items-start space-x-3 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-warning mt-0.5"></div>
           <div>
-            <h5 class="font-medium text-amber-800">warning()</h5>
-            <p class="text-sm text-amber-700">Needs attention. Amber, static markers.</p>
+            <h5 class="font-medium text-warning">warning()</h5>
+            <p class="text-sm text-warning/80">Needs attention. Amber, static markers.</p>
           </div>
         </div>
 
-        <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-red-600 animate-pulse mt-0.5"></div>
+        <div class="flex items-start space-x-3 p-3 bg-error/10 border border-error/20 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-error animate-pulse mt-0.5"></div>
           <div>
-            <h5 class="font-medium text-red-800">danger()</h5>
-            <p class="text-sm text-red-700">Critical issues. Red, pulsing animation for attention.</p>
+            <h5 class="font-medium text-error">danger()</h5>
+            <p class="text-sm text-error/80">Critical issues. Red, pulsing animation for attention.</p>
           </div>
         </div>
 
-        <div class="flex items-start space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-gray-500 mt-0.5"></div>
+        <div class="flex items-start space-x-3 p-3 bg-base-200 border border-base-300 rounded-lg">
+          <div class="w-4 h-4 rounded-full bg-base-content/20 mt-0.5"></div>
           <div>
-            <h5 class="font-medium text-gray-800">inactive()</h5>
-            <p class="text-sm text-gray-700">Not running or offline. Gray, static markers.</p>
+            <h5 class="font-medium text-base-content">inactive()</h5>
+            <p class="text-sm text-base-content/80">Not running or offline. Gray, static markers.</p>
           </div>
         </div>
       </div>
 
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p class="text-xs text-blue-700">
+      <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+        <p class="text-xs text-primary/80">
           <strong>Best Practice:</strong> Use semantic styles for monitoring dashboards and status displays where color meaning is crucial.
         </p>
       </div>
@@ -509,62 +507,62 @@ config :fly_map_ex,
     ~s"""
     <div class="space-y-4">
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2">Custom Parameters</h4>
-        <p class="text-sm text-gray-600 mb-3">
-          Build completely custom styles with <code class="bg-gray-100 px-1 rounded">FlyMapEx.Style.custom/2</code> for brand-specific or unique requirements.
+        <h4 class="font-semibold text-base-content mb-2">Custom Parameters</h4>
+        <p class="text-sm text-base-content/70 mb-3">
+          Build completely custom styles with <code class="bg-base-200 px-1 rounded">FlyMapEx.Style.custom/2</code> for brand-specific or unique requirements.
         </p>
       </div>
 
       <div class="space-y-3">
-        <div class="border border-gray-200 rounded-lg p-3">
-          <h5 class="font-medium text-gray-800 mb-2">Size Parameter</h5>
+        <div class="border border-base-300 rounded-lg p-3">
+          <h5 class="font-medium text-base-content mb-2">Size Parameter</h5>
           <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+            <div class="w-2 h-2 rounded-full bg-primary"></div>
             <span class="text-sm">size: 4</span>
-            <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+            <div class="w-3 h-3 rounded-full bg-primary"></div>
             <span class="text-sm">size: 6 (default)</span>
-            <div class="w-4 h-4 rounded-full bg-blue-600"></div>
+            <div class="w-4 h-4 rounded-full bg-primary"></div>
             <span class="text-sm">size: 8</span>
-            <div class="w-5 h-5 rounded-full bg-blue-600"></div>
+            <div class="w-5 h-5 rounded-full bg-primary"></div>
             <span class="text-sm">size: 10</span>
           </div>
         </div>
 
-        <div class="border border-gray-200 rounded-lg p-3">
-          <h5 class="font-medium text-gray-800 mb-2">Animation Options</h5>
+        <div class="border border-base-300 rounded-lg p-3">
+          <h5 class="font-medium text-base-content mb-2">Animation Options</h5>
           <div class="space-y-2 text-sm">
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 rounded-full bg-gray-600"></div>
+              <div class="w-3 h-3 rounded-full bg-base-content/40"></div>
               <span>:none - Static markers</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 rounded-full bg-blue-600 animate-pulse"></div>
+              <div class="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
               <span>:pulse - Radius grows/shrinks</span>
             </div>
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 rounded-full bg-green-600" style="animation: fade 2s infinite;"></div>
+              <div class="w-3 h-3 rounded-full bg-success" style="animation: fade 2s infinite;"></div>
               <span>:fade - Opacity changes</span>
             </div>
           </div>
         </div>
 
-        <div class="border border-gray-200 rounded-lg p-3">
-          <h5 class="font-medium text-gray-800 mb-2">Glow Effect</h5>
+        <div class="border border-base-300 rounded-lg p-3">
+          <h5 class="font-medium text-base-content mb-2">Glow Effect</h5>
           <div class="flex items-center space-x-4">
             <div class="text-center">
-              <div class="w-4 h-4 rounded-full bg-purple-600 mx-auto mb-1"></div>
+              <div class="w-4 h-4 rounded-full bg-secondary mx-auto mb-1"></div>
               <span class="text-xs">glow: false</span>
             </div>
             <div class="text-center">
-              <div class="w-4 h-4 rounded-full bg-purple-600 mx-auto mb-1" style="box-shadow: 0 0 8px #9333ea;"></div>
+              <div class="w-4 h-4 rounded-full bg-secondary mx-auto mb-1" style="box-shadow: 0 0 8px hsl(var(--s));"></div>
               <span class="text-xs">glow: true</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
-        <p class="text-xs text-purple-700">
+      <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-3">
+        <p class="text-xs text-secondary/80">
           <strong>Use Case:</strong> Perfect for brand-specific styling, special alerts, or when you need precise control over appearance.
         </p>
       </div>
@@ -576,49 +574,49 @@ config :fly_map_ex,
     ~s"""
     <div class="space-y-4">
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2">Mixed Approaches</h4>
-        <p class="text-sm text-gray-600 mb-3">
+        <h4 class="font-semibold text-base-content mb-2">Mixed Approaches</h4>
+        <p class="text-sm text-base-content/70 mb-3">
           Combine different styling methods in one configuration for complex real-world scenarios.
         </p>
       </div>
 
       <div class="space-y-3">
-        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+        <div class="bg-success/10 border border-success/20 rounded-lg p-3">
           <div class="flex items-center space-x-2 mb-2">
-            <div class="w-3 h-3 rounded-full bg-green-600"></div>
-            <h5 class="font-medium text-green-800">Semantic Functions</h5>
+            <div class="w-3 h-3 rounded-full bg-success"></div>
+            <h5 class="font-medium text-success">Semantic Functions</h5>
           </div>
-          <p class="text-sm text-green-700">Use operational(), warning(), etc. for critical status indicators.</p>
+          <p class="text-sm text-success/80">Use operational(), warning(), etc. for critical status indicators.</p>
         </div>
 
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
           <div class="flex items-center space-x-2 mb-2">
-            <div class="w-3 h-3 rounded-full bg-blue-600"></div>
-            <h5 class="font-medium text-blue-800">Auto-Cycling</h5>
+            <div class="w-3 h-3 rounded-full bg-primary"></div>
+            <h5 class="font-medium text-primary">Auto-Cycling</h5>
           </div>
-          <p class="text-sm text-blue-700">Use cycle() for equal-importance groupings.</p>
+          <p class="text-sm text-primary/80">Use cycle() for equal-importance groupings.</p>
         </div>
 
-        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-3">
           <div class="flex items-center space-x-2 mb-2">
-            <div class="w-4 h-4 rounded-full bg-purple-600 animate-pulse" style="box-shadow: 0 0 6px #9333ea;"></div>
-            <h5 class="font-medium text-purple-800">Custom Styling</h5>
+            <div class="w-4 h-4 rounded-full bg-secondary animate-pulse" style="box-shadow: 0 0 6px hsl(var(--s));"></div>
+            <h5 class="font-medium text-secondary">Custom Styling</h5>
           </div>
-          <p class="text-sm text-purple-700">Use custom() for special cases requiring unique appearance.</p>
+          <p class="text-sm text-secondary/80">Use custom() for special cases requiring unique appearance.</p>
         </div>
 
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+        <div class="bg-base-200 border border-base-300 rounded-lg p-3">
           <div class="flex items-center space-x-2 mb-2">
-            <div class="w-3 h-3 rounded-full bg-gray-600"></div>
-            <h5 class="font-medium text-gray-800">Atom Shortcuts</h5>
+            <div class="w-3 h-3 rounded-full bg-base-content/40"></div>
+            <h5 class="font-medium text-base-content">Atom Shortcuts</h5>
           </div>
-          <p class="text-sm text-gray-700">Use :inactive, :operational atoms for convenience.</p>
+          <p class="text-sm text-base-content/80">Use :inactive, :operational atoms for convenience.</p>
         </div>
       </div>
 
       <div>
-        <h5 class="font-medium text-gray-800 mb-2">Common Patterns</h5>
-        <ul class="text-sm text-gray-600 space-y-1">
+        <h5 class="font-medium text-base-content mb-2">Common Patterns</h5>
+        <ul class="text-sm text-base-content/70 space-y-1">
           <li>• <strong>Primary systems:</strong> Semantic styles for critical monitoring</li>
           <li>• <strong>Secondary groups:</strong> Auto-cycling for organization</li>
           <li>• <strong>Special alerts:</strong> Custom styles for unique cases</li>
@@ -626,8 +624,8 @@ config :fly_map_ex,
         </ul>
       </div>
 
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <p class="text-xs text-amber-700">
+      <div class="bg-warning/10 border border-warning/20 rounded-lg p-3">
+        <p class="text-xs text-warning/80">
           <strong>Production Tip:</strong> Start with semantic styles for core functionality, then add cycling and custom styles as needed.
         </p>
       </div>

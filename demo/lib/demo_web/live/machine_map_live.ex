@@ -8,7 +8,6 @@ defmodule DemoWeb.MachineMapLive do
   use Phoenix.LiveView
 
   alias Demo.MachineDiscovery
-  alias DemoWeb.Layouts
   alias DemoWeb.Components.LoadingOverlay
   import DemoWeb.Components.DemoNavigation
 
@@ -174,7 +173,6 @@ defmodule DemoWeb.MachineMapLive do
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-base-content">Fly.io Multi-App Machine Map</h1>
-        <Layouts.theme_toggle />
       </div>
       <h2 class="text-xl mb-4 text-base-content">Apps with active Machines on this network</h2>
 
