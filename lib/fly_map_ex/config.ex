@@ -47,13 +47,14 @@ defmodule FlyMapEx.Config do
 
   ## Examples
 
-      iex> FlyMapEx.Config.marker_base_radius()
+      iex> FlyMapEx.Config.region_marker_radius()
       2
 
   """
-  def marker_base_radius do
-    Application.get_env(:fly_map_ex, :marker_base_radius, 2)
+  def region_marker_radius do
+    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5*default_marker_radius()))
   end
+
 
   @doc """
   Neutral colour for Fly region markers in light mode.
@@ -135,13 +136,13 @@ defmodule FlyMapEx.Config do
   Generates pulse animation values for radius based on context and base size.
 
   ## Parameters
-  - base_size: base radius size
+  - marker_radius: base radius size
 
   Returns: string of animation values for SVG animate element
   """
-  def pulse_radius_values(context, base_size) do
-        max_size = base_size + svg_pulse_size_delta()
-        "#{base_size};#{max_size};#{base_size}"
+  def pulse_radius_values(context, marker_radius) do
+        max_size = marker_radius + svg_pulse_size_delta()
+        "#{marker_radius};#{max_size};#{marker_radius}"
   end
 
   @doc """
@@ -166,35 +167,6 @@ defmodule FlyMapEx.Config do
     Application.get_env(:fly_map_ex, :layout_mode, :stacked)
   end
 
-  @doc """
-  Blur radius for glow effects in pixels.
-
-  Controls how spread out the glow effect appears around markers.
-  Default: 2
-  """
-  def glow_blur_radius do
-    Application.get_env(:fly_map_ex, :glow_blur_radius, 2)
-  end
-
-  @doc """
-  Opacity for glow effects.
-
-  Controls how transparent/opaque the glow appears.
-  Default: 0.6
-  """
-  def glow_opacity do
-    Application.get_env(:fly_map_ex, :glow_opacity, 0.6)
-  end
-
-  @doc """
-  Size multiplier for glow effects relative to marker size.
-
-  Determines how much larger the glow is compared to the base marker.
-  Default: 1.5
-  """
-  def glow_size_multiplier do
-    Application.get_env(:fly_map_ex, :glow_size_multiplier, 1.5)
-  end
 
   @doc """
   Size multiplier for legend marker SVG containers relative to marker size.
@@ -210,12 +182,11 @@ defmodule FlyMapEx.Config do
   @doc """
   Default marker size in pixels when no size is specified in style.
 
-  This is used as the fallback size for markers when neither size_override
-  nor style.size is provided.
-  Default: 6
+  This is used as the fallback size for markers when style.size is not provided.
+  Default: 8
   """
-  def default_marker_size do
-    Application.get_env(:fly_map_ex, :default_marker_size, 6)
+  def default_marker_radius do
+    Application.get_env(:fly_map_ex, :default_marker_radius, 8)
   end
 
   @doc """

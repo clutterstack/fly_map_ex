@@ -156,7 +156,7 @@ defmodule FlyMapEx.Components.LegendComponent do
             phx-value-group-label={if Map.has_key?(group, :group_label), do: group.group_label, else: nil}
           >
             <div class="flex-shrink-0 mt-0.5 p-0.5">
-                <Marker.marker style={group.style} mode={:legend} size_override={6} />
+                <Marker.marker style={group.style} mode={:legend} />
             </div>
             <div class="flex-grow min-w-0">
               <div class={[

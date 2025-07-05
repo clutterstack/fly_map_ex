@@ -1,389 +1,532 @@
 defmodule DemoWeb.Stage4Live do
   use DemoWeb, :live_view
 
-  alias DemoWeb.Layouts
   import DemoWeb.Components.DemoNavigation
-  import DemoWeb.Components.MapWithCodeComponent
+  import DemoWeb.Components.InteractiveControls
+  import DemoWeb.Components.ProgressiveDisclosure
 
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(:current_demo, "color_cycling")
-      |> assign(:custom_colour, "#3b82f6")
-      |> assign(:custom_size, 8)
-      |> assign(:custom_animation, "none")
-      |> assign(:custom_glow, false)
-      |> update_marker_groups()
-
-    {:ok, socket}
-  end
-
-  def handle_event("demo_change", %{"demo" => demo}, socket) do
-    socket =
-      socket
-      |> assign(:current_demo, demo)
-      |> update_marker_groups()
-
-    {:noreply, socket}
-  end
-
-  def handle_event("update_custom", params, socket) do
-    socket =
-      socket
-      |> assign(:custom_colour, Map.get(params, "colour", socket.assigns.custom_colour))
-      |> assign(:custom_size,
-          case Map.get(params, "size") do
-            nil -> socket.assigns.custom_size
-            size_str -> String.to_integer(size_str)
-          end)
-      |> assign(:custom_animation, Map.get(params, "animation", socket.assigns.custom_animation))
-      |> assign(:custom_glow, Map.get(params, "glow") == "true")
-      |> update_marker_groups()
-
-    {:noreply, socket}
-  end
-
-  defp update_marker_groups(socket) do
-    marker_groups =
-      case socket.assigns.current_demo do
-        "color_cycling" -> color_cycling_groups()
-        "animation_showcase" -> animation_showcase_groups()
-        "custom_builder" -> custom_builder_groups(socket.assigns)
-        _ -> color_cycling_groups()
-      end
-
-    assign(socket, :marker_groups, marker_groups)
-  end
-
-  defp color_cycling_groups do
-    [
-      %{nodes: ["sjc"], label: "App Server 1"},
-      %{nodes: ["fra"], label: "App Server 2"},
-      %{nodes: ["ams"], label: "Database Cluster"},
-      %{nodes: ["lhr"], label: "Cache Layer"},
-      %{nodes: ["ord"], label: "Background Jobs"},
-      %{nodes: ["nrt"], label: "Analytics Engine"},
-      %{nodes: ["syd"], label: "File Storage"},
-      %{nodes: ["sin"], label: "Message Queue"}
-    ]
-  end
-
-  defp animation_showcase_groups do
-    [
+    # Default scenario: monitoring dashboard
+    marker_groups = [
       %{
-        nodes: ["sjc"],
-        style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse),
-        label: "Pulse Animation"
+        nodes: ["sjc", "fra", "ams", "lhr"],
+        style: FlyMapEx.Style.operational(),
+        label: "Production Servers"
       },
       %{
-        nodes: ["ams"],
-        style: FlyMapEx.Style.custom("#3b82f6", size: 10, animation: :fade),
-        label: "Fade Animation"
-      },
-      %{
-        nodes: ["lhr"],
-        style: FlyMapEx.Style.custom("#10b981", size: 10, animation: :none),
-        label: "No Animation (Static)"
+        nodes: ["syd", "nrt"],
+        style: FlyMapEx.Style.warning(),
+        label: "Maintenance Windows"
       }
     ]
-  end
 
-  defp custom_builder_groups(assigns) do
-    custom_marker_style =
-      FlyMapEx.Style.custom(
-        assigns.custom_colour,
-        size: assigns.custom_size,
-        animation: String.to_atom(assigns.custom_animation),
-        glow: assigns.custom_glow
-      )
-
-    [
-      %{
-        nodes: ["sjc", "fra", "ams"],
-        style: custom_marker_style,
-        label: "Custom Style Preview"
-      }
+    tabs = [
+      %{key: "guided", label: "Guided Scenarios", content: get_static_tab_content("guided")},
+      %{key: "freeform", label: "Freeform Builder", content: get_static_tab_content("freeform")},
+      %{key: "export", label: "Export & Integration", content: get_static_tab_content("export")}
     ]
+
+    {:ok,
+     assign(socket,
+       marker_groups: marker_groups,
+       current_tab: "guided",
+       current_scenario: "monitoring",
+       tabs: tabs,
+       custom_groups: [],
+       export_format: "heex"
+     )}
   end
 
-  defp text_color_for_background(hex_color) do
-    if String.starts_with?(hex_color, "#") and String.length(hex_color) == 7 do
-      r = Integer.parse(String.slice(hex_color, 1, 2), 16) |> elem(0)
-      g = Integer.parse(String.slice(hex_color, 3, 2), 16) |> elem(0)
-      b = Integer.parse(String.slice(hex_color, 5, 2), 16) |> elem(0)
+  def handle_event("switch_scenario", %{"option" => scenario}, socket) do
+    marker_groups = get_scenario_config(scenario)
+    {:noreply, assign(socket, current_scenario: scenario, marker_groups: marker_groups)}
+  end
 
-      # Calculate relative luminance
-      luminance = 0.299 * r + 0.587 * g + 0.114 * b
-
-      if luminance > 128, do: "#000", else: "#fff"
-    else
-      "#000"
+  def handle_event("switch_tab", %{"option" => tab}, socket) do
+    marker_groups = case tab do
+      "guided" -> get_scenario_config(socket.assigns.current_scenario)
+      "freeform" -> socket.assigns.custom_groups
+      "export" -> socket.assigns.marker_groups
+      _ -> socket.assigns.marker_groups
     end
+    {:noreply, assign(socket, current_tab: tab, marker_groups: marker_groups)}
+  end
+
+  def handle_event("switch_format", %{"option" => format}, socket) do
+    {:noreply, assign(socket, export_format: format)}
   end
 
   def render(assigns) do
-
     ~H"""
     <.demo_navigation current_page={:stage4} />
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
-          <h1 class="text-3xl font-bold text-gray-800">Stage 4: Custom Styling</h1>
-          <Layouts.theme_toggle />
+          <h1 class="text-3xl font-bold text-base-content">Stage 4: Interactive Builder</h1>
         </div>
-        <p class="text-gray-600 mb-6">
-          Advanced styling capabilities: color cycling, animations, and custom style building.
+        <p class="text-base-content/70 mb-6">
+          Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export.
         </p>
       </div>
 
-    <!-- Demo Selector -->
-      <div class="mb-6">
-        <div class="flex flex-wrap gap-2">
-          <button
-            class={[
-              "btn",
-              if(@current_demo == "color_cycling", do: "btn-primary", else: "btn-outline")
-            ]}
-            phx-click="demo_change"
-            phx-value-demo="color_cycling"
-          >
-            Color Cycling
-          </button>
-          <button
-            class={[
-              "btn",
-              if(@current_demo == "animation_showcase", do: "btn-primary", else: "btn-outline")
-            ]}
-            phx-click="demo_change"
-            phx-value-demo="animation_showcase"
-          >
-            Animation Showcase
-          </button>
-          <button
-            class={[
-              "btn",
-              if(@current_demo == "custom_builder", do: "btn-primary", else: "btn-outline")
-            ]}
-            phx-click="demo_change"
-            phx-value-demo="custom_builder"
-          >
-            Custom Style Builder
-          </button>
+      <!-- Full Width Map (Above the Fold) -->
+      <div class="mb-8 p-6 bg-base-200 rounded-lg">
+        <FlyMapEx.render
+          marker_groups={@marker_groups}
+          theme={:responsive}
+          layout={:side_by_side}
+        />
+      </div>
+
+      <!-- Side-by-Side: Tabbed Info Panel & Code Examples -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Tabbed Info Panel -->
+        <div>
+          <.tabbed_info_panel
+            tabs={@tabs}
+            current={@current_tab}
+            event="switch_tab"
+          />
+        </div>
+
+        <!-- Code Examples Panel -->
+        <div>
+          <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+            <div class="bg-base-200 px-4 py-3 border-b border-base-300">
+              <h3 class="font-semibold text-base-content">Generated Code</h3>
+            </div>
+            <div class="p-4">
+              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @marker_groups, @export_format) %></code></pre>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
+              <div class="text-sm text-primary">
+                <strong>Current:</strong> <%= get_current_description(@current_tab, @current_scenario) %> •
+                Format: <%= String.upcase(@export_format) %> •
+                <%= length(@marker_groups) %> groups • <%= count_total_nodes(@marker_groups) %> nodes
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <.map_with_code
-        marker_groups={@marker_groups}
-          map_title={case @current_demo do
-          "color_cycling" -> "Multiple Apps with Color Cycling"
-          "animation_showcase" -> "Animation Types Comparison"
-          "custom_builder" -> "Interactive Style Builder"
-        end}
-      >
-        <:extra_content>
-          <%= if @current_demo == "custom_builder" do %>
-            <!-- Custom Style Builder Controls -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
-              <h3 class="font-semibold text-gray-800">Style Builder</h3>
+      <!-- Progressive Disclosure for Advanced Topics -->
+      <.learn_more_section
+        topics={get_advanced_topics()}
+      />
 
-              <form phx-change="update_custom">
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Colour</label>
-                    <div class="flex items-center gap-2">
-                      <.input
-                        type="color"
-                        value={@custom_colour}
-                        name="colour"
-                        class="h-10 w-16 rounded border border-gray-300"
-                        id="custom-colour-picker"
-                      />
-                      <div
-                        class="h-10 w-20 rounded border border-gray-300 flex items-center justify-center text-xs font-mono"
-                        style={"background-color: #{@custom_colour}; color: #{text_color_for_background(@custom_colour)}"}
-                      >
-                        {@custom_colour}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-                    <div class="flex items-center gap-3">
-                      <input
-                        type="range"
-                        name="size"
-                        min="2"
-                        max="20"
-                        step="2"
-                        value={@custom_size}
-                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                      />
-                      <span class="text-sm font-mono text-gray-600 min-w-[3rem]">{@custom_size}px</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Animation</label>
-                    <select
-                      name="animation"
-                      class="select select-bordered w-full"
-                    >
-                      <%= for anim <- ["pulse", "fade", "none"] do %>
-                        <option value={anim} selected={@custom_animation == anim}>
-                          {String.capitalize(anim)}
-                        </option>
-                      <% end %>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Glow Effect</label>
-                    <div class="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="glow"
-                        value="true"
-                        checked={@custom_glow}
-                        class="checkbox checkbox-primary"
-                      />
-                      <span class="ml-2 text-sm text-gray-600">Enable glow effect</span>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          <% end %>
-
-          <!-- Context-specific info panels -->
-          <%= case @current_demo do %>
-            <% "color_cycling" -> %>
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 class="font-semibold text-blue-800 mb-2">Color Cycling</h3>
-                <ul class="text-blue-700 text-sm space-y-1">
-                  <li>• <strong>cycle(index)</strong> automatically assigns distinct colours</li>
-                  <li>• Perfect for multiple apps without semantic meaning</li>
-                  <li>• 12 distinct colours available in the cycle</li>
-                  <li>• Each group maintains consistent colour when toggled</li>
-                  <li>• No need to manually pick colours for each group</li>
-                </ul>
-              </div>
-            <% "animation_showcase" -> %>
-              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h3 class="font-semibold text-green-800 mb-2">Animation Types</h3>
-                <div class="space-y-2 text-sm">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full animate-pulse bg-red-500"></div>
-                    <span class="text-green-700">
-                      <strong>:pulse</strong> - Radius + opacity (health status)
-                    </span>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-blue-500" style="animation: fade 3s infinite;">
-                    </div>
-                    <span class="text-green-700">
-                      <strong>:fade</strong> - Opacity only (background activity)
-                    </span>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                    <span class="text-green-700">
-                      <strong>static</strong> - No animation (stable state)
-                    </span>
-                  </div>
-                </div>
-              </div>
-            <% "custom_builder" -> %>
-              <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <h3 class="font-semibold text-orange-800 mb-2">Custom Style Builder</h3>
-                <div class="mb-3 p-3 bg-white rounded border text-sm font-mono">
-                  <div class="text-orange-600 mb-1"># Variable assignment</div>
-                  <div>custom_marker_style = FlyMapEx.Style.custom(</div>
-                  <div class="ml-4">"{@custom_colour}",</div>
-                  <div class="ml-4">size: {@custom_size},</div>
-                  <div class="ml-4">animation: :{@custom_animation},</div>
-                  <div class="ml-4">glow: {@custom_glow}</div>
-                  <div>)</div>
-                  <div class="mt-2 text-orange-600"># Usage in marker groups</div>
-                  <div>style: custom_marker_style</div>
-                </div>
-                <ul class="text-orange-700 text-sm space-y-1">
-                  <li>• <strong>Live Preview:</strong> See changes immediately</li>
-                  <li>• <strong>Variable Pattern:</strong> Store style in custom_marker_style</li>
-                  <li>• <strong>Reusable:</strong> Assign once, use in multiple groups</li>
-                  <li>• <strong>Visual Editor:</strong> No need to remember parameters</li>
-                  <li>• <strong>Code Generation:</strong> Copy the exact implementation</li>
-                </ul>
-              </div>
-          <% end %>
-
-          <!-- Best Practices Panel -->
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 class="font-semibold text-gray-800 mb-2">Best Practices</h3>
-            <ul class="text-gray-700 text-sm space-y-1">
-              <li>
-                • <strong>Semantic First:</strong>
-                Use operational(), warning(), danger() when data has meaning
-              </li>
-              <li>
-                • <strong>Color Cycling:</strong>
-                Use cycle() for multiple groups without semantic significance
-              </li>
-              <li>
-                • <strong>Custom Styling:</strong>
-                Use custom() for brand colours and specific requirements
-              </li>
-              <li>
-                • <strong>Accessibility:</strong>
-                Ensure sufficient contrast and don't rely only on colour
-              </li>
-              <li>
-                • <strong>Performance:</strong>
-                Limit animations to critical states that need attention
-              </li>
-            </ul>
-          </div>
-        </:extra_content>
-      </.map_with_code>
-
-    <!-- Navigation -->
+      <!-- Navigation -->
       <div class="mt-8 flex justify-between">
-        <.link navigate="/stage3" class="btn btn-outline">
-          ← Stage 3: Themes & Backgrounds
+        <.link navigate={~p"/stage3"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
+          ← Stage 3: Map Themes
         </.link>
-        <.link navigate="/demo" class="btn btn-primary">
-          Back to Demo Hub →
+        <.link navigate={~p"/"} class="inline-block bg-success text-success-content px-6 py-2 rounded-lg hover:bg-success/80 transition-colors">
+          Complete Tour →
         </.link>
       </div>
     </div>
-
-    <style>
-      @keyframes fade {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-      }
-
-      .slider::-webkit-slider-thumb {
-        appearance: none;
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        background: #3b82f6;
-        cursor: pointer;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      }
-
-      .slider::-moz-range-thumb {
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        background: #3b82f6;
-        cursor: pointer;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      }
-    </style>
     """
+  end
+
+  # Static HTML content generation functions
+  defp get_static_tab_content("guided") do
+    """
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-semibold text-base-content mb-3">Guided Scenarios</h3>
+        <p class="text-base-content/70 text-sm mb-4">
+          Learn by building real-world map configurations with step-by-step guidance.
+          Each scenario demonstrates common patterns and best practices.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Monitoring Dashboard</h4>
+          <p class="text-sm text-primary/80 mb-2">Track service health across multiple regions with status indicators.</p>
+          <button 
+            phx-click="switch_scenario" 
+            phx-value-option="monitoring"
+            class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
+          >
+            Load Scenario
+          </button>
+          <ul class="text-sm text-primary/80 mt-2 space-y-1">
+            <li>• Production servers marked as operational</li>
+            <li>• Maintenance windows highlighted with warnings</li>
+            <li>• Clear legend for status interpretation</li>
+          </ul>
+        </div>
+
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Deployment Map</h4>
+          <p class="text-sm text-success/80 mb-2">Visualize application rollouts and deployment status across regions.</p>
+          <button 
+            phx-click="switch_scenario" 
+            phx-value-option="deployment"
+            class="bg-success text-success-content px-3 py-1 rounded text-sm hover:bg-success/80 transition-colors"
+          >
+            Load Scenario
+          </button>
+          <ul class="text-sm text-success/80 mt-2 space-y-1">
+            <li>• Active deployments with animated markers</li>
+            <li>• Completed deployments in stable states</li>
+            <li>• Pending regions awaiting deployment</li>
+          </ul>
+        </div>
+
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Status Board</h4>
+          <p class="text-sm text-secondary/80 mb-2">Create a comprehensive status overview for incident response and monitoring.</p>
+          <button 
+            phx-click="switch_scenario" 
+            phx-value-option="status"
+            class="bg-secondary text-secondary-content px-3 py-1 rounded text-sm hover:bg-secondary/80 transition-colors"
+          >
+            Load Scenario
+          </button>
+          <ul class="text-sm text-secondary/80 mt-2 space-y-1">
+            <li>• Critical issues highlighted with danger styling</li>
+            <li>• Healthy services marked as operational</li>
+            <li>• Maintenance and acknowledged states</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+        <p class="text-sm text-success">
+          <strong>Learning approach:</strong> Each scenario builds on concepts from previous stages,
+          combining marker groups, styling, and theming into practical applications.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_static_tab_content("freeform") do
+    """
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-semibold text-base-content mb-3">Freeform Builder</h3>
+        <p class="text-base-content/70 text-sm mb-4">
+          Build custom map configurations from scratch with full creative control.
+          Perfect for unique requirements and experimental designs.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Interactive Region Selection</h4>
+          <p class="text-sm text-primary/80 mb-2">Click regions on the map to build your marker groups dynamically.</p>
+          <ul class="text-sm text-primary space-y-1">
+            <li>• Visual region picker with live preview</li>
+            <li>• Drag and drop group organization</li>
+            <li>• Real-time code generation</li>
+          </ul>
+          <div class="mt-2 text-xs text-primary/70">
+            <em>Coming in Phase 2: Enhanced Interactivity</em>
+          </div>
+        </div>
+
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Custom Group Builder</h4>
+          <p class="text-sm text-success/80 mb-2">Create marker groups with custom styling and labels.</p>
+          <ul class="text-sm text-success space-y-1">
+            <li>• Add/remove regions with search and autocomplete</li>
+            <li>• Live style customization with sliders and pickers</li>
+            <li>• Group management with reordering and duplication</li>
+          </ul>
+          <div class="mt-2 text-xs text-success/70">
+            <em>Coming in Phase 2: Enhanced Interactivity</em>
+          </div>
+        </div>
+
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Live Preview Canvas</h4>
+          <p class="text-sm text-secondary/80 mb-2">See your changes instantly as you build.</p>
+          <ul class="text-sm text-secondary space-y-1">
+            <li>• Real-time map updates during editing</li>
+            <li>• Side-by-side comparison views</li>
+            <li>• Undo/redo functionality</li>
+          </ul>
+          <div class="mt-2 text-xs text-secondary/70">
+            <em>Coming in Phase 2: Enhanced Interactivity</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
+        <p class="text-sm text-warning">
+          <strong>Current functionality:</strong> Use the guided scenarios to explore different configurations.
+          Full freeform building tools will be added in Phase 2 with interactive controls and live editing.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_static_tab_content("export") do
+    """
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-semibold text-base-content mb-3">Export & Integration</h3>
+        <p class="text-base-content/70 text-sm mb-4">
+          Generate production-ready code in multiple formats for seamless integration
+          into your Phoenix LiveView applications.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h4 class="font-medium text-primary mb-2">Export Formats</h4>
+          <p class="text-sm text-primary/80 mb-2">Choose the format that best fits your integration needs:</p>
+          <div class="flex gap-2 mb-2">
+            <button 
+              phx-click="switch_format" 
+              phx-value-option="heex"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
+            >
+              HEEx Template
+            </button>
+            <button 
+              phx-click="switch_format" 
+              phx-value-option="elixir"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
+            >
+              Elixir Module
+            </button>
+            <button 
+              phx-click="switch_format" 
+              phx-value-option="json"
+              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
+            >
+              JSON Config
+            </button>
+          </div>
+          <ul class="text-sm text-primary space-y-1">
+            <li>• <strong>HEEx:</strong> Direct template integration</li>
+            <li>• <strong>Elixir:</strong> Reusable function modules</li>
+            <li>• <strong>JSON:</strong> Configuration-driven approach</li>
+          </ul>
+        </div>
+
+        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+          <h4 class="font-medium text-success mb-2">Integration Patterns</h4>
+          <p class="text-sm text-success/80 mb-2">Common integration approaches:</p>
+          <ul class="text-sm text-success space-y-1">
+            <li>• <strong>Direct Embed:</strong> Copy HEEx template into your LiveView</li>
+            <li>• <strong>Function Component:</strong> Create reusable components</li>
+            <li>• <strong>Configuration Module:</strong> Centralize map configurations</li>
+            <li>• <strong>Dynamic Loading:</strong> Load configurations from database</li>
+          </ul>
+        </div>
+
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
+          <h4 class="font-medium text-secondary mb-2">Production Considerations</h4>
+          <p class="text-sm text-secondary/80 mb-2">Important factors for production deployment:</p>
+          <ul class="text-sm text-secondary space-y-1">
+            <li>• <strong>Performance:</strong> Optimize for rendering speed</li>
+            <li>• <strong>Maintainability:</strong> Structure for easy updates</li>
+            <li>• <strong>Scalability:</strong> Handle growing data sets</li>
+            <li>• <strong>Accessibility:</strong> Ensure inclusive design</li>
+          </ul>
+        </div>
+
+        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
+          <h4 class="font-medium text-warning mb-2">Copy to Clipboard</h4>
+          <p class="text-sm text-warning/80 mb-2">Generated code is ready for immediate use:</p>
+          <div class="mt-2 text-xs text-warning/70">
+            <em>Coming in Phase 2: One-click clipboard integration</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+        <p class="text-sm text-success">
+          <strong>Integration tip:</strong> Start with HEEx templates for quick prototyping,
+          then extract to Elixir modules for production applications with multiple maps.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  defp get_static_tab_content(_), do: "<div>Unknown tab content</div>"
+
+  # Scenario configurations
+  defp get_scenario_config("monitoring") do
+    [
+      %{
+        nodes: ["sjc", "fra", "ams", "lhr"],
+        style: FlyMapEx.Style.operational(),
+        label: "Production Servers"
+      },
+      %{
+        nodes: ["syd", "nrt"],
+        style: FlyMapEx.Style.warning(),
+        label: "Maintenance Windows"
+      }
+    ]
+  end
+
+  defp get_scenario_config("deployment") do
+    [
+      %{
+        nodes: ["sjc", "fra"],
+        style: FlyMapEx.Style.operational(),
+        label: "Deployed v2.1.0"
+      },
+      %{
+        nodes: ["ams", "lhr"],
+        style: FlyMapEx.Style.active(),
+        label: "Deploying v2.1.0"
+      },
+      %{
+        nodes: ["syd", "nrt", "dfw"],
+        style: FlyMapEx.Style.inactive(),
+        label: "Pending Deployment"
+      }
+    ]
+  end
+
+  defp get_scenario_config("status") do
+    [
+      %{
+        nodes: ["sjc", "fra", "ams"],
+        style: FlyMapEx.Style.operational(),
+        label: "Healthy Services"
+      },
+      %{
+        nodes: ["lhr"],
+        style: FlyMapEx.Style.danger(),
+        label: "Critical Issues"
+      },
+      %{
+        nodes: ["syd"],
+        style: FlyMapEx.Style.warning(),
+        label: "Degraded Performance"
+      },
+      %{
+        nodes: ["nrt"],
+        style: FlyMapEx.Style.info(),
+        label: "Acknowledged Issues"
+      }
+    ]
+  end
+
+  defp get_scenario_config(_), do: []
+
+  # Helper functions for the template
+  defp get_current_description(tab, scenario) do
+    case tab do
+      "guided" -> "#{String.capitalize(scenario)} scenario"
+      "freeform" -> "Custom builder (Phase 2)"
+      "export" -> "Code export tools"
+      _ -> "Interactive builder"
+    end
+  end
+
+  defp count_total_nodes(marker_groups) do
+    marker_groups
+    |> Enum.map(&length(Map.get(&1, :nodes, [])))
+    |> Enum.sum()
+  end
+
+  defp get_generated_code(tab, scenario, marker_groups, format) do
+    case {tab, format} do
+      {"guided", "heex"} ->
+        get_heex_template(marker_groups, scenario)
+      {"guided", "elixir"} ->
+        get_elixir_module(marker_groups, scenario)
+      {"guided", "json"} ->
+        get_json_config(marker_groups, scenario)
+      {"export", "heex"} ->
+        get_heex_template(marker_groups, "export")
+      {"export", "elixir"} ->
+        get_elixir_module(marker_groups, "export")
+      {"export", "json"} ->
+        get_json_config(marker_groups, "export")
+      _ ->
+        get_heex_template(marker_groups, "default")
+    end
+  end
+
+  defp get_heex_template(marker_groups, context) do
+    groups_code = marker_groups
+    |> Enum.map(fn group ->
+      nodes = Enum.map(group.nodes, &"\"#{&1}\"") |> Enum.join(", ")
+      style = format_style_for_heex(group.style)
+      "      %{\n        nodes: [#{nodes}],\n        style: #{style},\n        label: \"#{group.label}\"\n      }"
+    end)
+    |> Enum.join(",\n")
+
+    "# #{String.capitalize(context)} Map Configuration\n<FlyMapEx.render\n  marker_groups={[\n#{groups_code}\n  ]}\n  theme={:responsive}\n  layout={:side_by_side}\n/>\n\n# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
+  end
+
+  defp get_elixir_module(marker_groups, context) do
+    groups_code = marker_groups
+    |> Enum.map(fn group ->
+      nodes = Enum.map(group.nodes, &"\"#{&1}\"") |> Enum.join(", ")
+      style = format_style_for_elixir(group.style)
+      "      %{\n        nodes: [#{nodes}],\n        style: #{style},\n        label: \"#{group.label}\"\n      }"
+    end)
+    |> Enum.join(",\n")
+
+    "# #{String.capitalize(context)} Map Module\ndefmodule YourApp.MapConfigs do\n  @moduledoc \"\"\"\n  Centralized map configurations for #{context} displays\n  \"\"\"\n\n  def #{context}_map_groups do\n    [\n#{groups_code}\n    ]\n  end\n\n  def render_#{context}_map(assigns) do\n    ~H\"\"\"\n    <FlyMapEx.render\n      marker_groups={#{context}_map_groups()}\n      theme={:responsive}\n      layout={:side_by_side}\n    />\n    \"\"\"\n  end\nend\n\n# Usage in your LiveView:\n# import YourApp.MapConfigs\n# <.render_#{context}_map />"
+  end
+
+  defp get_json_config(marker_groups, context) do
+    groups_json = marker_groups
+    |> Enum.map(fn group ->
+      "    {\n      \"nodes\": [#{group.nodes |> Enum.map(&"\"#{&1}\"") |> Enum.join(", ")}],\n      \"style\": #{format_style_for_json(group.style)},\n      \"label\": \"#{group.label}\"\n    }"
+    end)
+    |> Enum.join(",\n")
+
+    "{\n  \"name\": \"#{String.capitalize(context)} Map Configuration\",\n  \"theme\": \"responsive\",\n  \"layout\": \"side_by_side\",\n  \"marker_groups\": [\n#{groups_json}\n  ]\n}\n\n# Use with a JSON loader function:\n# def load_config(config_name) do\n#   config = Jason.decode!(File.read!(\"configs/\#{config_name}.json\"))\n#   # Transform JSON to Elixir structures\n# end"
+  end
+
+  defp format_style_for_heex(style) do
+    case style do
+      %{style_key: key} -> "FlyMapEx.Style.#{key}()"
+      _ -> "FlyMapEx.Style.operational()"
+    end
+  end
+
+  defp format_style_for_elixir(style) do
+    case style do
+      %{style_key: key} -> "FlyMapEx.Style.#{key}()"
+      _ -> "FlyMapEx.Style.operational()"
+    end
+  end
+
+  defp format_style_for_json(style) do
+    case style do
+      %{style_key: key} -> "\"#{key}\""
+      _ -> "\"operational\""
+    end
+  end
+
+  defp get_advanced_topics do
+    [
+      %{
+        id: "scenario-templates",
+        title: "Building Scenario Templates",
+        description: "Create reusable templates for common map configurations",
+        content: "<p class='text-sm text-base-content/70 mb-4'>Learn to build maintainable template systems for recurring map patterns.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Template Structure:</strong> Design flexible, parameterized configurations</li><li>• <strong>Validation:</strong> Ensure template consistency and error handling</li><li>• <strong>Documentation:</strong> Create clear usage guides for template consumers</li></ul>"
+      },
+      %{
+        id: "integration-patterns",
+        title: "Production Integration Patterns",
+        description: "Best practices for deploying maps in production applications",
+        content: "<p class='text-sm text-base-content/70 mb-4'>Proven patterns for integrating FlyMapEx into production Phoenix applications.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Data Loading:</strong> Efficient strategies for dynamic marker group loading</li><li>• <strong>Caching:</strong> Optimize performance with smart caching approaches</li><li>• <strong>Error Handling:</strong> Graceful degradation for missing regions or data</li></ul>"
+      },
+      %{
+        id: "advanced-customization",
+        title: "Advanced Customization Techniques",
+        description: "Extend FlyMapEx with custom components and behaviors",
+        content: "<p class='text-sm text-base-content/70 mb-4'>Advanced techniques for building custom map experiences beyond standard configurations.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Custom Styles:</strong> Create entirely custom marker and map styles</li><li>• <strong>Interactive Elements:</strong> Add click handlers and hover effects</li><li>• <strong>Animation Control:</strong> Fine-tune animations for specific use cases</li></ul>"
+      }
+    ]
   end
 end

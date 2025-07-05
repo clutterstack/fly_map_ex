@@ -1,5 +1,6 @@
 defmodule DemoWeb.Components.DemoNavigation do
   use Phoenix.Component
+  import DemoWeb.Layouts, only: [theme_toggle: 1]
 
   @doc """
   Renders a navigation component for demo liveviews.
@@ -14,14 +15,14 @@ defmodule DemoWeb.Components.DemoNavigation do
 
   def demo_navigation(assigns) do
     ~H"""
-    <nav class={"bg-white border-b border-gray-200 shadow-sm #{@class}"}>
+    <nav class={"bg-base-100 border-b border-base-300 shadow-sm #{@class}"}>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
               <.link
                 navigate="/"
-                class="text-xl font-bold text-gray-900 hover:text-gray-700"
+                class="text-xl font-bold text-base-content hover:text-base-content/70"
               >
                 FlyMapEx Demo
               </.link>
@@ -38,11 +39,16 @@ defmodule DemoWeb.Components.DemoNavigation do
             </div>
           </div>
           
+          <!-- Theme toggle -->
+          <div class="hidden sm:flex items-center">
+            <.theme_toggle />
+          </div>
+          
           <!-- Mobile menu button -->
           <div class="sm:hidden flex items-center">
             <button
               type="button"
-              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              class="inline-flex items-center justify-center p-2 rounded-md text-base-content/60 hover:text-base-content/70 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
               aria-controls="mobile-menu"
               aria-expanded="false"
               x-data="{ open: false }"
@@ -69,6 +75,9 @@ defmodule DemoWeb.Components.DemoNavigation do
             </.link>
           <% end %>
         </div>
+        <div class="pt-2 pb-3 px-3 border-t border-base-300">
+          <.theme_toggle />
+        </div>
       </div>
     </nav>
     """
@@ -80,7 +89,7 @@ defmodule DemoWeb.Components.DemoNavigation do
       {"/stage1", "Stage 1: Basics", :stage1},
       {"/stage2", "Stage 2: Groups", :stage2},
       {"/stage3", "Stage 3: Themes", :stage3},
-      {"/stage4", "Stage 4: Advanced", :stage4},
+      {"/stage4", "Stage 4: Builder", :stage4},
       {"/map", "Machine Map", :machine_map}
     ]
   end
@@ -89,9 +98,9 @@ defmodule DemoWeb.Components.DemoNavigation do
     base_class = "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
     
     if current_page == page_key do
-      "#{base_class} border-blue-500 text-gray-900"
+      "#{base_class} border-primary text-base-content"
     else
-      "#{base_class} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      "#{base_class} border-transparent text-base-content/70 hover:text-base-content/80 hover:border-base-300"
     end
   end
 
@@ -99,9 +108,9 @@ defmodule DemoWeb.Components.DemoNavigation do
     base_class = "block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
     
     if current_page == page_key do
-      "#{base_class} bg-blue-50 border-blue-500 text-blue-700"
+      "#{base_class} bg-primary/10 border-primary text-primary"
     else
-      "#{base_class} border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
+      "#{base_class} border-transparent text-base-content/70 hover:text-base-content/80 hover:bg-base-200 hover:border-base-300"
     end
   end
 end

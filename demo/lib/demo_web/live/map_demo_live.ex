@@ -11,7 +11,6 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
-  alias DemoWeb.Layouts
   import DemoWeb.Components.DemoNavigation
 
   def mount(_params, _session, socket) do
@@ -216,7 +215,6 @@ defmodule DemoWeb.MapDemoLive do
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-base-content">FlyMapEx Interactive Code Builder</h1>
-        <Layouts.theme_toggle />
       </div>
 
       <p class="text-lg mb-6 text-base-content/80">
