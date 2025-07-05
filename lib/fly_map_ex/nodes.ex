@@ -247,18 +247,20 @@ defmodule FlyMapEx.Nodes do
   """
   def normalize_node_legacy(node) when is_binary(node) do
     # Assume it's a Fly.io region code for backward compatibility
-    case Regions.coordinates_legacy(node) do
-      {lat, long} ->
+    case Regions.coordinates(node) do
+      {:ok, {lat, long}} ->
+        label = case Regions.name(node) do
+          {:ok, name} -> name
+          {:error, _} -> node
+        end
         %{
-          label: Regions.name_legacy(node) || node,
+          label: label,
           coordinates: {lat, long}
         }
-
-      _ ->
+      {:error, _} ->
         # Unknown region, place off-screen
         %{
           label: node,
-          # Off-screen coordinates
           coordinates: {0, -190}
         }
     end
