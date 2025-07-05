@@ -298,7 +298,10 @@ defmodule FlyMapEx.Component do
     group = add_group_label_if_needed(group)
 
     if Map.has_key?(group, :nodes) do
-      Nodes.process_marker_group_legacy(group)
+      case Nodes.process_marker_group(group) do
+        {:ok, processed_group} -> processed_group
+        processed_group -> processed_group
+      end
     else
       group
     end
@@ -313,7 +316,10 @@ defmodule FlyMapEx.Component do
     group = add_group_label_if_needed(group)
 
     if Map.has_key?(group, :nodes) do
-      Nodes.process_marker_group_legacy(group)
+      case Nodes.process_marker_group(group) do
+        {:ok, processed_group} -> processed_group
+        processed_group -> processed_group
+      end
     else
       group
     end
