@@ -213,7 +213,10 @@ defmodule FlyMapEx.Components.WorldMap do
     colours = Map.merge(@colours, assigns.colours)
 
     # Determine if regions should be shown (attribute overrides config default)
-    show_regions = if is_nil(assigns.show_regions), do: FlyMapEx.Config.show_regions_default(), else: assigns.show_regions
+    show_regions =
+      if is_nil(assigns.show_regions),
+        do: FlyMapEx.Config.show_regions_default(),
+        else: assigns.show_regions
 
     # Collect unique glow filter requirements for map-level filters
     radial_gradients = collect_radial_gradients(assigns.marker_groups)
@@ -341,10 +344,11 @@ defmodule FlyMapEx.Components.WorldMap do
     """
   end
 
-  attr :region_marker_radius, :integer, default: 2
+  attr(:region_marker_radius, :integer, default: 2)
 
   def fly_region_markers(assigns) do
     assigns.region_marker_radius
+
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class={"region-group region-#{region}"} id={"region-#{region}"}>
@@ -373,6 +377,7 @@ defmodule FlyMapEx.Components.WorldMap do
     end)
     |> Enum.map(fn group ->
       colour = Map.get(group.style, :colour, "#6b7280")
+
       %{
         id: "glow-gradient-#{String.replace(colour, "#", "")}",
         colour: colour
@@ -406,12 +411,14 @@ defmodule FlyMapEx.Components.WorldMap do
   defp coords_lookup(region_code) when is_binary(region_code) do
     case Regions.coordinates(region_code) do
       {:ok, coords} -> coords
-      {:error, _} -> {-190, 0}  # Off-screen fallback
+      # Off-screen fallback
+      {:error, _} -> {-190, 0}
     end
   end
 
   defp marker_coords_lookup(%{lat: lat, lng: lng}), do: {lat, lng}
   defp marker_coords_lookup(%{"lat" => lat, "lng" => lng}), do: {lat, lng}
+
   defp marker_coords_lookup(marker) when is_map(marker) do
     # Handle alternative key formats
     lat = marker[:lat] || marker["lat"] || marker[:latitude] || marker["latitude"]
@@ -421,12 +428,13 @@ defmodule FlyMapEx.Components.WorldMap do
 
   defp render_marker(group, x, y, _default_radius) do
     # Generate gradient ID for glow-enabled markers
-    gradient_id = if Map.get(group.style, :glow, false) do
-      colour = Map.get(group.style, :colour, "#6b7280")
-      "glow-gradient-#{String.replace(colour, "#", "")}"
-    else
-      nil
-    end
+    gradient_id =
+      if Map.get(group.style, :glow, false) do
+        colour = Map.get(group.style, :colour, "#6b7280")
+        "glow-gradient-#{String.replace(colour, "#", "")}"
+      else
+        nil
+      end
 
     assigns = %{
       style: group.style,
@@ -440,7 +448,6 @@ defmodule FlyMapEx.Components.WorldMap do
     <Marker.marker {assigns} />
     """
   end
-
 
   defp all_regions_with_coords do
     for {region_atom, coords} <- Regions.all() do
@@ -531,8 +538,12 @@ defmodule FlyMapEx.Components.WorldMap do
       "oklch" <> _ ->
         # For CSS variables, provide fallback that inherits from document
         "var(--color-base-content, #6b7280)"
-      color when is_binary(color) -> color
-      _ -> Map.get(colours, :background, "#6b7280")
+
+      color when is_binary(color) ->
+        color
+
+      _ ->
+        Map.get(colours, :background, "#6b7280")
     end
   end
 
@@ -542,8 +553,12 @@ defmodule FlyMapEx.Components.WorldMap do
       "oklch" <> _ ->
         # For CSS variables, provide fallback that inherits from document
         "var(--color-base-content, #374151)"
-      color when is_binary(color) -> color
-      _ -> Map.get(colours, :background, "#374151")
+
+      color when is_binary(color) ->
+        color
+
+      _ ->
+        Map.get(colours, :background, "#374151")
     end
   end
 end

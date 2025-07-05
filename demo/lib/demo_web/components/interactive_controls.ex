@@ -142,34 +142,38 @@ defmodule DemoWeb.Components.InteractiveControls do
   * `tabs` - List of tab maps with :key, :label, :content
   * `current` - Current active tab key
   * `event` - Phoenix event name to trigger on tab click
+  * `show_tabs` - Whether to show the tab navigation (default: true)
   * `class` - Additional CSS classes
   """
   attr :tabs, :list, required: true
   attr :current, :any, required: true
   attr :event, :string, required: true
+  attr :show_tabs, :boolean, default: true
   attr :class, :string, default: ""
   
   def tabbed_info_panel(assigns) do
     ~H"""
     <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
-      <!-- Tab Navigation -->
-      <div class="border-b border-base-300 bg-base-200">
-        <nav class="flex space-x-1 p-1">
-          <%= for tab <- @tabs do %>
-            <button
-              phx-click={@event}
-              phx-value-option={tab.key}
-              class={[
-                "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
-                get_tab_classes(tab.key == @current)
-              ]}
-            >
-              <%= tab.label %>
-            </button>
-          <% end %>
-        </nav>
-      </div>
+      <!-- Tab Navigation (conditionally shown) -->
+      <%= if @show_tabs do %>
+        <div class="border-b border-base-300 bg-base-200">
+          <nav class="flex space-x-1 p-1">
+            <%= for tab <- @tabs do %>
+              <button
+                phx-click={@event}
+                phx-value-option={tab.key}
+                class={[
+                  "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                  "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
+                  get_tab_classes(tab.key == @current)
+                ]}
+              >
+                <%= tab.label %>
+              </button>
+            <% end %>
+          </nav>
+        </div>
+      <% end %>
       
       <!-- Tab Content -->
       <div class="p-4">

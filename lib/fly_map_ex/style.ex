@@ -121,10 +121,12 @@ defmodule FlyMapEx.Style do
   Use for nodes that are running normally and healthy.
   """
   def operational(opts \\ []) do
-    result = custom(
-      "#10b981",
-      Keyword.merge([size: 4, animation: :none, glow: false], opts)
-    )
+    result =
+      custom(
+        "#10b981",
+        Keyword.merge([size: 4, animation: :none, glow: false], opts)
+      )
+
     %{result | __source__: {:operational, [], opts}}
   end
 
@@ -134,10 +136,12 @@ defmodule FlyMapEx.Style do
   Use for nodes that are running but experiencing issues.
   """
   def warning(opts \\ []) do
-    result = custom(
-      "#f59e0b",
-      Keyword.merge([size: 4, animation: :none, glow: false], opts)
-    )
+    result =
+      custom(
+        "#f59e0b",
+        Keyword.merge([size: 4, animation: :none, glow: false], opts)
+      )
+
     %{result | __source__: {:warning, [], opts}}
   end
 
@@ -147,10 +151,12 @@ defmodule FlyMapEx.Style do
   Use for nodes that are failed or experiencing critical issues.
   """
   def danger(opts \\ []) do
-    result = custom(
-      "#ef4444",
-      Keyword.merge([size: 4, animation: :pulse, glow: false], opts)
-    )
+    result =
+      custom(
+        "#ef4444",
+        Keyword.merge([size: 4, animation: :pulse, glow: false], opts)
+      )
+
     %{result | __source__: {:danger, [], opts}}
   end
 
@@ -172,10 +178,12 @@ defmodule FlyMapEx.Style do
   General purpose primary accent color.
   """
   def primary(opts \\ []) do
-    result = custom(
-      "#3b82f6",
-      Keyword.merge([size: 4, animation: :none, glow: false], opts)
-    )
+    result =
+      custom(
+        "#3b82f6",
+        Keyword.merge([size: 4, animation: :none, glow: false], opts)
+      )
+
     %{result | __source__: {:primary, [], opts}}
   end
 

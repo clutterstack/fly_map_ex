@@ -134,7 +134,7 @@ defmodule FlyMapEx.Nodes do
 
   @doc """
   Process a single marker group to normalize nodes to coordinate format.
-  
+
   Returns {:ok, processed_group} or {:error, reason} if any nodes fail to normalize.
   """
   def process_marker_group(%{nodes: nodes} = group) when is_list(nodes) do
@@ -152,7 +152,7 @@ defmodule FlyMapEx.Nodes do
   @deprecated "Use process_marker_group/1 instead for better error handling"
   @doc """
   Process a single marker group to normalize nodes (backward compatibility).
-  
+
   Uses legacy error handling that falls back to off-screen coordinates for unknown regions.
   **Deprecated**: Use process_marker_group/1 instead for better error handling.
   """
@@ -166,7 +166,7 @@ defmodule FlyMapEx.Nodes do
   # Helper function to collect results
   defp collect_results(results) do
     {oks, errors} = Enum.split_with(results, &match?({:ok, _}, &1))
-    
+
     case errors do
       [] -> {:ok, Enum.map(oks, fn {:ok, val} -> val end)}
       _ -> {:error, Enum.map(errors, fn {:error, reason} -> reason end)}
@@ -197,13 +197,16 @@ defmodule FlyMapEx.Nodes do
   def normalize_node(node) when is_binary(node) do
     case Regions.coordinates(node) do
       {:ok, {lat, long}} ->
-        label = case Regions.name(node) do
-          {:ok, name} -> name
-          {:error, _} -> node
-        end
+        label =
+          case Regions.name(node) do
+            {:ok, name} -> name
+            {:error, _} -> node
+          end
+
         {:ok, %{label: label, coordinates: {lat, long}}}
-      
-      {:error, reason} -> {:error, reason}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

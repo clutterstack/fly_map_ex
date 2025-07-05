@@ -85,7 +85,7 @@ defmodule DemoWeb.Stage1Live do
     <.demo_navigation current_page={:stage1} />
         <.sidebar_layout>
       <:sidebar>
-        <.sidebar_navigation current_page={:stage1} />
+        <.sidebar_navigation current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
 
         <!-- Stage Information -->
         <div class="p-4 border-t border-base-300">
@@ -130,6 +130,7 @@ defmodule DemoWeb.Stage1Live do
             tabs={@tabs}
             current={@current_example}
             event="switch_example"
+            show_tabs={false}
           />
         </div>
 

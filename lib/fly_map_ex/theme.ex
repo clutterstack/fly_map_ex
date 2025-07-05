@@ -221,7 +221,9 @@ defmodule FlyMapEx.Theme do
 
   def map_theme(theme_name) when is_atom(theme_name) do
     case theme_name do
-      :responsive -> responsive_map_theme()
+      :responsive ->
+        responsive_map_theme()
+
       _ ->
         case get_custom_theme(theme_name) do
           nil -> map_theme(FlyMapEx.Config.default_theme())
@@ -280,9 +282,9 @@ defmodule FlyMapEx.Theme do
 
   @doc """
   Get a custom theme from application configuration.
-  
+
   Custom themes can be defined in config.exs like:
-  
+
       config :fly_map_ex, :custom_themes,
         corporate: %{
           land: "#f8fafc",
@@ -291,9 +293,9 @@ defmodule FlyMapEx.Theme do
           neutral_marker: "#64748b",
           neutral_text: "#334155"
         }
-  
+
   ## Examples
-  
+
       iex> FlyMapEx.Theme.get_custom_theme(:corporate)
       nil
   """

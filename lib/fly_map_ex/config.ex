@@ -52,9 +52,8 @@ defmodule FlyMapEx.Config do
 
   """
   def region_marker_radius do
-    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5*default_marker_radius()))
+    Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5 * default_marker_radius()))
   end
-
 
   @doc """
   Neutral colour for Fly region markers in light mode.
@@ -141,8 +140,8 @@ defmodule FlyMapEx.Config do
   Returns: string of animation values for SVG animate element
   """
   def pulse_radius_values(context, marker_radius) do
-        max_size = marker_radius + svg_pulse_size_delta()
-        "#{marker_radius};#{max_size};#{marker_radius}"
+    max_size = marker_radius + svg_pulse_size_delta()
+    "#{marker_radius};#{max_size};#{marker_radius}"
   end
 
   @doc """
@@ -166,7 +165,6 @@ defmodule FlyMapEx.Config do
   def layout_mode do
     Application.get_env(:fly_map_ex, :layout_mode, :stacked)
   end
-
 
   @doc """
   Size multiplier for legend marker SVG containers relative to marker size.

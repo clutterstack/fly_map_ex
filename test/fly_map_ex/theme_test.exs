@@ -8,7 +8,7 @@ defmodule FlyMapEx.ThemeTest do
   describe "map_theme/1" do
     test "returns correct theme for :light" do
       theme = Theme.map_theme(:light)
-      
+
       assert theme.land == "#888888"
       assert theme.ocean == "#aaaaaa"
       assert theme.border == "#0f172a"
@@ -18,7 +18,7 @@ defmodule FlyMapEx.ThemeTest do
 
     test "returns correct theme for :dark" do
       theme = Theme.map_theme(:dark)
-      
+
       assert theme.land == "#0f172a"
       assert theme.ocean == "#aaaaaa"
       assert theme.border == "#334155"
@@ -29,7 +29,7 @@ defmodule FlyMapEx.ThemeTest do
     test "falls back to light theme for unknown theme" do
       theme = Theme.map_theme(:unknown)
       light_theme = Theme.map_theme(:light)
-      
+
       assert theme == light_theme
     end
   end
@@ -37,7 +37,7 @@ defmodule FlyMapEx.ThemeTest do
   describe "responsive_map_theme/0" do
     test "returns CSS variable-based theme" do
       theme = Theme.responsive_map_theme()
-      
+
       assert theme.land == "oklch(var(--color-base-100) / 1)"
       assert theme.ocean == "oklch(var(--color-base-200) / 1)"
       assert theme.border == "oklch(var(--color-base-300) / 1)"

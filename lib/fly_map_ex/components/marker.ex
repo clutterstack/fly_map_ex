@@ -191,8 +191,10 @@ defmodule FlyMapEx.Components.Marker do
     glow = Map.get(style, :glow, false)
     gradient_id = assigns.gradient_id
 
-    Map.get(style, :size) # |> dbg
-    FlyMapEx.Config.default_marker_radius() # |> dbg
+    # |> dbg
+    Map.get(style, :size)
+    # |> dbg
+    FlyMapEx.Config.default_marker_radius()
 
     # For glow markers, use gradient fill if available, otherwise use solid colour
     colour = if glow && gradient_id, do: "url(##{gradient_id})", else: base_colour
@@ -204,7 +206,6 @@ defmodule FlyMapEx.Components.Marker do
     |> assign(:glow, glow)
     |> assign_animation_props(animation)
   end
-
 
   defp assign_animation_props(assigns, animation) when animation == :fade do
     {min_opacity, max_opacity} = FlyMapEx.Config.animation_opacity_range()
@@ -226,7 +227,9 @@ defmodule FlyMapEx.Components.Marker do
           dur: FlyMapEx.Config.pulse_duration(),
           repeatCount: "indefinite"
         }
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 
@@ -234,24 +237,34 @@ defmodule FlyMapEx.Components.Marker do
     case animation do
       anim when anim == :fade ->
         dur = FlyMapEx.Config.fade_duration()
+
         %{
           attributeName: "opacity",
           values: FlyMapEx.Config.opacity_animation_values(),
           dur: dur,
           repeatCount: "indefinite"
         }
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 
- # Note the hardcoded values in here. Not great but:
+  # Note the hardcoded values in here. Not great but:
   defp render_legend_marker(assigns) do
     viewbox_dim = 3 * assigns.marker_radius
+
     assigns =
       assigns
-      |> assign(:radius_attrs, build_radius_animation_attributes(:legend, assigns.marker_radius, assigns.animation))
+      |> assign(
+        :radius_attrs,
+        build_radius_animation_attributes(:legend, assigns.marker_radius, assigns.animation)
+      )
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
-      |> assign(:css_class, if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated"))
+      |> assign(
+        :css_class,
+        if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated")
+      )
       |> assign(:dim, viewbox_dim)
       |> assign(:x, 0.5 * viewbox_dim)
       |> assign(:y, 0.5 * viewbox_dim)
@@ -263,15 +276,21 @@ defmodule FlyMapEx.Components.Marker do
     """
   end
 
-
   defp render_marker_svg(assigns) do
     assigns =
       assigns
-      |> assign(:radius_attrs, build_radius_animation_attributes(:svg, assigns.marker_radius, assigns.animation))
+      |> assign(
+        :radius_attrs,
+        build_radius_animation_attributes(:svg, assigns.marker_radius, assigns.animation)
+      )
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
-      |> assign(:css_class, if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated"))
+      |> assign(
+        :css_class,
+        if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated")
+      )
 
-      assigns.marker_radius # |> dbg
+    # |> dbg
+    assigns.marker_radius
 
     ~H"""
     <g class={@css_class}>
@@ -303,7 +322,6 @@ defmodule FlyMapEx.Components.Marker do
     </g>
     """
   end
-
 
   defp viewbox(size) do
     "0 0 #{size} #{size}"

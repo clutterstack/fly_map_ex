@@ -198,5 +198,4 @@ defmodule FlyMapEx do
     />
     """
   end
-
 end

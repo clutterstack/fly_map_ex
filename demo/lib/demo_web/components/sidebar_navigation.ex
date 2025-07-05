@@ -9,9 +9,12 @@ defmodule DemoWeb.Components.SidebarNavigation do
   
       <.sidebar_navigation current_page={:stage1} />
       <.sidebar_navigation current_page={:map_demo} />
+      <.sidebar_navigation current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
   """
   attr :current_page, :atom, required: true
   attr :class, :string, default: ""
+  attr :tabs, :list, default: []
+  attr :current_tab, :string, default: nil
 
   def sidebar_navigation(assigns) do
     ~H"""
@@ -36,6 +39,21 @@ defmodule DemoWeb.Components.SidebarNavigation do
             >
               <%= title %>
             </.link>
+            
+            <!-- Show tabs as nested items if this is the current page and tabs are provided -->
+            <%= if @current_page == key and length(@tabs) > 0 do %>
+              <div class="ml-4 mt-2 space-y-1">
+                <%= for tab <- @tabs do %>
+                  <button
+                    phx-click="switch_example"
+                    phx-value-option={tab.key}
+                    class={tab_nav_link_class(@current_tab, tab.key)}
+                  >
+                    <%= tab.label %>
+                  </button>
+                <% end %>
+              </div>
+            <% end %>
           <% end %>
         </nav>
       </div>
@@ -66,6 +84,16 @@ defmodule DemoWeb.Components.SidebarNavigation do
       "#{base_class} bg-primary/10 text-primary border-r-2 border-primary"
     else
       "#{base_class} text-base-content/70 hover:text-base-content hover:bg-base-200"
+    end
+  end
+
+  defp tab_nav_link_class(current_tab, tab_key) do
+    base_class = "group flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors w-full text-left"
+    
+    if current_tab == tab_key do
+      "#{base_class} bg-primary/20 text-primary"
+    else
+      "#{base_class} text-base-content/60 hover:text-base-content/80 hover:bg-base-200"
     end
   end
 end

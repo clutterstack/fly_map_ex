@@ -62,18 +62,37 @@ defmodule FlyMapEx.Components.LegendComponent do
   alias FlyMapEx.Regions
   alias FlyMapEx.Components.Marker
 
-  attr(:marker_groups, :list, required: true,
-    doc: "List of marker groups to display in the legend. Each group should contain :label, :nodes, :style, and optionally :group_label and :machine_count.")
-  attr(:selected_groups, :list, default: [],
-    doc: "List of currently selected group labels. These groups will be highlighted in the legend.")
-  attr(:region_marker_colour, :string, required: true,
-    doc: "Hex colour code for the Fly.io regions marker (e.g., '#94a3b8').")
-  attr(:marker_opacity, :float, required: true,
-    doc: "Opacity value for region markers, between 0.0 and 1.0.")
-  attr(:show_regions, :boolean, required: true,
-    doc: "Whether to show the 'All Fly.io Regions' entry in the legend.")
-  attr(:target, :any, default: nil,
-    doc: "Phoenix LiveView target for handling toggle events. Usually set to @myself in a LiveComponent.")
+  attr(:marker_groups, :list,
+    required: true,
+    doc:
+      "List of marker groups to display in the legend. Each group should contain :label, :nodes, :style, and optionally :group_label and :machine_count."
+  )
+
+  attr(:selected_groups, :list,
+    default: [],
+    doc: "List of currently selected group labels. These groups will be highlighted in the legend."
+  )
+
+  attr(:region_marker_colour, :string,
+    required: true,
+    doc: "Hex colour code for the Fly.io regions marker (e.g., '#94a3b8')."
+  )
+
+  attr(:marker_opacity, :float,
+    required: true,
+    doc: "Opacity value for region markers, between 0.0 and 1.0."
+  )
+
+  attr(:show_regions, :boolean,
+    required: true,
+    doc: "Whether to show the 'All Fly.io Regions' entry in the legend."
+  )
+
+  attr(:target, :any,
+    default: nil,
+    doc:
+      "Phoenix LiveView target for handling toggle events. Usually set to @myself in a LiveComponent."
+  )
 
   @doc """
   Renders the interactive legend component.
@@ -232,7 +251,8 @@ defmodule FlyMapEx.Components.LegendComponent do
   defp region_display_name(region) do
     case Regions.name(region) do
       {:ok, name} -> name
-      {:error, _} -> region  # Fall back to region code if no name found
+      # Fall back to region code if no name found
+      {:error, _} -> region
     end
   end
 
@@ -264,5 +284,4 @@ defmodule FlyMapEx.Components.LegendComponent do
     end)
     |> Enum.sum()
   end
-
 end

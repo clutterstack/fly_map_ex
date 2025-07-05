@@ -189,6 +189,7 @@ defmodule FlyMapEx.Regions do
   def name(region) when is_binary(region) do
     try do
       region_atom = String.to_existing_atom(region)
+
       case @region_names[region_atom] do
         nil -> {:error, :unknown_region}
         name -> {:ok, name}
