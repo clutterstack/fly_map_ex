@@ -191,8 +191,8 @@ defmodule FlyMapEx.Components.Marker do
     glow = Map.get(style, :glow, false)
     gradient_id = assigns.gradient_id
 
-    Map.get(style, :size) |> dbg
-    FlyMapEx.Config.default_marker_radius() |> dbg
+    Map.get(style, :size) # |> dbg
+    FlyMapEx.Config.default_marker_radius() # |> dbg
 
     # For glow markers, use gradient fill if available, otherwise use solid colour
     colour = if glow && gradient_id, do: "url(##{gradient_id})", else: base_colour
@@ -271,7 +271,7 @@ defmodule FlyMapEx.Components.Marker do
       |> assign(:opacity_attrs, build_opacity_animation_attributes(assigns.animation))
       |> assign(:css_class, if(assigns.animation == :none, do: "marker-group static", else: "marker-group animated"))
 
-      assigns.marker_radius |> dbg
+      assigns.marker_radius # |> dbg
 
     ~H"""
     <g class={@css_class}>

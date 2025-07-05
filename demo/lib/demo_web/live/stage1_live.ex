@@ -4,6 +4,9 @@ defmodule DemoWeb.Stage1Live do
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
+  import DemoWeb.Components.SidebarLayout
+  import DemoWeb.Components.SidebarNavigation
+
 
   def mount(_params, _session, socket) do
     # Define the progressive examples according to the plan
@@ -80,6 +83,25 @@ defmodule DemoWeb.Stage1Live do
   def render(assigns) do
     ~H"""
     <.demo_navigation current_page={:stage1} />
+        <.sidebar_layout>
+      <:sidebar>
+        <.sidebar_navigation current_page={:stage1} />
+
+        <!-- Stage Information -->
+        <div class="p-4 border-t border-base-300">
+          <div class="mb-4">
+            <h2 class="text-lg font-bold text-base-content mb-2">Stage 1: Defining Marker Groups</h2>
+            <p class="text-sm text-base-content/70">
+              Learn the fundamental data structure and syntax options for FlyMapEx marker groups.
+            </p>
+          </div>
+          </div>
+      </:sidebar>
+
+      <:main>
+
+
+
     <div class="container mx-auto p-8">
       <!-- Stage Title & Progress -->
       <div class="mb-8">
@@ -148,6 +170,9 @@ defmodule DemoWeb.Stage1Live do
         </.link>
       </div>
     </div>
+              </:main>
+    </.sidebar_layout>
+
     """
   end
 
