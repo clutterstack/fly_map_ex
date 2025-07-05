@@ -86,16 +86,6 @@ defmodule DemoWeb.Stage1Live do
         <.sidebar_layout>
       <:sidebar>
         <.sidebar_navigation current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
-
-        <!-- Stage Information -->
-        <div class="p-4 border-t border-base-300">
-          <div class="mb-4">
-            <h2 class="text-lg font-bold text-base-content mb-2">Stage 1: Defining Marker Groups</h2>
-            <p class="text-sm text-base-content/70">
-              Learn the fundamental data structure and syntax options for FlyMapEx marker groups.
-            </p>
-          </div>
-          </div>
       </:sidebar>
 
       <:main>
