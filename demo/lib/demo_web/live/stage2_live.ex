@@ -4,6 +4,8 @@ defmodule DemoWeb.Stage2Live do
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
+  import DemoWeb.Components.SidebarLayout
+  import DemoWeb.Components.SidebarNavigation
 
   def mount(_params, _session, socket) do
     # Define the progressive examples according to the plan
@@ -173,6 +175,13 @@ defmodule DemoWeb.Stage2Live do
   def render(assigns) do
     ~H"""
     <.demo_navigation current_page={:stage2} />
+        <.sidebar_layout>
+      <:sidebar>
+        <.sidebar_navigation current_page={:stage2} tabs={@tabs} current_tab={@current_example} />
+      </:sidebar>
+
+      <:main>
+
     <div class="container mx-auto p-8">
       <!-- Stage Title & Progress -->
       <div class="mb-8">
@@ -201,6 +210,7 @@ defmodule DemoWeb.Stage2Live do
             tabs={@tabs}
             current={@current_example}
             event="switch_example"
+            show_tabs={false}
           />
         </div>
 
@@ -241,6 +251,9 @@ defmodule DemoWeb.Stage2Live do
         </.link>
       </div>
     </div>
+              </:main>
+    </.sidebar_layout>
+
     """
   end
 

@@ -4,6 +4,8 @@ defmodule DemoWeb.Stage4Live do
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
+  import DemoWeb.Components.SidebarLayout
+  import DemoWeb.Components.SidebarNavigation
 
   def mount(_params, _session, socket) do
     # Default scenario: monitoring dashboard
@@ -59,6 +61,13 @@ defmodule DemoWeb.Stage4Live do
   def render(assigns) do
     ~H"""
     <.demo_navigation current_page={:stage4} />
+        <.sidebar_layout>
+      <:sidebar>
+        <.sidebar_navigation current_page={:stage4} tabs={@tabs} current_tab={@current_tab} />
+      </:sidebar>
+
+      <:main>
+
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
@@ -86,6 +95,7 @@ defmodule DemoWeb.Stage4Live do
             tabs={@tabs}
             current={@current_tab}
             event="switch_tab"
+            show_tabs={false}
           />
         </div>
 
@@ -126,6 +136,9 @@ defmodule DemoWeb.Stage4Live do
         </.link>
       </div>
     </div>
+              </:main>
+    </.sidebar_layout>
+
     """
   end
 

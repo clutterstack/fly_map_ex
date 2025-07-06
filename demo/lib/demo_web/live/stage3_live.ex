@@ -4,6 +4,8 @@ defmodule DemoWeb.Stage3Live do
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
+  import DemoWeb.Components.SidebarLayout
+  import DemoWeb.Components.SidebarNavigation
 
   def mount(_params, _session, socket) do
     marker_groups = [
@@ -42,6 +44,13 @@ defmodule DemoWeb.Stage3Live do
   def render(assigns) do
     ~H"""
     <.demo_navigation current_page={:stage3} />
+        <.sidebar_layout>
+      <:sidebar>
+        <.sidebar_navigation current_page={:stage3} tabs={@tabs} current_tab={@current_theme} />
+      </:sidebar>
+
+      <:main>
+
     <div class="container mx-auto p-8">
       <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
@@ -69,6 +78,7 @@ defmodule DemoWeb.Stage3Live do
             tabs={@tabs}
             current={@current_theme}
             event="switch_theme"
+            show_tabs={false}
           />
         </div>
 
@@ -109,6 +119,9 @@ defmodule DemoWeb.Stage3Live do
         </.link>
       </div>
     </div>
+              </:main>
+    </.sidebar_layout>
+
     """
   end
 
