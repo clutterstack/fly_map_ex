@@ -44,7 +44,7 @@ defmodule DemoWeb.Stage4Live do
     {:noreply, assign(socket, current_scenario: scenario, marker_groups: marker_groups)}
   end
 
-  def handle_event("switch_tab", %{"option" => tab}, socket) do
+  def handle_event("switch_example", %{"option" => tab}, socket) do
     marker_groups = case tab do
       "guided" -> get_scenario_config(socket.assigns.current_scenario)
       "freeform" -> socket.assigns.custom_groups
@@ -94,7 +94,7 @@ defmodule DemoWeb.Stage4Live do
           <.tabbed_info_panel
             tabs={@tabs}
             current={@current_tab}
-            event="switch_tab"
+            event="switch_example"
             show_tabs={false}
           />
         </div>

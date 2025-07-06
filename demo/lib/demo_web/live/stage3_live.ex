@@ -36,7 +36,7 @@ defmodule DemoWeb.Stage3Live do
      )}
   end
 
-  def handle_event("switch_theme", %{"option" => theme}, socket) do
+  def handle_event("switch_example", %{"option" => theme}, socket) do
     {:noreply, assign(socket, current_theme: theme)}
   end
 
@@ -77,7 +77,7 @@ defmodule DemoWeb.Stage3Live do
           <.tabbed_info_panel
             tabs={@tabs}
             current={@current_theme}
-            event="switch_theme"
+            event="switch_example"
             show_tabs={false}
           />
         </div>
