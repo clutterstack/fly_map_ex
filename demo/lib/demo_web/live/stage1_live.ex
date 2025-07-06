@@ -95,15 +95,16 @@ defmodule DemoWeb.Stage1Live do
   # Content generation functions using ContentHelpers
 
   defp get_intro_content do
+  [
     ContentHelpers.content_section(
       "About FlyMapEx",
       "An over-engineered library for putting markers on a simple map."
-    ) <>
+    ),
     ContentHelpers.info_box(
       :primary,
       "Coordinate Format",
       coordinate_format_content()
-    ) <>
+    ),
     ContentHelpers.use_cases(
       "When to Use",
       [
@@ -112,23 +113,26 @@ defmodule DemoWeb.Stage1Live do
         {"Precise geographic mapping", "requirements"},
         {"Integration", "with external coordinate data"}
       ]
-    ) <>
+    ),
     ContentHelpers.pro_tip(
       "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
-    ) <>
-    "</div>"
-  end
+    ),
+    "</div>"  # Consider moving this to where the opening <div> was created, if needed
+  ]
+  |> Enum.join()
+end
 
   defp get_coordinates_content do
+    [
     ContentHelpers.content_section(
       "Custom Coordinates",
       "Use exact latitude and longitude coordinates for precise placement anywhere on the map."
-    ) <>
+    ),
     ContentHelpers.info_box(
       :primary,
       "Coordinate Format",
       coordinate_format_content()
-    ) <>
+    ),
     ContentHelpers.use_cases(
       "When to Use",
       [
@@ -137,23 +141,26 @@ defmodule DemoWeb.Stage1Live do
         {"Precise geographic mapping", "requirements"},
         {"Integration", "with external coordinate data"}
       ]
-    ) <>
+    ),
     ContentHelpers.pro_tip(
       "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
-    ) <>
+    ),
     "</div>"
+    ]
+    |> Enum.join()
   end
 
   defp get_region_content do
+    [
     ContentHelpers.content_section(
       "Fly.io Region Codes",
       "Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure."
-    ) <>
+    ),
     ContentHelpers.info_box(
       :success,
       "Popular Regions",
       popular_regions_content()
-    ) <>
+    ),
     ContentHelpers.use_cases(
       "Benefits",
       [
@@ -162,63 +169,71 @@ defmodule DemoWeb.Stage1Live do
         {"Perfect for Fly.io", "infrastructure mapping"},
         {"Easy to remember", "and type"}
       ]
-    ) <>
+    ),
     ContentHelpers.pro_tip(
       ~s(Use "dev" for development environments - maps to Seattle coordinates.),
       type: :warning
-    ) <>
+    ),
     "</div>"
+    ]
+    |> Enum.join()
   end
 
   defp get_multiple_content do
-    ContentHelpers.content_section(
-      "Multiple Nodes in One Group",
-      "Combine multiple nodes under a single label and styling for logical organization."
-    ) <>
-    ContentHelpers.info_box(
-      :secondary,
-      "Array of Nodes",
-      multiple_nodes_content()
-    ) <>
-    ContentHelpers.use_cases(
-      "Use Cases",
-      [
-        {"Global deployment", "across multiple regions"},
-        {"Load-balanced services", "in multiple zones"},
-        {"Geographic redundancy", "planning"},
-        {"Service mesh", "or CDN endpoints"}
-      ]
-    ) <>
-    ContentHelpers.pro_tip(
-      "Group related nodes together (e.g., all production servers, all staging environments).",
-      type: :best_practice
-    ) <>
-    "</div>"
+    [
+      ContentHelpers.content_section(
+        "Multiple Nodes in One Group",
+        "Combine multiple nodes under a single label and styling for logical organization."
+      ),
+      ContentHelpers.info_box(
+        :secondary,
+        "Array of Nodes",
+        multiple_nodes_content()
+      ),
+      ContentHelpers.use_cases(
+        "Use Cases",
+        [
+          {"Global deployment", "across multiple regions"},
+          {"Load-balanced services", "in multiple zones"},
+          {"Geographic redundancy", "planning"},
+          {"Service mesh", "or CDN endpoints"}
+        ]
+      ),
+      ContentHelpers.pro_tip(
+        "Group related nodes together (e.g., all production servers, all staging environments).",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
   end
 
   defp get_groups_content do
-    ContentHelpers.content_section(
-      "Multiple Groups",
-      "Organize nodes into distinct groups with different purposes, environments, or statuses."
-    ) <>
-    ContentHelpers.status_steps([
-      {:operational, "Production Servers", "Critical production infrastructure", "bg-primary"},
-      {:staging, "Staging Environment", "Pre-production testing servers", "bg-success"}
-    ]) <>
-    ContentHelpers.use_cases(
-      "Grouping Strategies",
-      [
-        {"Environment-based", "Production, Staging, Development"},
-        {"Service-based", "API, Database, CDN, Cache"},
-        {"Status-based", "Healthy, Warning, Error, Maintenance"},
-        {"Geographic-based", "US-East, EU-West, Asia-Pacific"}
-      ]
-    ) <>
-    ContentHelpers.pro_tip(
-      "Each group automatically appears in the legend with its label and colour.",
-      type: :best_practice
-    ) <>
-    "</div>"
+    [
+      ContentHelpers.content_section(
+        "Multiple Groups",
+        "Organize nodes into distinct groups with different purposes, environments, or statuses."
+      ),
+      ContentHelpers.status_steps([
+        {:operational, "Production Servers", "Critical production infrastructure", "bg-primary"},
+        {:staging, "Staging Environment", "Pre-production testing servers", "bg-success"}
+      ]),
+      ContentHelpers.use_cases(
+        "Grouping Strategies",
+        [
+          {"Environment-based", "Production, Staging, Development"},
+          {"Service-based", "API, Database, CDN, Cache"},
+          {"Status-based", "Healthy, Warning, Error, Maintenance"},
+          {"Geographic-based", "US-East, EU-West, Asia-Pacific"}
+        ]
+      ),
+      ContentHelpers.pro_tip(
+        "Each group automatically appears in the legend with its label and colour.",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
   end
 
   # Advanced topics content
