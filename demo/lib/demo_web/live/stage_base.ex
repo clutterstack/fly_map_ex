@@ -29,11 +29,7 @@ defmodule DemoWeb.Live.StageBase do
       
       use DemoWeb, :live_view
       
-      import DemoWeb.Components.DemoNavigation
-      import DemoWeb.Components.InteractiveControls
-      import DemoWeb.Components.ProgressiveDisclosure
-      import DemoWeb.Components.SidebarLayout
-      import DemoWeb.Components.SidebarNavigation
+      import DemoWeb.Components.StageLayout
       
       alias DemoWeb.Helpers.CodeGenerator
 
@@ -60,7 +56,7 @@ defmodule DemoWeb.Live.StageBase do
 
       def handle_event(event, params, socket) do
         if function_exported?(__MODULE__, :handle_stage_event, 3) do
-          handle_stage_event(event, params, socket)
+          apply(__MODULE__, :handle_stage_event, [event, params, socket])
         else
           {:noreply, socket}
         end
@@ -74,99 +70,21 @@ defmodule DemoWeb.Live.StageBase do
         |> String.downcase()
         |> String.to_atom()
 
-        nav = stage_navigation()
-        
-        ~H"""
-        <.demo_navigation current_page={stage_page} />
-        <.sidebar_layout>
-          <:sidebar>
-            <.sidebar_navigation current_page={stage_page} tabs={@tabs} current_tab={@current_example} />
-          </:sidebar>
-
-          <:main>
-            <div class="container mx-auto p-8">
-              <!-- Stage Title & Progress -->
-              <div class="mb-8">
-                <div class="flex justify-between items-center mb-4">
-                  <h1 class="text-3xl font-bold text-base-content"><%= stage_title() %></h1>
-                </div>
-                <p class="text-base-content/70 mb-6">
-                  <%= stage_description() %>
-                </p>
-              </div>
-
-              <!-- Full Width Map (Above the Fold) -->
-              <div class="mb-8 p-6 bg-base-200 rounded-lg">
-                <FlyMapEx.render
-                  marker_groups={current_marker_groups(assigns)}
-                  theme={:responsive}
-                  layout={:side_by_side}
-                />
-              </div>
-
-              <!-- Side-by-Side: Tabbed Info Panel & Code Examples -->
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <!-- Tabbed Info Panel -->
-                <div>
-                  <.tabbed_info_panel
-                    tabs={@tabs}
-                    current={@current_example}
-                    event="switch_example"
-                    show_tabs={false}
-                  />
-                </div>
-
-                <!-- Code Examples Panel -->
-                <div>
-                  <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-                    <div class="bg-base-200 px-4 py-3 border-b border-base-300">
-                      <h3 class="font-semibold text-base-content">Code Example</h3>
-                    </div>
-                    <div class="p-4">
-                      <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_focused_code(@current_example, current_marker_groups(assigns)) %></code></pre>
-                    </div>
-
-                    <!-- Quick Stats -->
-                    <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
-                      <div class="text-sm text-primary">
-                        <strong>Current Configuration:</strong> <%= get_current_description(@current_example) %> •
-                        <%= length(current_marker_groups(assigns)) %> groups •
-                        <%= count_total_nodes(current_marker_groups(assigns)) %> nodes
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Progressive Disclosure for Advanced Topics -->
-              <.learn_more_section
-                topics={get_advanced_topics()}
-              />
-
-              <!-- Navigation -->
-              <div class="mt-8 flex justify-between">
-                <%= if nav.prev do %>
-                  <.link navigate={~p"/#{nav.prev}"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
-                    <%= get_prev_label(nav.prev) %>
-                  </.link>
-                <% else %>
-                  <.link navigate={~p"/"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
-                    ← Back to Home
-                  </.link>
-                <% end %>
-                
-                <%= if nav.next do %>
-                  <.link navigate={~p"/#{nav.next}"} class="inline-block bg-primary text-primary-content px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors">
-                    <%= get_next_label(nav.next) %>
-                  </.link>
-                <% else %>
-                  <div></div>
-                <% end %>
-              </div>
-            </div>
-          </:main>
-        </.sidebar_layout>
-        """
+        # Use function component approach
+        DemoWeb.Components.StageLayout.stage_layout(%{
+          current_page: stage_page,
+          tabs: assigns.tabs,
+          current_tab: assigns.current_example,
+          title: stage_title(),
+          description: stage_description(),
+          marker_groups: current_marker_groups(assigns),
+          current_example: assigns.current_example,
+          examples: assigns.examples,
+          advanced_topics: get_advanced_topics(),
+          navigation: stage_navigation(),
+          get_current_description: &get_current_description/1,
+          get_focused_code: &get_focused_code/2
+        })
       end
 
       # Common helper functions
@@ -201,25 +119,6 @@ defmodule DemoWeb.Live.StageBase do
         |> String.downcase()
       end
 
-      defp get_prev_label(stage) do
-        case stage do
-          :stage1 -> "← Stage 1: Defining Marker Groups"
-          :stage2 -> "← Stage 2: Styling Markers"
-          :stage3 -> "← Stage 3: Map Themes"
-          :stage4 -> "← Stage 4: Advanced Features"
-          _ -> "← Previous"
-        end
-      end
-
-      defp get_next_label(stage) do
-        case stage do
-          :stage1 -> "Next: Stage 1 - Defining Marker Groups →"
-          :stage2 -> "Next: Stage 2 - Styling Markers →"
-          :stage3 -> "Next: Stage 3 - Map Themes →"
-          :stage4 -> "Next: Stage 4 - Advanced Features →"
-          _ -> "Next →"
-        end
-      end
 
       # Allow implementations to override these functions
       defoverridable [get_context_name: 1]

@@ -1,56 +1,40 @@
 defmodule DemoWeb.Stage1Live do
-  use DemoWeb, :live_view
+  @moduledoc """
+  Stage 1: Defining Marker Groups
 
-  import DemoWeb.Components.DemoNavigation
-  import DemoWeb.Components.InteractiveControls
-  import DemoWeb.Components.ProgressiveDisclosure
-  import DemoWeb.Components.SidebarLayout
-  import DemoWeb.Components.SidebarNavigation
-  
-  alias DemoWeb.Helpers.CodeGenerator
+  This stage demonstrates the fundamental data structure and syntax options
+  for FlyMapEx marker groups, including coordinates, regions, and grouping patterns.
+  """
 
+  use DemoWeb.Live.StageBase
 
-  def mount(_params, _session, socket) do
-    # Define the progressive examples according to the plan
-    examples = %{
-      single_coordinates: [
-        %{
-          nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
-          label: "Single Node"
-        }
-      ],
-      single_region: [
-        %{
-          nodes: ["sjc"],
-          label: "Single Server"
-        }
-      ],
-      multiple_nodes: [
-        %{
-          nodes: ["sjc", "fra", "ams", "lhr"],
-          label: "Global Deployment"
-        }
-      ],
-      multiple_groups: [
-        %{
-          nodes: ["sjc", "fra"],
-          label: "Production Servers"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          label: "Staging Environment"
-        }
-      ]
-    }
+  alias DemoWeb.Helpers.{ContentHelpers, StageConfig}
 
-    # Tab content for the new tabbed interface
-    tabs = [
+  # Required StageBase callbacks
+
+  def stage_title, do: "Stage 1: Defining Marker Groups"
+
+  def stage_description do
+    "Learn the fundamental data structure and syntax options for FlyMapEx marker groups."
+  end
+
+  def stage_examples do
+    StageConfig.merge_examples([
+      StageConfig.example_config(:coordinates),
+      StageConfig.example_config(:regions),
+      StageConfig.example_config(:multiple),
+      StageConfig.example_config(:groups)
+    ])
+  end
+
+  def stage_tabs do
+    [
       %{
         key: "library_intro",
         label: "About",
         content: get_intro_content()
       },
-       %{
+      %{
         key: "single_coordinates",
         label: "Coordinates",
         content: get_coordinates_content()
@@ -71,354 +55,280 @@ defmodule DemoWeb.Stage1Live do
         content: get_groups_content()
       }
     ]
-
-    {:ok, assign(socket,
-      examples: examples,
-      tabs: tabs,
-      current_example: "single_coordinates"
-    )}
   end
 
-  def handle_event("switch_example", %{"option" => option}, socket) do
-    {:noreply, assign(socket, current_example: option)}
+  def stage_navigation, do: StageConfig.stage_navigation(:stage1)
+
+  def get_current_description(example) do
+    case example do
+      "single_coordinates" -> "Single node with custom coordinates"
+      "single_region" -> "Single node using Fly.io region code"
+      "multiple_nodes" -> "Multiple nodes in one group"
+      "multiple_groups" -> "Multiple groups with different purposes"
+      "library_intro" -> "About FlyMapEx library"
+      _ -> "Unknown example"
+    end
   end
 
-  defp current_marker_groups(assigns) do
-    Map.get(assigns.examples, String.to_atom(assigns.current_example), [])
+  def get_advanced_topics do
+    [
+      %{
+        id: "coordinate-systems",
+        title: "Understanding Coordinate Systems",
+        content: get_coordinate_systems_content()
+      },
+      %{
+        id: "data-structure",
+        title: "Marker Group Data Structure",
+        content: get_data_structure_content()
+      },
+      %{
+        id: "production-tips",
+        title: "Production Usage Tips",
+        content: get_production_tips_content()
+      }
+    ]
   end
 
-  def render(assigns) do
-    ~H"""
-    <.demo_navigation current_page={:stage1} />
-        <.sidebar_layout>
-      <:sidebar>
-        <.sidebar_navigation current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
-      </:sidebar>
+  def default_example, do: "library_intro"
 
-      <:main>
+  # Content generation functions using ContentHelpers
 
-
-
-    <div class="container mx-auto p-8">
-      <!-- Stage Title & Progress -->
-      <div class="mb-8">
-        <div class="flex justify-between items-center mb-4">
-          <h1 class="text-3xl font-bold text-base-content">Stage 1: Defining Marker Groups</h1>
-        </div>
-        <p class="text-base-content/70 mb-6">
-          Learn the fundamental data structure and syntax options for FlyMapEx marker groups.
-        </p>
-      </div>
-
-      <!-- Full Width Map (Above the Fold) -->
-      <div class="mb-8 p-6 bg-base-200 rounded-lg">
-        <FlyMapEx.render
-          marker_groups={current_marker_groups(assigns)}
-          theme={:responsive}
-          layout={:side_by_side}
-        />
-      </div>
-
-      <!-- Side-by-Side: Tabbed Info Panel & Code Examples -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Tabbed Info Panel -->
-        <div>
-          <.tabbed_info_panel
-            tabs={@tabs}
-            current={@current_example}
-            event="switch_example"
-            show_tabs={false}
-          />
-        </div>
-
-        <!-- Code Examples Panel -->
-        <div>
-          <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-            <div class="bg-base-200 px-4 py-3 border-b border-base-300">
-              <h3 class="font-semibold text-base-content">Code Example</h3>
-            </div>
-            <div class="p-4">
-              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_focused_code(@current_example, current_marker_groups(assigns)) %></code></pre>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
-              <div class="text-sm text-primary">
-                <strong>Current Configuration:</strong> <%= get_current_description(@current_example) %> •
-                <%= length(current_marker_groups(assigns)) %> groups •
-                <%= count_total_nodes(current_marker_groups(assigns)) %> nodes
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progressive Disclosure for Advanced Topics -->
-      <.learn_more_section
-        topics={get_advanced_topics()}
-      />
-
-      <!-- Navigation -->
-      <div class="mt-8 flex justify-between">
-        <.link navigate={~p"/"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
-          ← Back to Home
-        </.link>
-        <.link navigate={~p"/stage2"} class="inline-block bg-primary text-primary-content px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors">
-          Next: Stage 2 - Styling Markers →
-        </.link>
-      </div>
-    </div>
-              </:main>
-    </.sidebar_layout>
-
-    """
-  end
-
-  # Tab content creation functions
   defp get_intro_content do
-    ~s"""
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-base-content mb-2">About FlyMapEx</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-          An over-engineered library for putting markers on a simple map.
-        </p>
-      </div>
-
-      <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-        <h5 class="font-medium text-primary mb-2">Coordinate Format</h5>
-        <div class="space-y-2 text-sm">
-          <div>
-            <strong>Latitude:</strong> North/South position (-90 to 90)
-          </div>
-          <div>
-            <strong>Longitude:</strong> East/West position (-180 to 180)
-          </div>
-          <div>
-            <strong>Example:</strong> <code class="bg-base-100 px-1 rounded">{37.7749, -122.4194}</code> for San Francisco
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h5 class="font-medium text-base-content mb-2">When to Use</h5>
-        <ul class="text-sm text-base-content/70 space-y-1">
-          <li>• Custom locations not covered by Fly.io regions</li>
-          <li>• Office locations, data centres, or business sites</li>
-          <li>• Precise geographic mapping requirements</li>
-          <li>• Integration with external coordinate data</li>
-        </ul>
-      </div>
-
-      <div class="bg-base-200 border border-base-300 rounded-lg p-3">
-        <p class="text-xs text-base-content/70">
-          <strong>Pro Tip:</strong> Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection.
-        </p>
-      </div>
-    </div>
-    """
+    ContentHelpers.content_section(
+      "About FlyMapEx",
+      "An over-engineered library for putting markers on a simple map."
+    ) <>
+    ContentHelpers.info_box(
+      :primary,
+      "Coordinate Format",
+      coordinate_format_content()
+    ) <>
+    ContentHelpers.use_cases(
+      "When to Use",
+      [
+        {"Custom locations", "not covered by Fly.io regions"},
+        {"Office locations", "data centres, or business sites"},
+        {"Precise geographic mapping", "requirements"},
+        {"Integration", "with external coordinate data"}
+      ]
+    ) <>
+    ContentHelpers.pro_tip(
+      "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
+    ) <>
+    "</div>"
   end
 
   defp get_coordinates_content do
-    ~s"""
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-base-content mb-2">Custom Coordinates</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-          Use exact latitude and longitude coordinates for precise placement anywhere on the map.
-        </p>
-      </div>
-
-      <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-        <h5 class="font-medium text-primary mb-2">Coordinate Format</h5>
-        <div class="space-y-2 text-sm">
-          <div>
-            <strong>Latitude:</strong> North/South position (-90 to 90)
-          </div>
-          <div>
-            <strong>Longitude:</strong> East/West position (-180 to 180)
-          </div>
-          <div>
-            <strong>Example:</strong> <code class="bg-base-100 px-1 rounded">{37.7749, -122.4194}</code> for San Francisco
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h5 class="font-medium text-base-content mb-2">When to Use</h5>
-        <ul class="text-sm text-base-content/70 space-y-1">
-          <li>• Custom locations not covered by Fly.io regions</li>
-          <li>• Office locations, data centres, or business sites</li>
-          <li>• Precise geographic mapping requirements</li>
-          <li>• Integration with external coordinate data</li>
-        </ul>
-      </div>
-
-      <div class="bg-base-200 border border-base-300 rounded-lg p-3">
-        <p class="text-xs text-base-content/70">
-          <strong>Pro Tip:</strong> Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection.
-        </p>
-      </div>
-    </div>
-    """
+    ContentHelpers.content_section(
+      "Custom Coordinates",
+      "Use exact latitude and longitude coordinates for precise placement anywhere on the map."
+    ) <>
+    ContentHelpers.info_box(
+      :primary,
+      "Coordinate Format",
+      coordinate_format_content()
+    ) <>
+    ContentHelpers.use_cases(
+      "When to Use",
+      [
+        {"Custom locations", "not covered by Fly.io regions"},
+        {"Office locations", "data centres, or business sites"},
+        {"Precise geographic mapping", "requirements"},
+        {"Integration", "with external coordinate data"}
+      ]
+    ) <>
+    ContentHelpers.pro_tip(
+      "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
+    ) <>
+    "</div>"
   end
 
   defp get_region_content do
-    ~s"""
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-base-content mb-2">Fly.io Region Codes</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-          Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure.
-        </p>
-      </div>
-
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-        <h5 class="font-medium text-success mb-2">Popular Regions</h5>
-        <div class="grid grid-cols-2 gap-2 text-sm">
-          <div class="flex items-center space-x-2">
-            <code class="bg-base-100 px-1 rounded text-xs">"sjc"</code>
-            <span class="text-success">San Jose, US</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <code class="bg-base-100 px-1 rounded text-xs">"fra"</code>
-            <span class="text-success">Frankfurt, DE</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <code class="bg-base-100 px-1 rounded text-xs">"lhr"</code>
-            <span class="text-success">London, UK</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <code class="bg-base-100 px-1 rounded text-xs">"nrt"</code>
-            <span class="text-success">Tokyo, JP</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h5 class="font-medium text-base-content mb-2">Benefits</h5>
-        <ul class="text-sm text-base-content/70 space-y-1">
-          <li>• Automatically validated region codes</li>
-          <li>• Smaller bundle size than coordinates</li>
-          <li>• Perfect for Fly.io infrastructure mapping</li>
-          <li>• Easy to remember and type</li>
-        </ul>
-      </div>
-
-      <div class="bg-warning/10 border border-warning/20 rounded-lg p-3">
-        <p class="text-xs text-warning">
-          <strong>Special Case:</strong> Use <code class="bg-base-100 px-1 rounded">"dev"</code> for development environments - maps to Seattle coordinates.
-        </p>
-      </div>
-    </div>
-    """
+    ContentHelpers.content_section(
+      "Fly.io Region Codes",
+      "Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure."
+    ) <>
+    ContentHelpers.info_box(
+      :success,
+      "Popular Regions",
+      popular_regions_content()
+    ) <>
+    ContentHelpers.use_cases(
+      "Benefits",
+      [
+        {"Automatically validated", "region codes"},
+        {"Smaller bundle size", "than coordinates"},
+        {"Perfect for Fly.io", "infrastructure mapping"},
+        {"Easy to remember", "and type"}
+      ]
+    ) <>
+    ContentHelpers.pro_tip(
+      ~s(Use "dev" for development environments - maps to Seattle coordinates.),
+      type: :warning
+    ) <>
+    "</div>"
   end
 
   defp get_multiple_content do
-    ~s"""
-    <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-base-content mb-2">Multiple Nodes in One Group</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-          Combine multiple nodes under a single label and styling for logical organization.
-        </p>
-      </div>
-
-      <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-        <h5 class="font-medium text-secondary mb-2">Array of Nodes</h5>
-        <div class="space-y-2 text-sm">
-          <div>
-            <strong>Simple List:</strong> <code class="bg-base-100 px-1 rounded">["sjc", "fra", "ams"]</code>
-          </div>
-          <div>
-            <strong>Mixed Types:</strong> Can combine region codes and coordinates
-          </div>
-          <div>
-            <strong>Shared Properties:</strong> All nodes inherit group label and styling
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h5 class="font-medium text-base-content mb-2">Use Cases</h5>
-        <ul class="text-sm text-base-content/70 space-y-1">
-          <li>• Global deployment across multiple regions</li>
-          <li>• Load-balanced services in multiple zones</li>
-          <li>• Geographic redundancy planning</li>
-          <li>• Service mesh or CDN endpoints</li>
-        </ul>
-      </div>
-
-      <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
-        <p class="text-xs text-primary">
-          <strong>Best Practice:</strong> Group related nodes together (e.g., all production servers, all staging environments).
-        </p>
-      </div>
-    </div>
-    """
+    ContentHelpers.content_section(
+      "Multiple Nodes in One Group",
+      "Combine multiple nodes under a single label and styling for logical organization."
+    ) <>
+    ContentHelpers.info_box(
+      :secondary,
+      "Array of Nodes",
+      multiple_nodes_content()
+    ) <>
+    ContentHelpers.use_cases(
+      "Use Cases",
+      [
+        {"Global deployment", "across multiple regions"},
+        {"Load-balanced services", "in multiple zones"},
+        {"Geographic redundancy", "planning"},
+        {"Service mesh", "or CDN endpoints"}
+      ]
+    ) <>
+    ContentHelpers.pro_tip(
+      "Group related nodes together (e.g., all production servers, all staging environments).",
+      type: :best_practice
+    ) <>
+    "</div>"
   end
 
   defp get_groups_content do
+    ContentHelpers.content_section(
+      "Multiple Groups",
+      "Organize nodes into distinct groups with different purposes, environments, or statuses."
+    ) <>
+    ContentHelpers.status_steps([
+      {:operational, "Production Servers", "Critical production infrastructure", "bg-primary"},
+      {:staging, "Staging Environment", "Pre-production testing servers", "bg-success"}
+    ]) <>
+    ContentHelpers.use_cases(
+      "Grouping Strategies",
+      [
+        {"Environment-based", "Production, Staging, Development"},
+        {"Service-based", "API, Database, CDN, Cache"},
+        {"Status-based", "Healthy, Warning, Error, Maintenance"},
+        {"Geographic-based", "US-East, EU-West, Asia-Pacific"}
+      ]
+    ) <>
+    ContentHelpers.pro_tip(
+      "Each group automatically appears in the legend with its label and colour.",
+      type: :best_practice
+    ) <>
+    "</div>"
+  end
+
+  # Advanced topics content
+
+  defp get_coordinate_systems_content do
     ~s"""
     <div class="space-y-4">
-      <div>
-        <h4 class="font-semibold text-base-content mb-2">Multiple Groups</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-          Organize nodes into distinct groups with different purposes, environments, or statuses.
-        </p>
-      </div>
-
-      <div class="space-y-3">
-        <div class="flex items-start space-x-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-primary mt-0.5"></div>
-          <div>
-            <h5 class="font-medium text-primary">Production Servers</h5>
-            <p class="text-sm text-primary/80">Critical production infrastructure</p>
-          </div>
+      <p class="text-sm text-base-content/80">
+        FlyMapEx supports two coordinate systems for maximum flexibility:
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-semibold text-base-content mb-2">WGS84 Geographic Coordinates</h4>
+          #{ContentHelpers.feature_list([
+            "Standard latitude and longitude",
+            "Range: -90 to 90 (latitude), -180 to 180 (longitude)",
+            "Example: {37.7749, -122.4194} for San Francisco",
+            "Use when you need precise custom locations"
+          ])}
         </div>
-
-        <div class="flex items-start space-x-3 p-3 bg-success/10 border border-success/20 rounded-lg">
-          <div class="w-4 h-4 rounded-full bg-success mt-0.5"></div>
-          <div>
-            <h5 class="font-medium text-success">Staging Environment</h5>
-            <p class="text-sm text-success/80">Pre-production testing servers</p>
-          </div>
+        <div>
+          <h4 class="font-semibold text-base-content mb-2">Fly.io Region Codes</h4>
+          #{ContentHelpers.feature_list([
+            "Pre-defined 3-letter codes",
+            ~s(Examples: "sjc", "fra", "ams", "lhr"),
+            "Automatically resolved to exact coordinates",
+            "Use for Fly.io infrastructure mapping"
+          ])}
         </div>
-      </div>
-
-      <div>
-        <h5 class="font-medium text-base-content mb-2">Grouping Strategies</h5>
-        <ul class="text-sm text-base-content/70 space-y-1">
-          <li>• <strong>Environment-based:</strong> Production, Staging, Development</li>
-          <li>• <strong>Service-based:</strong> API, Database, CDN, Cache</li>
-          <li>• <strong>Status-based:</strong> Healthy, Warning, Error, Maintenance</li>
-          <li>• <strong>Geographic-based:</strong> US-East, EU-West, Asia-Pacific</li>
-        </ul>
-      </div>
-
-      <div class="bg-success/10 border border-success/20 rounded-lg p-3">
-        <p class="text-xs text-success">
-          <strong>Automatic Legend:</strong> Each group automatically appears in the legend with its label and colour.
-        </p>
       </div>
     </div>
     """
   end
 
-  # Generate focused code examples for each tab
-  defp get_focused_code(example, marker_groups) do
-    # Use the shared CodeGenerator for consistent code generation
-    CodeGenerator.generate_flymap_code(
-      marker_groups,
-      theme: :responsive,
-      layout: :side_by_side,
-      context: get_context_name(example),
-      format: :heex
-    )
+  defp get_data_structure_content do
+    ~s"""
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        Each marker group follows a consistent structure:
+      </p>
+      #{ContentHelpers.code_snippet(~s"""
+%{
+  nodes: [list_of_nodes],    # Required: nodes to display
+  style: style_specification, # Optional: visual styling
+  label: "Group Name"        # Required: legend label
+}
+""")}
+      <div class="mt-4">
+        <h4 class="font-semibold text-base-content mb-2">Node Specifications</h4>
+        <div class="space-y-2 text-sm">
+          #{ContentHelpers.parameter_doc("Region Code", "string", "3-letter region identifier", ~s("sjc"))}
+          #{ContentHelpers.parameter_doc("Custom Node", "map", "coordinates and label", ~s(%{coordinates: {lat, lng}, label: "Name"}))}
+          #{ContentHelpers.parameter_doc("Mixed", "list", "combination of types", ~s(["sjc", %{coordinates: {40.7128, -74.0060}, label: "NYC"}]))}
+        </div>
+      </div>
+    </div>
+    """
   end
-  
-  # Helper to get readable context names
-  defp get_context_name(example) do
+
+  defp get_production_tips_content do
+    ~s"""
+    <div class="space-y-4">
+      #{ContentHelpers.use_cases("Performance Considerations", [
+        {"Groups with fewer than 20 nodes", "render efficiently"},
+        {"Use region codes when possible", "for smaller bundle size"},
+        {"Consider grouping related nodes", "for better organization"}
+      ])}
+      #{ContentHelpers.use_cases("Common Patterns", [
+        {"Environment-based", "Production, Staging, Development"},
+        {"Service-based", "API Servers, Databases, CDN"},
+        {"Status-based", "Healthy, Warning, Error"},
+        {"Region-based", "US East, EU West, Asia Pacific"}
+      ])}
+    </div>
+    """
+  end
+
+  # Helper content functions
+
+  defp coordinate_format_content do
+    ~s"""
+    <div class="space-y-2 text-sm">
+      #{ContentHelpers.parameter_doc("Latitude", "number", "North/South position (-90 to 90)", nil)}
+      #{ContentHelpers.parameter_doc("Longitude", "number", "East/West position (-180 to 180)", nil)}
+      #{ContentHelpers.parameter_doc("Example", "tuple", "San Francisco coordinates", "{37.7749, -122.4194}")}
+    </div>
+    """
+  end
+
+  defp popular_regions_content do
+    ContentHelpers.color_grid([
+      {"bg-base-100", ~s("sjc" - San Jose, US)},
+      {"bg-base-100", ~s("fra" - Frankfurt, DE)},
+      {"bg-base-100", ~s("lhr" - London, UK)},
+      {"bg-base-100", ~s("nrt" - Tokyo, JP)}
+    ], cols: 2)
+  end
+
+  defp multiple_nodes_content do
+    ~s"""
+    <div class="space-y-2 text-sm">
+      #{ContentHelpers.parameter_doc("Simple List", "list", "array of region codes", ~s(["sjc", "fra", "ams"]))}
+      #{ContentHelpers.parameter_doc("Mixed Types", "list", "can combine region codes and coordinates", nil)}
+      #{ContentHelpers.parameter_doc("Shared Properties", "inherit", "all nodes inherit group label and styling", nil)}
+    </div>
+    """
+  end
+
+  # Override context name for better code generation
+  def get_context_name(example) do
     case example do
       "single_coordinates" -> "coordinates"
       "single_region" -> "region"
@@ -427,115 +337,5 @@ defmodule DemoWeb.Stage1Live do
       "library_intro" -> "intro"
       _ -> "example"
     end
-  end
-
-  # Helper functions for the template
-  defp get_current_description(example) do
-    case example do
-      "single_coordinates" -> "Single node with custom coordinates"
-      "single_region" -> "Single node using Fly.io region code"
-      "multiple_nodes" -> "Multiple nodes in one group"
-      "multiple_groups" -> "Multiple groups with different purposes"
-      _ -> "Unknown example"
-    end
-  end
-
-  defp count_total_nodes(marker_groups) do
-    Enum.reduce(marker_groups, 0, fn group, acc ->
-      nodes = group[:nodes] || []
-      acc + length(nodes)
-    end)
-  end
-
-
-  defp get_advanced_topics do
-    [
-      %{
-        id: "coordinate-systems",
-        title: "Understanding Coordinate Systems",
-        content: ~s"""
-        <div class="space-y-4">
-          <p class="text-sm text-base-content/80">
-            FlyMapEx supports two coordinate systems for maximum flexibility:
-          </p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 class="font-semibold text-base-content mb-2">WGS84 Geographic Coordinates</h4>
-              <ul class="text-sm text-base-content/70 space-y-1">
-                <li>• Standard latitude and longitude</li>
-                <li>• Range: -90 to 90 (latitude), -180 to 180 (longitude)</li>
-                <li>• Example: {37.7749, -122.4194} for San Francisco</li>
-                <li>• Use when you need precise custom locations</li>
-              </ul>
-            </div>
-            <div>
-              <h4 class="font-semibold text-base-content mb-2">Fly.io Region Codes</h4>
-              <ul class="text-sm text-base-content/70 space-y-1">
-                <li>• Pre-defined 3-letter codes</li>
-                <li>• Examples: "sjc", "fra", "ams", "lhr"</li>
-                <li>• Automatically resolved to exact coordinates</li>
-                <li>• Use for Fly.io infrastructure mapping</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        """
-      },
-      %{
-        id: "data-structure",
-        title: "Marker Group Data Structure",
-        content: ~s"""
-        <div class="space-y-4">
-          <p class="text-sm text-base-content/80">
-            Each marker group follows a consistent structure:
-          </p>
-          <pre class="bg-base-200 p-4 rounded-lg text-sm"><code>%{
-            nodes: [list_of_nodes],    # Required: nodes to display
-            style: style_specification, # Optional: visual styling
-            label: "Group Name"        # Required: legend label
-          }</code></pre>
-          <div class="mt-4">
-            <h4 class="font-semibold text-base-content mb-2">Node Specifications</h4>
-            <div class="space-y-2 text-sm">
-              <div>
-                <strong>Region Code:</strong> <code class="bg-base-200 px-1 rounded">"sjc"</code>
-              </div>
-              <div>
-                <strong>Custom Node:</strong> <code class="bg-base-200 px-1 rounded">%{coordinates: {lat, lng}, label: "Name"}</code>
-              </div>
-              <div>
-                <strong>Mixed:</strong> <code class="bg-base-200 px-1 rounded">["sjc", %{coordinates: {40.7128, -74.0060}, label: "NYC"}]</code>
-              </div>
-            </div>
-          </div>
-        </div>
-        """
-      },
-      %{
-        id: "production-tips",
-        title: "Production Usage Tips",
-        content: ~s"""
-        <div class="space-y-4">
-          <div>
-            <h4 class="font-semibold text-base-content mb-2">Performance Considerations</h4>
-            <ul class="text-sm text-base-content/70 space-y-1">
-              <li>• Groups with fewer than 20 nodes render efficiently</li>
-              <li>• Use region codes when possible for smaller bundle size</li>
-              <li>• Consider grouping related nodes for better organization</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-semibold text-base-content mb-2">Common Patterns</h4>
-            <ul class="text-sm text-base-content/70 space-y-1">
-              <li>• <strong>Environment-based:</strong> Production, Staging, Development</li>
-              <li>• <strong>Service-based:</strong> API Servers, Databases, CDN</li>
-              <li>• <strong>Status-based:</strong> Healthy, Warning, Error</li>
-              <li>• <strong>Region-based:</strong> US East, EU West, Asia Pacific</li>
-            </ul>
-          </div>
-        </div>
-        """
-      }
-    ]
   end
 end
