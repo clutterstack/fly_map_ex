@@ -1,6 +1,6 @@
 defmodule FlyMapEx.Component do
   @moduledoc """
-  Stateful LiveView component for FlyMapEx that manages its own selection state.
+  Stateful Live Component for FlyMapEx that manages its own selection state.
 
   This component provides a complete, self-contained world map with legend that
   handles group visibility toggling internally, eliminating the need for parent
@@ -356,9 +356,43 @@ defmodule FlyMapEx.Component do
       group
     else
       case Map.get(group, :label) do
-        nil -> group
-        label -> Map.put(group, :group_label, label)
+        nil -> 
+          # Generate default label if missing
+          default_label = generate_default_label(group)
+          group
+          |> Map.put(:label, default_label)
+          |> Map.put(:group_label, default_label)
+        label -> 
+          Map.put(group, :group_label, label)
       end
+    end
+  end
+
+  # Generate default label for groups without explicit labels
+  defp generate_default_label(group) do
+    cond do
+      # If we have nodes, create label based on count
+      Map.has_key?(group, :nodes) and not is_nil(Map.get(group, :nodes)) ->
+        node_count = length(Map.get(group, :nodes, []))
+        case node_count do
+          0 -> "Empty Group"
+          1 -> "Single Node"
+          count -> "#{count} Nodes"
+        end
+      
+      # If we have a style, use it to generate label
+      Map.has_key?(group, :style) ->
+        style_name = 
+          case Map.get(group, :style) do
+            atom when is_atom(atom) -> 
+              atom |> to_string() |> String.replace("_", " ") |> String.capitalize()
+            _ -> 
+              "Styled Group"
+          end
+        style_name
+      
+      # Fallback to generic label
+      true -> "Marker Group"
     end
   end
 
