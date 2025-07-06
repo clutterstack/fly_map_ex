@@ -5,8 +5,8 @@ IO.puts "Testing new FlyMapEx styling system integration:"
 
 # Test the style builder functions
 IO.puts "\n1. Testing style builders:"
-success_style = Style.success()
-IO.inspect success_style, label: "Success style"
+operational_style = Style.operational()
+IO.inspect operational_style, label: "Operational style"
 
 custom_style = Style.custom("#ff6b6b", size: 10, animation: :pulse)  
 IO.inspect custom_style, label: "Custom style"
@@ -16,7 +16,7 @@ IO.puts "\n2. Testing marker group format:"
 marker_groups = [
   %{
     nodes: ["sjc", "fra"],
-    style: Style.success(),
+    style: Style.operational(),
     label: "Production Servers"
   },
   %{

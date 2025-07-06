@@ -392,7 +392,7 @@ defmodule DemoWeb.Stage4Live do
       },
       %{
         nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.active(),
+        style: FlyMapEx.Style.operational(),
         label: "Deploying v2.1.0"
       },
       %{

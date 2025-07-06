@@ -91,10 +91,10 @@ defmodule FlyMapEx.Adapters do
         %{nodes: ["lhr"], style: FlyMapEx.Style.primary(), label: "Running Machines (1)", machine_count: 1}
       ]
 
-      iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :active)
+      iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Operational", :operational)
       [
-        %{nodes: ["yyz"], style: FlyMapEx.Style.active(), label: "Active (2)", machine_count: 2},
-        %{nodes: ["lhr"], style: FlyMapEx.Style.active(), label: "Active (1)", machine_count: 1}
+        %{nodes: ["yyz"], style: FlyMapEx.Style.operational(), label: "Operational (2)", machine_count: 2},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.operational(), label: "Operational (1)", machine_count: 1}
       ]
   """
   def from_machine_tuples(machine_tuples, label, style_key \\ :primary)

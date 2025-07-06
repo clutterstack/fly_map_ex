@@ -44,6 +44,11 @@ defmodule DemoWeb.Stage1Live do
     # Tab content for the new tabbed interface
     tabs = [
       %{
+        key: "library_intro",
+        label: "About",
+        content: get_intro_content()
+      },
+       %{
         key: "single_coordinates",
         label: "Coordinates",
         content: get_coordinates_content()
@@ -168,6 +173,50 @@ defmodule DemoWeb.Stage1Live do
   end
 
   # Tab content creation functions
+  defp get_intro_content do
+    ~s"""
+    <div class="space-y-4">
+      <div>
+        <h4 class="font-semibold text-base-content mb-2">About FlyMapEx</h4>
+        <p class="text-sm text-base-content/70 mb-3">
+          An over-engineered library for putting markers on a simple map.
+        </p>
+      </div>
+
+      <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+        <h5 class="font-medium text-primary mb-2">Coordinate Format</h5>
+        <div class="space-y-2 text-sm">
+          <div>
+            <strong>Latitude:</strong> North/South position (-90 to 90)
+          </div>
+          <div>
+            <strong>Longitude:</strong> East/West position (-180 to 180)
+          </div>
+          <div>
+            <strong>Example:</strong> <code class="bg-base-100 px-1 rounded">{37.7749, -122.4194}</code> for San Francisco
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h5 class="font-medium text-base-content mb-2">When to Use</h5>
+        <ul class="text-sm text-base-content/70 space-y-1">
+          <li>• Custom locations not covered by Fly.io regions</li>
+          <li>• Office locations, data centres, or business sites</li>
+          <li>• Precise geographic mapping requirements</li>
+          <li>• Integration with external coordinate data</li>
+        </ul>
+      </div>
+
+      <div class="bg-base-200 border border-base-300 rounded-lg p-3">
+        <p class="text-xs text-base-content/70">
+          <strong>Pro Tip:</strong> Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection.
+        </p>
+      </div>
+    </div>
+    """
+  end
+
   defp get_coordinates_content do
     ~s"""
     <div class="space-y-4">

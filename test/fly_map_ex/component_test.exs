@@ -70,7 +70,7 @@ defmodule FlyMapEx.ComponentTest do
     end
     
     test "generates style-based labels for groups with only styles" do
-      group1 = %{style: :active}
+      group1 = %{style: :operational}
       group2 = %{style: :very_important}
       group3 = %{style: :warning_level}
       
@@ -78,8 +78,8 @@ defmodule FlyMapEx.ComponentTest do
       result2 = TestHelper.add_group_label_if_needed(group2)
       result3 = TestHelper.add_group_label_if_needed(group3)
       
-      assert result1.label == "Active"
-      assert result1.group_label == "Active"
+      assert result1.label == "Operational"
+      assert result1.group_label == "Operational"
       
       assert result2.label == "Very important"
       assert result2.group_label == "Very important"
@@ -206,7 +206,7 @@ defmodule FlyMapEx.ComponentTest do
     end
     
     test "generates correct style-based labels" do
-      assert TestHelper.generate_default_label(%{style: :active}) == "Active"
+      assert TestHelper.generate_default_label(%{style: :operational}) == "Operational"
       assert TestHelper.generate_default_label(%{style: :primary}) == "Primary"
       assert TestHelper.generate_default_label(%{style: :very_important}) == "Very important"
       assert TestHelper.generate_default_label(%{style: :warning_level_high}) == "Warning level high"

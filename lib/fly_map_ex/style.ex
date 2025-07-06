@@ -207,25 +207,6 @@ defmodule FlyMapEx.Style do
     %{result | __source__: {:info, [], opts}}
   end
 
-  # Backward compatibility aliases (deprecated)
-
-  @doc """
-  Active state style - alias for operational.
-
-  **Deprecated**: Use `operational/1` instead.
-  """
-  def active(opts \\ []) do
-    operational(opts)
-  end
-
-  @doc """
-  Success state style - alias for operational.
-
-  **Deprecated**: Use `operational/1` instead.
-  """
-  def success(opts \\ []) do
-    operational(opts)
-  end
 
   @doc """
   Normalize a style definition to ensure all required fields are present.
@@ -240,7 +221,6 @@ defmodule FlyMapEx.Style do
 
   * `:operational`, `:warning`, `:danger`, `:inactive` - Core semantic styles
   * `:primary`, `:secondary`, `:info` - General purpose styles
-  * `:active`, `:success` - Backward compatibility (map to `:operational`)
   * Unknown atoms fall back to `:info` style
 
   ## Examples
@@ -256,11 +236,6 @@ defmodule FlyMapEx.Style do
       :primary -> primary()
       :secondary -> secondary()
       :info -> info()
-      # Backward compatibility
-      :active -> operational()
-      :success -> operational()
-      :acknowledged -> operational()
-      :expected -> warning()
       # Fallback
       _ -> info()
     end

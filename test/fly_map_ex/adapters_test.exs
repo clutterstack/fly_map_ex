@@ -51,11 +51,11 @@ defmodule FlyMapEx.AdaptersTest do
     test "uses custom style key" do
       machines = [{"683d314fdd4d68", "yyz"}]
 
-      result = Adapters.from_machine_tuples(machines, "Active", :active)
+      result = Adapters.from_machine_tuples(machines, "Operational", :operational)
 
       assert [group] = result
       assert group.nodes == ["yyz"]
-      assert group.label == "Active (1)"
+      assert group.label == "Operational (1)"
       assert group.machine_count == 1
       assert is_map(group.style)
     end

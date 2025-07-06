@@ -141,7 +141,7 @@ defmodule FlyMapEx do
       <FlyMapEx.render marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.success(),
+          style: FlyMapEx.Style.operational(),
           label: "Healthy Nodes"
         },
         %{
