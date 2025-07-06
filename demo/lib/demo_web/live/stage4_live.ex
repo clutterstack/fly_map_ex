@@ -1,373 +1,350 @@
 defmodule DemoWeb.Stage4Live do
-  use DemoWeb, :live_view
+  @moduledoc """
+  Stage 4: Interactive Builder
 
-  import DemoWeb.Components.DemoNavigation
-  import DemoWeb.Components.InteractiveControls
-  import DemoWeb.Components.ProgressiveDisclosure
-  import DemoWeb.Components.SidebarLayout
-  import DemoWeb.Components.SidebarNavigation
-  
-  alias DemoWeb.Helpers.CodeGenerator
+  This stage demonstrates practical application of FlyMapEx concepts,
+  including guided scenarios, freeform building, and code export functionality.
+  """
 
-  def mount(_params, _session, socket) do
-    # Default scenario: monitoring dashboard
-    default_scenario = "monitoring"
-    code_string = get_scenario_code(default_scenario)
-    marker_groups = evaluate_scenario_code(code_string)
+  use DemoWeb.Live.StageBase
 
-    tabs = [
-      %{key: "guided", label: "Guided Scenarios", content: get_static_tab_content("guided")},
-      %{key: "freeform", label: "Freeform Builder", content: get_static_tab_content("freeform")},
-      %{key: "export", label: "Export & Integration", content: get_static_tab_content("export")}
-    ]
+  alias DemoWeb.Helpers.{ContentHelpers, StageConfig, CodeGenerator}
 
-    {:ok,
-     assign(socket,
-       marker_groups: marker_groups,
-       current_tab: "guided",
-       current_scenario: default_scenario,
-       current_code: code_string,
-       tabs: tabs,
-       custom_groups: [],
-       export_format: "heex"
-     )}
+  # Required StageBase callbacks
+
+  def stage_title, do: "Stage 4: Interactive Builder"
+
+  def stage_description do
+    "Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export."
   end
 
-  def handle_event("switch_scenario", %{"option" => scenario}, socket) do
+  def stage_examples do
+    %{
+      guided: evaluate_scenario_code(get_scenario_code("monitoring")),
+      freeform: [],
+      export: evaluate_scenario_code(get_scenario_code("monitoring"))
+    }
+  end
+
+  def stage_tabs do
+    [
+      %{
+        key: "guided",
+        label: "Guided Scenarios",
+        content: get_guided_content()
+      },
+      %{
+        key: "freeform",
+        label: "Freeform Builder",
+        content: get_freeform_content()
+      },
+      %{
+        key: "export",
+        label: "Export & Integration",
+        content: get_export_content()
+      }
+    ]
+  end
+
+  def stage_navigation, do: StageConfig.stage_navigation(:stage4)
+
+  def get_current_description(example) do
+    case example do
+      "guided" -> "Real-world scenarios with step-by-step guidance"
+      "freeform" -> "Custom builder tools (Phase 2 enhancement)"
+      "export" -> "Code generation and integration patterns"
+      _ -> "Interactive builder tools"
+    end
+  end
+
+  def get_advanced_topics do
+    [
+      %{
+        id: "scenario-templates",
+        title: "Building Scenario Templates",
+        content: get_scenario_templates_content()
+      },
+      %{
+        id: "integration-patterns",
+        title: "Production Integration Patterns",
+        content: get_integration_patterns_content()
+      },
+      %{
+        id: "advanced-customization",
+        title: "Advanced Customization Techniques",
+        content: get_advanced_customization_content()
+      }
+    ]
+  end
+
+  def default_example, do: "guided"
+
+  # Optional StageBase callbacks
+
+  def handle_stage_event("switch_scenario", %{"option" => scenario}, socket) do
     code_string = get_scenario_code(scenario)
     marker_groups = evaluate_scenario_code(code_string)
-    {:noreply, assign(socket, current_scenario: scenario, marker_groups: marker_groups, current_code: code_string)}
+    {:noreply, assign(socket, current_scenario: scenario, current_code: code_string) |> update_marker_groups(marker_groups)}
   end
 
-  def handle_event("switch_example", %{"option" => tab}, socket) do
-    {marker_groups, code_string} = case tab do
-      "guided" -> 
-        code = get_scenario_code(socket.assigns.current_scenario)
-        {evaluate_scenario_code(code), code}
-      "freeform" -> 
-        {socket.assigns.custom_groups, "[]"}
-      "export" -> 
-        {socket.assigns.marker_groups, socket.assigns.current_code}
-      _ -> 
-        {socket.assigns.marker_groups, socket.assigns.current_code}
-    end
-    {:noreply, assign(socket, current_tab: tab, marker_groups: marker_groups, current_code: code_string)}
-  end
-
-  def handle_event("switch_format", %{"option" => format}, socket) do
+  def handle_stage_event("switch_format", %{"option" => format}, socket) do
     {:noreply, assign(socket, export_format: format)}
   end
 
-  def render(assigns) do
-    ~H"""
-    <.demo_navigation current_page={:stage4} />
-        <.sidebar_layout>
-      <:sidebar>
-        <.sidebar_navigation current_page={:stage4} tabs={@tabs} current_tab={@current_tab} />
-      </:sidebar>
-
-      <:main>
-
-    <div class="container mx-auto p-8">
-      <div class="mb-8">
-        <div class="flex justify-between items-center mb-4">
-          <h1 class="text-3xl font-bold text-base-content">Stage 4: Interactive Builder</h1>
-        </div>
-        <p class="text-base-content/70 mb-6">
-          Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export.
-        </p>
-      </div>
-
-      <!-- Full Width Map (Above the Fold) -->
-      <div class="mb-8 p-6 bg-base-200 rounded-lg">
-        <FlyMapEx.render
-          marker_groups={@marker_groups}
-          theme={:responsive}
-          layout={:side_by_side}
-        />
-      </div>
-
-      <!-- Side-by-Side: Tabbed Info Panel & Code Examples -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Tabbed Info Panel -->
-        <div>
-          <.tabbed_info_panel
-            tabs={@tabs}
-            current={@current_tab}
-            event="switch_example"
-            show_tabs={false}
-          />
-        </div>
-
-        <!-- Code Examples Panel -->
-        <div>
-          <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-            <div class="bg-base-200 px-4 py-3 border-b border-base-300">
-              <h3 class="font-semibold text-base-content">Generated Code</h3>
-            </div>
-            <div class="p-4">
-              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @current_code, @export_format) %></code></pre>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
-              <div class="text-sm text-primary">
-                <strong>Current:</strong> <%= get_current_description(@current_tab, @current_scenario) %> •
-                Format: <%= String.upcase(@export_format) %> •
-                <%= length(@marker_groups) %> groups • <%= count_total_nodes(@marker_groups) %> nodes
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Progressive Disclosure for Advanced Topics -->
-      <.learn_more_section
-        topics={get_advanced_topics()}
-      />
-
-      <!-- Navigation -->
-      <div class="mt-8 flex justify-between">
-        <.link navigate={~p"/stage3"} class="inline-block bg-neutral text-neutral-content px-6 py-2 rounded-lg hover:bg-neutral/80 transition-colors">
-          ← Stage 3: Map Themes
-        </.link>
-        <.link navigate={~p"/"} class="inline-block bg-success text-success-content px-6 py-2 rounded-lg hover:bg-success/80 transition-colors">
-          Complete Tour →
-        </.link>
-      </div>
-    </div>
-              </:main>
-    </.sidebar_layout>
-
-    """
+  def handle_stage_event(_event, _params, socket) do
+    {:noreply, socket}
   end
 
-  # Static HTML content generation functions
-  defp get_static_tab_content("guided") do
-    """
-    <div class="space-y-6">
-      <div>
-        <h3 class="font-semibold text-base-content mb-3">Guided Scenarios</h3>
-        <p class="text-base-content/70 text-sm mb-4">
-          Learn by building real-world map configurations with step-by-step guidance.
-          Each scenario demonstrates common patterns and best practices.
-        </p>
-      </div>
+  # Content generation functions using ContentHelpers
 
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Monitoring Dashboard</h4>
-          <p class="text-sm text-primary/80 mb-2">Track service health across multiple regions with status indicators.</p>
-          <button 
-            phx-click="switch_scenario" 
-            phx-value-option="monitoring"
-            class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
-          >
-            Load Scenario
-          </button>
-          <ul class="text-sm text-primary/80 mt-2 space-y-1">
-            <li>• Production servers marked as operational</li>
-            <li>• Maintenance windows highlighted with warnings</li>
-            <li>• Clear legend for status interpretation</li>
-          </ul>
-        </div>
+  # Advanced topics content
 
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Deployment Map</h4>
-          <p class="text-sm text-success/80 mb-2">Visualize application rollouts and deployment status across regions.</p>
-          <button 
-            phx-click="switch_scenario" 
-            phx-value-option="deployment"
-            class="bg-success text-success-content px-3 py-1 rounded text-sm hover:bg-success/80 transition-colors"
-          >
-            Load Scenario
-          </button>
-          <ul class="text-sm text-success/80 mt-2 space-y-1">
-            <li>• Active deployments with animated markers</li>
-            <li>• Completed deployments in stable states</li>
-            <li>• Pending regions awaiting deployment</li>
-          </ul>
-        </div>
-
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Status Board</h4>
-          <p class="text-sm text-secondary/80 mb-2">Create a comprehensive status overview for incident response and monitoring.</p>
-          <button 
-            phx-click="switch_scenario" 
-            phx-value-option="status"
-            class="bg-secondary text-secondary-content px-3 py-1 rounded text-sm hover:bg-secondary/80 transition-colors"
-          >
-            Load Scenario
-          </button>
-          <ul class="text-sm text-secondary/80 mt-2 space-y-1">
-            <li>• Critical issues highlighted with danger styling</li>
-            <li>• Healthy services marked as operational</li>
-            <li>• Maintenance and acknowledged states</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-        <p class="text-sm text-success">
-          <strong>Learning approach:</strong> Each scenario builds on concepts from previous stages,
-          combining marker groups, styling, and theming into practical applications.
-        </p>
-      </div>
-    </div>
-    """
+  defp get_scenario_templates_content do
+    [
+      ContentHelpers.content_section(
+        "Building Scenario Templates",
+        "Create reusable templates for common map configurations and use cases."
+      ),
+      ContentHelpers.use_cases(
+        "Template Design Patterns",
+        [
+          {"Parameterized configs", "Design flexible, reusable configurations"},
+          {"Validation systems", "Ensure template consistency and error handling"},
+          {"Documentation standards", "Create clear usage guides for template consumers"},
+          {"Version management", "Handle template evolution and backwards compatibility"}
+        ]
+      ),
+      ContentHelpers.code_snippet(
+        "# Template structure example\ndefmodule MyApp.MapTemplates do\n  def monitoring_template(regions, options \\\\ []) do\n    theme = Keyword.get(options, :theme, :dashboard)\n    [\n      %{nodes: regions.production, style: operational(), label: \"Production\"},\n      %{nodes: regions.staging, style: warning(), label: \"Staging\"}\n    ]\n  end\nend"
+      ),
+      ContentHelpers.pro_tip(
+        "Use parameterized templates to balance flexibility with consistency across your organization.",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
   end
 
-  defp get_static_tab_content("freeform") do
-    """
-    <div class="space-y-6">
-      <div>
-        <h3 class="font-semibold text-base-content mb-3">Freeform Builder</h3>
-        <p class="text-base-content/70 text-sm mb-4">
-          Build custom map configurations from scratch with full creative control.
-          Perfect for unique requirements and experimental designs.
-        </p>
-      </div>
-
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Interactive Region Selection</h4>
-          <p class="text-sm text-primary/80 mb-2">Click regions on the map to build your marker groups dynamically.</p>
-          <ul class="text-sm text-primary space-y-1">
-            <li>• Visual region picker with live preview</li>
-            <li>• Drag and drop group organization</li>
-            <li>• Real-time code generation</li>
-          </ul>
-          <div class="mt-2 text-xs text-primary/70">
-            <em>Coming in Phase 2: Enhanced Interactivity</em>
-          </div>
-        </div>
-
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Custom Group Builder</h4>
-          <p class="text-sm text-success/80 mb-2">Create marker groups with custom styling and labels.</p>
-          <ul class="text-sm text-success space-y-1">
-            <li>• Add/remove regions with search and autocomplete</li>
-            <li>• Live style customization with sliders and pickers</li>
-            <li>• Group management with reordering and duplication</li>
-          </ul>
-          <div class="mt-2 text-xs text-success/70">
-            <em>Coming in Phase 2: Enhanced Interactivity</em>
-          </div>
-        </div>
-
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Live Preview Canvas</h4>
-          <p class="text-sm text-secondary/80 mb-2">See your changes instantly as you build.</p>
-          <ul class="text-sm text-secondary space-y-1">
-            <li>• Real-time map updates during editing</li>
-            <li>• Side-by-side comparison views</li>
-            <li>• Undo/redo functionality</li>
-          </ul>
-          <div class="mt-2 text-xs text-secondary/70">
-            <em>Coming in Phase 2: Enhanced Interactivity</em>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
-        <p class="text-sm text-warning">
-          <strong>Current functionality:</strong> Use the guided scenarios to explore different configurations.
-          Full freeform building tools will be added in Phase 2 with interactive controls and live editing.
-        </p>
-      </div>
-    </div>
-    """
+  defp get_integration_patterns_content do
+    [
+      ContentHelpers.content_section(
+        "Production Integration Patterns",
+        "Best practices for deploying maps in production Phoenix applications."
+      ),
+      ContentHelpers.use_cases(
+        "Data Loading Strategies",
+        [
+          {"Dynamic loading", "Efficient strategies for runtime marker group loading"},
+          {"Caching systems", "Optimize performance with smart caching approaches"},
+          {"Error handling", "Graceful degradation for missing regions or data"},
+          {"Real-time updates", "Live data synchronization with Phoenix PubSub"}
+        ]
+      ),
+      ContentHelpers.code_snippet(
+        "# Production integration example\ndefmodule MyAppWeb.DashboardLive do\n  def mount(_params, _session, socket) do\n    marker_groups = MyApp.Infrastructure.get_current_status()\n    {:ok, assign(socket, marker_groups: marker_groups)}\n  end\n  \n  def handle_info({:status_update, new_groups}, socket) do\n    {:noreply, assign(socket, marker_groups: new_groups)}\n  end\nend"
+      ),
+      ContentHelpers.pro_tip(
+        "Implement graceful degradation for network failures and missing data to ensure reliable user experiences.",
+        type: :production
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
   end
 
-  defp get_static_tab_content("export") do
-    """
-    <div class="space-y-6">
-      <div>
-        <h3 class="font-semibold text-base-content mb-3">Export & Integration</h3>
-        <p class="text-base-content/70 text-sm mb-4">
-          Generate production-ready code in multiple formats for seamless integration
-          into your Phoenix LiveView applications.
-        </p>
-      </div>
-
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Export Formats</h4>
-          <p class="text-sm text-primary/80 mb-2">Choose the format that best fits your integration needs:</p>
-          <div class="flex gap-2 mb-2">
-            <button 
-              phx-click="switch_format" 
-              phx-value-option="heex"
-              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
-            >
-              HEEx Template
-            </button>
-            <button 
-              phx-click="switch_format" 
-              phx-value-option="elixir"
-              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
-            >
-              Elixir Module
-            </button>
-            <button 
-              phx-click="switch_format" 
-              phx-value-option="json"
-              class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors"
-            >
-              JSON Config
-            </button>
-          </div>
-          <ul class="text-sm text-primary space-y-1">
-            <li>• <strong>HEEx:</strong> Direct template integration</li>
-            <li>• <strong>Elixir:</strong> Reusable function modules</li>
-            <li>• <strong>JSON:</strong> Configuration-driven approach</li>
-          </ul>
-        </div>
-
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Integration Patterns</h4>
-          <p class="text-sm text-success/80 mb-2">Common integration approaches:</p>
-          <ul class="text-sm text-success space-y-1">
-            <li>• <strong>Direct Embed:</strong> Copy HEEx template into your LiveView</li>
-            <li>• <strong>Function Component:</strong> Create reusable components</li>
-            <li>• <strong>Configuration Module:</strong> Centralize map configurations</li>
-            <li>• <strong>Dynamic Loading:</strong> Load configurations from database</li>
-          </ul>
-        </div>
-
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Production Considerations</h4>
-          <p class="text-sm text-secondary/80 mb-2">Important factors for production deployment:</p>
-          <ul class="text-sm text-secondary space-y-1">
-            <li>• <strong>Performance:</strong> Optimize for rendering speed</li>
-            <li>• <strong>Maintainability:</strong> Structure for easy updates</li>
-            <li>• <strong>Scalability:</strong> Handle growing data sets</li>
-            <li>• <strong>Accessibility:</strong> Ensure inclusive design</li>
-          </ul>
-        </div>
-
-        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
-          <h4 class="font-medium text-warning mb-2">Copy to Clipboard</h4>
-          <p class="text-sm text-warning/80 mb-2">Generated code is ready for immediate use:</p>
-          <div class="mt-2 text-xs text-warning/70">
-            <em>Coming in Phase 2: One-click clipboard integration</em>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-        <p class="text-sm text-success">
-          <strong>Integration tip:</strong> Start with HEEx templates for quick prototyping,
-          then extract to Elixir modules for production applications with multiple maps.
-        </p>
-      </div>
-    </div>
-    """
+  defp get_advanced_customization_content do
+    [
+      ContentHelpers.content_section(
+        "Advanced Customization Techniques",
+        "Extend FlyMapEx with custom components and behaviors beyond standard configurations."
+      ),
+      ContentHelpers.use_cases(
+        "Customization Areas",
+        [
+          {"Custom styles", "Create entirely custom marker and map styles"},
+          {"Interactive elements", "Add click handlers and hover effects"},
+          {"Animation control", "Fine-tune animations for specific use cases"},
+          {"Integration hooks", "Connect with external data sources and APIs"}
+        ]
+      ),
+      ContentHelpers.code_snippet(
+        "# Custom interactive map\n<FlyMapEx.render\n  marker_groups={@marker_groups}\n  theme={:custom}\n  on_marker_click={&handle_marker_click/1}\n  custom_animations={%{pulse_speed: :fast}}\n/>"
+      ),
+      ContentHelpers.pro_tip(
+        "Start with standard configurations and gradually add customizations as your requirements become clearer.",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
   end
 
-  defp get_static_tab_content(_), do: "<div>Unknown tab content</div>"
+  # Tab content creation functions using ContentHelpers
 
-  # Scenario code generation - single source of truth
+  defp get_guided_content do
+    [
+      ContentHelpers.content_section(
+        "Guided Scenarios",
+        "Learn by building real-world map configurations with step-by-step guidance. Each scenario demonstrates common patterns and best practices."
+      ),
+      get_scenario_builder("monitoring", "Monitoring Dashboard", "Track service health across multiple regions with status indicators.", "primary", [
+        "Production servers marked as operational",
+        "Maintenance windows highlighted with warnings",
+        "Clear legend for status interpretation"
+      ]),
+      get_scenario_builder("deployment", "Deployment Map", "Visualize application rollouts and deployment status across regions.", "success", [
+        "Active deployments with animated markers",
+        "Completed deployments in stable states",
+        "Pending regions awaiting deployment"
+      ]),
+      get_scenario_builder("status", "Status Board", "Create a comprehensive status overview for incident response and monitoring.", "secondary", [
+        "Critical issues highlighted with danger styling",
+        "Healthy services marked as operational",
+        "Maintenance and acknowledged states"
+      ]),
+      ContentHelpers.pro_tip(
+        "Each scenario builds on concepts from previous stages, combining marker groups, styling, and theming into practical applications.",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
+  end
+
+  defp get_freeform_content do
+    [
+      ContentHelpers.content_section(
+        "Freeform Builder",
+        "Build custom map configurations from scratch with full creative control. Perfect for unique requirements and experimental designs."
+      ),
+      ContentHelpers.info_box(
+        :primary,
+        "Interactive Region Selection",
+        [
+          "Click regions on the map to build your marker groups dynamically.",
+          ContentHelpers.feature_list([
+            "Visual region picker with live preview",
+            "Drag and drop group organization",
+            "Real-time code generation"
+          ]),
+          ~s(<div class="mt-2 text-xs text-primary/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
+        ] |> Enum.join()
+      ),
+      ContentHelpers.info_box(
+        :success,
+        "Custom Group Builder",
+        [
+          "Create marker groups with custom styling and labels.",
+          ContentHelpers.feature_list([
+            "Add/remove regions with search and autocomplete",
+            "Live style customization with sliders and pickers",
+            "Group management with reordering and duplication"
+          ]),
+          ~s(<div class="mt-2 text-xs text-success/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
+        ] |> Enum.join()
+      ),
+      ContentHelpers.info_box(
+        :secondary,
+        "Live Preview Canvas",
+        [
+          "See your changes instantly as you build.",
+          ContentHelpers.feature_list([
+            "Real-time map updates during editing",
+            "Side-by-side comparison views",
+            "Undo/redo functionality"
+          ]),
+          ~s(<div class="mt-2 text-xs text-secondary/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
+        ] |> Enum.join()
+      ),
+      ContentHelpers.pro_tip(
+        "Use the guided scenarios to explore different configurations. Full freeform building tools will be added in Phase 2 with interactive controls and live editing.",
+        type: :warning
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
+  end
+
+  defp get_export_content do
+    [
+      ContentHelpers.content_section(
+        "Export & Integration",
+        "Generate production-ready code in multiple formats for seamless integration into your Phoenix LiveView applications."
+      ),
+      ContentHelpers.info_box(
+        :primary,
+        "Export Formats",
+        [
+          "Choose the format that best fits your integration needs:",
+          get_format_buttons(),
+          ContentHelpers.feature_list([
+            "HEEx: Direct template integration",
+            "Elixir: Reusable function modules",
+            "JSON: Configuration-driven approach"
+          ])
+        ] |> Enum.join()
+      ),
+      ContentHelpers.use_cases(
+        "Integration Patterns",
+        [
+          {"Direct Embed", "Copy HEEx template into your LiveView"},
+          {"Function Component", "Create reusable components"},
+          {"Configuration Module", "Centralize map configurations"},
+          {"Dynamic Loading", "Load configurations from database"}
+        ]
+      ),
+      ContentHelpers.use_cases(
+        "Production Considerations",
+        [
+          {"Performance", "Optimize for rendering speed"},
+          {"Maintainability", "Structure for easy updates"},
+          {"Scalability", "Handle growing data sets"},
+          {"Accessibility", "Ensure inclusive design"}
+        ]
+      ),
+      ContentHelpers.info_box(
+        :warning,
+        "Copy to Clipboard",
+        [
+          "Generated code is ready for immediate use:",
+          ~s(<div class="mt-2 text-xs text-warning/70"><em>Coming in Phase 2: One-click clipboard integration</em></div>)
+        ] |> Enum.join()
+      ),
+      ContentHelpers.pro_tip(
+        "Start with HEEx templates for quick prototyping, then extract to Elixir modules for production applications with multiple maps.",
+        type: :best_practice
+      ),
+      "</div>"
+    ]
+    |> Enum.join()
+  end
+
+  # Helper functions
+
+  defp get_scenario_builder(scenario_key, title, description, color, features) do
+    ContentHelpers.info_box(
+      String.to_atom(color),
+      title,
+      [
+        description,
+        ~s(<button phx-click="switch_scenario" phx-value-option="#{scenario_key}" class="bg-#{color} text-#{color}-content px-3 py-1 rounded text-sm hover:bg-#{color}/80 transition-colors mb-2">Load Scenario</button>),
+        ContentHelpers.feature_list(features)
+      ] |> Enum.join()
+    )
+  end
+
+  defp get_format_buttons do
+    [
+      ~s(<div class="flex gap-2 mb-2">),
+      ~s(<button phx-click="switch_format" phx-value-option="heex" class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors">HEEx Template</button>),
+      ~s(<button phx-click="switch_format" phx-value-option="elixir" class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors">Elixir Module</button>),
+      ~s(<button phx-click="switch_format" phx-value-option="json" class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors">JSON Config</button>),
+      ~s(</div>)
+    ] |> Enum.join()
+  end
+
+  # Scenario code generation
   defp get_scenario_code("monitoring") do
     """
     [
@@ -441,64 +418,22 @@ defmodule DemoWeb.Stage4Live do
     CodeGenerator.evaluate_marker_groups_code(code_string)
   end
 
-  # Helper functions for the template
-  defp get_current_description(tab, scenario) do
-    case tab do
-      "guided" -> "#{String.capitalize(scenario)} scenario"
-      "freeform" -> "Custom builder (Phase 2)"
-      "export" -> "Code export tools"
-      _ -> "Interactive builder"
+  # Helper function to update marker groups based on current tab
+  defp update_marker_groups(socket, marker_groups) do
+    case socket.assigns.current_example do
+      "guided" -> assign(socket, examples: Map.put(socket.assigns.examples, :guided, marker_groups))
+      "export" -> assign(socket, examples: Map.put(socket.assigns.examples, :export, marker_groups))
+      _ -> socket
     end
   end
 
-  defp count_total_nodes(marker_groups) do
-    marker_groups
-    |> Enum.map(&length(Map.get(&1, :nodes, [])))
-    |> Enum.sum()
-  end
-
-  defp get_generated_code(tab, scenario, code_string, format) do
-    # Convert code string back to marker_groups for CodeGenerator
-    marker_groups = evaluate_scenario_code(code_string)
-    
-    context = case tab do
-      "guided" -> scenario
+  # Override context name for better code generation
+  def get_context_name(example) do
+    case example do
+      "guided" -> "scenario"
+      "freeform" -> "builder"
       "export" -> "export"
-      _ -> "default"
+      _ -> "interactive"
     end
-    
-    format_atom = String.to_atom(format)
-    
-    CodeGenerator.generate_flymap_code(marker_groups, 
-      theme: :responsive,
-      layout: :side_by_side,
-      context: context,
-      format: format_atom
-    )
-  end
-
-
-
-  defp get_advanced_topics do
-    [
-      %{
-        id: "scenario-templates",
-        title: "Building Scenario Templates",
-        description: "Create reusable templates for common map configurations",
-        content: "<p class='text-sm text-base-content/70 mb-4'>Learn to build maintainable template systems for recurring map patterns.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Template Structure:</strong> Design flexible, parameterized configurations</li><li>• <strong>Validation:</strong> Ensure template consistency and error handling</li><li>• <strong>Documentation:</strong> Create clear usage guides for template consumers</li></ul>"
-      },
-      %{
-        id: "integration-patterns",
-        title: "Production Integration Patterns",
-        description: "Best practices for deploying maps in production applications",
-        content: "<p class='text-sm text-base-content/70 mb-4'>Proven patterns for integrating FlyMapEx into production Phoenix applications.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Data Loading:</strong> Efficient strategies for dynamic marker group loading</li><li>• <strong>Caching:</strong> Optimize performance with smart caching approaches</li><li>• <strong>Error Handling:</strong> Graceful degradation for missing regions or data</li></ul>"
-      },
-      %{
-        id: "advanced-customization",
-        title: "Advanced Customization Techniques",
-        description: "Extend FlyMapEx with custom components and behaviors",
-        content: "<p class='text-sm text-base-content/70 mb-4'>Advanced techniques for building custom map experiences beyond standard configurations.</p><ul class='text-sm text-base-content/70 space-y-2'><li>• <strong>Custom Styles:</strong> Create entirely custom marker and map styles</li><li>• <strong>Interactive Elements:</strong> Add click handlers and hover effects</li><li>• <strong>Animation Control:</strong> Fine-tune animations for specific use cases</li></ul>"
-      }
-    ]
   end
 end
