@@ -6,21 +6,14 @@ defmodule DemoWeb.Stage4Live do
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
   import DemoWeb.Components.SidebarNavigation
+  
+  alias DemoWeb.Helpers.CodeGenerator
 
   def mount(_params, _session, socket) do
     # Default scenario: monitoring dashboard
-    marker_groups = [
-      %{
-        nodes: ["sjc", "fra", "ams", "lhr"],
-        style: FlyMapEx.Style.operational(),
-        label: "Production Servers"
-      },
-      %{
-        nodes: ["syd", "nrt"],
-        style: FlyMapEx.Style.warning(),
-        label: "Maintenance Windows"
-      }
-    ]
+    default_scenario = "monitoring"
+    code_string = get_scenario_code(default_scenario)
+    marker_groups = evaluate_scenario_code(code_string)
 
     tabs = [
       %{key: "guided", label: "Guided Scenarios", content: get_static_tab_content("guided")},
@@ -32,7 +25,8 @@ defmodule DemoWeb.Stage4Live do
      assign(socket,
        marker_groups: marker_groups,
        current_tab: "guided",
-       current_scenario: "monitoring",
+       current_scenario: default_scenario,
+       current_code: code_string,
        tabs: tabs,
        custom_groups: [],
        export_format: "heex"
@@ -40,18 +34,24 @@ defmodule DemoWeb.Stage4Live do
   end
 
   def handle_event("switch_scenario", %{"option" => scenario}, socket) do
-    marker_groups = get_scenario_config(scenario)
-    {:noreply, assign(socket, current_scenario: scenario, marker_groups: marker_groups)}
+    code_string = get_scenario_code(scenario)
+    marker_groups = evaluate_scenario_code(code_string)
+    {:noreply, assign(socket, current_scenario: scenario, marker_groups: marker_groups, current_code: code_string)}
   end
 
   def handle_event("switch_example", %{"option" => tab}, socket) do
-    marker_groups = case tab do
-      "guided" -> get_scenario_config(socket.assigns.current_scenario)
-      "freeform" -> socket.assigns.custom_groups
-      "export" -> socket.assigns.marker_groups
-      _ -> socket.assigns.marker_groups
+    {marker_groups, code_string} = case tab do
+      "guided" -> 
+        code = get_scenario_code(socket.assigns.current_scenario)
+        {evaluate_scenario_code(code), code}
+      "freeform" -> 
+        {socket.assigns.custom_groups, "[]"}
+      "export" -> 
+        {socket.assigns.marker_groups, socket.assigns.current_code}
+      _ -> 
+        {socket.assigns.marker_groups, socket.assigns.current_code}
     end
-    {:noreply, assign(socket, current_tab: tab, marker_groups: marker_groups)}
+    {:noreply, assign(socket, current_tab: tab, marker_groups: marker_groups, current_code: code_string)}
   end
 
   def handle_event("switch_format", %{"option" => format}, socket) do
@@ -106,7 +106,7 @@ defmodule DemoWeb.Stage4Live do
               <h3 class="font-semibold text-base-content">Generated Code</h3>
             </div>
             <div class="p-4">
-              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @marker_groups, @export_format) %></code></pre>
+              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_generated_code(@current_tab, @current_scenario, @current_code, @export_format) %></code></pre>
             </div>
 
             <!-- Quick Stats -->
@@ -367,8 +367,9 @@ defmodule DemoWeb.Stage4Live do
 
   defp get_static_tab_content(_), do: "<div>Unknown tab content</div>"
 
-  # Scenario configurations
-  defp get_scenario_config("monitoring") do
+  # Scenario code generation - single source of truth
+  defp get_scenario_code("monitoring") do
+    """
     [
       %{
         nodes: ["sjc", "fra", "ams", "lhr"],
@@ -381,9 +382,11 @@ defmodule DemoWeb.Stage4Live do
         label: "Maintenance Windows"
       }
     ]
+    """
   end
 
-  defp get_scenario_config("deployment") do
+  defp get_scenario_code("deployment") do
+    """
     [
       %{
         nodes: ["sjc", "fra"],
@@ -401,9 +404,11 @@ defmodule DemoWeb.Stage4Live do
         label: "Pending Deployment"
       }
     ]
+    """
   end
 
-  defp get_scenario_config("status") do
+  defp get_scenario_code("status") do
+    """
     [
       %{
         nodes: ["sjc", "fra", "ams"],
@@ -426,9 +431,15 @@ defmodule DemoWeb.Stage4Live do
         label: "Acknowledged Issues"
       }
     ]
+    """
   end
 
-  defp get_scenario_config(_), do: []
+  defp get_scenario_code(_), do: "[]"
+
+  # Evaluate scenario code to get marker_groups data
+  defp evaluate_scenario_code(code_string) do
+    CodeGenerator.evaluate_marker_groups_code(code_string)
+  end
 
   # Helper functions for the template
   defp get_current_description(tab, scenario) do
@@ -446,79 +457,27 @@ defmodule DemoWeb.Stage4Live do
     |> Enum.sum()
   end
 
-  defp get_generated_code(tab, scenario, marker_groups, format) do
-    case {tab, format} do
-      {"guided", "heex"} ->
-        get_heex_template(marker_groups, scenario)
-      {"guided", "elixir"} ->
-        get_elixir_module(marker_groups, scenario)
-      {"guided", "json"} ->
-        get_json_config(marker_groups, scenario)
-      {"export", "heex"} ->
-        get_heex_template(marker_groups, "export")
-      {"export", "elixir"} ->
-        get_elixir_module(marker_groups, "export")
-      {"export", "json"} ->
-        get_json_config(marker_groups, "export")
-      _ ->
-        get_heex_template(marker_groups, "default")
+  defp get_generated_code(tab, scenario, code_string, format) do
+    # Convert code string back to marker_groups for CodeGenerator
+    marker_groups = evaluate_scenario_code(code_string)
+    
+    context = case tab do
+      "guided" -> scenario
+      "export" -> "export"
+      _ -> "default"
     end
+    
+    format_atom = String.to_atom(format)
+    
+    CodeGenerator.generate_flymap_code(marker_groups, 
+      theme: :responsive,
+      layout: :side_by_side,
+      context: context,
+      format: format_atom
+    )
   end
 
-  defp get_heex_template(marker_groups, context) do
-    groups_code = marker_groups
-    |> Enum.map(fn group ->
-      nodes = Enum.map(group.nodes, &"\"#{&1}\"") |> Enum.join(", ")
-      style = format_style_for_heex(group.style)
-      "      %{\n        nodes: [#{nodes}],\n        style: #{style},\n        label: \"#{group.label}\"\n      }"
-    end)
-    |> Enum.join(",\n")
 
-    "# #{String.capitalize(context)} Map Configuration\n<FlyMapEx.render\n  marker_groups={[\n#{groups_code}\n  ]}\n  theme={:responsive}\n  layout={:side_by_side}\n/>\n\n# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
-  end
-
-  defp get_elixir_module(marker_groups, context) do
-    groups_code = marker_groups
-    |> Enum.map(fn group ->
-      nodes = Enum.map(group.nodes, &"\"#{&1}\"") |> Enum.join(", ")
-      style = format_style_for_elixir(group.style)
-      "      %{\n        nodes: [#{nodes}],\n        style: #{style},\n        label: \"#{group.label}\"\n      }"
-    end)
-    |> Enum.join(",\n")
-
-    "# #{String.capitalize(context)} Map Module\ndefmodule YourApp.MapConfigs do\n  @moduledoc \"\"\"\n  Centralized map configurations for #{context} displays\n  \"\"\"\n\n  def #{context}_map_groups do\n    [\n#{groups_code}\n    ]\n  end\n\n  def render_#{context}_map(assigns) do\n    ~H\"\"\"\n    <FlyMapEx.render\n      marker_groups={#{context}_map_groups()}\n      theme={:responsive}\n      layout={:side_by_side}\n    />\n    \"\"\"\n  end\nend\n\n# Usage in your LiveView:\n# import YourApp.MapConfigs\n# <.render_#{context}_map />"
-  end
-
-  defp get_json_config(marker_groups, context) do
-    groups_json = marker_groups
-    |> Enum.map(fn group ->
-      "    {\n      \"nodes\": [#{group.nodes |> Enum.map(&"\"#{&1}\"") |> Enum.join(", ")}],\n      \"style\": #{format_style_for_json(group.style)},\n      \"label\": \"#{group.label}\"\n    }"
-    end)
-    |> Enum.join(",\n")
-
-    "{\n  \"name\": \"#{String.capitalize(context)} Map Configuration\",\n  \"theme\": \"responsive\",\n  \"layout\": \"side_by_side\",\n  \"marker_groups\": [\n#{groups_json}\n  ]\n}\n\n# Use with a JSON loader function:\n# def load_config(config_name) do\n#   config = Jason.decode!(File.read!(\"configs/\#{config_name}.json\"))\n#   # Transform JSON to Elixir structures\n# end"
-  end
-
-  defp format_style_for_heex(style) do
-    case style do
-      %{style_key: key} -> "FlyMapEx.Style.#{key}()"
-      _ -> "FlyMapEx.Style.operational()"
-    end
-  end
-
-  defp format_style_for_elixir(style) do
-    case style do
-      %{style_key: key} -> "FlyMapEx.Style.#{key}()"
-      _ -> "FlyMapEx.Style.operational()"
-    end
-  end
-
-  defp format_style_for_json(style) do
-    case style do
-      %{style_key: key} -> "\"#{key}\""
-      _ -> "\"operational\""
-    end
-  end
 
   defp get_advanced_topics do
     [

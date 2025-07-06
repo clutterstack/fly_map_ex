@@ -131,6 +131,59 @@ defmodule FlyMapEx.Theme do
   5. Consider accessibility requirements for colour choices
   """
 
+  # Predefined theme definitions as data structure
+  @themes %{
+    light: %{
+      land: "#888888",
+      ocean: "#aaaaaa",
+      border: "#0f172a",
+      neutral_marker: "#6b7280",
+      neutral_text: "#374151"
+    },
+    dark: %{
+      land: "#0f172a",
+      ocean: "#aaaaaa",
+      border: "#334155",
+      neutral_marker: "#9ca3af",
+      neutral_text: "#d1d5db"
+    },
+    minimal: %{
+      land: "transparent",
+      ocean: "transparent",
+      border: "#b5b7bb",
+      neutral_marker: "#aba2a0",
+      neutral_text: "#374151"
+    },
+    cool: %{
+      land: "#f1f5f9",
+      ocean: "#aaaaaa",
+      border: "#64748b",
+      neutral_marker: "#64748b",
+      neutral_text: "#334155"
+    },
+    warm: %{
+      land: "#fef7ed",
+      ocean: "#aaaaaa",
+      border: "#c2410c",
+      neutral_marker: "#92400e",
+      neutral_text: "#451a03"
+    },
+    high_contrast: %{
+      land: "#ffffff",
+      ocean: "#aaaaaa",
+      border: "#000000",
+      neutral_marker: "#404040",
+      neutral_text: "#000000"
+    },
+    responsive: %{
+      land: "oklch(var(--color-base-100) / 1)",
+      ocean: "oklch(var(--color-base-200) / 1)",
+      border: "oklch(var(--color-base-300) / 1)",
+      neutral_marker: "oklch(var(--color-base-content) / 0.6)",
+      neutral_text: "oklch(var(--color-base-content) / 0.8)"
+    }
+  }
+
   @doc """
   Get a map colour scheme by name or return a custom theme map.
 
@@ -138,6 +191,7 @@ defmodule FlyMapEx.Theme do
 
   * `:light` - Light with dark borders
   * `:dark` - Dark with subtle borders
+  * `:minimal` - Transparent backgrounds with subtle borders
   * `:cool` - Cool blue tones
   * `:warm` - Warm earth tones
   * `:high_contrast` - Maximum contrast for accessibility
@@ -159,80 +213,18 @@ defmodule FlyMapEx.Theme do
   """
   def map_theme(theme) when is_map(theme), do: theme
 
-  def map_theme(:light) do
-    %{
-      land: "#888888",
-      ocean: "#aaaaaa",
-      border: "#0f172a",
-      neutral_marker: "#6b7280",
-      neutral_text: "#374151"
-    }
-  end
-
-  def map_theme(:dark) do
-    %{
-      land: "#0f172a",
-      ocean: "#aaaaaa",
-      border: "#334155",
-      neutral_marker: "#9ca3af",
-      neutral_text: "#d1d5db"
-    }
-  end
-
-  def map_theme(:minimal) do
-    %{
-      land: "transparent",
-      ocean: "transparent",
-      border: "#b5b7bb",
-      neutral_marker: "#aba2a0",
-      neutral_text: "#374151"
-    }
-  end
-
-  def map_theme(:cool) do
-    %{
-      land: "#f1f5f9",
-      ocean: "#aaaaaa",
-      border: "#64748b",
-      neutral_marker: "#64748b",
-      neutral_text: "#334155"
-    }
-  end
-
-  def map_theme(:warm) do
-    %{
-      land: "#fef7ed",
-      ocean: "#aaaaaa",
-      border: "#c2410c",
-      neutral_marker: "#92400e",
-      neutral_text: "#451a03"
-    }
-  end
-
-  def map_theme(:high_contrast) do
-    %{
-      land: "#ffffff",
-      ocean: "#aaaaaa",
-      border: "#000000",
-      neutral_marker: "#404040",
-      neutral_text: "#000000"
-    }
-  end
-
   def map_theme(theme_name) when is_atom(theme_name) do
-    case theme_name do
-      :responsive ->
-        responsive_map_theme()
-
-      _ ->
+    case Map.get(@themes, theme_name) do
+      nil ->
         case get_custom_theme(theme_name) do
-          nil -> map_theme(FlyMapEx.Config.default_theme())
+          nil -> Map.get(@themes, FlyMapEx.Config.default_theme())
           custom_theme -> custom_theme
         end
+      theme -> theme
     end
   end
 
-  def map_theme(_), do: map_theme(FlyMapEx.Config.default_theme())
+  def map_theme(_), do: Map.get(@themes, FlyMapEx.Config.default_theme())
 
   @doc """
   Create a custom theme map for advanced users.
@@ -276,7 +268,7 @@ defmodule FlyMapEx.Theme do
       }
   """
   def custom_theme(theme_map) when is_map(theme_map) do
-    defaults = map_theme(FlyMapEx.Config.default_theme())
+    defaults = Map.get(@themes, FlyMapEx.Config.default_theme())
     Map.merge(defaults, theme_map)
   end
 
@@ -308,7 +300,8 @@ defmodule FlyMapEx.Theme do
   Get a responsive map_theme that adapts to CSS theme variables.
 
   This uses CSS custom properties that automatically change
-  based on the current DaisyUI theme.
+  based on the current DaisyUI theme. This is equivalent to
+  calling `map_theme(:responsive)`.
 
   ## Examples
 
@@ -322,12 +315,6 @@ defmodule FlyMapEx.Theme do
       }
   """
   def responsive_map_theme do
-    %{
-      land: "oklch(var(--color-base-100) / 1)",
-      ocean: "oklch(var(--color-base-200) / 1)",
-      border: "oklch(var(--color-base-300) / 1)",
-      neutral_marker: "oklch(var(--color-base-content) / 0.6)",
-      neutral_text: "oklch(var(--color-base-content) / 0.8)"
-    }
+    Map.get(@themes, :responsive)
   end
 end

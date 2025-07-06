@@ -6,31 +6,82 @@ defmodule DemoWeb.Stage3Live do
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
   import DemoWeb.Components.SidebarNavigation
+  
+  alias DemoWeb.Helpers.CodeGenerator
 
   def mount(_params, _session, socket) do
-    marker_groups = [
-      %{
-        nodes: ["sjc", "fra", "ams"],
-        style: FlyMapEx.Style.operational(),
-        label: "Production Servers"
-      },
-      %{
-        nodes: ["lhr", "syd"],
-        style: FlyMapEx.Style.warning(),
-        label: "Maintenance Mode"
-      }
-    ]
+    # Define examples that showcase different theme characteristics
+    examples = %{
+      presets: [
+        %{
+          nodes: ["sjc", "fra", "ams"],
+          style: FlyMapEx.Style.operational(),
+          label: "Production Servers"
+        },
+        %{
+          nodes: ["lhr", "syd"],
+          style: FlyMapEx.Style.warning(),
+          label: "Maintenance Mode"
+        },
+        %{
+          nodes: ["ord", "nrt"],
+          style: FlyMapEx.Style.danger(),
+          label: "Failed Nodes"
+        }
+      ],
+      responsive: [
+        %{
+          nodes: ["sjc", "fra", "ams", "lhr"],
+          style: FlyMapEx.Style.operational(),
+          label: "Global Infrastructure"
+        },
+        %{
+          nodes: ["ord", "nrt"],
+          style: FlyMapEx.Style.inactive(),
+          label: "Standby Nodes"
+        }
+      ],
+      custom: [
+        %{
+          nodes: ["sjc", "fra"],
+          style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
+          label: "High-Performance Tier"
+        },
+        %{
+          nodes: ["ams", "lhr"],
+          style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
+          label: "Standard Tier"
+        },
+        %{
+          nodes: ["ord"],
+          style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
+          label: "Critical Alert"
+        }
+      ],
+      configuration: [
+        %{
+          nodes: ["sjc", "fra", "ams"],
+          style: FlyMapEx.Style.operational(),
+          label: "Production Environment"
+        },
+        %{
+          nodes: ["lhr", "syd"],
+          style: FlyMapEx.Style.warning(),
+          label: "Staging Environment"
+        }
+      ]
+    }
 
     tabs = [
-      %{key: "presets", label: "Theme Presets", content: get_static_tab_content("presets")},
-      %{key: "responsive", label: "Responsive", content: get_static_tab_content("responsive")},
-      %{key: "custom", label: "Custom", content: get_static_tab_content("custom")},
-      %{key: "configuration", label: "Configuration", content: get_static_tab_content("configuration")}
+      %{key: "presets", label: "Theme Presets", content: get_tab_content("presets")},
+      %{key: "responsive", label: "Responsive", content: get_tab_content("responsive")},
+      %{key: "custom", label: "Custom", content: get_tab_content("custom")},
+      %{key: "configuration", label: "Configuration", content: get_tab_content("configuration")}
     ]
 
     {:ok,
      assign(socket,
-       marker_groups: marker_groups,
+       examples: examples,
        current_theme: "presets",
        tabs: tabs
      )}
@@ -64,7 +115,7 @@ defmodule DemoWeb.Stage3Live do
       <!-- Full Width Map (Above the Fold) -->
       <div class="mb-8 p-6 bg-base-200 rounded-lg">
         <FlyMapEx.render
-          marker_groups={@marker_groups}
+          marker_groups={current_marker_groups(assigns)}
           theme={get_current_theme(@current_theme)}
           layout={:side_by_side}
         />
@@ -89,7 +140,7 @@ defmodule DemoWeb.Stage3Live do
               <h3 class="font-semibold text-base-content">Code Example</h3>
             </div>
             <div class="p-4">
-              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_focused_code(@current_theme) %></code></pre>
+              <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= get_focused_code(@current_theme, current_marker_groups(assigns)) %></code></pre>
             </div>
 
             <!-- Quick Stats -->
@@ -97,7 +148,7 @@ defmodule DemoWeb.Stage3Live do
               <div class="text-sm text-primary/80">
                 <strong>Current Theme:</strong> <%= get_current_description(@current_theme) %> •
                 Theme: <%= get_current_theme(@current_theme) %> •
-                2 groups • 5 nodes
+                <%= length(current_marker_groups(assigns)) %> groups • <%= get_total_nodes(current_marker_groups(assigns)) %> nodes
               </div>
             </div>
           </div>
@@ -125,362 +176,207 @@ defmodule DemoWeb.Stage3Live do
     """
   end
 
-  # Static HTML content generation functions
-  defp get_static_tab_content("presets") do
+  # Helper functions for the new CodeGenerator pattern
+  defp current_marker_groups(assigns) do
+    Map.get(assigns.examples, String.to_atom(assigns.current_theme), [])
+  end
+
+  defp get_focused_code(theme_type, marker_groups) do
+    # Use the shared CodeGenerator for consistent code generation
+    CodeGenerator.generate_flymap_code(
+      marker_groups,
+      theme: get_current_theme(theme_type),
+      layout: :side_by_side,
+      context: get_current_description(theme_type)
+    )
+  end
+
+  defp get_total_nodes(marker_groups) do
+    marker_groups
+    |> Enum.reduce(0, fn group, acc ->
+      acc + length(group.nodes)
+    end)
+  end
+
+  # Streamlined content generation functions
+  defp get_tab_content("presets") do
     """
-    <div class="space-y-6">
+    <div class="space-y-4">
       <div>
         <h3 class="font-semibold text-base-content mb-3">Predefined Theme Presets</h3>
         <p class="text-base-content/70 text-sm mb-4">
-          FlyMapEx provides carefully crafted theme presets optimized for common use cases.
-          Each preset includes coordinated colours, typography, and spacing designed for specific interface contexts.
+          Ready-to-use themes optimized for common use cases. Quick to implement and consistently styled.
         </p>
       </div>
 
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">:dashboard Theme</h4>
-          <p class="text-sm text-primary mb-2">Compact design with cool colours for control panels and admin interfaces.</p>
-          <div class="flex gap-2 mb-2">
-            <div class="w-4 h-4 bg-primary/20 border border-primary/30 rounded" title="Land Colour"></div>
-            <div class="w-4 h-4 bg-primary/20 border border-primary/30 rounded" title="Ocean Colour"></div>
-            <div class="w-4 h-4 bg-primary border border-primary/30 rounded" title="Border Colour"></div>
-          </div>
-          <ul class="text-sm text-primary/80 space-y-1">
-            <li>• Reduced visual weight for dense information displays</li>
-            <li>• Cool colour palette reduces eye strain</li>
-            <li>• Perfect for operational dashboards</li>
-          </ul>
+      <div class="space-y-3">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <h4 class="font-medium text-primary mb-1">:dashboard</h4>
+          <p class="text-sm text-primary">Compact design for control panels and admin interfaces.</p>
         </div>
 
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">:monitoring Theme</h4>
-          <p class="text-sm text-success mb-2">Standard size with clear visibility for status dashboards and real-time monitoring.</p>
-          <div class="flex gap-2 mb-2">
-            <div class="w-4 h-4 bg-success/20 border border-success/30 rounded" title="Land Colour"></div>
-            <div class="w-4 h-4 bg-success/20 border border-success/30 rounded" title="Ocean Colour"></div>
-            <div class="w-4 h-4 bg-success border border-success/30 rounded" title="Border Colour"></div>
-          </div>
-          <ul class="text-sm text-success/80 space-y-1">
-            <li>• Balanced sizing for extended viewing</li>
-            <li>• High contrast for quick status recognition</li>
-            <li>• Optimized for NOC and monitoring environments</li>
-          </ul>
+        <div class="bg-success/10 border border-success/20 rounded-lg p-3">
+          <h4 class="font-medium text-success mb-1">:monitoring</h4>
+          <p class="text-sm text-success">Standard size with clear visibility for status dashboards.</p>
         </div>
 
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">:presentation Theme</h4>
-          <p class="text-sm text-secondary mb-2">Large markers with warm colours for demos, presentations, and public displays.</p>
-          <div class="flex gap-2 mb-2">
-            <div class="w-4 h-4 bg-warning/10 border border-warning/30 rounded" title="Land Colour"></div>
-            <div class="w-4 h-4 bg-warning/20 border border-warning/30 rounded" title="Ocean Colour"></div>
-            <div class="w-4 h-4 bg-warning border border-warning/30 rounded" title="Border Colour"></div>
-          </div>
-          <ul class="text-sm text-secondary/80 space-y-1">
-            <li>• Larger markers for distance viewing</li>
-            <li>• Warm colour palette for engagement</li>
-            <li>• High visual impact for presentations</li>
-          </ul>
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-3">
+          <h4 class="font-medium text-secondary mb-1">:presentation</h4>
+          <p class="text-sm text-secondary">Large markers with warm colours for demos and presentations.</p>
         </div>
 
-        <div class="bg-base-200 border border-base-300 rounded-lg p-4">
-          <h4 class="font-medium text-base-content mb-2">Additional Presets</h4>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="flex items-center space-x-2">
-              <code class="bg-base-100 px-1 rounded text-xs">:minimal</code>
-              <span class="text-base-content/80">Clean grayscale</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-base-100 px-1 rounded text-xs">:dark</code>
-              <span class="text-base-content/80">Dark backgrounds</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-base-100 px-1 rounded text-xs">:light</code>
-              <span class="text-base-content/80">Light, airy design</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-base-100 px-1 rounded text-xs">:high_contrast</code>
-              <span class="text-base-content/80">Accessibility focused</span>
-            </div>
+        <div class="bg-base-200 border border-base-300 rounded-lg p-3">
+          <h4 class="font-medium text-base-content mb-1">Also available:</h4>
+          <div class="text-sm text-base-content/80">
+            <code>:minimal</code> • <code>:dark</code> • <code>:light</code> • <code>:high_contrast</code>
           </div>
         </div>
       </div>
 
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-3">
         <p class="text-sm text-success/80">
-          <strong>Pro tip:</strong> Presets are perfect when you need consistent styling across multiple maps
-          or want to quickly match common interface patterns. They're also great starting points for customization.
+          <strong>Use when:</strong> You need consistent styling or want to match common interface patterns.
         </p>
       </div>
     </div>
     """
   end
 
-  defp get_static_tab_content("responsive") do
+  defp get_tab_content("responsive") do
     """
-    <div class="space-y-6">
+    <div class="space-y-4">
       <div>
-        <h3 class="font-semibold text-base-content mb-3">Responsive Theme System</h3>
+        <h3 class="font-semibold text-base-content mb-3">Responsive Theme</h3>
         <p class="text-base-content/70 text-sm mb-4">
-          The responsive theme automatically adapts to your site's design system using CSS custom properties.
-          Perfect for component libraries and design systems that need consistent visual integration.
+          Automatically adapts to your site's design system using CSS custom properties. Perfect for seamless integration.
         </p>
       </div>
 
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Automatic CSS Property Detection</h4>
-          <p class="text-sm text-primary mb-2">Reads your site's CSS custom properties in order of precedence:</p>
-          <ul class="text-sm text-primary/80 space-y-1">
-            <li>• <code class="bg-primary/20 px-1 rounded">--color-background</code> for land areas</li>
-            <li>• <code class="bg-primary/20 px-1 rounded">--color-border</code> for country borders</li>
-            <li>• <code class="bg-primary/20 px-1 rounded">--color-muted</code> for ocean areas</li>
-            <li>• <code class="bg-primary/20 px-1 rounded">--color-surface</code> for map container</li>
-          </ul>
-        </div>
-
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Context Awareness</h4>
-          <p class="text-sm text-success mb-2">Automatically adjusts for different contexts:</p>
-          <ul class="text-sm text-success/80 space-y-1">
-            <li>• <strong>Light/Dark Mode:</strong> Adapts colours based on <code class="bg-success/20 px-1 rounded">prefers-color-scheme</code></li>
-            <li>• <strong>High Contrast:</strong> Responds to <code class="bg-success/20 px-1 rounded">prefers-contrast</code> accessibility settings</li>
-            <li>• <strong>Brand Variations:</strong> Follows your site's brand colour updates</li>
-            <li>• <strong>Seasonal Themes:</strong> Automatically inherits promotional theme changes</li>
-          </ul>
-        </div>
-
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Design System Integration</h4>
-          <p class="text-sm text-secondary mb-2">Works seamlessly with popular design systems:</p>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 bg-secondary rounded-full"></span>
-              <span class="text-secondary/80">Tailwind CSS</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 bg-secondary rounded-full"></span>
-              <span class="text-secondary/80">Chakra UI</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 bg-secondary rounded-full"></span>
-              <span class="text-secondary/80">Material UI</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 bg-secondary rounded-full"></span>
-              <span class="text-secondary/80">Custom CSS</span>
-            </div>
+      <div class="space-y-3">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <h4 class="font-medium text-primary mb-1">CSS Custom Properties</h4>
+          <p class="text-sm text-primary mb-2">Reads your site's CSS variables:</p>
+          <div class="text-xs text-primary/80 space-y-1">
+            <div><code>--color-background</code> → land areas</div>
+            <div><code>--color-border</code> → country borders</div>
+            <div><code>--color-muted</code> → ocean areas</div>
           </div>
         </div>
 
-        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
-          <h4 class="font-medium text-warning mb-2">Implementation Example</h4>
-          <p class="text-sm text-warning mb-2">Set up responsive theming in your CSS:</p>
-          <pre class="text-xs text-warning/80 bg-warning/20 p-2 rounded"><code>:root {
+        <div class="bg-success/10 border border-success/20 rounded-lg p-3">
+          <h4 class="font-medium text-success mb-1">Context Awareness</h4>
+          <p class="text-sm text-success">Automatically adapts to light/dark mode and high contrast settings.</p>
+        </div>
+
+        <div class="bg-warning/10 border border-warning/20 rounded-lg p-3">
+          <h4 class="font-medium text-warning mb-1">Setup Example</h4>
+          <pre class="text-xs text-warning/80 bg-warning/20 p-2 rounded mt-2"><code>:root {
             --color-background: #f8fafc;
             --color-border: #e2e8f0;
             --color-muted: #cbd5e1;
-          }
-
-          @media (prefers-color-scheme: dark) {
-            :root {
-              --color-background: #1e293b;
-              --color-border: #475569;
-              --color-muted: #334155;
-            }
           }</code></pre>
         </div>
       </div>
 
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-3">
         <p class="text-sm text-success/80">
-          <strong>Best practice:</strong> Use responsive theme as your default to ensure maps always match your site's visual identity.
-          It's the most maintenance-free approach for consistent branding.
+          <strong>Best practice:</strong> Use as your default theme for maintenance-free branding consistency.
         </p>
       </div>
     </div>
     """
   end
 
-  defp get_static_tab_content("custom") do
-    ~s"""
-    <div class="space-y-6">
+  defp get_tab_content("custom") do
+    """
+    <div class="space-y-4">
       <div>
         <h3 class="font-semibold text-base-content mb-3">Custom Theme Creation</h3>
         <p class="text-base-content/70 text-sm mb-4">
-          Create completely custom themes with full control over colours, typography, and spacing.
-          Perfect for branded experiences and unique design requirements.
+          Create completely custom themes with full control over colours. Perfect for branded experiences.
         </p>
       </div>
 
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Theme Map Structure</h4>
-          <p class="text-sm text-primary mb-2">Define custom themes using a map with these properties:</p>
-          <div class="space-y-2 text-sm">
-            <div class="flex items-center space-x-2">
-              <code class="bg-primary/20 px-1 rounded text-xs">land_color</code>
-              <span class="text-primary/80">Background colour for countries and land masses</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-primary/20 px-1 rounded text-xs">ocean_color</code>
-              <span class="text-primary/80">Background colour for oceans and water</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-primary/20 px-1 rounded text-xs">border_color</code>
-              <span class="text-primary/80">Stroke colour for country borders</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <code class="bg-primary/20 px-1 rounded text-xs">background_color</code>
-              <span class="text-primary/80">Overall container background</span>
-            </div>
+      <div class="space-y-3">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <h4 class="font-medium text-primary mb-1">Theme Properties</h4>
+          <div class="text-sm text-primary space-y-1">
+            <div><code>land_color</code> → Countries and land masses</div>
+            <div><code>ocean_color</code> → Water areas</div>
+            <div><code>border_color</code> → Country borders</div>
+            <div><code>background_color</code> → Container background</div>
           </div>
         </div>
 
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Colour Format Support</h4>
-          <p class="text-sm text-success mb-2">Use any valid CSS colour format:</p>
-          <ul class="text-sm text-success/80 space-y-1">
-            <li>• <strong>Hex:</strong> <code class="bg-success/20 px-1 rounded">"#3b82f6"</code></li>
-            <li>• <strong>RGB:</strong> <code class="bg-success/20 px-1 rounded">"rgb(59, 130, 246)"</code></li>
-            <li>• <strong>HSL:</strong> <code class="bg-success/20 px-1 rounded">"hsl(217, 91%, 60%)"</code></li>
-            <li>• <strong>CSS Variables:</strong> <code class="bg-success/20 px-1 rounded">"var(--primary-color)"</code></li>
-            <li>• <strong>Named:</strong> <code class="bg-success/20 px-1 rounded">"steelblue"</code></li>
-          </ul>
-        </div>
-
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Brand Integration Examples</h4>
-          <p class="text-sm text-secondary mb-2">Common branding patterns:</p>
-          <div class="space-y-2 text-sm">
-            <div class="p-2 bg-secondary/20 rounded">
-              <strong class="text-secondary">Corporate:</strong> 
-              <span class="text-secondary/80">Subtle company colours, professional appearance</span>
-            </div>
-            <div class="p-2 bg-secondary/20 rounded">
-              <strong class="text-secondary">Product:</strong> 
-              <span class="text-secondary/80">Match your product's colour scheme and personality</span>
-            </div>
-            <div class="p-2 bg-secondary/20 rounded">
-              <strong class="text-secondary">White-label:</strong> 
-              <span class="text-secondary/80">Configurable themes for client customization</span>
-            </div>
+        <div class="bg-success/10 border border-success/20 rounded-lg p-3">
+          <h4 class="font-medium text-success mb-1">Colour Formats</h4>
+          <div class="text-sm text-success">
+            Supports hex, RGB, HSL, CSS variables, and named colours.
           </div>
         </div>
 
-        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
-          <h4 class="font-medium text-warning mb-2">Accessibility Considerations</h4>
-          <p class="text-sm text-warning mb-2">Ensure your custom themes meet accessibility standards:</p>
-          <ul class="text-sm text-warning/80 space-y-1">
-            <li>• <strong>Contrast Ratio:</strong> 4.5:1 minimum for text/background</li>
-            <li>• <strong>Colour Blindness:</strong> Don't rely solely on colour for information</li>
-            <li>• <strong>Focus Indicators:</strong> Ensure interactive elements are visible</li>
-            <li>• <strong>Test Tools:</strong> Use browser dev tools to verify accessibility</li>
-          </ul>
+        <div class="bg-warning/10 border border-warning/20 rounded-lg p-3">
+          <h4 class="font-medium text-warning mb-1">Accessibility</h4>
+          <p class="text-sm text-warning">Ensure 4.5:1 contrast ratio and don't rely solely on colour for information.</p>
         </div>
       </div>
 
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-3">
         <p class="text-sm text-success/80">
-          <strong>Use case:</strong> Custom themes are ideal for white-label applications, brand-specific experiences, 
-          or when you need precise visual control. They're perfect for embedding maps in existing designs.
+          <strong>Use when:</strong> You need precise visual control or brand-specific experiences.
         </p>
       </div>
     </div>
     """
   end
 
-  defp get_static_tab_content("configuration") do
-    ~s"""
-    <div class="space-y-6">
+  defp get_tab_content("configuration") do
+    """
+    <div class="space-y-4">
       <div>
-        <h3 class="font-semibold text-base-content mb-3">Theme Configuration Patterns</h3>
+        <h3 class="font-semibold text-base-content mb-3">Theme Configuration</h3>
         <p class="text-base-content/70 text-sm mb-4">
-          Learn how to configure themes at the application level and understand
-          theme precedence and override rules for production deployments.
+          Configure themes at the application level for consistent theming across your entire app.
         </p>
       </div>
 
-      <div class="space-y-4">
-        <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <h4 class="font-medium text-primary mb-2">Application-Level Configuration</h4>
-          <p class="text-sm text-primary mb-2">Set default themes in your config.exs:</p>
-          <pre class="text-xs text-primary/80 bg-primary/20 p-2 rounded"><code># config/config.exs
+      <div class="space-y-3">
+        <div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+          <h4 class="font-medium text-primary mb-1">Application Config</h4>
+          <pre class="text-xs text-primary/80 bg-primary/20 p-2 rounded mt-2"><code># config/config.exs
           config :fly_map_ex,
-            default_theme: :responsive,
-            fallback_theme: :light</code></pre>
-          <p class="text-sm text-primary mt-2">Components automatically use the configured theme when no explicit theme is provided.</p>
+            default_theme: :responsive</code></pre>
         </div>
 
-        <div class="bg-success/10 border border-success/20 rounded-lg p-4">
-          <h4 class="font-medium text-success mb-2">Environment-Specific Themes</h4>
-          <p class="text-sm text-success mb-2">Configure different themes per environment:</p>
-          <div class="space-y-2 text-sm">
-            <div class="p-2 bg-success/20 rounded">
-              <strong class="text-success">Development:</strong> 
-              <code class="bg-base-100 px-1 rounded text-xs">:light</code>
-              <span class="text-success/80">- Bright, easy debugging</span>
-            </div>
-            <div class="p-2 bg-success/20 rounded">
-              <strong class="text-success">Staging:</strong> 
-              <code class="bg-base-100 px-1 rounded text-xs">:monitoring</code>
-              <span class="text-success/80">- Production-like testing</span>
-            </div>
-            <div class="p-2 bg-success/20 rounded">
-              <strong class="text-success">Production:</strong> 
-              <code class="bg-base-100 px-1 rounded text-xs">:responsive</code>
-              <span class="text-success/80">- Adaptive to user preferences</span>
-            </div>
+        <div class="bg-success/10 border border-success/20 rounded-lg p-3">
+          <h4 class="font-medium text-success mb-1">Environment-Specific</h4>
+          <div class="text-sm text-success space-y-1">
+            <div><strong>Dev:</strong> <code>:light</code> - Bright debugging</div>
+            <div><strong>Prod:</strong> <code>:responsive</code> - Adaptive</div>
           </div>
         </div>
 
-        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
-          <h4 class="font-medium text-secondary mb-2">Theme Precedence Rules</h4>
-          <p class="text-sm text-secondary mb-2">Themes are applied in this order (highest to lowest priority):</p>
-          <ol class="text-sm text-secondary/80 space-y-1">
-            <li>1. <strong>Inline theme prop:</strong> <code class="bg-secondary/20 px-1 rounded">theme={:custom}</code></li>
-            <li>2. <strong>Component default:</strong> Set via component attributes</li>
-            <li>3. <strong>Application config:</strong> From config.exs</li>
-            <li>4. <strong>Library default:</strong> FlyMapEx's built-in theme</li>
-          </ol>
-        </div>
-
-        <div class="bg-warning/10 border border-warning/20 rounded-lg p-4">
-          <h4 class="font-medium text-warning mb-2">Production Deployment Patterns</h4>
-          <p class="text-sm text-warning mb-2">Common deployment strategies:</p>
-          <ul class="text-sm text-warning/80 space-y-1">
-            <li>• <strong>Feature Flags:</strong> Toggle themes based on user segments</li>
-            <li>• <strong>A/B Testing:</strong> Compare theme performance</li>
-            <li>• <strong>White-labeling:</strong> Client-specific theme configuration</li>
-            <li>• <strong>Runtime Updates:</strong> Change themes without deployment</li>
-          </ul>
-        </div>
-
-        <div class="bg-base-200 border border-base-300 rounded-lg p-4">
-          <h4 class="font-medium text-base-content mb-2">Advanced Configuration</h4>
-          <p class="text-sm text-base-content mb-2">For complex applications:</p>
-          <pre class="text-xs text-base-content/80 bg-base-200 p-2 rounded"><code># Dynamic theme resolution
-          def get_theme_for_user(user) do
-            case user.preferences do
-              %{theme: theme} when theme != nil -> theme
-              %{dark_mode: true} -> :dark
-              _ -> Application.get_env(:fly_map_ex, :default_theme)
-            end
-          end</code></pre>
+        <div class="bg-secondary/10 border border-secondary/20 rounded-lg p-3">
+          <h4 class="font-medium text-secondary mb-1">Precedence Order</h4>
+          <div class="text-sm text-secondary space-y-1">
+            <div>1. Inline theme prop</div>
+            <div>2. Component default</div>
+            <div>3. Application config</div>
+            <div>4. Library default</div>
+          </div>
         </div>
       </div>
 
-      <div class="bg-success/10 border border-success/20 rounded-lg p-4">
+      <div class="bg-success/10 border border-success/20 rounded-lg p-3">
         <p class="text-sm text-success/80">
-          <strong>Deployment tip:</strong> Use configuration-based themes for easier maintenance and consistent updates across your application.
-          This approach enables centralized theme management and reduces code duplication.
+          <strong>Best practice:</strong> Use config-based themes for centralized management and consistency.
         </p>
       </div>
     </div>
     """
   end
 
-  defp get_static_tab_content(_), do: "<div>Unknown tab content</div>"
+  defp get_tab_content(_), do: "<div>Unknown tab content</div>"
 
   # Helper functions for the template
   defp get_current_description(theme) do
@@ -503,88 +399,6 @@ defmodule DemoWeb.Stage3Live do
     end
   end
 
-  defp get_focused_code(theme_type) do
-    case theme_type do
-      "presets" ->
-        ~s[# Predefined theme presets - simple and effective
-<FlyMapEx.render
-  marker_groups={@marker_groups}
-  theme={:dashboard}  # Compact for control panels
-/>
-
-# Available preset themes:
-<FlyMapEx.render theme={:monitoring} />    # Standard visibility
-<FlyMapEx.render theme={:presentation} />  # Large for demos
-<FlyMapEx.render theme={:minimal} />       # Clean grayscale
-<FlyMapEx.render theme={:dark} />          # Dark backgrounds
-<FlyMapEx.render theme={:high_contrast} /> # Accessibility
-
-# Perfect for quick deployment with proven designs]
-
-      "responsive" ->
-        ~s[# Responsive theme - adapts to your site automatically
-<FlyMapEx.render
-  marker_groups={@marker_groups}
-  theme={:responsive}
-/>
-
-# Set up CSS custom properties in your stylesheet:
-/* :root {
-     --color-background: #f8fafc;  /* Land areas */
-     --color-border: #e2e8f0;      /* Country borders */
-     --color-muted: #cbd5e1;       /* Ocean areas */
-   } */
-
-# Automatically supports:
-# - Light/dark mode switching via prefers-color-scheme
-# - High contrast accessibility modes
-# - Your existing design system colours]
-
-      "custom" ->
-        ~s[# Custom theme - complete visual control
-<FlyMapEx.render
-  marker_groups={@marker_groups}
-  theme={%{
-    land_color: "#f8fafc",      # Countries/continents
-    ocean_color: "#e2e8f0",     # Water areas
-    border_color: "#475569",    # Country borders
-    background_color: "transparent"  # Container background
-  }}
-/>
-
-# Support for all CSS colour formats:
-theme={%{
-  land_color: "hsl(210, 40%, 96%)",
-  ocean_color: "var(--ocean-blue)",
-  border_color: "#64748b"
-}}
-
-# Perfect for branded experiences and white-label apps]
-
-      "configuration" ->
-        ~s[# Configuration-based themes - centralized management
-# In config/config.exs:
-config :fly_map_ex, 
-  default_theme: :responsive,
-  fallback_theme: :light
-
-# Components use configured theme automatically:
-<FlyMapEx.render
-  marker_groups={@marker_groups}
-  # theme automatically applied from config
-/>
-
-# Override when needed:
-<FlyMapEx.render
-  marker_groups={@marker_groups}
-  theme={:presentation}  # Overrides config default
-/>
-
-# Environment-specific configs in dev.exs, prod.exs, etc.]
-
-      _ -> "# Unknown theme type"
-    end
-  end
 
   defp get_advanced_topics do
     [

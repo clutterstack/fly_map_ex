@@ -6,6 +6,8 @@ defmodule DemoWeb.Stage2Live do
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
   import DemoWeb.Components.SidebarNavigation
+  
+  alias DemoWeb.Helpers.CodeGenerator
 
   def mount(_params, _session, socket) do
     # Define the progressive examples according to the plan
@@ -637,93 +639,13 @@ defmodule DemoWeb.Stage2Live do
 
   # Generate focused code examples for each tab
   defp get_focused_code(example, marker_groups) do
-    case example do
-      "automatic" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.cycle(0),
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.cycle(1),
-            label: "Staging Environment"
-          }
-        ]
-        """
-
-      "semantic" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.operational(),
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.warning(),
-            label: "Maintenance Mode"
-          },
-          %{
-            nodes: ["ord"],
-            style: FlyMapEx.Style.danger(),
-            label: "Failed Nodes"
-          }
-        ]
-        """
-
-      "custom" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.custom("#10b981", [
-              size: 8,
-              animation: :pulse,
-              glow: true
-            ]),
-            label: "High-Performance Servers"
-          }
-        ]
-        """
-
-      "mixed" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.operational(),  # Semantic
-            label: "Production (Semantic)"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.cycle(1),      # Auto-cycle
-            label: "Staging (Auto-Cycle)"
-          },
-          %{
-            nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#9333ea", [
-              size: 8, animation: :pulse, glow: true
-            ]),                                   # Custom
-            label: "Special Deploy (Custom)"
-          },
-          %{
-            nodes: ["nrt", "syd"],
-            style: :inactive,                    # Atom shorthand
-            label: "Offline (Atom)"
-          }
-        ]
-        """
-
-      _ ->
-        {_map_attrs, code_string} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{
-          marker_groups: marker_groups,
-          theme: :responsive
-        })
-        code_string
-    end
+    # Use the shared CodeGenerator for consistent code generation
+    CodeGenerator.generate_flymap_code(
+      marker_groups,
+      theme: :responsive,
+      layout: :side_by_side,
+      context: example,
+      format: :heex
+    )
   end
 end

@@ -6,6 +6,8 @@ defmodule DemoWeb.Stage1Live do
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
   import DemoWeb.Components.SidebarNavigation
+  
+  alias DemoWeb.Helpers.CodeGenerator
 
 
   def mount(_params, _session, socket) do
@@ -404,59 +406,26 @@ defmodule DemoWeb.Stage1Live do
   end
 
   # Generate focused code examples for each tab
-  defp get_focused_code(example, _marker_groups) do
+  defp get_focused_code(example, marker_groups) do
+    # Use the shared CodeGenerator for consistent code generation
+    CodeGenerator.generate_flymap_code(
+      marker_groups,
+      theme: :responsive,
+      layout: :side_by_side,
+      context: get_context_name(example),
+      format: :heex
+    )
+  end
+  
+  # Helper to get readable context names
+  defp get_context_name(example) do
     case example do
-      "single_coordinates" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: [
-              %{coordinates: {37.7749, -122.4194}, label: "San Francisco"}
-            ],
-            label: "Single Node"
-          }
-        ]
-        """
-
-      "single_region" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc"],
-            label: "Single Server"
-          }
-        ]
-        """
-
-      "multiple_nodes" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra", "ams", "lhr"],
-            label: "Global Deployment"
-          }
-        ]
-        """
-
-      "multiple_groups" ->
-        ~s"""
-        marker_groups = [
-          %{
-            nodes: ["sjc", "fra"],
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            label: "Staging Environment"
-          }
-        ]
-        """
-
-      _ ->
-        # Fallback for unknown examples
-        ~s"""
-        marker_groups = []
-        """
+      "single_coordinates" -> "coordinates"
+      "single_region" -> "region"
+      "multiple_nodes" -> "multiple"
+      "multiple_groups" -> "groups"
+      "library_intro" -> "intro"
+      _ -> "example"
     end
   end
 

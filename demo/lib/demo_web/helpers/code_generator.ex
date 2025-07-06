@@ -1,0 +1,153 @@
+defmodule DemoWeb.Helpers.CodeGenerator do
+  @moduledoc """
+  Shared code generation utilities for all LiveViews that need to display
+  FlyMapEx code examples alongside rendered maps.
+  
+  Ensures perfect coupling between displayed code and executed code by using
+  a single source of truth approach.
+  """
+
+  @doc """
+  Generate HEEx template code for a given marker_groups configuration.
+  
+  Returns the complete <FlyMapEx.render> call as a string that can be:
+  1. Displayed in code panels
+  2. Evaluated to get marker_groups data for rendering
+  
+  ## Options
+  
+  * `:theme` - Theme atom to include (default: :responsive)
+  * `:layout` - Layout atom to include (default: :side_by_side)
+  * `:context` - Context string for comment (default: "Configuration")
+  * `:format` - Output format :heex, :elixir, or :json (default: :heex)
+  """
+  def generate_flymap_code(marker_groups, opts \\ []) do
+    theme = Keyword.get(opts, :theme, :responsive)
+    layout = Keyword.get(opts, :layout, :side_by_side)
+    context = Keyword.get(opts, :context, "Configuration")
+    format = Keyword.get(opts, :format, :heex)
+
+    case format do
+      :heex -> generate_heex_template(marker_groups, theme, layout, context)
+      :elixir -> generate_elixir_module(marker_groups, theme, layout, context)
+      :json -> generate_json_config(marker_groups, theme, layout, context)
+      _ -> generate_heex_template(marker_groups, theme, layout, context)
+    end
+  end
+
+  @doc """
+  Generate just the marker_groups data structure as a code string.
+  
+  This can be evaluated to get the actual marker_groups list.
+  """
+  def generate_marker_groups_code(marker_groups) do
+    # Use the existing MapWithCodeComponent logic which handles __source__ correctly
+    {_map_attrs, full_code} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{
+      marker_groups: marker_groups,
+      theme: nil
+    })
+    
+    # Extract just the marker_groups part
+    [marker_groups_line | _rest] = String.split(full_code, "\n\n")
+    marker_groups_line
+    |> String.trim_leading("marker_groups = ")
+  end
+
+  @doc """
+  Evaluate a marker_groups code string to get the actual data structure.
+  """
+  def evaluate_marker_groups_code(code_string) do
+    try do
+      {result, _} = Code.eval_string(String.trim(code_string))
+      result
+    rescue
+      _ -> []
+    end
+  end
+
+  # Private implementation functions
+
+  defp generate_heex_template(marker_groups, theme, layout, context) do
+    marker_groups_code = generate_marker_groups_code(marker_groups)
+    
+    comment = "# #{String.capitalize(context)} Map Configuration"
+    render_call = "<FlyMapEx.render\n  marker_groups={#{marker_groups_code}}\n  theme={:#{theme}}\n  layout={:#{layout}}\n/>"
+    usage_note = "# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
+    
+    "#{comment}\n#{render_call}\n\n#{usage_note}"
+  end
+
+  defp generate_elixir_module(marker_groups, theme, layout, context) do
+    marker_groups_code = generate_marker_groups_code(marker_groups)
+    context_lower = String.downcase(context)
+    
+    lines = [
+      "# #{String.capitalize(context)} Map Module",
+      "defmodule YourApp.MapConfigs do",
+      "  @moduledoc \"Centralized map configurations for #{context} displays\"",
+      "",
+      "  def #{context_lower}_map_groups do",
+      "    #{marker_groups_code}",
+      "  end",
+      "",
+      "  def render_#{context_lower}_map(assigns) do",
+      "    ~H\"\"\"",
+      "    <FlyMapEx.render",
+      "      marker_groups={#{context_lower}_map_groups()}",
+      "      theme={:#{theme}}",
+      "      layout={:#{layout}}",
+      "    />",
+      "    \"\"\"",
+      "  end",
+      "end",
+      "",
+      "# Usage in your LiveView:",
+      "# import YourApp.MapConfigs",
+      "# <.render_#{context_lower}_map />"
+    ]
+    
+    Enum.join(lines, "\n")
+  end
+
+  defp generate_json_config(marker_groups, theme, layout, context) do
+    # Convert marker_groups to JSON representation
+    json_groups = try do
+      marker_groups
+      |> Enum.map(fn group ->
+        nodes_json = group.nodes |> Enum.map(&"\"#{&1}\"") |> Enum.join(", ")
+        style_name = get_style_name(group.style)
+        "    {\n      \"nodes\": [#{nodes_json}],\n      \"style\": \"#{style_name}\",\n      \"label\": \"#{group.label}\"\n    }"
+      end)
+      |> Enum.join(",\n")
+    rescue
+      _ -> "    // Error parsing groups"
+    end
+
+    lines = [
+      "{",
+      "  \"name\": \"#{String.capitalize(context)} Map Configuration\",",
+      "  \"theme\": \"#{theme}\",",
+      "  \"layout\": \"#{layout}\",",
+      "  \"marker_groups\": [",
+      json_groups,
+      "  ]",
+      "}",
+      "",
+      "# Use with a JSON loader function:",
+      "# def load_config(config_name) do",
+      "#   config = Jason.decode!(File.read!(\"configs/\" <> config_name <> \".json\"))",
+      "#   # Transform JSON to Elixir structures",
+      "# end"
+    ]
+    
+    Enum.join(lines, "\n")
+  end
+
+  # Helper to extract style name from style map
+  defp get_style_name(style) do
+    case style do
+      %{__source__: {name, _, _}} -> Atom.to_string(name)
+      _ -> "operational"
+    end
+  end
+end
