@@ -172,7 +172,7 @@ defmodule DemoWeb.Components.StageLayout do
       <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
         <div class="text-sm text-primary">
           <strong>Current Configuration:</strong> <%= @get_current_description.(@current_example) %> •
-          <%= length(@marker_groups) %> groups •
+          <%= if @marker_groups, do: length(@marker_groups), else: 0 %> groups •
           <%= count_total_nodes(@marker_groups) %> nodes
         </div>
       </div>
@@ -222,6 +222,7 @@ defmodule DemoWeb.Components.StageLayout do
 
   # Helper functions
 
+  defp count_total_nodes(marker_groups) when is_nil(marker_groups), do: 0
   defp count_total_nodes(marker_groups) do
     Enum.reduce(marker_groups, 0, fn group, acc ->
       nodes = group[:nodes] || []

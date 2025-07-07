@@ -20,37 +20,28 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_examples do
     %{
-      library_intro: [
-        %{
-          nodes: []
-        }
-      ],
+      library_intro: nil,
       single_coordinates: [
         %{
           nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
-          label: "Single Node"
         }
       ],
       single_region: [
         %{
           nodes: ["sjc"],
-          label: "Single Server"
         }
       ],
       multiple_nodes: [
         %{
           nodes: ["sjc", "fra", "ams", "lhr"],
-          label: "Global Deployment"
         }
       ],
       multiple_groups: [
         %{
-          nodes: ["sjc", "fra"],
-          label: "Production Servers"
+          nodes: ["sjc", "fra"]
         },
         %{
-          nodes: ["ams", "lhr"],
-          label: "Staging Environment"
+          nodes: ["ams", "lhr"]
         }
       ]
     }

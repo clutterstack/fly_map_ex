@@ -47,10 +47,15 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       theme: nil
     })
     
-    # Extract just the marker_groups part
-    [marker_groups_line | _rest] = String.split(full_code, "\n\n")
-    marker_groups_line
-    |> String.trim_leading("marker_groups = ")
+    # Handle case where marker_groups is nil (no variable declaration)
+    if full_code == "<FlyMapEx.render />" do
+      "[]"  # Return empty list for display purposes
+    else
+      # Extract just the marker_groups part
+      [marker_groups_line | _rest] = String.split(full_code, "\n\n")
+      marker_groups_line
+      |> String.trim_leading("marker_groups = ")
+    end
   end
 
   @doc """
@@ -73,7 +78,14 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     comment = "# #{String.capitalize(context)} Map Configuration"
     
     # Build attribute lines conditionally
-    attr_lines = ["  marker_groups={#{marker_groups_code}}"]
+    attr_lines = []
+    
+    # Only include marker_groups if not nil and not empty
+    attr_lines = if marker_groups != nil and marker_groups != [] do
+      attr_lines ++ ["  marker_groups={#{marker_groups_code}}"]
+    else
+      attr_lines
+    end
     
     # Only include theme if it's not the default or empty
     attr_lines = if theme && theme != :responsive && theme != "" do
@@ -89,7 +101,13 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       attr_lines
     end
     
-    render_call = "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
+    # Create minimal render call if no attributes
+    render_call = if attr_lines == [] do
+      "<FlyMapEx.render />"
+    else
+      "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
+    end
+    
     usage_note = "# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
     
     "#{comment}\n#{render_call}\n\n#{usage_note}"

@@ -93,9 +93,13 @@ defmodule DemoWeb.Live.StageBase do
 
       # Common helper functions
       defp current_marker_groups(assigns) do
-        Map.get(assigns.examples, String.to_atom(assigns.current_example), [])
+        case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
+          nil -> nil  # Pass nil through to indicate no marker groups
+          groups -> groups
+        end
       end
 
+      defp count_total_nodes(marker_groups) when is_nil(marker_groups), do: 0
       defp count_total_nodes(marker_groups) do
         Enum.reduce(marker_groups, 0, fn group, acc ->
           nodes = group[:nodes] || []

@@ -24,7 +24,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   * `code_class` - Additional CSS classes for the code container
   * `extra_content` - Optional slot for additional content in code section
   """
-  attr :marker_groups, :list, required: true
+  attr :marker_groups, :list, default: nil
   attr :theme, :any, default: nil
   attr :title, :string, default: nil
   attr :map_title, :string, default: nil
@@ -89,8 +89,23 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     theme = Map.get(config, :theme) || Map.get(config, "theme")
     layout = Map.get(config, :map_layout)
 
-    # Build map attributes
-    map_attrs = %{marker_groups: marker_groups, layout: layout}
+    # Handle nil marker_groups differently from empty list
+    # nil means no marker_groups attribute at all
+    # [] means empty marker_groups attribute
+    marker_groups = case marker_groups do
+      nil -> nil  # Keep nil to indicate no marker_groups attribute
+      groups -> groups
+    end
+
+    # Build map attributes - only include marker_groups if not nil and not empty
+    map_attrs = %{layout: layout}
+    
+    map_attrs =
+      if marker_groups != nil and marker_groups != [] do
+        Map.put(map_attrs, :marker_groups, marker_groups)
+      else
+        map_attrs
+      end
 
     map_attrs =
       if theme != nil do
@@ -118,8 +133,26 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
         ""
       end
 
-    marker_groups_code <>
-      "\n\n<FlyMapEx.render\n  marker_groups={marker_groups}" <> component_attrs <> "\n/>"
+    # Add marker_groups attribute only if not nil and not empty
+    marker_groups_attr =
+      if marker_groups != nil and marker_groups != [] do
+        "\n  marker_groups={marker_groups}"
+      else
+        ""
+      end
+
+    # If we have no variable declaration and no attributes, show minimal version
+    if marker_groups_code == "" and component_attrs == "" do
+      "<FlyMapEx.render />"
+    else
+      marker_groups_code <>
+        "\n\n<FlyMapEx.render" <> marker_groups_attr <> component_attrs <> "\n/>"
+    end
+  end
+
+  defp format_marker_groups_code(marker_groups) when marker_groups in [nil, []] do
+    # Return empty string for nil or empty marker groups
+    ""
   end
 
   defp format_marker_groups_code(marker_groups) do
