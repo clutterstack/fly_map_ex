@@ -22,8 +22,7 @@ defmodule DemoWeb.Stage1Live do
     %{
       library_intro: [
         %{
-          nodes: [],
-          label: "Empty Group"
+          nodes: []
         }
       ],
       single_coordinates: [
@@ -136,18 +135,19 @@ defmodule DemoWeb.Stage1Live do
     ),
     ContentHelpers.info_box(
       :primary,
-      "Coordinate Format",
-      coordinate_format_content()
-    ),
-    ContentHelpers.use_cases(
-      "When to Use",
-      [
-        {"Custom locations", "not covered by Fly.io regions"},
-        {"Office locations", "data centres, or business sites"},
-        {"Precise geographic mapping", "requirements"},
-        {"Integration", "with external coordinate data"}
-      ]
-    ),
+      "What is this",
+      ~s"""
+      <div>
+      <ul>
+      <li>what the library is for</li>
+<li>a little about how you use it</li>
+<li>use FlyMapEx.render, pass it at least marker_groups list as an assign</li>
+<li>marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes</li>
+<li>here's a map with an empty marker group</li>
+</ul>
+    </div>
+    """),
+
     ContentHelpers.pro_tip(
       "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
     ),
@@ -165,7 +165,8 @@ end
     ContentHelpers.info_box(
       :primary,
       "Coordinate Format",
-      coordinate_format_content()
+      ~s(- To add markers, you put a list of nodes in each marker group. At minimum, you have to give each node a map position. You can also give it a label. If you don't, it gets a default one.
+- Here's an example of a node group with one node in San Francisco and one somewhere in the ocean)
     ),
     ContentHelpers.use_cases(
       "When to Use",

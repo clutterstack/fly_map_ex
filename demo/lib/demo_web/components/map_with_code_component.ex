@@ -127,28 +127,29 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     groups_lines =
       Enum.map(marker_groups, fn group ->
         style_str = format_style(Map.get(group, :style) || Map.get(group, "style"))
-        label_str = inspect(group.label || group[:label])
+        label = Map.get(group, :label) || Map.get(group, "label")
 
         style_field = if style_str, do: ",\n      style: " <> style_str, else: ""
+        label_field = if label, do: ",\n      label: " <> inspect(label), else: ""
 
         cond do
           Map.has_key?(group, :nodes) or Map.has_key?(group, "nodes") ->
             nodes_str = format_nodes(group[:nodes] || Map.get(group, "nodes"))
             "    %{\n      nodes: " <>
               nodes_str <>
-              style_field <> ",\n      label: " <> label_str <> "\n    }"
+              style_field <> label_field <> "\n    }"
 
           Map.has_key?(group, :markers) or Map.has_key?(group, "markers") ->
             markers_str = format_markers(group[:markers] || Map.get(group, "markers"))
             "    %{\n      nodes: " <>
               markers_str <>
-              style_field <> ",\n      label: " <> label_str <> "\n    }"
+              style_field <> label_field <> "\n    }"
 
           true ->
-            if style_str do
-              "    %{" <> style_field <> ",\n      label: " <> label_str <> "\n    }"
+            if style_str || label do
+              "    %{" <> style_field <> label_field <> "\n    }"
             else
-              "    %{\n      label: " <> label_str <> "\n    }"
+              "    %{}\n    "
             end
         end
       end)
@@ -166,9 +167,13 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
         node when is_map(node) ->
           # Handle custom coordinate nodes
-          label = inspect(node.label || node[:label])
-          coords = format_coordinates(node.coordinates || node[:coordinates])
-          "%{label: #{label}, coordinates: #{coords}}"
+          label = Map.get(node, :label) || Map.get(node, "label")
+          coords = format_coordinates(Map.get(node, :coordinates) || Map.get(node, "coordinates"))
+          if label do
+            "%{label: #{inspect(label)}, coordinates: #{coords}}"
+          else
+            "%{coordinates: #{coords}}"
+          end
       end)
 
     "[" <> Enum.join(formatted_nodes, ", ") <> "]"
@@ -177,10 +182,14 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   defp format_markers(markers) when is_list(markers) do
     formatted_markers =
       Enum.map(markers, fn marker ->
-        label = inspect(marker.label || marker[:label])
-        lat = marker.lat || marker[:lat]
-        lng = marker.lng || marker[:lng]
-        "\n      %{coordinates: {#{lat}, #{lng}}, label: #{label}}"
+        label = Map.get(marker, :label) || Map.get(marker, "label")
+        lat = Map.get(marker, :lat) || Map.get(marker, "lat")
+        lng = Map.get(marker, :lng) || Map.get(marker, "lng")
+        if label do
+          "\n      %{coordinates: {#{lat}, #{lng}}, label: #{inspect(label)}}"
+        else
+          "\n      %{coordinates: {#{lat}, #{lng}}}"
+        end
       end)
 
     "[" <> Enum.join(formatted_markers, ",") <> "\n    ]"
