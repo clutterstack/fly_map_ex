@@ -19,12 +19,36 @@ defmodule DemoWeb.Stage1Live do
   end
 
   def stage_examples do
-    StageConfig.merge_examples([
-      StageConfig.example_config(:coordinates),
-      StageConfig.example_config(:regions),
-      StageConfig.example_config(:multiple),
-      StageConfig.example_config(:groups)
-    ])
+    %{
+      single_coordinates: [
+        %{
+          nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
+          label: "Single Node"
+        }
+      ],
+      single_region: [
+        %{
+          nodes: ["sjc"],
+          label: "Single Server"
+        }
+      ],
+      multiple_nodes: [
+        %{
+          nodes: ["sjc", "fra", "ams", "lhr"],
+          label: "Global Deployment"
+        }
+      ],
+      multiple_groups: [
+        %{
+          nodes: ["sjc", "fra"],
+          label: "Production Servers"
+        },
+        %{
+          nodes: ["ams", "lhr"],
+          label: "Staging Environment"
+        }
+      ]
+    }
   end
 
   def stage_tabs do

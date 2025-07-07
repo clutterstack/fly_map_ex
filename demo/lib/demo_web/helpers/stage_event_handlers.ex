@@ -6,11 +6,13 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
   that can be used across different stage implementations.
   """
 
+  # Use fully qualified names since this is a helper module
+
   @doc """
   Handles switching between examples/tabs.
   """
   def handle_switch_example(socket, option) do
-    {:noreply, Phoenix.LiveView.assign(socket, current_example: option)}
+    {:noreply, Phoenix.Component.assign(socket, current_example: option)}
   end
 
   @doc """
@@ -44,7 +46,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
         current_params
     end
 
-    {:noreply, Phoenix.LiveView.assign(socket, custom_params: updated_params)}
+    {:noreply, Phoenix.Component.assign(socket, custom_params: updated_params)}
   end
 
   @doc """
@@ -64,7 +66,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
         socket.assigns.current_example
     end
 
-    {:noreply, Phoenix.LiveView.assign(socket, current_example: updated_example)}
+    {:noreply, Phoenix.Component.assign(socket, current_example: updated_example)}
   end
 
   @doc """
@@ -82,7 +84,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
     current_config = socket.assigns[:map_config] || %{}
     updated_config = Map.put(current_config, :theme, updated_theme)
 
-    {:noreply, Phoenix.LiveView.assign(socket, map_config: updated_config)}
+    {:noreply, Phoenix.Component.assign(socket, map_config: updated_config)}
   end
 
   @doc """
@@ -100,7 +102,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
     current_config = socket.assigns[:map_config] || %{}
     updated_config = Map.put(current_config, :layout, updated_layout)
 
-    {:noreply, Phoenix.LiveView.assign(socket, map_config: updated_config)}
+    {:noreply, Phoenix.Component.assign(socket, map_config: updated_config)}
   end
 
   @doc """
@@ -115,7 +117,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
       [region | current_regions]
     end
 
-    {:noreply, Phoenix.LiveView.assign(socket, active_regions: updated_regions)}
+    {:noreply, Phoenix.Component.assign(socket, active_regions: updated_regions)}
   end
 
   @doc """
@@ -129,7 +131,7 @@ defmodule DemoWeb.Helpers.StageEventHandlers do
       _ -> Map.put(current_visibility, group_index, false)
     end
 
-    {:noreply, Phoenix.LiveView.assign(socket, group_visibility: updated_visibility)}
+    {:noreply, Phoenix.Component.assign(socket, group_visibility: updated_visibility)}
   end
 
   @doc """

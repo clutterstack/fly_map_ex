@@ -1,26 +1,26 @@
 defmodule DemoWeb.Components.StageLayout do
   @moduledoc """
   Reusable layout component for stage pages in the FlyMapEx demo.
-  
+
   This component provides the common structure used across all stage pages,
   including the title section, map display, side-by-side panels, and navigation.
   """
-  
+
   use Phoenix.Component
   use DemoWeb, :verified_routes
-  
+
   import DemoWeb.Components.DemoNavigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
   import DemoWeb.Components.SidebarNavigation
-  
+
 
   @doc """
   Renders the complete stage layout with all common elements.
-  
+
   ## Attributes
-  
+
   - `current_page` - Current page atom for navigation
   - `tabs` - List of tab configurations
   - `current_tab` - Current active tab
@@ -46,7 +46,7 @@ defmodule DemoWeb.Components.StageLayout do
   attr :navigation, :map, required: true
   attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
-  
+
   def stage_layout(assigns) do
     ~H"""
     <.demo_navigation current_page={@current_page} />
@@ -58,10 +58,10 @@ defmodule DemoWeb.Components.StageLayout do
       <:main>
         <div class="container mx-auto p-8">
           <.stage_header title={@title} description={@description} />
-          
+
           <.stage_map marker_groups={@marker_groups} />
-          
-          <.stage_content_panels 
+
+          <.stage_content_panels
             tabs={@tabs}
             current_tab={@current_tab}
             current_example={@current_example}
@@ -69,9 +69,9 @@ defmodule DemoWeb.Components.StageLayout do
             get_current_description={@get_current_description}
             get_focused_code={@get_focused_code}
           />
-          
+
           <.stage_advanced_topics topics={@advanced_topics} />
-          
+
           <.stage_navigation navigation={@navigation} />
         </div>
       </:main>
@@ -84,7 +84,7 @@ defmodule DemoWeb.Components.StageLayout do
   """
   attr :title, :string, required: true
   attr :description, :string, required: true
-  
+
   def stage_header(assigns) do
     ~H"""
     <div class="mb-8">
@@ -102,13 +102,12 @@ defmodule DemoWeb.Components.StageLayout do
   Renders the full-width map display.
   """
   attr :marker_groups, :list, required: true
-  
+
   def stage_map(assigns) do
     ~H"""
     <div class="mb-8 p-6 bg-base-200 rounded-lg">
       <FlyMapEx.render
         marker_groups={@marker_groups}
-        theme={:responsive}
         layout={:side_by_side}
       />
     </div>
@@ -124,7 +123,7 @@ defmodule DemoWeb.Components.StageLayout do
   attr :marker_groups, :list, required: true
   attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
-  
+
   def stage_content_panels(assigns) do
     ~H"""
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -140,7 +139,7 @@ defmodule DemoWeb.Components.StageLayout do
 
       <!-- Code Examples Panel -->
       <div>
-        <.code_examples_panel 
+        <.code_examples_panel
           current_example={@current_example}
           marker_groups={@marker_groups}
           get_current_description={@get_current_description}
@@ -158,7 +157,7 @@ defmodule DemoWeb.Components.StageLayout do
   attr :marker_groups, :list, required: true
   attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
-  
+
   def code_examples_panel(assigns) do
     ~H"""
     <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
@@ -185,7 +184,7 @@ defmodule DemoWeb.Components.StageLayout do
   Renders the advanced topics section.
   """
   attr :topics, :list, required: true
-  
+
   def stage_advanced_topics(assigns) do
     ~H"""
     <.learn_more_section topics={@topics} />
@@ -196,7 +195,7 @@ defmodule DemoWeb.Components.StageLayout do
   Renders the stage navigation with prev/next buttons.
   """
   attr :navigation, :map, required: true
-  
+
   def stage_navigation(assigns) do
     ~H"""
     <div class="mt-8 flex justify-between">
@@ -209,7 +208,7 @@ defmodule DemoWeb.Components.StageLayout do
           ← Back to Home
         </.link>
       <% end %>
-      
+
       <%= if @navigation.next do %>
         <.link navigate={~p"/#{@navigation.next}"} class="inline-block bg-primary text-primary-content px-6 py-2 rounded-lg hover:bg-primary/80 transition-colors">
           <%= get_next_label(@navigation.next) %>

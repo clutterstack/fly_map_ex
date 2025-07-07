@@ -129,58 +129,6 @@ defmodule DemoWeb.Helpers.StageConfig do
   def validate_marker_groups(_), do: []
 
   @doc """
-  Creates example configuration for common patterns.
-  """
-  def example_config(type, data \\ []) do
-    case type do
-      :coordinates ->
-        %{
-          single_coordinates: [
-            %{
-              nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
-              label: "Single Node"
-            }
-          ]
-        }
-      :regions ->
-        %{
-          single_region: [
-            %{
-              nodes: ["sjc"],
-              label: "Single Server"
-            }
-          ]
-        }
-      :multiple ->
-        %{
-          multiple_nodes: [
-            %{
-              nodes: ["sjc", "fra", "ams", "lhr"],
-              label: "Global Deployment"
-            }
-          ]
-        }
-      :groups ->
-        %{
-          multiple_groups: [
-            %{
-              nodes: ["sjc", "fra"],
-              label: "Production Servers"
-            },
-            %{
-              nodes: ["ams", "lhr"],
-              label: "Staging Environment"
-            }
-          ]
-        }
-      :custom ->
-        Map.new(data)
-      _ ->
-        %{}
-    end
-  end
-
-  @doc """
   Merges multiple example configurations.
   """
   def merge_examples(example_configs) when is_list(example_configs) do
