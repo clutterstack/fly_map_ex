@@ -71,7 +71,25 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     
     comment = "# #{String.capitalize(context)} Map Configuration"
-    render_call = "<FlyMapEx.render\n  marker_groups={#{marker_groups_code}}\n  theme={:#{theme}}\n  layout={:#{layout}}\n/>"
+    
+    # Build attribute lines conditionally
+    attr_lines = ["  marker_groups={#{marker_groups_code}}"]
+    
+    # Only include theme if it's not the default or empty
+    attr_lines = if theme && theme != :responsive && theme != "" do
+      attr_lines ++ ["  theme={:#{theme}}"]
+    else
+      attr_lines
+    end
+    
+    # Only include layout if it's not the default or empty
+    attr_lines = if layout && layout != :side_by_side && layout != "" do
+      attr_lines ++ ["  layout={:#{layout}}"]
+    else
+      attr_lines
+    end
+    
+    render_call = "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
     usage_note = "# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
     
     "#{comment}\n#{render_call}\n\n#{usage_note}"
@@ -80,6 +98,23 @@ defmodule DemoWeb.Helpers.CodeGenerator do
   defp generate_elixir_module(marker_groups, theme, layout, context) do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     context_lower = String.downcase(context)
+    
+    # Build attribute lines conditionally
+    attr_lines = ["      marker_groups={#{context_lower}_map_groups()}"]
+    
+    # Only include theme if it's not the default or empty
+    attr_lines = if theme && theme != :responsive && theme != "" do
+      attr_lines ++ ["      theme={:#{theme}}"]
+    else
+      attr_lines
+    end
+    
+    # Only include layout if it's not the default or empty
+    attr_lines = if layout && layout != :side_by_side && layout != "" do
+      attr_lines ++ ["      layout={:#{layout}}"]
+    else
+      attr_lines
+    end
     
     lines = [
       "# #{String.capitalize(context)} Map Module",
@@ -93,9 +128,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       "  def render_#{context_lower}_map(assigns) do",
       "    ~H\"\"\"",
       "    <FlyMapEx.render",
-      "      marker_groups={#{context_lower}_map_groups()}",
-      "      theme={:#{theme}}",
-      "      layout={:#{layout}}",
+      "#{Enum.join(attr_lines, "\n")}",
       "    />",
       "    \"\"\"",
       "  end",

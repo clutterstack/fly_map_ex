@@ -104,12 +104,20 @@ defmodule DemoWeb.Live.StageBase do
       defp get_focused_code(example, marker_groups) do
         context = get_context_name(example)
         theme = if function_exported?(__MODULE__, :stage_theme, 0) do
-          stage_theme()
+          case stage_theme() do
+            nil -> :responsive
+            "" -> :responsive
+            value -> value
+          end
         else
           :responsive
         end
         layout = if function_exported?(__MODULE__, :stage_layout, 0) do
-          stage_layout()
+          case stage_layout() do
+            nil -> :side_by_side
+            "" -> :side_by_side
+            value -> value
+          end
         else
           :side_by_side
         end

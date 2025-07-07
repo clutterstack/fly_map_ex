@@ -121,10 +121,10 @@ defmodule DemoWeb.Stage1Live do
   end
 
   def default_example, do: "library_intro"
-  
-  def stage_theme, do: :responsive
-  
-  def stage_layout, do: :side_by_side
+
+  def stage_theme, do: ""
+
+  def stage_layout, do: ""
 
   # Content generation functions using ContentHelpers
 
