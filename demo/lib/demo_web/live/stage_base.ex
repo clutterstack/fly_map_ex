@@ -22,8 +22,10 @@ defmodule DemoWeb.Live.StageBase do
     {:noreply, Phoenix.LiveView.Socket.t()}
   @callback stage_theme() :: atom()
   @callback stage_layout() :: atom()
+  @callback get_example_theme(String.t()) :: atom()
+  @callback get_example_layout(String.t()) :: atom()
 
-  @optional_callbacks [default_example: 0, handle_stage_event: 3, stage_theme: 0, stage_layout: 0]
+  @optional_callbacks [default_example: 0, handle_stage_event: 3, stage_theme: 0, stage_layout: 0, get_example_theme: 1, get_example_layout: 1]
 
   defmacro __using__(_opts) do
     quote do
@@ -103,23 +105,27 @@ defmodule DemoWeb.Live.StageBase do
 
       defp get_focused_code(example, marker_groups) do
         context = get_context_name(example)
-        theme = if function_exported?(__MODULE__, :stage_theme, 0) do
-          case stage_theme() do
-            nil -> :responsive
-            "" -> :responsive
+        
+        # Check for per-example theme first, then fall back to stage theme
+        theme = if function_exported?(__MODULE__, :get_example_theme, 1) do
+          case apply(__MODULE__, :get_example_theme, [example]) do
+            nil -> get_stage_theme()
+            "" -> get_stage_theme()
             value -> value
           end
         else
-          :responsive
+          get_stage_theme()
         end
-        layout = if function_exported?(__MODULE__, :stage_layout, 0) do
-          case stage_layout() do
-            nil -> :side_by_side
-            "" -> :side_by_side
+        
+        # Check for per-example layout first, then fall back to stage layout
+        layout = if function_exported?(__MODULE__, :get_example_layout, 1) do
+          case apply(__MODULE__, :get_example_layout, [example]) do
+            nil -> get_stage_layout()
+            "" -> get_stage_layout()
             value -> value
           end
         else
-          :side_by_side
+          get_stage_layout()
         end
         
         CodeGenerator.generate_flymap_code(
@@ -129,6 +135,30 @@ defmodule DemoWeb.Live.StageBase do
           context: context,
           format: :heex
         )
+      end
+
+      defp get_stage_theme do
+        if function_exported?(__MODULE__, :stage_theme, 0) do
+          case stage_theme() do
+            nil -> :responsive
+            "" -> :responsive
+            value -> value
+          end
+        else
+          :responsive
+        end
+      end
+
+      defp get_stage_layout do
+        if function_exported?(__MODULE__, :stage_layout, 0) do
+          case stage_layout() do
+            nil -> :side_by_side
+            "" -> :side_by_side
+            value -> value
+          end
+        else
+          :side_by_side
+        end
       end
 
       defp get_context_name(example) do

@@ -139,9 +139,10 @@ defmodule DemoWeb.Stage3Live do
   end
 
   def default_example, do: "presets"
-  
+
+  # See also helper get_example_theme() for per-tab theme control
   def stage_theme, do: :minimal
-  
+
   def stage_layout, do: :stacked
 
   # Content generation functions using ContentHelpers
@@ -369,14 +370,14 @@ defmodule DemoWeb.Stage3Live do
     end
   end
 
-  # Helper function to get the appropriate theme for each example
-  defp get_current_theme(theme_type) do
-    case theme_type do
+  # Per-example theme implementation
+  def get_example_theme(example) do
+    case example do
       "presets" -> :dashboard
       "responsive" -> :responsive
       "custom" -> :minimal
       "configuration" -> :light
-      _ -> :responsive
+      _ -> nil  # Fall back to stage theme
     end
   end
 end
