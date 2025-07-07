@@ -47,6 +47,8 @@ defmodule DemoWeb.Components.StageLayout do
   attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
 
+  #           <.stage_header title={@title} description={@description} />
+
   def stage_layout(assigns) do
     ~H"""
     <.demo_navigation current_page={@current_page} />
@@ -57,7 +59,6 @@ defmodule DemoWeb.Components.StageLayout do
 
       <:main>
         <div class="container mx-auto p-8">
-          <.stage_header title={@title} description={@description} />
 
           <.stage_map marker_groups={@marker_groups} />
 

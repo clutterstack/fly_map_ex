@@ -177,7 +177,7 @@ defmodule FlyMapEx do
   attr(:initially_visible, :any, default: :all)
   attr(:available_apps, :list, default: [])
   attr(:all_instances_data, :map, default: %{})
-  attr(:show_regions, :boolean, default: nil)
+  attr(:show_regions, :boolean, default: false)
   attr(:layout, :atom, default: nil)
 
   def render(assigns) do
