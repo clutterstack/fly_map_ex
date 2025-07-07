@@ -20,8 +20,10 @@ defmodule DemoWeb.Live.StageBase do
   @callback default_example() :: String.t()
   @callback handle_stage_event(String.t(), map(), Phoenix.LiveView.Socket.t()) :: 
     {:noreply, Phoenix.LiveView.Socket.t()}
+  @callback stage_theme() :: atom()
+  @callback stage_layout() :: atom()
 
-  @optional_callbacks [default_example: 0, handle_stage_event: 3]
+  @optional_callbacks [default_example: 0, handle_stage_event: 3, stage_theme: 0, stage_layout: 0]
 
   defmacro __using__(_opts) do
     quote do
@@ -101,10 +103,21 @@ defmodule DemoWeb.Live.StageBase do
 
       defp get_focused_code(example, marker_groups) do
         context = get_context_name(example)
+        theme = if function_exported?(__MODULE__, :stage_theme, 0) do
+          stage_theme()
+        else
+          :responsive
+        end
+        layout = if function_exported?(__MODULE__, :stage_layout, 0) do
+          stage_layout()
+        else
+          :side_by_side
+        end
+        
         CodeGenerator.generate_flymap_code(
           marker_groups,
-          theme: :responsive,
-          layout: :side_by_side,
+          theme: theme,
+          layout: layout,
           context: context,
           format: :heex
         )

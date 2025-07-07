@@ -174,6 +174,10 @@ defmodule DemoWeb.Stage2Live do
   end
 
   def default_example, do: "automatic"
+  
+  def stage_theme, do: :dashboard
+  
+  def stage_layout, do: :side_by_side
 
   # Optional StageBase callbacks
 

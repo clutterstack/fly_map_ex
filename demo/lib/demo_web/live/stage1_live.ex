@@ -20,6 +20,12 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_examples do
     %{
+      library_intro: [
+        %{
+          nodes: [],
+          label: "Empty Group"
+        }
+      ],
       single_coordinates: [
         %{
           nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
@@ -115,6 +121,10 @@ defmodule DemoWeb.Stage1Live do
   end
 
   def default_example, do: "library_intro"
+  
+  def stage_theme, do: :responsive
+  
+  def stage_layout, do: :side_by_side
 
   # Content generation functions using ContentHelpers
 

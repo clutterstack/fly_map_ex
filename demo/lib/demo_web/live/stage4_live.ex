@@ -78,6 +78,10 @@ defmodule DemoWeb.Stage4Live do
   end
 
   def default_example, do: "guided"
+  
+  def stage_theme, do: :presentation
+  
+  def stage_layout, do: :map_only
 
   # Optional StageBase callbacks
 

@@ -139,6 +139,10 @@ defmodule DemoWeb.Stage3Live do
   end
 
   def default_example, do: "presets"
+  
+  def stage_theme, do: :minimal
+  
+  def stage_layout, do: :stacked
 
   # Content generation functions using ContentHelpers
 
