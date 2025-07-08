@@ -101,3 +101,8 @@
 [data-phx-session] { display: contents }
 
 /* This file is for your main application CSS */
+
+ul li {
+  list-style-type: disc;
+  list-style-position: inside;
+}

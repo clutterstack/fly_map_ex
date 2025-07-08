@@ -1,7 +1,7 @@
 defmodule DemoWeb.Helpers.ContentHelpers do
   @moduledoc """
   Helper functions for generating consistent HTML content across stage components.
-  
+
   This module provides utilities for creating standardized content sections,
   formatting, and DaisyUI-styled components used throughout the demo application.
   """
@@ -10,14 +10,17 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   Creates a standardized content section with title and description.
   """
   def content_section(title, description, opts \\ []) do
-    class = Keyword.get(opts, :class, "space-y-4")
-    
+    class = Keyword.get(opts, :class, "space-y-4 list-disc")
+    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+
     ~s"""
     <div class="#{class}">
       <div>
         <h4 class="font-semibold text-base-content mb-2">#{title}</h4>
         <p class="text-sm text-base-content/70 mb-3">
-          #{description}
+
+          #{Earmark.as_html!(description, earmark_opts)}
+
         </p>
       </div>
     """
@@ -29,7 +32,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def info_box(type, title, content, opts \\ []) do
     {bg_class, border_class, text_class} = get_semantic_classes(type)
     extra_class = Keyword.get(opts, :class, "")
-    
+
     ~s"""
     <div class="#{bg_class} #{border_class} rounded-lg p-4 #{extra_class}">
       <h5 class="font-medium #{text_class} mb-2">#{title}</h5>
@@ -43,7 +46,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   def code_snippet(code, opts \\ []) do
     inline = Keyword.get(opts, :inline, false)
-    
+
     if inline do
       ~s(<code class="bg-base-100 px-1 rounded">#{code}</code>)
     else
@@ -54,10 +57,10 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   @doc """
   Creates a feature list with consistent styling.
   """
-  def feature_list(items, opts \\ []) do
+  def titled_list(items, opts \\ []) do
     type = Keyword.get(opts, :type, :bullets)
     class = Keyword.get(opts, :class, "text-sm text-base-content/70 space-y-1")
-    
+
     list_items = Enum.map(items, fn item ->
       marker = case type do
         :bullets -> "•"
@@ -65,10 +68,10 @@ defmodule DemoWeb.Helpers.ContentHelpers do
         :checks -> "✓"
         _ -> "•"
       end
-      
+
       "<li>#{marker} #{item}</li>"
     end)
-    
+
     ~s"""
     <ul class="#{class}">
       #{Enum.join(list_items, "\n")}
@@ -82,9 +85,9 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def color_indicator(color, label, opts \\ []) do
     size = Keyword.get(opts, :size, "w-4 h-4")
     animated = Keyword.get(opts, :animated, false)
-    
+
     animation_class = if animated, do: "animate-pulse", else: ""
-    
+
     ~s"""
     <div class="flex items-center space-x-2">
       <div class="#{size} rounded-full #{color} #{animation_class}"></div>
@@ -99,11 +102,11 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def color_grid(colors, opts \\ []) do
     cols = Keyword.get(opts, :cols, 2)
     gap = Keyword.get(opts, :gap, "gap-2")
-    
+
     items = Enum.map(colors, fn {color, label} ->
       color_indicator(color, label, opts)
     end)
-    
+
     ~s"""
     <div class="grid grid-cols-#{cols} #{gap} text-sm">
       #{Enum.join(items, "\n")}
@@ -116,7 +119,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   def pro_tip(content, opts \\ []) do
     type = Keyword.get(opts, :type, :tip)
-    
+
     {bg_class, border_class, text_class, icon} = case type do
       :tip -> {"bg-base-200", "border-base-300", "text-base-content/70", "Pro Tip:"}
       :warning -> {"bg-warning/10", "border-warning/20", "text-warning", "Warning:"}
@@ -124,7 +127,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
       :production -> {"bg-success/10", "border-success/20", "text-success", "Production Tip:"}
       _ -> {"bg-base-200", "border-base-300", "text-base-content/70", "Note:"}
     end
-    
+
     ~s"""
     <div class="#{bg_class} border #{border_class} rounded-lg p-3">
       <p class="text-xs #{text_class}">
@@ -147,7 +150,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
     else
       ""
     end
-    
+
     ~s"""
     <div class="space-y-1">
       <div>
@@ -164,13 +167,13 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   @doc """
   Creates a use case section with examples.
   """
-  def use_cases(title, cases, opts \\ []) do
+  def ul_with_bold(title, cases, opts \\ []) do
     class = Keyword.get(opts, :class, "")
-    
+
     case_items = Enum.map(cases, fn {use_case, description} ->
       "<li>• <strong>#{use_case}:</strong> #{description}</li>"
     end)
-    
+
     ~s"""
     <div class="#{class}">
       <h5 class="font-medium text-base-content mb-2">#{title}</h5>
@@ -186,7 +189,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   def status_steps(steps, opts \\ []) do
     gap = Keyword.get(opts, :gap, "space-y-3")
-    
+
     step_items = Enum.map(steps, fn {_status, title, description, color} ->
       ~s"""
       <div class="flex items-start space-x-3 p-3 #{color}/10 border #{color}/20 rounded-lg">
@@ -198,7 +201,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
       </div>
       """
     end)
-    
+
     ~s"""
     <div class="#{gap}">
       #{Enum.join(step_items, "\n")}

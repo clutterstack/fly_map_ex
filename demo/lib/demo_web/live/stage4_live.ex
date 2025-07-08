@@ -78,9 +78,9 @@ defmodule DemoWeb.Stage4Live do
   end
 
   def default_example, do: "guided"
-  
+
   def stage_theme, do: :presentation
-  
+
   def stage_layout, do: :map_only
 
   # Optional StageBase callbacks
@@ -109,7 +109,7 @@ defmodule DemoWeb.Stage4Live do
         "Building Scenario Templates",
         "Create reusable templates for common map configurations and use cases."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Template Design Patterns",
         [
           {"Parameterized configs", "Design flexible, reusable configurations"},
@@ -136,7 +136,7 @@ defmodule DemoWeb.Stage4Live do
         "Production Integration Patterns",
         "Best practices for deploying maps in production Phoenix applications."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Data Loading Strategies",
         [
           {"Dynamic loading", "Efficient strategies for runtime marker group loading"},
@@ -163,7 +163,7 @@ defmodule DemoWeb.Stage4Live do
         "Advanced Customization Techniques",
         "Extend FlyMapEx with custom components and behaviors beyond standard configurations."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Customization Areas",
         [
           {"Custom styles", "Create entirely custom marker and map styles"},
@@ -227,7 +227,7 @@ defmodule DemoWeb.Stage4Live do
         "Interactive Region Selection",
         [
           "Click regions on the map to build your marker groups dynamically.",
-          ContentHelpers.feature_list([
+          ContentHelpers.titled_list([
             "Visual region picker with live preview",
             "Drag and drop group organization",
             "Real-time code generation"
@@ -240,7 +240,7 @@ defmodule DemoWeb.Stage4Live do
         "Custom Group Builder",
         [
           "Create marker groups with custom styling and labels.",
-          ContentHelpers.feature_list([
+          ContentHelpers.titled_list([
             "Add/remove regions with search and autocomplete",
             "Live style customization with sliders and pickers",
             "Group management with reordering and duplication"
@@ -253,7 +253,7 @@ defmodule DemoWeb.Stage4Live do
         "Live Preview Canvas",
         [
           "See your changes instantly as you build.",
-          ContentHelpers.feature_list([
+          ContentHelpers.titled_list([
             "Real-time map updates during editing",
             "Side-by-side comparison views",
             "Undo/redo functionality"
@@ -282,14 +282,14 @@ defmodule DemoWeb.Stage4Live do
         [
           "Choose the format that best fits your integration needs:",
           get_format_buttons(),
-          ContentHelpers.feature_list([
+          ContentHelpers.titled_list([
             "HEEx: Direct template integration",
             "Elixir: Reusable function modules",
             "JSON: Configuration-driven approach"
           ])
         ] |> Enum.join()
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Integration Patterns",
         [
           {"Direct Embed", "Copy HEEx template into your LiveView"},
@@ -298,7 +298,7 @@ defmodule DemoWeb.Stage4Live do
           {"Dynamic Loading", "Load configurations from database"}
         ]
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Production Considerations",
         [
           {"Performance", "Optimize for rendering speed"},
@@ -333,7 +333,7 @@ defmodule DemoWeb.Stage4Live do
       [
         description,
         ~s(<button phx-click="switch_scenario" phx-value-option="#{scenario_key}" class="bg-#{color} text-#{color}-content px-3 py-1 rounded text-sm hover:bg-#{color}/80 transition-colors mb-2">Load Scenario</button>),
-        ContentHelpers.feature_list(features)
+        ContentHelpers.titled_list(features)
       ] |> Enum.join()
     )
   end

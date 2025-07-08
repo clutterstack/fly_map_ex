@@ -174,9 +174,9 @@ defmodule DemoWeb.Stage2Live do
   end
 
   def default_example, do: "automatic"
-  
+
   def stage_theme, do: :dashboard
-  
+
   def stage_layout, do: :side_by_side
 
   # Optional StageBase callbacks
@@ -223,7 +223,7 @@ defmodule DemoWeb.Stage2Live do
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h4 class="font-semibold text-base-content mb-2">Automatic Cycling</h4>
-          #{ContentHelpers.feature_list([
+          #{ContentHelpers.titled_list([
             "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(0)", inline: true)} - Blue",
             "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(1)", inline: true)} - Green",
             "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(2)", inline: true)} - Red",
@@ -232,7 +232,7 @@ defmodule DemoWeb.Stage2Live do
         </div>
         <div>
           <h4 class="font-semibold text-base-content mb-2">Semantic Presets</h4>
-          #{ContentHelpers.feature_list([
+          #{ContentHelpers.titled_list([
             "#{ContentHelpers.code_snippet("operational()", inline: true)} - Running services",
             "#{ContentHelpers.code_snippet("warning()", inline: true)} - Needs attention",
             "#{ContentHelpers.code_snippet("danger()", inline: true)} - Critical issues",
@@ -255,7 +255,7 @@ defmodule DemoWeb.Stage2Live do
       ContentHelpers.code_snippet(
         "FlyMapEx.Style.custom(\"#3b82f6\", [\n  size: 10,        # radius in pixels\n  animation: :pulse,   # :none, :pulse, :fade\n  glow: true       # enable glow effect\n])"
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Available Parameters",
         [
           {"size", "Marker radius in pixels (default: 6)"},
@@ -274,7 +274,7 @@ defmodule DemoWeb.Stage2Live do
         "Performance & Best Practices",
         "Optimize your styling approach for production deployments."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Performance Considerations",
         [
           {"Animated markers", "use CSS animations for smooth performance"},
@@ -283,7 +283,7 @@ defmodule DemoWeb.Stage2Live do
           {"Custom colors", "are validated at compile time"}
         ]
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Styling Strategies",
         [
           {"Automatic", "Use cycle() for consistent multi-group colors"},
@@ -306,7 +306,7 @@ defmodule DemoWeb.Stage2Live do
       ContentHelpers.code_snippet(
         "# config/config.exs\nconfig :fly_map_ex,\n  default_style: :operational,\n  custom_presets: %{\n    brand_primary: FlyMapEx.Style.custom(\"#your-brand-color\", [\n      size: 8,\n      animation: :pulse,\n      glow: true\n    ])\n  }"
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Style Normalization",
         [
           {"Atoms (`:operational`)", "→ style maps"},
@@ -339,7 +339,7 @@ defmodule DemoWeb.Stage2Live do
           {"bg-secondary", "cycle(3) - Purple"}
         ], cols: 2)
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "When to Use",
         [
           {"Multiple groups", "with equal importance"},
@@ -393,7 +393,7 @@ defmodule DemoWeb.Stage2Live do
           {"bg-primary", "size: 10 (extra large)"}
         ], cols: 2)
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Animation Options",
         [
           {":none", "Static markers"},
@@ -401,7 +401,7 @@ defmodule DemoWeb.Stage2Live do
           {":fade", "Opacity changes"}
         ]
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Glow Effect",
         [
           {"glow: false", "Standard markers"},
@@ -429,7 +429,7 @@ defmodule DemoWeb.Stage2Live do
         {:custom, "Custom Styling", "Use custom() for special cases requiring unique appearance.", "bg-secondary"},
         {:atoms, "Atom Shortcuts", "Use :inactive, :operational atoms for convenience.", "bg-base-content"}
       ]),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Common Patterns",
         [
           {"Primary systems", "Semantic styles for critical monitoring"},

@@ -23,12 +23,12 @@ defmodule DemoWeb.Stage1Live do
       library_intro: nil,
       single_coordinates: [
         %{
-          nodes: [%{coordinates: {37.7749, -122.4194}, label: "San Francisco"}],
+          nodes: [%{coordinates: {37.8, -122.4}}, %{coordinates: {56,3.6}}], # San Francisco, somewhere in the North Sea
         }
       ],
       single_region: [
         %{
-          nodes: ["sjc"],
+          nodes: ["fra", "sin"],
         }
       ],
       multiple_nodes: [
@@ -38,7 +38,7 @@ defmodule DemoWeb.Stage1Live do
       ],
       multiple_groups: [
         %{
-          nodes: ["sjc", "fra"]
+          nodes: ["sjc", "fra", "syd"]
         },
         %{
           nodes: ["ams", "lhr"]
@@ -122,22 +122,31 @@ defmodule DemoWeb.Stage1Live do
   [
     ContentHelpers.content_section(
       "About FlyMapEx",
-      "An over-engineered library for putting markers on a simple map."
+
+      ~s"""
+      An over-engineered library for putting markers on a simple map.
+
+      * what the library is for `for`
+      * a little about how you use it
+      * use FlyMapEx.render, pass it at least marker_groups list as an assign
+      * marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes<
+      * here's a map with an empty marker group
+    """
     ),
     ContentHelpers.info_box(
       :primary,
       "What is this",
-      ~s"""
-      <div>
+      "what the library is for `for`
+
+      a little about how you use it
+
       <ul>
-      <li>what the library is for</li>
-<li>a little about how you use it</li>
-<li>use FlyMapEx.render, pass it at least marker_groups list as an assign</li>
-<li>marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes</li>
-<li>here's a map with an empty marker group</li>
-</ul>
-    </div>
-    """),
+      <li>use FlyMapEx.render, pass it at least marker_groups list as an assign</li>
+      <li>marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes</li>
+      <li>here's a map with an empty marker group</li>
+      </ul>
+          </div>
+    "),
 
     ContentHelpers.pro_tip(
       "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
@@ -159,7 +168,7 @@ end
       ~s(- To add markers, you put a list of nodes in each marker group. At minimum, you have to give each node a map position. You can also give it a label. If you don't, it gets a default one.
 - Here's an example of a node group with one node in San Francisco and one somewhere in the ocean)
     ),
-    ContentHelpers.use_cases(
+    ContentHelpers.ul_with_bold(
       "When to Use",
       [
         {"Custom locations", "not covered by Fly.io regions"},
@@ -187,7 +196,7 @@ end
       "Popular Regions",
       popular_regions_content()
     ),
-    ContentHelpers.use_cases(
+    ContentHelpers.ul_with_bold(
       "Benefits",
       [
         {"Automatically validated", "region codes"},
@@ -216,7 +225,7 @@ end
         "Array of Nodes",
         multiple_nodes_content()
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Use Cases",
         [
           {"Global deployment", "across multiple regions"},
@@ -244,7 +253,7 @@ end
         {:operational, "Production Servers", "Critical production infrastructure", "bg-primary"},
         {:staging, "Staging Environment", "Pre-production testing servers", "bg-success"}
       ]),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Grouping Strategies",
         [
           {"Environment-based", "Production, Staging, Development"},
@@ -273,7 +282,7 @@ end
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h4 class="font-semibold text-base-content mb-2">WGS84 Geographic Coordinates</h4>
-          #{ContentHelpers.feature_list([
+          #{ContentHelpers.titled_list([
             "Standard latitude and longitude",
             "Range: -90 to 90 (latitude), -180 to 180 (longitude)",
             "Example: {37.7749, -122.4194} for San Francisco",
@@ -282,7 +291,7 @@ end
         </div>
         <div>
           <h4 class="font-semibold text-base-content mb-2">Fly.io Region Codes</h4>
-          #{ContentHelpers.feature_list([
+          #{ContentHelpers.titled_list([
             "Pre-defined 3-letter codes",
             ~s(Examples: "sjc", "fra", "ams", "lhr"),
             "Automatically resolved to exact coordinates",
@@ -322,12 +331,12 @@ end
   defp get_production_tips_content do
     ~s"""
     <div class="space-y-4">
-      #{ContentHelpers.use_cases("Performance Considerations", [
+      #{ContentHelpers.ul_with_bold("Performance Considerations", [
         {"Groups with fewer than 20 nodes", "render efficiently"},
         {"Use region codes when possible", "for smaller bundle size"},
         {"Consider grouping related nodes", "for better organization"}
       ])}
-      #{ContentHelpers.use_cases("Common Patterns", [
+      #{ContentHelpers.ul_with_bold("Common Patterns", [
         {"Environment-based", "Production, Staging, Development"},
         {"Service-based", "API Servers, Databases, CDN"},
         {"Status-based", "Healthy, Warning, Error"},

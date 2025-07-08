@@ -155,7 +155,7 @@ defmodule DemoWeb.Stage3Live do
         "Theme Performance Optimization",
         "Learn how to optimize theme rendering for large-scale applications."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Performance Considerations",
         [
           {"CSS Caching", "Implement smart caching strategies for theme assets"},
@@ -179,7 +179,7 @@ defmodule DemoWeb.Stage3Live do
         "Creating Theme Libraries",
         "Build reusable theme collections for your organization."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Library Architecture",
         [
           {"Theme Inheritance", "Design scalable theme systems with base themes"},
@@ -206,7 +206,7 @@ defmodule DemoWeb.Stage3Live do
         "Dynamic Theme Switching",
         "Implement real-time theme changes based on user preferences."
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Implementation Patterns",
         [
           {"User Preferences", "Store and persist theme choices in browser storage"},
@@ -261,7 +261,7 @@ defmodule DemoWeb.Stage3Live do
         "CSS Custom Properties",
         [
           "Reads your site's CSS variables:",
-          ContentHelpers.feature_list([
+          ContentHelpers.titled_list([
             "--color-background → land areas",
             "--color-border → country borders",
             "--color-muted → ocean areas"
@@ -294,7 +294,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.info_box(
         :primary,
         "Theme Properties",
-        ContentHelpers.feature_list([
+        ContentHelpers.titled_list([
           "land_color → Countries and land masses",
           "ocean_color → Water areas",
           "border_color → Country borders",
@@ -333,7 +333,7 @@ defmodule DemoWeb.Stage3Live do
           "# config/config.exs\nconfig :fly_map_ex,\n  default_theme: :responsive"
         )
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Environment-Specific Themes",
         [
           {"Development", ":light - Bright debugging"},
@@ -341,7 +341,7 @@ defmodule DemoWeb.Stage3Live do
           {"Testing", ":high_contrast - Maximum visibility"}
         ]
       ),
-      ContentHelpers.use_cases(
+      ContentHelpers.ul_with_bold(
         "Precedence Order",
         [
           {"1. Inline theme prop", "Highest priority"},
