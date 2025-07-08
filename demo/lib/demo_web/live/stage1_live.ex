@@ -94,16 +94,6 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_navigation, do: StageConfig.stage_navigation(:stage1)
 
-  def get_current_description(example) do
-    case example do
-      "blank_map" -> "About FlyMapEx library"
-      "by_coords" -> "Single node with custom coordinates"
-      "fly_regions" -> "Single node using Fly.io region code"
-      "multiple_nodes" -> "Multiple nodes in one group"
-      _ -> "Unknown example"
-    end
-  end
-
   def get_advanced_topics do
     [
       %{
@@ -330,15 +320,4 @@ end
     """
   end
 
-  # Override context name for better code generation
-  # def get_context_name(example) do
-  #   case example do
-  #     "by_coords" -> "coordinates"
-  #     "fly_regions" -> "region"
-  #     "multiple_nodes" -> "multiple"
-  #     "multiple_groups" -> "groups"
-  #     "blank_map" -> "map"
-  #     _ -> "example"
-  #   end
-  # end
 end

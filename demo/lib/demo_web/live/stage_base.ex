@@ -13,7 +13,6 @@ defmodule DemoWeb.Live.StageBase do
   @callback stage_examples() :: map()
   @callback stage_tabs() :: list(map())
   @callback stage_navigation() :: %{prev: atom() | nil, next: atom() | nil}
-  @callback get_current_description(String.t()) :: String.t()
   @callback get_advanced_topics() :: list(map())
 
   # Optional callbacks with default implementations
@@ -86,9 +85,8 @@ defmodule DemoWeb.Live.StageBase do
           examples: assigns.examples,
           advanced_topics: get_advanced_topics(),
           navigation: stage_navigation(),
-          get_current_description: &get_current_description/1,
           get_focused_code: fn example, marker_groups ->
-            get_focused_code(example, marker_groups, current_example_code_comment(assigns))
+            get_focused_code(example, marker_groups, current_example_description(assigns), current_example_code_comment(assigns))
           end,
           current_example_description: current_example_description(assigns),
           current_example_code_comment: current_example_code_comment(assigns)
@@ -109,10 +107,8 @@ defmodule DemoWeb.Live.StageBase do
       defp current_example_description(assigns) do
         case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
           nil -> nil
-          # Support new format with description metadata
           %{description: description} -> description
-          # Fall back to the old callback for backward compatibility
-          _ -> get_current_description(assigns.current_example)
+          _ -> ""
         end
       end
 
@@ -134,7 +130,7 @@ defmodule DemoWeb.Live.StageBase do
         end)
       end
 
-      defp get_focused_code(example, marker_groups, code_comment \\ nil) do
+      defp get_focused_code(example, marker_groups, current_example_description, code_comment \\ nil) do
         context = get_context_name(example)
 
         # Check for per-example theme first, then fall back to stage theme
@@ -165,7 +161,8 @@ defmodule DemoWeb.Live.StageBase do
           layout: layout,
           context: context,
           format: :heex,
-          code_comment: code_comment
+          code_comment: code_comment,
+          example_description: current_example_description
         )
       end
 

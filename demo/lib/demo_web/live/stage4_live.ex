@@ -60,16 +60,6 @@ defmodule DemoWeb.Stage4Live do
 
   def stage_navigation, do: StageConfig.stage_navigation(:stage4)
 
-  def get_current_description(example) do
-    examples = stage_examples()
-    case example do
-      "guided" -> examples.guided.description
-      "freeform" -> examples.freeform.description
-      "export" -> examples.export.description
-      _ -> "Interactive builder tools"
-    end
-  end
-
   def get_advanced_topics do
     [
       %{
@@ -137,8 +127,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Use parameterized templates to balance flexibility with consistency across your organization.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -164,8 +153,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Implement graceful degradation for network failures and missing data to ensure reliable user experiences.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -191,8 +179,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Start with standard configurations and gradually add customizations as your requirements become clearer.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -223,8 +210,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Each scenario builds on concepts from previous stages, combining marker groups, styling, and theming into practical applications.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -277,8 +263,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Use the guided scenarios to explore different configurations. Full freeform building tools will be added in Phase 2 with interactive controls and live editing.",
         type: :warning
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -331,8 +316,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Start with HEEx templates for quick prototyping, then extract to Elixir modules for production applications with multiple maps.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end

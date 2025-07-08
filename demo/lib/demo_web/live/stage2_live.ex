@@ -154,15 +154,6 @@ defmodule DemoWeb.Stage2Live do
 
   def stage_navigation, do: StageConfig.stage_navigation(:stage2)
 
-  def get_current_description(example) do
-    case example do
-      "automatic" -> "Automatic color cycling for multiple groups"
-      "semantic" -> "Semantic presets for meaningful server states"
-      "custom" -> "Custom parameters for size, animation, and glow"
-      "mixed" -> "Mixed approaches combining different methods"
-      _ -> "Unknown example"
-    end
-  end
 
   def get_advanced_topics do
     [
@@ -256,8 +247,7 @@ defmodule DemoWeb.Stage2Live do
           ])}
         </div>
       </div>
-      """,
-      "</div>"
+      """
     ]
     |> Enum.join()
   end

@@ -31,7 +31,6 @@ defmodule DemoWeb.Components.StageLayout do
   - `examples` - Map of all examples
   - `advanced_topics` - List of advanced topics for disclosure
   - `navigation` - Navigation configuration with prev/next
-  - `get_current_description` - Function to get current description
   - `get_focused_code` - Function to get focused code
   """
   attr :current_page, :atom, required: true
@@ -44,7 +43,6 @@ defmodule DemoWeb.Components.StageLayout do
   attr :examples, :map, required: true
   attr :advanced_topics, :list, required: true
   attr :navigation, :map, required: true
-  attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
 
   def stage_layout(assigns) do
@@ -64,8 +62,8 @@ defmodule DemoWeb.Components.StageLayout do
             tabs={@tabs}
             current_tab={@current_tab}
             current_example={@current_example}
+            current_example_description={@current_example_description}
             marker_groups={@marker_groups}
-            get_current_description={@get_current_description}
             get_focused_code={@get_focused_code}
           />
 
@@ -119,8 +117,8 @@ defmodule DemoWeb.Components.StageLayout do
   attr :tabs, :list, required: true
   attr :current_tab, :string, required: true
   attr :current_example, :string, required: true
+  attr :current_example_description, :string, required: true
   attr :marker_groups, :list, required: true
-  attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
 
   def stage_content_panels(assigns) do
@@ -140,8 +138,8 @@ defmodule DemoWeb.Components.StageLayout do
       <div>
         <.code_examples_panel
           current_example={@current_example}
+          current_example_description={@current_example_description}
           marker_groups={@marker_groups}
-          get_current_description={@get_current_description}
           get_focused_code={@get_focused_code}
         />
       </div>
@@ -153,8 +151,8 @@ defmodule DemoWeb.Components.StageLayout do
   Renders the code examples panel with stats.
   """
   attr :current_example, :string, required: true
+  attr :current_example_description, :string, required: true
   attr :marker_groups, :list, required: true
-  attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
 
   def code_examples_panel(assigns) do
@@ -163,7 +161,7 @@ defmodule DemoWeb.Components.StageLayout do
     <!-- Quick Stats -->
       <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
         <div class="text-sm text-primary">
-          <%= @get_current_description.(@current_example) %> •
+          <%= @current_example_description %> •
           <%= if @marker_groups, do: length(@marker_groups), else: 0 %> groups •
           <%= count_total_nodes(@marker_groups) %> nodes
         </div>

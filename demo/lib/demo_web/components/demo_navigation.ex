@@ -4,9 +4,9 @@ defmodule DemoWeb.Components.DemoNavigation do
 
   @doc """
   Renders a navigation component for demo liveviews.
-  
+
   ## Examples
-  
+
       <.demo_navigation current_page={:stage1} />
       <.demo_navigation current_page={:map_demo} />
   """
@@ -38,12 +38,12 @@ defmodule DemoWeb.Components.DemoNavigation do
               <% end %>
             </div>
           </div>
-          
+
           <!-- Theme toggle -->
           <div class="hidden sm:flex items-center">
             <.theme_toggle />
           </div>
-          
+
           <!-- Mobile menu button -->
           <div class="sm:hidden flex items-center">
             <button
@@ -62,7 +62,7 @@ defmodule DemoWeb.Components.DemoNavigation do
           </div>
         </div>
       </div>
-      
+
       <!-- Mobile menu -->
       <div class="sm:hidden" id="mobile-menu" x-data="{ open: false }" x-show="open">
         <div class="pt-2 pb-3 space-y-1">
@@ -86,7 +86,7 @@ defmodule DemoWeb.Components.DemoNavigation do
   defp nav_items do
     [
       {"/", "Home", :map_demo},
-      {"/stage1", "Stage 1: Basics", :stage1},
+      {"/stage1", "Placing markers", :stage1},
       {"/stage2", "Stage 2: Groups", :stage2},
       {"/stage3", "Stage 3: Themes", :stage3},
       {"/stage4", "Stage 4: Builder", :stage4},
@@ -96,7 +96,7 @@ defmodule DemoWeb.Components.DemoNavigation do
 
   defp nav_link_class(current_page, page_key) do
     base_class = "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
-    
+
     if current_page == page_key do
       "#{base_class} border-primary text-base-content"
     else
@@ -106,7 +106,7 @@ defmodule DemoWeb.Components.DemoNavigation do
 
   defp mobile_nav_link_class(current_page, page_key) do
     base_class = "block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors"
-    
+
     if current_page == page_key do
       "#{base_class} bg-primary/10 border-primary text-primary"
     else

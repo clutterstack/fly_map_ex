@@ -4,9 +4,9 @@ defmodule DemoWeb.Components.SidebarNavigation do
 
   @doc """
   Renders a vertical navigation component for the sidebar.
-  
+
   ## Examples
-  
+
       <.sidebar_navigation current_page={:stage1} />
       <.sidebar_navigation current_page={:map_demo} />
       <.sidebar_navigation current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
@@ -28,7 +28,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
           FlyMapEx Demo
         </.link>
       </div>
-      
+
       <!-- Navigation Links -->
       <div class="flex-1 overflow-y-auto">
         <nav class="px-2 py-4 space-y-1">
@@ -39,7 +39,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
             >
               <%= title %>
             </.link>
-            
+
             <!-- Show tabs as nested items if this is the current page and tabs are provided -->
             <%= if @current_page == key and length(@tabs) > 0 do %>
               <div class="ml-4 mt-2 space-y-1">
@@ -57,7 +57,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
           <% end %>
         </nav>
       </div>
-      
+
       <!-- Theme Toggle -->
       <div class="p-4 border-t border-base-300">
         <.theme_toggle />
@@ -69,7 +69,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
   defp nav_items do
     [
       {"/", "Home", :map_demo},
-      {"/stage1", "Stage 1: Basics", :stage1},
+      {"/stage1", "Placing markers", :stage1},
       {"/stage2", "Stage 2: Groups", :stage2},
       {"/stage3", "Stage 3: Themes", :stage3},
       {"/stage4", "Stage 4: Builder", :stage4},
@@ -79,7 +79,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
 
   defp sidebar_nav_link_class(current_page, page_key) do
     base_class = "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors"
-    
+
     if current_page == page_key do
       "#{base_class} bg-primary/10 text-primary border-r-2 border-primary"
     else
@@ -89,7 +89,7 @@ defmodule DemoWeb.Components.SidebarNavigation do
 
   defp tab_nav_link_class(current_tab, tab_key) do
     base_class = "group flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors w-full text-left"
-    
+
     if current_tab == tab_key do
       "#{base_class} bg-primary/20 text-primary"
     else

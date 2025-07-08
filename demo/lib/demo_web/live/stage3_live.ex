@@ -124,16 +124,6 @@ defmodule DemoWeb.Stage3Live do
 
   def stage_navigation, do: StageConfig.stage_navigation(:stage3)
 
-  def get_current_description(example) do
-    case example do
-      "presets" -> "Predefined themes for common use cases"
-      "responsive" -> "Adaptive theming that responds to context"
-      "custom" -> "Custom theme creation with full control"
-      "configuration" -> "Theme configuration and deployment patterns"
-      _ -> "Unknown theme approach"
-    end
-  end
-
   def get_advanced_topics do
     [
       %{
@@ -183,8 +173,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use CSS custom properties for theme switching to avoid layout thrashing and enable smooth transitions.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -210,8 +199,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Create theme inheritance hierarchies to reduce duplication and maintain consistency across your organization.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -237,8 +225,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use Phoenix LiveView's push_event to update CSS custom properties for instant theme changes without page reloads.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -260,8 +247,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use preset themes when you need consistent styling or want to match common interface patterns.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -295,8 +281,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use as your default theme for maintenance-free branding consistency.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -330,8 +315,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use custom themes when you need precise visual control or brand-specific experiences.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -369,8 +353,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use config-based themes for centralized management and consistency across your application.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
