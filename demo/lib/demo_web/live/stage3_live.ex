@@ -146,8 +146,8 @@ defmodule DemoWeb.Stage3Live do
 
   def default_example, do: "presets"
 
-  # See also helper get_example_theme() for per-tab theme control
-  def stage_theme, do: :minimal
+  # Default theme - overridden by get_example_theme() per example
+  def stage_theme, do: :responsive
 
   def stage_layout, do: :stacked
 

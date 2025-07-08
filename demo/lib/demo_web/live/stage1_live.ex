@@ -116,8 +116,8 @@ defmodule DemoWeb.Stage1Live do
 
   def default_example, do: "blank_map"
 
-  def stage_theme, do: ""
-  def stage_layout, do: ""
+  def stage_theme, do: :responsive
+  def stage_layout, do: :side_by_side
 
   # Content generation functions using ContentHelpers
   defp get_blank_map_content do

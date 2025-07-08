@@ -26,7 +26,7 @@ defmodule DemoWeb.Components.SidebarLayout do
       </.sidebar_layout>
   """
   attr :class, :string, default: "", doc: "Additional CSS classes for the layout container"
-  attr :sidebar_width, :string, default: "w-80", doc: "Width of the sidebar (Tailwind class)"
+  attr :sidebar_width, :string, default: "w-64", doc: "Width of the sidebar (Tailwind class)"
   
   slot :sidebar, required: true, doc: "Sidebar content including navigation and supplementary info"
   slot :main, required: true, doc: "Main content area"
@@ -90,7 +90,7 @@ defmodule DemoWeb.Components.SidebarLayout do
       </div>
       
       <!-- Main content -->
-      <div class="flex-1 flex flex-col lg:pl-80">
+      <div class="flex-1 flex flex-col lg:pl-64">
         <!-- Mobile header with menu button -->
         <div class="lg:hidden flex items-center justify-between p-4 bg-base-100 border-b border-base-300">
           <button

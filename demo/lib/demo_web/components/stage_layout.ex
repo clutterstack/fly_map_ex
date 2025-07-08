@@ -60,7 +60,7 @@ defmodule DemoWeb.Components.StageLayout do
       </:sidebar>
 
       <:main>
-        <div class="container mx-auto p-8">
+        <div class="w-full p-8">
 
           <.stage_map marker_groups={@marker_groups} />
 

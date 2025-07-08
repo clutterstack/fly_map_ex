@@ -127,7 +127,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Use parameterized templates to balance flexibility with consistency across your organization.",
         type: :best_practice
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
@@ -153,7 +154,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Implement graceful degradation for network failures and missing data to ensure reliable user experiences.",
         type: :production
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
@@ -179,7 +181,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Start with standard configurations and gradually add customizations as your requirements become clearer.",
         type: :best_practice
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
@@ -210,7 +213,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Each scenario builds on concepts from previous stages, combining marker groups, styling, and theming into practical applications.",
         type: :best_practice
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
@@ -263,7 +267,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Use the guided scenarios to explore different configurations. Full freeform building tools will be added in Phase 2 with interactive controls and live editing.",
         type: :warning
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
@@ -316,7 +321,8 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Start with HEEx templates for quick prototyping, then extract to Elixir modules for production applications with multiple maps.",
         type: :best_practice
-      )
+      ),
+      "</div>"
     ]
     |> Enum.join()
   end
