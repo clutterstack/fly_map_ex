@@ -6,23 +6,34 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   formatting, and DaisyUI-styled components used throughout the demo application.
   """
 
+
   @doc """
-  Creates a standardized content section with title and description.
+  Converts a string from Markdown to HTML.
+  Takes a string (use heredocs for multiple lines)
+  """
+  def convert_markdown(markdown, opts \\ []) do
+    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+    ~s"""
+    #{Earmark.as_html!(markdown, earmark_opts)}
+    """
+  end
+
+  @doc """
+  Creates a standardized content section with title and description. Converts
+  `description` from Markdown
   """
   def content_section(title, description, opts \\ []) do
     class = Keyword.get(opts, :class, "space-y-4 list-disc")
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
 
     ~s"""
     <div class="#{class}">
       <div>
         <h4 class="font-semibold text-base-content mb-2">#{title}</h4>
-        <p class="text-sm text-base-content/70 mb-3">
-
-          #{Earmark.as_html!(description, earmark_opts)}
-
-        </p>
+        <div class="text-sm text-base-content/70 mb-3">
+          #{convert_markdown(description, opts)}
+        </div>
       </div>
+    </div>
     """
   end
 
@@ -171,7 +182,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
     class = Keyword.get(opts, :class, "")
 
     case_items = Enum.map(cases, fn {use_case, description} ->
-      "<li>• <strong>#{use_case}:</strong> #{description}</li>"
+      "<li><strong>#{use_case}:</strong> #{description}</li>"
     end)
 
     ~s"""

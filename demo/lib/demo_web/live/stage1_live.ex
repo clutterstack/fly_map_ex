@@ -20,13 +20,13 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_examples do
     %{
-      library_intro: nil,
-      single_coordinates: [
+      blank_map: nil,
+      by_coords: [
         %{
           nodes: [%{coordinates: {37.8, -122.4}}, %{coordinates: {56,3.6}}], # San Francisco, somewhere in the North Sea
         }
       ],
-      single_region: [
+      fly_regions: [
         %{
           nodes: ["fra", "sin"],
         }
@@ -50,29 +50,24 @@ defmodule DemoWeb.Stage1Live do
   def stage_tabs do
     [
       %{
-        key: "library_intro",
+        key: "blank_map",
         label: "About",
-        content: get_intro_content()
+        content: get_blank_map_content()
       },
       %{
-        key: "single_coordinates",
-        label: "Coordinates",
+        key: "by_coords",
+        label: "Coordinate positioning",
         content: get_coordinates_content()
       },
       %{
-        key: "single_region",
-        label: "Fly Regions",
+        key: "fly_regions",
+        label: "Fly.io regions",
         content: get_region_content()
       },
       %{
         key: "multiple_nodes",
         label: "Multiple",
         content: get_multiple_content()
-      },
-      %{
-        key: "multiple_groups",
-        label: "Groups",
-        content: get_groups_content()
       }
     ]
   end
@@ -81,11 +76,10 @@ defmodule DemoWeb.Stage1Live do
 
   def get_current_description(example) do
     case example do
-      "single_coordinates" -> "Single node with custom coordinates"
-      "single_region" -> "Single node using Fly.io region code"
+      "blank_map" -> "About FlyMapEx library"
+      "by_coords" -> "Single node with custom coordinates"
+      "fly_regions" -> "Single node using Fly.io region code"
       "multiple_nodes" -> "Multiple nodes in one group"
-      "multiple_groups" -> "Multiple groups with different purposes"
-      "library_intro" -> "About FlyMapEx library"
       _ -> "Unknown example"
     end
   end
@@ -110,48 +104,21 @@ defmodule DemoWeb.Stage1Live do
     ]
   end
 
-  def default_example, do: "library_intro"
+  def default_example, do: "blank_map"
 
   def stage_theme, do: ""
-
   def stage_layout, do: ""
 
   # Content generation functions using ContentHelpers
-
-  defp get_intro_content do
+  defp get_blank_map_content do
   [
     ContentHelpers.content_section(
-      "About FlyMapEx",
+      "Just a map",
+        ~s"""
 
-      ~s"""
-      An over-engineered library for putting markers on a simple map.
-
-      * what the library is for `for`
-      * a little about how you use it
-      * use FlyMapEx.render, pass it at least marker_groups list as an assign
-      * marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes<
-      * here's a map with an empty marker group
-    """
-    ),
-    ContentHelpers.info_box(
-      :primary,
-      "What is this",
-      "what the library is for `for`
-
-      a little about how you use it
-
-      <ul>
-      <li>use FlyMapEx.render, pass it at least marker_groups list as an assign</li>
-      <li>marker locations can be expressed as {lat, long} or as Fly.io region (airport) codes</li>
-      <li>here's a map with an empty marker group</li>
-      </ul>
-          </div>
-    "),
-
-    ContentHelpers.pro_tip(
-      "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
-    ),
-    "</div>"  # Consider moving this to where the opening <div> was created, if needed
+        Here's a map with an empty marker group
+        """
+    )
   ]
   |> Enum.join()
 end
@@ -160,27 +127,17 @@ end
     [
     ContentHelpers.content_section(
       "Custom Coordinates",
-      "Use exact latitude and longitude coordinates for precise placement anywhere on the map."
-    ),
-    ContentHelpers.info_box(
-      :primary,
-      "Coordinate Format",
-      ~s(- To add markers, you put a list of nodes in each marker group. At minimum, you have to give each node a map position. You can also give it a label. If you don't, it gets a default one.
-- Here's an example of a node group with one node in San Francisco and one somewhere in the ocean)
-    ),
-    ContentHelpers.ul_with_bold(
-      "When to Use",
-      [
-        {"Custom locations", "not covered by Fly.io regions"},
-        {"Office locations", "data centres, or business sites"},
-        {"Precise geographic mapping", "requirements"},
-        {"Integration", "with external coordinate data"}
-      ]
-    ),
-    ContentHelpers.pro_tip(
-      "Use WGS84 coordinates (standard GPS format). FlyMapEx automatically transforms them to map projection."
-    ),
-    "</div>"
+      ~s"""
+      Use latitude and longitude coordinates
+
+     * To add markers, you put a list of nodes in each marker group.
+     * At minimum, you have to give each node a map position.
+     * You can also give it a label. If you don't, it gets a default one.
+     * Talk about style if we talk about labels
+
+    Here's an example of a node group with one node in San Francisco and one somewhere in the ocean
+    """
+    )
     ]
     |> Enum.join()
   end
@@ -189,27 +146,14 @@ end
     [
     ContentHelpers.content_section(
       "Fly.io Region Codes",
-      "Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure."
-    ),
-    ContentHelpers.info_box(
-      :success,
-      "Popular Regions",
-      popular_regions_content()
-    ),
-    ContentHelpers.ul_with_bold(
-      "Benefits",
-      [
-        {"Automatically validated", "region codes"},
-        {"Smaller bundle size", "than coordinates"},
-        {"Perfect for Fly.io", "infrastructure mapping"},
-        {"Easy to remember", "and type"}
-      ]
+      ~s"""
+      Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure.
+
+      """
     ),
     ContentHelpers.pro_tip(
-      ~s(Use "dev" for development environments - maps to Seattle coordinates.),
-      type: :warning
+      ~s(Use "dev" for development environments - maps to Seattle coordinates.)
     ),
-    "</div>"
     ]
     |> Enum.join()
   end
@@ -237,8 +181,7 @@ end
       ContentHelpers.pro_tip(
         "Group related nodes together (e.g., all production servers, all staging environments).",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -265,8 +208,7 @@ end
       ContentHelpers.pro_tip(
         "Each group automatically appears in the legend with its label and colour.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -358,15 +300,6 @@ end
     """
   end
 
-  defp popular_regions_content do
-    ContentHelpers.color_grid([
-      {"bg-base-100", ~s("sjc" - San Jose, US)},
-      {"bg-base-100", ~s("fra" - Frankfurt, DE)},
-      {"bg-base-100", ~s("lhr" - London, UK)},
-      {"bg-base-100", ~s("nrt" - Tokyo, JP)}
-    ], cols: 2)
-  end
-
   defp multiple_nodes_content do
     ~s"""
     <div class="space-y-2 text-sm">
@@ -380,11 +313,11 @@ end
   # Override context name for better code generation
   def get_context_name(example) do
     case example do
-      "single_coordinates" -> "coordinates"
-      "single_region" -> "region"
+      "by_coords" -> "coordinates"
+      "fly_regions" -> "region"
       "multiple_nodes" -> "multiple"
       "multiple_groups" -> "groups"
-      "library_intro" -> "intro"
+      "blank_map" -> "map"
       _ -> "example"
     end
   end
