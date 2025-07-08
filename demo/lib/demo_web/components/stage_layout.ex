@@ -47,8 +47,6 @@ defmodule DemoWeb.Components.StageLayout do
   attr :get_current_description, :any, required: true
   attr :get_focused_code, :any, required: true
 
-  #           <.stage_header title={@title} description={@description} />
-
   def stage_layout(assigns) do
     ~H"""
     <.demo_navigation current_page={@current_page} />
@@ -162,21 +160,19 @@ defmodule DemoWeb.Components.StageLayout do
   def code_examples_panel(assigns) do
     ~H"""
     <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-      <div class="bg-base-200 px-4 py-3 border-b border-base-300">
-        <h3 class="font-semibold text-base-content">Code Example</h3>
+    <!-- Quick Stats -->
+      <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
+        <div class="text-sm text-primary">
+          <%= @get_current_description.(@current_example) %> •
+          <%= if @marker_groups, do: length(@marker_groups), else: 0 %> groups •
+          <%= count_total_nodes(@marker_groups) %> nodes
+        </div>
       </div>
       <div class="p-4">
         <pre class="text-sm text-base-content overflow-x-auto bg-base-200 p-3 rounded"><code><%= @get_focused_code.(@current_example, @marker_groups) %></code></pre>
       </div>
 
-      <!-- Quick Stats -->
-      <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
-        <div class="text-sm text-primary">
-          <strong>Current Configuration:</strong> <%= @get_current_description.(@current_example) %> •
-          <%= if @marker_groups, do: length(@marker_groups), else: 0 %> groups •
-          <%= count_total_nodes(@marker_groups) %> nodes
-        </div>
-      </div>
+
     </div>
     """
   end

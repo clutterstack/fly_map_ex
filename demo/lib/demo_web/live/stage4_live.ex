@@ -20,9 +20,21 @@ defmodule DemoWeb.Stage4Live do
 
   def stage_examples do
     %{
-      guided: evaluate_scenario_code(get_scenario_code("monitoring")),
-      freeform: [],
-      export: evaluate_scenario_code(get_scenario_code("monitoring"))
+      guided: %{
+        marker_groups: evaluate_scenario_code(get_scenario_code("monitoring")),
+        description: "Real-world monitoring dashboard with operational status indicators",
+        code_comment: "# Monitoring Dashboard Example\n# This demonstrates a practical monitoring scenario with production servers\n# and maintenance windows, using operational and warning styles for clear status visualization."
+      },
+      freeform: %{
+        marker_groups: [],
+        description: "Interactive builder for custom map configurations",
+        code_comment: "# Freeform Builder\n# This provides a blank canvas for creating custom marker group configurations.\n# Use this to experiment with different regional deployments and styling approaches."
+      },
+      export: %{
+        marker_groups: evaluate_scenario_code(get_scenario_code("monitoring")),
+        description: "Code generation and production integration examples",
+        code_comment: "# Export & Integration Example\n# This shows how to structure marker groups for easy code generation\n# and integration into production Phoenix LiveView applications."
+      }
     }
   end
 
@@ -49,10 +61,11 @@ defmodule DemoWeb.Stage4Live do
   def stage_navigation, do: StageConfig.stage_navigation(:stage4)
 
   def get_current_description(example) do
+    examples = stage_examples()
     case example do
-      "guided" -> "Real-world scenarios with step-by-step guidance"
-      "freeform" -> "Custom builder tools (Phase 2 enhancement)"
-      "export" -> "Code generation and integration patterns"
+      "guided" -> examples.guided.description
+      "freeform" -> examples.freeform.description
+      "export" -> examples.export.description
       _ -> "Interactive builder tools"
     end
   end
@@ -425,19 +438,14 @@ defmodule DemoWeb.Stage4Live do
   # Helper function to update marker groups based on current tab
   defp update_marker_groups(socket, marker_groups) do
     case socket.assigns.current_example do
-      "guided" -> assign(socket, examples: Map.put(socket.assigns.examples, :guided, marker_groups))
-      "export" -> assign(socket, examples: Map.put(socket.assigns.examples, :export, marker_groups))
+      "guided" ->
+        updated_example = Map.put(socket.assigns.examples.guided, :marker_groups, marker_groups)
+        assign(socket, examples: Map.put(socket.assigns.examples, :guided, updated_example))
+      "export" ->
+        updated_example = Map.put(socket.assigns.examples.export, :marker_groups, marker_groups)
+        assign(socket, examples: Map.put(socket.assigns.examples, :export, updated_example))
       _ -> socket
     end
   end
 
-  # Override context name for better code generation
-  def get_context_name(example) do
-    case example do
-      "guided" -> "scenario"
-      "freeform" -> "builder"
-      "export" -> "export"
-      _ -> "interactive"
-    end
-  end
 end

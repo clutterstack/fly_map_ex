@@ -20,30 +20,50 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_examples do
     %{
-      blank_map: nil,
-      by_coords: [
-        %{
-          nodes: [%{coordinates: {37.8, -122.4}}, %{coordinates: {56,3.6}}], # San Francisco, somewhere in the North Sea
-        }
-      ],
-      fly_regions: [
-        %{
-          nodes: ["fra", "sin"],
-        }
-      ],
-      multiple_nodes: [
-        %{
-          nodes: ["sjc", "fra", "ams", "lhr"],
-        }
-      ],
-      multiple_groups: [
-        %{
-          nodes: ["sjc", "fra", "syd"]
-        },
-        %{
-          nodes: ["ams", "lhr"]
-        }
-      ]
+      blank_map: %{
+        marker_groups: nil,
+        description: "About FlyMapEx library",
+        code_comment: "An empty map with no markers\nUseful for displaying the world map alone"
+      },
+      by_coords: %{
+        marker_groups: [
+          %{
+            nodes: [%{coordinates: {37.8, -122.4}}, %{coordinates: {56,3.6}}], # San Francisco, somewhere in the North Sea
+          }
+        ],
+        description: "Single node with custom coordinates",
+        code_comment: "Use coordinates for precise positioning anywhere on the map"
+      },
+      fly_regions: %{
+        marker_groups: [
+          %{
+            nodes: ["fra", "sin"],
+          }
+        ],
+        description: "Single node using Fly.io region code",
+        code_comment: "Use 3-letter region codes for Fly.io infrastructure locations"
+      },
+      multiple_nodes: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra", "ams", "lhr"],
+          }
+        ],
+        description: "Multiple nodes in one group",
+        code_comment: "Group related nodes together for unified styling and labelling"
+      },
+      multiple_groups: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra", "syd"]
+          },
+          %{
+            nodes: ["ams", "lhr"]
+          }
+        ],
+        description: "Multiple groups with different purposes",
+        code_comment: "Separate groups allow different styling and organization"
+      }
     }
   end
 
@@ -311,14 +331,14 @@ end
   end
 
   # Override context name for better code generation
-  def get_context_name(example) do
-    case example do
-      "by_coords" -> "coordinates"
-      "fly_regions" -> "region"
-      "multiple_nodes" -> "multiple"
-      "multiple_groups" -> "groups"
-      "blank_map" -> "map"
-      _ -> "example"
-    end
-  end
+  # def get_context_name(example) do
+  #   case example do
+  #     "by_coords" -> "coordinates"
+  #     "fly_regions" -> "region"
+  #     "multiple_nodes" -> "multiple"
+  #     "multiple_groups" -> "groups"
+  #     "blank_map" -> "map"
+  #     _ -> "example"
+  #   end
+  # end
 end

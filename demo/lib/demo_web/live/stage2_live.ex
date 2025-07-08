@@ -20,94 +20,110 @@ defmodule DemoWeb.Stage2Live do
 
   def stage_examples do
     %{
-      automatic: [
-        %{
-          nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.cycle(0),
-          label: "Production Servers"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          style: FlyMapEx.Style.cycle(1),
-          label: "Staging Environment"
-        },
-        %{
-          nodes: ["ord"],
-          style: FlyMapEx.Style.cycle(2),
-          label: "Development"
-        },
-        %{
-          nodes: ["nrt", "syd"],
-          style: FlyMapEx.Style.cycle(3),
-          label: "Testing"
-        }
-      ],
-      semantic: [
-        %{
-          nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.operational(),
-          label: "Production Servers"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          style: FlyMapEx.Style.warning(),
-          label: "Maintenance Mode"
-        },
-        %{
-          nodes: ["ord"],
-          style: FlyMapEx.Style.danger(),
-          label: "Failed Nodes"
-        },
-        %{
-          nodes: ["nrt", "syd"],
-          style: FlyMapEx.Style.inactive(),
-          label: "Offline Nodes"
-        }
-      ],
-      custom: [
-        %{
-          nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
-          label: "High-Performance Servers"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
-          label: "Standard Servers"
-        },
-        %{
-          nodes: ["ord"],
-          style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
-          label: "Critical Alerts"
-        },
-        %{
-          nodes: ["nrt"],
-          style: FlyMapEx.Style.custom("#6b7280", size: 4, animation: :none, glow: false),
-          label: "Maintenance"
-        }
-      ],
-      mixed: [
-        %{
-          nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.operational(),
-          label: "Production (Semantic)"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          style: FlyMapEx.Style.cycle(1),
-          label: "Staging (Auto-Cycle)"
-        },
-        %{
-          nodes: ["ord"],
-          style: FlyMapEx.Style.custom("#9333ea", size: 8, animation: :pulse, glow: true),
-          label: "Special Deploy (Custom)"
-        },
-        %{
-          nodes: ["nrt", "syd"],
-          style: :inactive,
-          label: "Offline (Atom)"
-        }
-      ]
+      automatic: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.cycle(0),
+            label: "Production Servers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.cycle(1),
+            label: "Staging Environment"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.cycle(2),
+            label: "Development"
+          },
+          %{
+            nodes: ["nrt", "syd"],
+            style: FlyMapEx.Style.cycle(3),
+            label: "Testing"
+          }
+        ],
+        description: "Automatic colour cycling for multiple groups",
+        code_comment: "FlyMapEx.Style.cycle/1 automatically assigns different colours to each group"
+      },
+      semantic: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.operational(),
+            label: "Production Servers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.warning(),
+            label: "Maintenance Mode"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.danger(),
+            label: "Failed Nodes"
+          },
+          %{
+            nodes: ["nrt", "syd"],
+            style: FlyMapEx.Style.inactive(),
+            label: "Offline Nodes"
+          }
+        ],
+        description: "Semantic styling with meaningful colours",
+        code_comment: "Use semantic styles to convey status and meaning through colour"
+      },
+      custom: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
+            label: "High-Performance Servers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
+            label: "Standard Servers"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
+            label: "Critical Alerts"
+          },
+          %{
+            nodes: ["nrt"],
+            style: FlyMapEx.Style.custom("#6b7280", size: 4, animation: :none, glow: false),
+            label: "Maintenance"
+          }
+        ],
+        description: "Custom styling with full control over appearance",
+        code_comment: "FlyMapEx.Style.custom/2 allows complete customization of colour, size, animation, and effects"
+      },
+      mixed: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.operational(),
+            label: "Production (Semantic)"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.cycle(1),
+            label: "Staging (Auto-Cycle)"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.custom("#9333ea", size: 8, animation: :pulse, glow: true),
+            label: "Special Deploy (Custom)"
+          },
+          %{
+            nodes: ["nrt", "syd"],
+            style: :inactive,
+            label: "Offline (Atom)"
+          }
+        ],
+        description: "Mixed styling approaches in one map",
+        code_comment: "You can mix semantic, automatic, custom, and atom styles in the same map"
+      }
     }
   end
 
@@ -447,14 +463,4 @@ defmodule DemoWeb.Stage2Live do
     |> Enum.join()
   end
 
-  # Override context name for better code generation
-  def get_context_name(example) do
-    case example do
-      "automatic" -> "auto"
-      "semantic" -> "semantic"
-      "custom" -> "custom"
-      "mixed" -> "mixed"
-      _ -> "example"
-    end
-  end
 end

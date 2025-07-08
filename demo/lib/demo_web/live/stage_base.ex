@@ -1,7 +1,7 @@
 defmodule DemoWeb.Live.StageBase do
   @moduledoc """
   Behaviour for creating standardized stage LiveViews with common patterns.
-  
+
   This behaviour defines the structure and callbacks needed for stage components
   in the FlyMapEx demo application, reducing code duplication and providing
   a consistent interface for authoring new stages.
@@ -18,7 +18,7 @@ defmodule DemoWeb.Live.StageBase do
 
   # Optional callbacks with default implementations
   @callback default_example() :: String.t()
-  @callback handle_stage_event(String.t(), map(), Phoenix.LiveView.Socket.t()) :: 
+  @callback handle_stage_event(String.t(), map(), Phoenix.LiveView.Socket.t()) ::
     {:noreply, Phoenix.LiveView.Socket.t()}
   @callback stage_theme() :: atom()
   @callback stage_layout() :: atom()
@@ -30,11 +30,11 @@ defmodule DemoWeb.Live.StageBase do
   defmacro __using__(_opts) do
     quote do
       @behaviour DemoWeb.Live.StageBase
-      
+
       use DemoWeb, :live_view
-      
+
       import DemoWeb.Components.StageLayout
-      
+
       alias DemoWeb.Helpers.CodeGenerator
 
       def mount(_params, _session, socket) do
@@ -87,7 +87,11 @@ defmodule DemoWeb.Live.StageBase do
           advanced_topics: get_advanced_topics(),
           navigation: stage_navigation(),
           get_current_description: &get_current_description/1,
-          get_focused_code: &get_focused_code/2
+          get_focused_code: fn example, marker_groups ->
+            get_focused_code(example, marker_groups, current_example_code_comment(assigns))
+          end,
+          current_example_description: current_example_description(assigns),
+          current_example_code_comment: current_example_code_comment(assigns)
         })
       end
 
@@ -95,7 +99,30 @@ defmodule DemoWeb.Live.StageBase do
       defp current_marker_groups(assigns) do
         case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
           nil -> nil  # Pass nil through to indicate no marker groups
+          # Support both old format (list of marker groups) and new format (map with metadata)
+          %{marker_groups: groups} -> groups
+          groups when is_list(groups) -> groups  # Backward compatibility
           groups -> groups
+        end
+      end
+
+      defp current_example_description(assigns) do
+        case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
+          nil -> nil
+          # Support new format with description metadata
+          %{description: description} -> description
+          # Fall back to the old callback for backward compatibility
+          _ -> get_current_description(assigns.current_example)
+        end
+      end
+
+      defp current_example_code_comment(assigns) do
+        case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
+          nil -> nil
+          # Support new format with code comment metadata
+          %{code_comment: comment} -> comment
+          # No comment for old format
+          _ -> nil
         end
       end
 
@@ -107,9 +134,9 @@ defmodule DemoWeb.Live.StageBase do
         end)
       end
 
-      defp get_focused_code(example, marker_groups) do
+      defp get_focused_code(example, marker_groups, code_comment \\ nil) do
         context = get_context_name(example)
-        
+
         # Check for per-example theme first, then fall back to stage theme
         theme = if function_exported?(__MODULE__, :get_example_theme, 1) do
           case apply(__MODULE__, :get_example_theme, [example]) do
@@ -120,7 +147,7 @@ defmodule DemoWeb.Live.StageBase do
         else
           get_stage_theme()
         end
-        
+
         # Check for per-example layout first, then fall back to stage layout
         layout = if function_exported?(__MODULE__, :get_example_layout, 1) do
           case apply(__MODULE__, :get_example_layout, [example]) do
@@ -131,13 +158,14 @@ defmodule DemoWeb.Live.StageBase do
         else
           get_stage_layout()
         end
-        
+
         CodeGenerator.generate_flymap_code(
           marker_groups,
           theme: theme,
           layout: layout,
           context: context,
-          format: :heex
+          format: :heex,
+          code_comment: code_comment
         )
       end
 
@@ -176,7 +204,7 @@ defmodule DemoWeb.Live.StageBase do
 
 
       # Allow implementations to override these functions
-      defoverridable [get_context_name: 1]
+      # defoverridable [get_context_name: 1]
     end
   end
 end

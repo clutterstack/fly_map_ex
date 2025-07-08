@@ -20,18 +20,20 @@ defmodule DemoWeb.Helpers.CodeGenerator do
   * `:layout` - Layout atom to include (default: :side_by_side)
   * `:context` - Context string for comment (default: "Configuration")
   * `:format` - Output format :heex, :elixir, or :json (default: :heex)
+  * `:code_comment` - Additional comment to include in generated code (default: nil)
   """
   def generate_flymap_code(marker_groups, opts \\ []) do
     theme = Keyword.get(opts, :theme, :responsive)
     layout = Keyword.get(opts, :layout, :side_by_side)
     context = Keyword.get(opts, :context, "Configuration")
     format = Keyword.get(opts, :format, :heex)
+    code_comment = Keyword.get(opts, :code_comment, nil)
 
     case format do
-      :heex -> generate_heex_template(marker_groups, theme, layout, context)
-      :elixir -> generate_elixir_module(marker_groups, theme, layout, context)
-      :json -> generate_json_config(marker_groups, theme, layout, context)
-      _ -> generate_heex_template(marker_groups, theme, layout, context)
+      :heex -> generate_heex_template(marker_groups, theme, layout, code_comment)
+      :elixir -> generate_elixir_module(marker_groups, theme, layout, code_comment)
+      :json -> generate_json_config(marker_groups, theme, layout, code_comment)
+      _ -> generate_heex_template(marker_groups, theme, layout, code_comment)
     end
   end
 
@@ -72,10 +74,15 @@ defmodule DemoWeb.Helpers.CodeGenerator do
 
   # Private implementation functions
 
-  defp generate_heex_template(marker_groups, theme, layout, context) do
+  defp generate_heex_template(marker_groups, theme, layout, code_comment \\ nil) do
     marker_groups_code = generate_marker_groups_code(marker_groups)
-
-    comment = "# #{String.capitalize(context)} Map Configuration"
+    guide_comment = ""
+    # Add additional code comment if provided
+    comment = if code_comment do
+      commentify(code_comment)
+    else
+      guide_comment
+    end
 
     # Build attribute lines conditionally
     attr_lines = []
@@ -113,7 +120,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     "#{comment}\n\n#{render_call}"
   end
 
-  defp generate_elixir_module(marker_groups, theme, layout, context) do
+  defp generate_elixir_module(marker_groups, theme, layout, context, code_comment \\ nil) do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     context_lower = String.downcase(context)
 
@@ -134,8 +141,15 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       attr_lines
     end
 
+    # Build module comment with optional code comment
+    module_comment = if code_comment do
+      "# #{String.capitalize(context)} Map Module\n# #{code_comment}"
+    else
+      "# #{String.capitalize(context)} Map Module"
+    end
+
     lines = [
-      "# #{String.capitalize(context)} Map Module",
+      module_comment,
       "defmodule YourApp.MapConfigs do",
       "  @moduledoc \"Centralized map configurations for #{context} displays\"",
       "",
@@ -160,7 +174,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     Enum.join(lines, "\n")
   end
 
-  defp generate_json_config(marker_groups, theme, layout, context) do
+  defp generate_json_config(marker_groups, theme, layout, context, code_comment \\ nil) do
     # Convert marker_groups to JSON representation
     json_groups = try do
       marker_groups
@@ -174,9 +188,17 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       _ -> "    // Error parsing groups"
     end
 
+    # Build JSON with optional code comment
+    json_comment = if code_comment do
+      "  \"comment\": \"#{code_comment}\","
+    else
+      ""
+    end
+
     lines = [
       "{",
       "  \"name\": \"#{String.capitalize(context)} Map Configuration\",",
+      json_comment,
       "  \"theme\": \"#{theme}\",",
       "  \"layout\": \"#{layout}\",",
       "  \"marker_groups\": [",
@@ -191,7 +213,9 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       "# end"
     ]
 
-    Enum.join(lines, "\n")
+    lines
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.join("\n")
   end
 
   # Helper to extract style name from style map
@@ -200,5 +224,13 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       %{__source__: {name, _, _}} -> Atom.to_string(name)
       _ -> "operational"
     end
+  end
+
+  # Helper to prepend `# ` to each line in the given string.
+  defp commentify(string) when is_binary(string) do
+    string
+    |> String.split("\n", trim: false)
+    |> Enum.map(&("# " <> &1))
+    |> Enum.join("\n")
   end
 end

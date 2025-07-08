@@ -20,64 +20,80 @@ defmodule DemoWeb.Stage3Live do
 
   def stage_examples do
     %{
-      presets: [
-        %{
-          nodes: ["sjc", "fra", "ams"],
-          style: FlyMapEx.Style.operational(),
-          label: "Production Servers"
-        },
-        %{
-          nodes: ["lhr", "syd"],
-          style: FlyMapEx.Style.warning(),
-          label: "Maintenance Mode"
-        },
-        %{
-          nodes: ["ord", "nrt"],
-          style: FlyMapEx.Style.danger(),
-          label: "Failed Nodes"
-        }
-      ],
-      responsive: [
-        %{
-          nodes: ["sjc", "fra", "ams", "lhr"],
-          style: FlyMapEx.Style.operational(),
-          label: "Global Infrastructure"
-        },
-        %{
-          nodes: ["ord", "nrt"],
-          style: FlyMapEx.Style.inactive(),
-          label: "Standby Nodes"
-        }
-      ],
-      custom: [
-        %{
-          nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
-          label: "High-Performance Tier"
-        },
-        %{
-          nodes: ["ams", "lhr"],
-          style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
-          label: "Standard Tier"
-        },
-        %{
-          nodes: ["ord"],
-          style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
-          label: "Critical Alert"
-        }
-      ],
-      configuration: [
-        %{
-          nodes: ["sjc", "fra", "ams"],
-          style: FlyMapEx.Style.operational(),
-          label: "Production Environment"
-        },
-        %{
-          nodes: ["lhr", "syd"],
-          style: FlyMapEx.Style.warning(),
-          label: "Staging Environment"
-        }
-      ]
+      presets: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra", "ams"],
+            style: FlyMapEx.Style.operational(),
+            label: "Production Servers"
+          },
+          %{
+            nodes: ["lhr", "syd"],
+            style: FlyMapEx.Style.warning(),
+            label: "Maintenance Mode"
+          },
+          %{
+            nodes: ["ord", "nrt"],
+            style: FlyMapEx.Style.danger(),
+            label: "Failed Nodes"
+          }
+        ],
+        description: "Predefined themes for common use cases",
+        code_comment: "Theme presets provide consistent styling for common deployment scenarios. Use :dashboard for compact controls, :monitoring for status dashboards, :presentation for demos, and :minimal for clean interfaces."
+      },
+      responsive: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra", "ams", "lhr"],
+            style: FlyMapEx.Style.operational(),
+            label: "Global Infrastructure"
+          },
+          %{
+            nodes: ["ord", "nrt"],
+            style: FlyMapEx.Style.inactive(),
+            label: "Standby Nodes"
+          }
+        ],
+        description: "Adaptive theming that responds to context",
+        code_comment: "The responsive theme automatically adapts to your site's design system by reading CSS custom properties. Perfect for seamless integration with existing design systems and automatic light/dark mode support."
+      },
+      custom: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
+            label: "High-Performance Tier"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
+            label: "Standard Tier"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
+            label: "Critical Alert"
+          }
+        ],
+        description: "Custom theme creation with full control",
+        code_comment: "Custom themes offer complete control over map appearance. Define land_color, ocean_color, border_color, and background_color properties. Supports hex, RGB, HSL, CSS variables, and named colours for maximum flexibility."
+      },
+      configuration: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra", "ams"],
+            style: FlyMapEx.Style.operational(),
+            label: "Production Environment"
+          },
+          %{
+            nodes: ["lhr", "syd"],
+            style: FlyMapEx.Style.warning(),
+            label: "Staging Environment"
+          }
+        ],
+        description: "Theme configuration and deployment patterns",
+        code_comment: "Configure themes at the application level in config.exs for consistent theming across your entire app. Theme precedence: inline props > component defaults > app config > library defaults."
+      }
     }
   end
 
@@ -357,17 +373,6 @@ defmodule DemoWeb.Stage3Live do
       "</div>"
     ]
     |> Enum.join()
-  end
-
-  # Override context name for better code generation
-  def get_context_name(example) do
-    case example do
-      "presets" -> "presets"
-      "responsive" -> "responsive"
-      "custom" -> "custom"
-      "configuration" -> "config"
-      _ -> "theme"
-    end
   end
 
   # Per-example theme implementation
