@@ -11,7 +11,7 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
-  import DemoWeb.Components.DemoNavigation
+  import DemoWeb.Components.Navigation
 
   def mount(_params, _session, socket) do
     # Default example marker groups to start with
@@ -211,7 +211,7 @@ defmodule DemoWeb.MapDemoLive do
 
   def render(assigns) do
     ~H"""
-    <.demo_navigation current_page={:map_demo} />
+    <.navigation layout={:topbar} current_page={:map_demo} />
     <div class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-base-content">FlyMapEx Interactive Code Builder</h1>

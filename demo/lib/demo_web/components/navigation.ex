@@ -1,19 +1,73 @@
-defmodule DemoWeb.Components.DemoNavigation do
+defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
   import DemoWeb.Layouts, only: [theme_toggle: 1]
 
   @doc """
-  Renders a navigation component for demo liveviews.
+  Renders a navigation component with configurable layout.
 
   ## Examples
 
-      <.demo_navigation current_page={:stage1} />
-      <.demo_navigation current_page={:map_demo} />
+      <.navigation layout={:sidebar} current_page={:stage1} />
+      <.navigation layout={:topbar} current_page={:map_demo} />
+      <.navigation layout={:sidebar} current_page={:stage1} tabs={@tabs} current_tab={@current_example} />
   """
+  attr :layout, :atom, required: true, values: [:sidebar, :topbar]
   attr :current_page, :atom, required: true
   attr :class, :string, default: ""
+  attr :tabs, :list, default: []
+  attr :current_tab, :string, default: nil
 
-  def demo_navigation(assigns) do
+  def navigation(%{layout: :sidebar} = assigns) do
+    ~H"""
+    <nav class={["flex flex-col h-full", @class]}>
+      <!-- Logo/Header -->
+      <div class="p-4 border-b border-base-300">
+        <.link
+          navigate="/"
+          class="text-xl font-bold text-base-content hover:text-base-content/70"
+        >
+          FlyMapEx Demo
+        </.link>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto">
+        <nav class="px-2 py-4 space-y-1">
+          <%= for {path, title, key} <- nav_items() do %>
+            <.link
+              navigate={path}
+              class={sidebar_nav_link_class(@current_page, key)}
+            >
+              <%= title %>
+            </.link>
+
+            <!-- Show tabs as nested items if this is the current page and tabs are provided -->
+            <%= if @current_page == key and length(@tabs) > 0 do %>
+              <div class="ml-4 mt-2 space-y-1">
+                <%= for tab <- @tabs do %>
+                  <button
+                    phx-click="switch_example"
+                    phx-value-option={tab.key}
+                    class={tab_nav_link_class(@current_tab, tab.key)}
+                  >
+                    <%= tab.label %>
+                  </button>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </nav>
+      </div>
+
+      <!-- Theme Toggle -->
+      <div class="p-4 border-t border-base-300">
+        <.theme_toggle />
+      </div>
+    </nav>
+    """
+  end
+
+  def navigation(%{layout: :topbar} = assigns) do
     ~H"""
     <nav class={"bg-base-100 border-b border-base-300 shadow-sm #{@class}"}>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +85,7 @@ defmodule DemoWeb.Components.DemoNavigation do
               <%= for {path, title, key} <- nav_items() do %>
                 <.link
                   navigate={path}
-                  class={nav_link_class(@current_page, key)}
+                  class={topbar_nav_link_class(@current_page, key)}
                 >
                   <%= title %>
                 </.link>
@@ -94,7 +148,27 @@ defmodule DemoWeb.Components.DemoNavigation do
     ]
   end
 
-  defp nav_link_class(current_page, page_key) do
+  defp sidebar_nav_link_class(current_page, page_key) do
+    base_class = "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors"
+
+    if current_page == page_key do
+      "#{base_class} bg-primary/10 text-primary border-r-2 border-primary"
+    else
+      "#{base_class} text-base-content/70 hover:text-base-content hover:bg-base-200"
+    end
+  end
+
+  defp tab_nav_link_class(current_tab, tab_key) do
+    base_class = "group flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors w-full text-left"
+
+    if current_tab == tab_key do
+      "#{base_class} bg-primary/20 text-primary"
+    else
+      "#{base_class} text-base-content/60 hover:text-base-content/80 hover:bg-base-200"
+    end
+  end
+
+  defp topbar_nav_link_class(current_page, page_key) do
     base_class = "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
 
     if current_page == page_key do

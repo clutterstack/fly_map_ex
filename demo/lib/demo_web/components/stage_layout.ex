@@ -9,11 +9,10 @@ defmodule DemoWeb.Components.StageLayout do
   use Phoenix.Component
   use DemoWeb, :verified_routes
 
-  import DemoWeb.Components.DemoNavigation
+  import DemoWeb.Components.Navigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
   import DemoWeb.Components.SidebarLayout
-  import DemoWeb.Components.SidebarNavigation
 
 
   @doc """
@@ -47,10 +46,17 @@ defmodule DemoWeb.Components.StageLayout do
 
   def stage_layout(assigns) do
     ~H"""
-    <.demo_navigation current_page={@current_page} />
+    <!-- Top navigation for mobile/narrow screens -->
+    <div class="lg:hidden">
+      <.navigation layout={:topbar} current_page={@current_page} />
+    </div>
+    
     <.sidebar_layout>
       <:sidebar>
-        <.sidebar_navigation current_page={@current_page} tabs={@tabs} current_tab={@current_tab} />
+        <!-- Sidebar navigation for wide screens -->
+        <div class="hidden lg:block h-full">
+          <.navigation layout={:sidebar} current_page={@current_page} tabs={@tabs} current_tab={@current_tab} />
+        </div>
       </:sidebar>
 
       <:main>
