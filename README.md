@@ -32,9 +32,16 @@ def deps do
 end
 ```
 
-## Usage
+## Basic usage
 
-### Basic Usage
+### Interactive mode (default - existing behavior)
+  <FlyMapEx.render marker_groups={@groups} theme={:dark} />
+
+  ### Static mode (new non-interactive version)  
+  <FlyMapEx.render marker_groups={@groups} theme={:dark} interactive={false} />
+
+  ### Direct component usage
+  <FlyMapEx.StaticComponent.render marker_groups={@groups} theme={:dark} />
 
 ```heex
 <FlyMapEx.render marker_groups={[
