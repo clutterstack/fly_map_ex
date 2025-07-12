@@ -1,7 +1,7 @@
 defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
   import DemoWeb.Layouts, only: [theme_toggle: 1]
-  alias DemoWeb.Helpers.ContentLoader
+  alias DemoWeb.Helpers.PageDiscovery
 
   @doc """
   Renders a navigation component with configurable layout.
@@ -141,9 +141,9 @@ defmodule DemoWeb.Components.Navigation do
       {"/map", "Machine Map", :machine_map}
     ]
     
-    # Add all pages from ContentLoader (including behaviour and markdown)
+    # Add all pages from PageDiscovery
     content_pages = 
-      ContentLoader.navigation_pages()
+      PageDiscovery.navigation_pages()
       |> Enum.map(fn page ->
         path = if page.slug == "home", do: "/", else: "/#{page.slug}"
         key = if page.slug == "home", do: :map_demo, else: String.to_atom(page.slug)
