@@ -1,24 +1,28 @@
 defmodule DemoWeb.Helpers.ContentLoader do
   @moduledoc """
-  Loads and parses Markdown content files with front matter support.
-  Content is loaded at compile time for performance.
+  Loads and parses both Markdown content files and behaviour-based pages.
+  Provides a unified interface for content discovery and loading.
   """
 
   @content_dir "content"
+  
+  alias DemoWeb.Controllers.PageBase
 
   defmodule Page do
     @moduledoc """
     Represents a parsed content page.
     """
-    defstruct [:slug, :title, :description, :nav_order, :content, :raw_content]
+    defstruct [:slug, :title, :description, :nav_order, :content, :raw_content, :type, :module]
 
     @type t :: %__MODULE__{
             slug: String.t(),
             title: String.t(),
             description: String.t() | nil,
             nav_order: integer() | nil,
-            content: String.t(),
-            raw_content: String.t()
+            content: String.t() | nil,
+            raw_content: String.t() | nil,
+            type: :markdown | :behaviour,
+            module: module() | nil
           }
   end
 
@@ -63,6 +67,13 @@ defmodule DemoWeb.Helpers.ContentLoader do
   end
 
   defp load_all_pages do
+    markdown_pages = load_markdown_pages()
+    behaviour_pages = load_behaviour_pages()
+    
+    Map.merge(markdown_pages, behaviour_pages)
+  end
+
+  defp load_markdown_pages do
     content_path = Path.join([File.cwd!(), @content_dir])
 
     if File.exists?(content_path) do
@@ -81,6 +92,30 @@ defmodule DemoWeb.Helpers.ContentLoader do
     end
   end
 
+  defp load_behaviour_pages do
+    try do
+      PageBase.discover_behaviour_pages()
+      |> Enum.map(&behaviour_page_to_page_struct/1)
+      |> Enum.into(%{}, fn page -> {page.slug, page} end)
+    rescue
+      # If PageBase discovery fails (e.g., during compilation), return empty map
+      _ -> %{}
+    end
+  end
+
+  defp behaviour_page_to_page_struct(page_info) do
+    %Page{
+      slug: page_info.slug,
+      title: page_info.title,
+      description: page_info.description,
+      nav_order: page_info.nav_order,
+      content: nil,  # Behaviour pages generate content dynamically
+      raw_content: nil,
+      type: :behaviour,
+      module: page_info.module
+    }
+  end
+
   # Parse front matter and content
   def parse_content(slug, raw_content) do
     case String.split(raw_content, "---", parts: 3) do
@@ -95,7 +130,9 @@ defmodule DemoWeb.Helpers.ContentLoader do
           description: metadata["description"],
           nav_order: parse_nav_order(metadata["nav_order"]),
           content: html_content,
-          raw_content: raw_content
+          raw_content: raw_content,
+          type: :markdown,
+          module: nil
         }
 
       _ ->
@@ -108,7 +145,9 @@ defmodule DemoWeb.Helpers.ContentLoader do
           description: nil,
           nav_order: nil,
           content: html_content,
-          raw_content: raw_content
+          raw_content: raw_content,
+          type: :markdown,
+          module: nil
         }
     end
   end

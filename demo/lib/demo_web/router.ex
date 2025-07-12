@@ -17,7 +17,7 @@ defmodule DemoWeb.Router do
   scope "/", DemoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", HomePageController, :show
     live "/map", MachineMapLive, :index
     live "/demo", MapDemoLive, :index
     live "/stage1", Stage1Live

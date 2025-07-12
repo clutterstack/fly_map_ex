@@ -132,9 +132,8 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp nav_items do
-    # Fixed navigation items
+    # Fixed navigation items (LiveView routes)
     fixed_items = [
-      {"/", "Home", :map_demo},
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
       {"/stage3", "Map Themes", :stage3},
@@ -142,14 +141,16 @@ defmodule DemoWeb.Components.Navigation do
       {"/map", "Machine Map", :machine_map}
     ]
     
-    # Add static pages from ContentLoader
-    static_pages = 
+    # Add all pages from ContentLoader (including behaviour and markdown)
+    content_pages = 
       ContentLoader.navigation_pages()
       |> Enum.map(fn page ->
-        {"/#{page.slug}", page.title, String.to_atom(page.slug)}
+        path = if page.slug == "home", do: "/", else: "/#{page.slug}"
+        key = if page.slug == "home", do: :map_demo, else: String.to_atom(page.slug)
+        {path, page.title, key}
       end)
     
-    fixed_items ++ static_pages
+    content_pages ++ fixed_items
   end
 
   defp sidebar_nav_link_class(current_page, page_key) do

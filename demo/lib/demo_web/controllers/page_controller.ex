@@ -33,7 +33,12 @@ defmodule DemoWeb.PageController do
         |> put_view(DemoWeb.ErrorHTML)
         |> render(:"404")
 
-      page ->
+      %{type: :behaviour, module: module} = _page ->
+        # For behaviour pages, delegate to the specific controller
+        module.show(conn, %{})
+
+      %{type: :markdown} = page ->
+        # For markdown pages, use the existing template
         render(conn, :show, page: page)
     end
   end
