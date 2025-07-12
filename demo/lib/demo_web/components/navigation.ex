@@ -1,6 +1,7 @@
 defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
   import DemoWeb.Layouts, only: [theme_toggle: 1]
+  alias DemoWeb.Helpers.ContentLoader
 
   @doc """
   Renders a navigation component with configurable layout.
@@ -131,7 +132,8 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp nav_items do
-    [
+    # Fixed navigation items
+    fixed_items = [
       {"/", "Home", :map_demo},
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
@@ -139,6 +141,15 @@ defmodule DemoWeb.Components.Navigation do
       {"/stage4", "Builder", :stage4},
       {"/map", "Machine Map", :machine_map}
     ]
+    
+    # Add static pages from ContentLoader
+    static_pages = 
+      ContentLoader.navigation_pages()
+      |> Enum.map(fn page ->
+        {"/#{page.slug}", page.title, String.to_atom(page.slug)}
+      end)
+    
+    fixed_items ++ static_pages
   end
 
   defp sidebar_nav_link_class(current_page, page_key) do

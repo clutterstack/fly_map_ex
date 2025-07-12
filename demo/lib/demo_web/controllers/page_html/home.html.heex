@@ -6,17 +6,14 @@
   <:content>
     <FlyMapEx.StaticComponent.render marker_groups={@groups} theme={:responsive} layout={:side_by_side} />
     
-    <div class="mt-8 space-y-6">
-      <div class="bg-base-200 rounded-lg p-6">
-        <h3 class="text-lg font-semibold mb-4">Key Features</h3>
-        <ul class="space-y-2 text-sm text-base-content/70">
-          <li>• <strong>Interactive World Maps:</strong> Display Fly.io regions with customizable markers and themes</li>
-          <li>• <strong>Real-time Updates:</strong> LiveView components that respond to data changes</li>
-          <li>• <strong>Multiple Themes:</strong> Dashboard, monitoring, presentation, and more</li>
-          <li>• <strong>Responsive Design:</strong> Works seamlessly on desktop and mobile devices</li>
-          <li>• <strong>Flexible Configuration:</strong> Easy to customize colours, animations, and layouts</li>
-        </ul>
-      </div>
+    <%= raw DemoWeb.Helpers.ContentHelpers.convert_markdown(~s"""
+      * Interactive World Maps: Display Fly.io regions with customizable markers and themes
+      * Real-time Updates: LiveView components that respond to data changes
+      * Multiple Themes: Dashboard, monitoring, presentation, and more
+      * Responsive Design: Works seamlessly on desktop and mobile devices
+      * Flexible Configuration: Easy to customize colours, animations, and layouts
+      * Another bullet
+      """) %>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
@@ -31,7 +28,6 @@
             The map above shows real Fly.io regions with sample data to demonstrate the library's capabilities.
           </p>
         </div>
-      </div>
-    </div>
+        </div>
   </:content>
 </.page_template>

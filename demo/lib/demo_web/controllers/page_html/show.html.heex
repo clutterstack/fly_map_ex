@@ -1,0 +1,12 @@
+<.page_template
+  current_page={String.to_atom(@page.slug)}
+  class="max-w-4xl"
+>
+  <:title><%= @page.title %></:title>
+  <:description><%= @page.description || "" %></:description>
+  <:content>
+    <div class="prose prose-lg max-w-none">
+      <%= raw @page.content %>
+    </div>
+  </:content>
+</.page_template>
