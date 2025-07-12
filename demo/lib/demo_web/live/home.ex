@@ -1,4 +1,4 @@
-defmodule DemoWeb.MachineMapLive do
+defmodule DemoWeb.Home do
   @moduledoc """
   LiveView component that displays a real-time world map of Fly.io machines.
 

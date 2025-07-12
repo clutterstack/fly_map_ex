@@ -22,26 +22,20 @@ defmodule DemoWeb.Components.Navigation do
     <nav class={["flex flex-col h-full", @class]}>
       <!-- Logo/Header -->
       <div class="p-4 border-b border-base-300">
-        <.link
-          navigate="/"
-          class="text-xl font-bold text-base-content hover:text-base-content/70"
-        >
+        <.link navigate="/" class="text-xl font-bold text-base-content hover:text-base-content/70">
           FlyMapEx Demo
         </.link>
       </div>
-
-      <!-- Navigation Links -->
+      
+    <!-- Navigation Links -->
       <div class="flex-1 overflow-y-auto">
         <nav class="px-2 py-4 space-y-1">
           <%= for {path, title, key} <- nav_items() do %>
-            <.link
-              navigate={path}
-              class={sidebar_nav_link_class(@current_page, key)}
-            >
-              <%= title %>
+            <.link navigate={path} class={sidebar_nav_link_class(@current_page, key)}>
+              {title}
             </.link>
-
-            <!-- Show tabs as nested items if this is the current page and tabs are provided -->
+            
+    <!-- Show tabs as nested items if this is the current page and tabs are provided -->
             <%= if @current_page == key and length(@tabs) > 0 do %>
               <div class="ml-4 mt-2 space-y-1">
                 <%= for tab <- @tabs do %>
@@ -50,7 +44,7 @@ defmodule DemoWeb.Components.Navigation do
                     phx-value-option={tab.key}
                     class={tab_nav_link_class(@current_tab, tab.key)}
                   >
-                    <%= tab.label %>
+                    {tab.label}
                   </button>
                 <% end %>
               </div>
@@ -58,8 +52,8 @@ defmodule DemoWeb.Components.Navigation do
           <% end %>
         </nav>
       </div>
-
-      <!-- Theme Toggle -->
+      
+    <!-- Theme Toggle -->
       <div class="p-4 border-t border-base-300">
         <.theme_toggle />
       </div>
@@ -83,22 +77,19 @@ defmodule DemoWeb.Components.Navigation do
             </div>
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <%= for {path, title, key} <- nav_items() do %>
-                <.link
-                  navigate={path}
-                  class={topbar_nav_link_class(@current_page, key)}
-                >
-                  <%= title %>
+                <.link navigate={path} class={topbar_nav_link_class(@current_page, key)}>
+                  {title}
                 </.link>
               <% end %>
             </div>
           </div>
-
-          <!-- Theme toggle -->
+          
+    <!-- Theme toggle -->
           <div class="hidden sm:flex items-center">
             <.theme_toggle />
           </div>
-
-          <!-- Mobile menu button -->
+          
+    <!-- Mobile menu button -->
           <div class="sm:hidden flex items-center">
             <button
               type="button"
@@ -110,22 +101,24 @@ defmodule DemoWeb.Components.Navigation do
             >
               <span class="sr-only">Open main menu</span>
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Mobile menu -->
+      
+    <!-- Mobile menu -->
       <div class="sm:hidden" id="mobile-menu" x-data="{ open: false }" x-show="open">
         <div class="pt-2 pb-3 space-y-1">
           <%= for {path, title, key} <- nav_items() do %>
-            <.link
-              navigate={path}
-              class={mobile_nav_link_class(@current_page, key)}
-            >
-              <%= title %>
+            <.link navigate={path} class={mobile_nav_link_class(@current_page, key)}>
+              {title}
             </.link>
           <% end %>
         </div>
@@ -140,16 +133,17 @@ defmodule DemoWeb.Components.Navigation do
   defp nav_items do
     [
       {"/", "Home", :map_demo},
-      {"/stage1", "Placing markers", :stage1},
-      {"/stage2", "Stage 2: Groups", :stage2},
-      {"/stage3", "Stage 3: Themes", :stage3},
-      {"/stage4", "Stage 4: Builder", :stage4},
+      {"/stage1", "Placing Markers", :stage1},
+      {"/stage2", "Marker Styles", :stage2},
+      {"/stage3", "Map Themes", :stage3},
+      {"/stage4", "Builder", :stage4},
       {"/map", "Machine Map", :machine_map}
     ]
   end
 
   defp sidebar_nav_link_class(current_page, page_key) do
-    base_class = "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors"
+    base_class =
+      "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors"
 
     if current_page == page_key do
       "#{base_class} bg-primary/10 text-primary border-r-2 border-primary"
@@ -159,7 +153,8 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp tab_nav_link_class(current_tab, tab_key) do
-    base_class = "group flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors w-full text-left"
+    base_class =
+      "group flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors w-full text-left"
 
     if current_tab == tab_key do
       "#{base_class} bg-primary/20 text-primary"
@@ -169,7 +164,8 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp topbar_nav_link_class(current_page, page_key) do
-    base_class = "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+    base_class =
+      "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
 
     if current_page == page_key do
       "#{base_class} border-primary text-base-content"

@@ -1,6 +1,6 @@
 defmodule DemoWeb.Stage2Live do
   @moduledoc """
-  Stage 2: Styling Markers
+  Stage 2: Marker Styles
 
   This stage demonstrates the comprehensive styling system for FlyMapEx markers,
   including automatic cycling, semantic presets, custom parameters, and mixed approaches.
@@ -12,7 +12,7 @@ defmodule DemoWeb.Stage2Live do
 
   # Required StageBase callbacks
 
-  def stage_title, do: "Stage 2: Styling Markers"
+  def stage_title, do: "Stage 2: Marker Styles"
 
   def stage_description do
     "Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system."
@@ -24,27 +24,49 @@ defmodule DemoWeb.Stage2Live do
         marker_groups: [
           %{
             nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.cycle(0),
             label: "Production Servers"
           },
           %{
             nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.cycle(1),
             label: "Staging Environment"
           },
           %{
             nodes: ["ord"],
-            style: FlyMapEx.Style.cycle(2),
             label: "Development"
           },
           %{
             nodes: ["nrt", "syd"],
-            style: FlyMapEx.Style.cycle(3),
             label: "Testing"
           }
         ],
-        description: "Automatic colour cycling for multiple groups",
-        code_comment: "FlyMapEx.Style.cycle/1 automatically assigns different colours to each group"
+        description: "Automatic colours for multiple groups",
+        code_comment: "FlyMapEx automatically assigns different colours to each group"
+      },
+      named_colours: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: FlyMapEx.Style.named_colours(:blue),
+            label: ":blue markers"
+          },
+          %{
+            nodes: ["ams", "lhr"],
+            style: FlyMapEx.Style.named_colours(:green),
+            label: ":green markers"
+          },
+          %{
+            nodes: ["ord"],
+            style: FlyMapEx.Style.named_colours(:red),
+            label: ":red markers"
+          },
+          %{
+            nodes: ["nrt", "syd"],
+            style: FlyMapEx.Style.named_colours(:purple),
+            label: ":purple markers"
+          }
+        ],
+        description: "Named colours",
+        code_comment: "FlyMapEx.Style.named_colours/1"
       },
       semantic: %{
         marker_groups: [
@@ -70,7 +92,7 @@ defmodule DemoWeb.Stage2Live do
           }
         ],
         description: "Semantic styling with meaningful colours",
-        code_comment: "Use semantic styles to convey status and meaning through colour"
+        code_comment: "There's a "
       },
       custom: %{
         marker_groups: [
@@ -96,19 +118,20 @@ defmodule DemoWeb.Stage2Live do
           }
         ],
         description: "Custom styling with full control over appearance",
-        code_comment: "FlyMapEx.Style.custom/2 allows complete customization of colour, size, animation, and effects"
+        code_comment:
+          "FlyMapEx.Style.custom/2 allows complete customization of colour, size, animation, and effects"
       },
       mixed: %{
         marker_groups: [
           %{
             nodes: ["sjc", "fra"],
             style: FlyMapEx.Style.operational(),
-            label: "Production (Semantic)"
+            label: "Operational (Semantic)"
           },
           %{
             nodes: ["ams", "lhr"],
             style: FlyMapEx.Style.cycle(1),
-            label: "Staging (Auto-Cycle)"
+            label: "The first style in the "
           },
           %{
             nodes: ["ord"],
@@ -135,6 +158,11 @@ defmodule DemoWeb.Stage2Live do
         content: get_automatic_content()
       },
       %{
+        key: "named_colours",
+        label: "Named colours",
+        content: get_named_content()
+      },
+      %{
         key: "semantic",
         label: "Semantic",
         content: get_semantic_content()
@@ -154,7 +182,6 @@ defmodule DemoWeb.Stage2Live do
 
   def stage_navigation, do: StageConfig.stage_navigation(:stage2)
 
-
   def get_advanced_topics do
     [
       %{
@@ -166,11 +193,6 @@ defmodule DemoWeb.Stage2Live do
         id: "custom-styling",
         title: "Custom Style Parameters",
         content: get_custom_styling_content()
-      },
-      %{
-        id: "style-performance",
-        title: "Performance & Best Practices",
-        content: get_style_performance_content()
       },
       %{
         id: "production-config",
@@ -189,25 +211,27 @@ defmodule DemoWeb.Stage2Live do
   # Optional StageBase callbacks
 
   def handle_stage_event("update_param", %{"param" => param, "value" => value}, socket) do
-    updated_params = case param do
-      "size" -> Map.put(socket.assigns.custom_params, :size, String.to_integer(value))
-      "animation" -> Map.put(socket.assigns.custom_params, :animation, String.to_atom(value))
-      "glow" -> Map.put(socket.assigns.custom_params, :glow, value == "true")
-      "color" -> Map.put(socket.assigns.custom_params, :color, value)
-      _ -> socket.assigns.custom_params
-    end
+    updated_params =
+      case param do
+        "size" -> Map.put(socket.assigns.custom_params, :size, String.to_integer(value))
+        "animation" -> Map.put(socket.assigns.custom_params, :animation, String.to_atom(value))
+        "glow" -> Map.put(socket.assigns.custom_params, :glow, value == "true")
+        "color" -> Map.put(socket.assigns.custom_params, :color, value)
+        _ -> socket.assigns.custom_params
+      end
 
     {:noreply, assign(socket, custom_params: updated_params)}
   end
 
   def handle_stage_event("apply_preset", %{"preset" => preset}, socket) do
-    updated_example = case preset do
-      "operational" -> "semantic"
-      "warning" -> "semantic"
-      "danger" -> "semantic"
-      "inactive" -> "semantic"
-      _ -> socket.assigns.current_example
-    end
+    updated_example =
+      case preset do
+        "operational" -> "semantic"
+        "warning" -> "semantic"
+        "danger" -> "semantic"
+        "inactive" -> "semantic"
+        _ -> socket.assigns.current_example
+      end
 
     {:noreply, assign(socket, current_example: updated_example)}
   end
@@ -230,21 +254,11 @@ defmodule DemoWeb.Stage2Live do
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <h4 class="font-semibold text-base-content mb-2">Automatic Cycling</h4>
-          #{ContentHelpers.titled_list([
-            "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(0)", inline: true)} - Blue",
-            "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(1)", inline: true)} - Green",
-            "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(2)", inline: true)} - Red",
-            "Cycles through 12 predefined colors"
-          ])}
+          #{ContentHelpers.titled_list(["#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(0)", inline: true)} - Blue", "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(1)", inline: true)} - Green", "#{ContentHelpers.code_snippet("FlyMapEx.Style.cycle(2)", inline: true)} - Red", "Cycles through 12 predefined colors"])}
         </div>
         <div>
           <h4 class="font-semibold text-base-content mb-2">Semantic Presets</h4>
-          #{ContentHelpers.titled_list([
-            "#{ContentHelpers.code_snippet("operational()", inline: true)} - Running services",
-            "#{ContentHelpers.code_snippet("warning()", inline: true)} - Needs attention",
-            "#{ContentHelpers.code_snippet("danger()", inline: true)} - Critical issues",
-            "#{ContentHelpers.code_snippet("inactive()", inline: true)} - Not running"
-          ])}
+          #{ContentHelpers.titled_list(["#{ContentHelpers.code_snippet("operational()", inline: true)} - Running services", "#{ContentHelpers.code_snippet("warning()", inline: true)} - Needs attention", "#{ContentHelpers.code_snippet("danger()", inline: true)} - Critical issues", "#{ContentHelpers.code_snippet("inactive()", inline: true)} - Not running"])}
         </div>
       </div>
       """
@@ -268,37 +282,7 @@ defmodule DemoWeb.Stage2Live do
           {"animation", ":none, :pulse, :fade (default: :none)"},
           {"glow", "Boolean for glow effect (default: false)"}
         ]
-      ),
-      "</div>"
-    ]
-    |> Enum.join()
-  end
-
-  defp get_style_performance_content do
-    [
-      ContentHelpers.content_section(
-        "Performance & Best Practices",
-        "Optimize your styling approach for production deployments."
-      ),
-      ContentHelpers.ul_with_bold(
-        "Performance Considerations",
-        [
-          {"Animated markers", "use CSS animations for smooth performance"},
-          {"Glow effects", "add minimal overhead with box-shadow"},
-          {"Semantic presets", "for consistent styling across your app"},
-          {"Custom colors", "are validated at compile time"}
-        ]
-      ),
-      ContentHelpers.ul_with_bold(
-        "Styling Strategies",
-        [
-          {"Automatic", "Use cycle() for consistent multi-group colors"},
-          {"Semantic", "Use presets for meaningful status indicators"},
-          {"Custom", "Use custom() for brand-specific styling"},
-          {"Mixed", "Combine approaches for complex scenarios"}
-        ]
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -321,8 +305,7 @@ defmodule DemoWeb.Stage2Live do
           {"Custom maps", "→ validated and normalized"}
         ],
         class: "mt-4"
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -332,32 +315,25 @@ defmodule DemoWeb.Stage2Live do
   defp get_automatic_content do
     [
       ContentHelpers.content_section(
-        "Automatic Color Cycling",
-        "The #{ContentHelpers.code_snippet("FlyMapEx.Style.cycle/1", inline: true)} function automatically assigns consistent colors to multiple groups without manual specification."
-      ),
-      ContentHelpers.info_box(
-        :primary,
-        "Color Progression",
-        ContentHelpers.color_grid([
-          {"bg-primary", "cycle(0) - Blue"},
-          {"bg-success", "cycle(1) - Green"},
-          {"bg-error", "cycle(2) - Red"},
-          {"bg-secondary", "cycle(3) - Purple"}
-        ], cols: 2)
-      ),
-      ContentHelpers.ul_with_bold(
-        "When to Use",
-        [
-          {"Multiple groups", "with equal importance"},
-          {"Consistent visual hierarchy", "is needed"},
-          {"Avoid color conflicts", "automatically"},
-          {"Dashboard-style displays", "are being built"}
-        ]
-      ),
-      ContentHelpers.pro_tip(
-        "cycle() automatically wraps after 12 colors, ensuring visual consistency across any number of groups."
-      ),
-      "</div>"
+        "Automatic Colours",
+        "If you don't specify a group's marker styles, a different colour is used for each group."
+      )
+    ]
+    |> Enum.join()
+  end
+
+  defp get_named_content do
+    [
+      ContentHelpers.content_section(
+        "Named colours",
+        ~s"""
+        Pick a colour by name using `FlyMapEx.Style.named_colours/1`.
+
+        Available colours:
+
+
+        """
+      )
     ]
     |> Enum.join()
   end
@@ -366,19 +342,13 @@ defmodule DemoWeb.Stage2Live do
     [
       ContentHelpers.content_section(
         "Semantic Styling",
-        "Use meaningful preset functions that convey status and state at a glance."
-      ),
-      ContentHelpers.status_steps([
-        {:operational, "operational()", "Healthy, running services. Green, static markers.", "bg-success"},
-        {:warning, "warning()", "Needs attention. Amber, static markers.", "bg-warning"},
-        {:danger, "danger()", "Critical issues. Red, pulsing animation for attention.", "bg-error"},
-        {:inactive, "inactive()", "Not running or offline. Gray, static markers.", "bg-base-content"}
-      ]),
-      ContentHelpers.pro_tip(
-        "Use semantic styles for monitoring dashboards and status displays where color meaning is crucial.",
-        type: :best_practice
-      ),
-      "</div>"
+        ~s"""
+        Preset marker styles to convey status.
+
+        Available semantic styles:
+
+        """
+      )
     ]
     |> Enum.join()
   end
@@ -387,17 +357,9 @@ defmodule DemoWeb.Stage2Live do
     [
       ContentHelpers.content_section(
         "Custom Parameters",
-        "Build completely custom styles with #{ContentHelpers.code_snippet("FlyMapEx.Style.custom/2", inline: true)} for brand-specific or unique requirements."
-      ),
-      ContentHelpers.info_box(
-        :secondary,
-        "Size Parameter",
-        ContentHelpers.color_grid([
-          {"bg-primary", "size: 4 (small)"},
-          {"bg-primary", "size: 6 (default)"},
-          {"bg-primary", "size: 8 (large)"},
-          {"bg-primary", "size: 10 (extra large)"}
-        ], cols: 2)
+        ~s"""
+        Build completely custom styles with `FlyMapEx.Style.custom/2`."
+        """
       ),
       ContentHelpers.ul_with_bold(
         "Animation Options",
@@ -413,12 +375,7 @@ defmodule DemoWeb.Stage2Live do
           {"glow: false", "Standard markers"},
           {"glow: true", "Enhanced visibility with shadow"}
         ]
-      ),
-      ContentHelpers.pro_tip(
-        "Perfect for brand-specific styling, special alerts, or when you need precise control over appearance.",
-        type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -429,12 +386,6 @@ defmodule DemoWeb.Stage2Live do
         "Mixed Approaches",
         "Combine different styling methods in one configuration for complex real-world scenarios."
       ),
-      ContentHelpers.status_steps([
-        {:semantic, "Semantic Functions", "Use operational(), warning(), etc. for critical status indicators.", "bg-success"},
-        {:cycling, "Auto-Cycling", "Use cycle() for equal-importance groupings.", "bg-primary"},
-        {:custom, "Custom Styling", "Use custom() for special cases requiring unique appearance.", "bg-secondary"},
-        {:atoms, "Atom Shortcuts", "Use :inactive, :operational atoms for convenience.", "bg-base-content"}
-      ]),
       ContentHelpers.ul_with_bold(
         "Common Patterns",
         [
@@ -447,10 +398,8 @@ defmodule DemoWeb.Stage2Live do
       ContentHelpers.pro_tip(
         "Start with semantic styles for core functionality, then add cycling and custom styles as needed.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
-
 end

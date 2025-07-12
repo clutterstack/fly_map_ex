@@ -1,6 +1,6 @@
 defmodule DemoWeb.Stage4Live do
   @moduledoc """
-  Stage 4: Interactive Builder
+  Interactive Builder
 
   This stage demonstrates practical application of FlyMapEx concepts,
   including guided scenarios, freeform building, and code export functionality.
@@ -12,7 +12,7 @@ defmodule DemoWeb.Stage4Live do
 
   # Required StageBase callbacks
 
-  def stage_title, do: "Stage 4: Interactive Builder"
+  def stage_title, do: "Interactive Builder"
 
   def stage_description do
     "Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export."
@@ -23,17 +23,20 @@ defmodule DemoWeb.Stage4Live do
       guided: %{
         marker_groups: evaluate_scenario_code(get_scenario_code("monitoring")),
         description: "Real-world monitoring dashboard with operational status indicators",
-        code_comment: "# Monitoring Dashboard Example\n# This demonstrates a practical monitoring scenario with production servers\n# and maintenance windows, using operational and warning styles for clear status visualization."
+        code_comment:
+          "# Monitoring Dashboard Example\n# This demonstrates a practical monitoring scenario with production servers\n# and maintenance windows, using operational and warning styles for clear status visualization."
       },
       freeform: %{
         marker_groups: [],
         description: "Interactive builder for custom map configurations",
-        code_comment: "# Freeform Builder\n# This provides a blank canvas for creating custom marker group configurations.\n# Use this to experiment with different regional deployments and styling approaches."
+        code_comment:
+          "# Freeform Builder\n# This provides a blank canvas for creating custom marker group configurations.\n# Use this to experiment with different regional deployments and styling approaches."
       },
       export: %{
         marker_groups: evaluate_scenario_code(get_scenario_code("monitoring")),
         description: "Code generation and production integration examples",
-        code_comment: "# Export & Integration Example\n# This shows how to structure marker groups for easy code generation\n# and integration into production Phoenix LiveView applications."
+        code_comment:
+          "# Export & Integration Example\n# This shows how to structure marker groups for easy code generation\n# and integration into production Phoenix LiveView applications."
       }
     }
   end
@@ -91,7 +94,10 @@ defmodule DemoWeb.Stage4Live do
   def handle_stage_event("switch_scenario", %{"option" => scenario}, socket) do
     code_string = get_scenario_code(scenario)
     marker_groups = evaluate_scenario_code(code_string)
-    {:noreply, assign(socket, current_scenario: scenario, current_code: code_string) |> update_marker_groups(marker_groups)}
+
+    {:noreply,
+     assign(socket, current_scenario: scenario, current_code: code_string)
+     |> update_marker_groups(marker_groups)}
   end
 
   def handle_stage_event("switch_format", %{"option" => format}, socket) do
@@ -127,8 +133,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Use parameterized templates to balance flexibility with consistency across your organization.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -154,8 +159,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Implement graceful degradation for network failures and missing data to ensure reliable user experiences.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -181,8 +185,7 @@ defmodule DemoWeb.Stage4Live do
       ContentHelpers.pro_tip(
         "Start with standard configurations and gradually add customizations as your requirements become clearer.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -195,26 +198,43 @@ defmodule DemoWeb.Stage4Live do
         "Guided Scenarios",
         "Learn by building real-world map configurations with step-by-step guidance. Each scenario demonstrates common patterns and best practices."
       ),
-      get_scenario_builder("monitoring", "Monitoring Dashboard", "Track service health across multiple regions with status indicators.", "primary", [
-        "Production servers marked as operational",
-        "Maintenance windows highlighted with warnings",
-        "Clear legend for status interpretation"
-      ]),
-      get_scenario_builder("deployment", "Deployment Map", "Visualize application rollouts and deployment status across regions.", "success", [
-        "Active deployments with animated markers",
-        "Completed deployments in stable states",
-        "Pending regions awaiting deployment"
-      ]),
-      get_scenario_builder("status", "Status Board", "Create a comprehensive status overview for incident response and monitoring.", "secondary", [
-        "Critical issues highlighted with danger styling",
-        "Healthy services marked as operational",
-        "Maintenance and acknowledged states"
-      ]),
+      get_scenario_builder(
+        "monitoring",
+        "Monitoring Dashboard",
+        "Track service health across multiple regions with status indicators.",
+        "primary",
+        [
+          "Production servers marked as operational",
+          "Maintenance windows highlighted with warnings",
+          "Clear legend for status interpretation"
+        ]
+      ),
+      get_scenario_builder(
+        "deployment",
+        "Deployment Map",
+        "Visualize application rollouts and deployment status across regions.",
+        "success",
+        [
+          "Active deployments with animated markers",
+          "Completed deployments in stable states",
+          "Pending regions awaiting deployment"
+        ]
+      ),
+      get_scenario_builder(
+        "status",
+        "Status Board",
+        "Create a comprehensive status overview for incident response and monitoring.",
+        "secondary",
+        [
+          "Critical issues highlighted with danger styling",
+          "Healthy services marked as operational",
+          "Maintenance and acknowledged states"
+        ]
+      ),
       ContentHelpers.pro_tip(
         "Each scenario builds on concepts from previous stages, combining marker groups, styling, and theming into practical applications.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -236,7 +256,8 @@ defmodule DemoWeb.Stage4Live do
             "Real-time code generation"
           ]),
           ~s(<div class="mt-2 text-xs text-primary/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
-        ] |> Enum.join()
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.info_box(
         :success,
@@ -249,7 +270,8 @@ defmodule DemoWeb.Stage4Live do
             "Group management with reordering and duplication"
           ]),
           ~s(<div class="mt-2 text-xs text-success/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
-        ] |> Enum.join()
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.info_box(
         :secondary,
@@ -262,13 +284,13 @@ defmodule DemoWeb.Stage4Live do
             "Undo/redo functionality"
           ]),
           ~s(<div class="mt-2 text-xs text-secondary/70"><em>Coming in Phase 2: Enhanced Interactivity</em></div>)
-        ] |> Enum.join()
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.pro_tip(
         "Use the guided scenarios to explore different configurations. Full freeform building tools will be added in Phase 2 with interactive controls and live editing.",
         type: :warning
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -290,7 +312,8 @@ defmodule DemoWeb.Stage4Live do
             "Elixir: Reusable function modules",
             "JSON: Configuration-driven approach"
           ])
-        ] |> Enum.join()
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.ul_with_bold(
         "Integration Patterns",
@@ -316,13 +339,13 @@ defmodule DemoWeb.Stage4Live do
         [
           "Generated code is ready for immediate use:",
           ~s(<div class="mt-2 text-xs text-warning/70"><em>Coming in Phase 2: One-click clipboard integration</em></div>)
-        ] |> Enum.join()
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.pro_tip(
         "Start with HEEx templates for quick prototyping, then extract to Elixir modules for production applications with multiple maps.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -337,7 +360,8 @@ defmodule DemoWeb.Stage4Live do
         description,
         ~s(<button phx-click="switch_scenario" phx-value-option="#{scenario_key}" class="bg-#{color} text-#{color}-content px-3 py-1 rounded text-sm hover:bg-#{color}/80 transition-colors mb-2">Load Scenario</button>),
         ContentHelpers.titled_list(features)
-      ] |> Enum.join()
+      ]
+      |> Enum.join()
     )
   end
 
@@ -348,7 +372,8 @@ defmodule DemoWeb.Stage4Live do
       ~s(<button phx-click="switch_format" phx-value-option="elixir" class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors">Elixir Module</button>),
       ~s(<button phx-click="switch_format" phx-value-option="json" class="bg-primary text-primary-content px-3 py-1 rounded text-sm hover:bg-primary/80 transition-colors">JSON Config</button>),
       ~s(</div>)
-    ] |> Enum.join()
+    ]
+    |> Enum.join()
   end
 
   # Scenario code generation
@@ -431,11 +456,13 @@ defmodule DemoWeb.Stage4Live do
       "guided" ->
         updated_example = Map.put(socket.assigns.examples.guided, :marker_groups, marker_groups)
         assign(socket, examples: Map.put(socket.assigns.examples, :guided, updated_example))
+
       "export" ->
         updated_example = Map.put(socket.assigns.examples.export, :marker_groups, marker_groups)
         assign(socket, examples: Map.put(socket.assigns.examples, :export, updated_example))
-      _ -> socket
+
+      _ ->
+        socket
     end
   end
-
 end

@@ -126,6 +126,7 @@ defmodule FlyMapEx.Component do
   """
 
   use Phoenix.LiveComponent
+  require Logger
 
   alias FlyMapEx.{Theme, Style, Nodes}
   alias FlyMapEx.Components.{WorldMap, LegendComponent}
@@ -284,9 +285,13 @@ defmodule FlyMapEx.Component do
   # Private functions moved from FlyMapEx module
 
   defp normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    marker_groups
+    # First pass: normalize each group with initial labels
+    initial_groups = marker_groups
     |> Enum.with_index()
     |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
+
+    # Second pass: ensure unique group_labels for toggle functionality
+    ensure_unique_group_labels(initial_groups)
   end
 
   defp normalize_marker_group(%{style: style} = group, _index) when not is_nil(style) do
@@ -356,13 +361,13 @@ defmodule FlyMapEx.Component do
       group
     else
       case Map.get(group, :label) do
-        nil -> 
+        nil ->
           # Generate default label if missing
           default_label = generate_default_label(group)
           group
           |> Map.put(:label, default_label)
           |> Map.put(:group_label, default_label)
-        label -> 
+        label ->
           Map.put(group, :group_label, label)
       end
     end
@@ -379,29 +384,64 @@ defmodule FlyMapEx.Component do
           1 -> "Single Node"
           count -> "#{count} Nodes"
         end
-      
+
       # If we have a style, use it to generate label
       Map.has_key?(group, :style) ->
-        style_name = 
+        style_name =
           case Map.get(group, :style) do
-            atom when is_atom(atom) -> 
+            atom when is_atom(atom) ->
               atom |> to_string() |> String.replace("_", " ") |> String.capitalize()
-            _ -> 
+            _ ->
               "Styled Group"
           end
         style_name
-      
+
       # Fallback to generic label
       true -> "Marker Group"
     end
   end
 
+  # Ensure all groups have unique group_labels for proper toggle functionality
+  defp ensure_unique_group_labels(groups) do
+    # Track used labels and their counts
+    {final_groups, _label_counts} =
+      Enum.reduce(groups, {[], %{}}, fn group, {acc_groups, label_counts} ->
+        group_label = Map.get(group, :group_label)
+
+        if group_label do
+          # Check if this label has been used before
+          count = Map.get(label_counts, group_label, 0)
+
+          {unique_label, updated_counts} =
+            if count == 0 do
+              # First use of this label
+              {group_label, Map.put(label_counts, group_label, 1)}
+            else
+              # Duplicate label - make it unique
+              unique_label = "#{group_label} #{count + 1}"
+              {unique_label, Map.put(label_counts, group_label, count + 1)}
+            end
+
+          updated_group = Map.put(group, :group_label, unique_label)
+          {[updated_group | acc_groups], updated_counts}
+        else
+          # No group_label, keep as is
+          {[group | acc_groups], label_counts}
+        end
+      end)
+
+    # Return groups in original order
+    Enum.reverse(final_groups)
+  end
+
   # Layout helper functions
   defp layout_container_class(:side_by_side) do
+    Logger.debug("Explicit :side_by_side layout")
     "flex flex-col lg:flex-row gap-4"
   end
 
   defp layout_container_class(_) do
+    Logger.debug("No map layout specified; using default stacked")
     "space-y-4"
   end
 

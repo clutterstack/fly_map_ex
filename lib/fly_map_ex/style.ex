@@ -57,6 +57,32 @@ defmodule FlyMapEx.Style do
     "#4338ca"
   ]
 
+  @named_colours %{
+    blue: "#2563eb",
+    green:
+    "#16a34a",
+    red:
+    "#dc2626",
+    purple:
+    "#9333ea",
+    orange:
+    "#ea580c",
+    cyan:
+    "#0891b2",
+    yellow:
+    "#ca8a04",
+    pink:
+    "#db2777",
+    teal:
+    "#0d9488",
+    lime:
+    "#65a30d",
+    amber:
+    "#d97706",
+    indigo:
+    "#4338ca"
+  }
+
   @doc """
   Get the available non-semantic colours for cycling.
 
@@ -71,6 +97,24 @@ defmodule FlyMapEx.Style do
   def colours, do: @cycle_colours
 
   @doc """
+  Get a non-semantic style by cycling through predefined colours.
+
+  Useful when you have multiple groups but don't want to assign semantic meaning.
+  Colours are chosen to provide good visual distinction.
+
+  ## Examples
+
+      FlyMapEx.Style.cycle(0)  # blue
+      FlyMapEx.Style.cycle(1)  # emerald
+      FlyMapEx.Style.cycle(10) # blue again (wraps around)
+  """
+  def named_colours(index, opts \\ []) when is_atom(index) do
+    colour = @named_colours[index]
+    result = custom(colour, Keyword.merge([size: FlyMapEx.Config.default_marker_radius()], opts))
+    Map.put(result, :__source__, {:named_colours, [index], opts})
+  end
+
+    @doc """
   Get a non-semantic style by cycling through predefined colours.
 
   Useful when you have multiple groups but don't want to assign semantic meaning.

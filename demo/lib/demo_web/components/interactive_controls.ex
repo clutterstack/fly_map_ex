@@ -1,15 +1,15 @@
 defmodule DemoWeb.Components.InteractiveControls do
   @moduledoc """
   Reusable interactive control components for the FlyMapEx demo stages.
-  
+
   Provides consistent button styling and interaction patterns across all stages.
   """
-  
+
   use Phoenix.Component
-  
+
   @doc """
   Renders a set of preset buttons for switching between different configurations.
-  
+
   ## Attributes
   * `options` - List of option maps with :key, :label, and optional :description
   * `current` - Current active option key  
@@ -20,7 +20,7 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :current, :any, required: true
   attr :event, :string, required: true
   attr :class, :string, default: ""
-  
+
   def preset_buttons(assigns) do
     ~H"""
     <div class={["flex flex-wrap gap-3", @class]}>
@@ -35,16 +35,16 @@ defmodule DemoWeb.Components.InteractiveControls do
           ]}
           title={option[:description]}
         >
-          <%= option.label %>
+          {option.label}
         </button>
       <% end %>
     </div>
     """
   end
-  
+
   @doc """
   Renders a toggle button that switches between two states.
-  
+
   ## Attributes
   * `active` - Boolean indicating if the toggle is active
   * `event` - Phoenix event name to trigger on click
@@ -59,7 +59,7 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :inactive_label, :string, required: true
   attr :active_color, :string, default: "blue"
   attr :class, :string, default: ""
-  
+
   def toggle_button(assigns) do
     ~H"""
     <button
@@ -71,14 +71,14 @@ defmodule DemoWeb.Components.InteractiveControls do
         @class
       ]}
     >
-      <%= if @active, do: @active_label, else: @inactive_label %>
+      {if @active, do: @active_label, else: @inactive_label}
     </button>
     """
   end
-  
+
   @doc """
   Renders an information panel with key concepts or current state.
-  
+
   ## Attributes
   * `title` - Panel title
   * `color` - Color scheme (default: "blue")
@@ -87,9 +87,9 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :title, :string, required: true
   attr :color, :string, default: "blue"
   attr :class, :string, default: ""
-  
+
   slot :inner_block, required: true
-  
+
   def info_panel(assigns) do
     ~H"""
     <div class={[
@@ -98,18 +98,18 @@ defmodule DemoWeb.Components.InteractiveControls do
       @class
     ]}>
       <h3 class={["font-semibold mb-2", get_title_classes(@color)]}>
-        <%= @title %>
+        {@title}
       </h3>
       <div class={get_content_classes(@color)}>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """
   end
-  
+
   @doc """
   Renders a comparison section showing code differences.
-  
+
   ## Attributes
   * `title` - Section title
   * `comparisons` - List of comparison maps with :title and :code
@@ -118,15 +118,15 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :title, :string, required: true
   attr :comparisons, :list, required: true
   attr :class, :string, default: ""
-  
+
   def code_comparison(assigns) do
     ~H"""
     <div class={["bg-base-200 border border-base-300 rounded-lg p-4", @class]}>
-      <h3 class="font-semibold text-base-content mb-2"><%= @title %></h3>
+      <h3 class="font-semibold text-base-content mb-2">{@title}</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <%= for comparison <- @comparisons do %>
           <div>
-            <h4 class="font-medium text-base-content/80 mb-1"><%= comparison.title %></h4>
+            <h4 class="font-medium text-base-content/80 mb-1">{comparison.title}</h4>
             <pre class="bg-base-100 p-2 rounded border text-base-content overflow-x-auto"><code><%= comparison.code %></code></pre>
           </div>
         <% end %>
@@ -137,7 +137,7 @@ defmodule DemoWeb.Components.InteractiveControls do
 
   @doc """
   Renders a tabbed info panel that combines navigation and content.
-  
+
   ## Attributes
   * `tabs` - List of tab maps with :key, :label, :content
   * `current` - Current active tab key
@@ -150,7 +150,7 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :event, :string, required: true
   attr :show_tabs, :boolean, default: true
   attr :class, :string, default: ""
-  
+
   def tabbed_info_panel(assigns) do
     ~H"""
     <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
@@ -168,32 +168,32 @@ defmodule DemoWeb.Components.InteractiveControls do
                   get_tab_classes(tab.key == @current)
                 ]}
               >
-                <%= tab.label %>
+                {tab.label}
               </button>
             <% end %>
           </nav>
         </div>
       <% end %>
       
-      <!-- Tab Content -->
+    <!-- Tab Content -->
       <div class="p-4">
         <%= case Enum.find(@tabs, &(&1.key == @current)) do %>
           <% %{content: content} when is_binary(content) -> %>
-            <%= Phoenix.HTML.raw(content) %>
+            {Phoenix.HTML.raw(content)}
           <% %{content_slot: content_slot} -> %>
-            <%= render_slot(content_slot) %>
+            {render_slot(content_slot)}
           <% tab -> %>
             <%= if tab do %>
-              <%= Phoenix.HTML.raw(tab.content) %>
+              {Phoenix.HTML.raw(tab.content)}
             <% end %>
         <% end %>
       </div>
     </div>
     """
   end
-  
+
   # Private helper functions
-  
+
   defp get_button_classes(true) do
     [
       "bg-primary text-primary-content shadow-md",
@@ -201,7 +201,7 @@ defmodule DemoWeb.Components.InteractiveControls do
       "border-2 border-primary"
     ]
   end
-  
+
   defp get_button_classes(false) do
     [
       "bg-base-200 text-base-content border-2 border-base-300",
@@ -209,7 +209,7 @@ defmodule DemoWeb.Components.InteractiveControls do
       "active:bg-base-content/20"
     ]
   end
-  
+
   defp get_toggle_classes(true, color) do
     case color do
       "blue" -> "bg-primary text-primary-content hover:bg-primary/80"
@@ -219,11 +219,11 @@ defmodule DemoWeb.Components.InteractiveControls do
       _ -> "bg-neutral text-neutral-content hover:bg-neutral/80"
     end
   end
-  
+
   defp get_toggle_classes(false, _color) do
     "bg-base-300 text-base-content hover:bg-base-content/20"
   end
-  
+
   defp get_panel_classes(color) do
     case color do
       "blue" -> "bg-primary/10 border-primary/20"
@@ -234,7 +234,7 @@ defmodule DemoWeb.Components.InteractiveControls do
       _ -> "bg-base-200 border-base-300"
     end
   end
-  
+
   defp get_title_classes(color) do
     case color do
       "blue" -> "text-primary"
@@ -245,7 +245,7 @@ defmodule DemoWeb.Components.InteractiveControls do
       _ -> "text-base-content"
     end
   end
-  
+
   defp get_content_classes(color) do
     case color do
       "blue" -> "text-primary/80"

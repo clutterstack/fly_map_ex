@@ -44,17 +44,20 @@ defmodule DemoWeb.Helpers.CodeGenerator do
   """
   def generate_marker_groups_code(marker_groups) do
     # Use the existing MapWithCodeComponent logic which handles __source__ correctly
-    {_map_attrs, full_code} = DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{
-      marker_groups: marker_groups,
-      theme: nil
-    })
+    {_map_attrs, full_code} =
+      DemoWeb.Components.MapWithCodeComponent.build_map_and_code(%{
+        marker_groups: marker_groups,
+        theme: nil
+      })
 
     # Handle case where marker_groups is nil (no variable declaration)
     if full_code == "<FlyMapEx.render />" do
-      "[]"  # Return empty list for display purposes
+      # Return empty list for display purposes
+      "[]"
     else
       # Extract just the marker_groups part
       [marker_groups_line | _rest] = String.split(full_code, "\n\n")
+
       marker_groups_line
       |> String.trim_leading("marker_groups = ")
     end
@@ -78,42 +81,47 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     guide_comment = ""
     # Add additional code comment if provided
-    comment = if code_comment do
-      commentify(code_comment)
-    else
-      guide_comment
-    end
+    comment =
+      if code_comment do
+        commentify(code_comment)
+      else
+        guide_comment
+      end
 
     # Build attribute lines conditionally
     attr_lines = []
 
     # Only include marker_groups if not nil and not empty
-    attr_lines = if marker_groups != nil and marker_groups != [] do
-      attr_lines ++ ["  marker_groups={#{marker_groups_code}}"]
-    else
-      attr_lines
-    end
+    attr_lines =
+      if marker_groups != nil and marker_groups != [] do
+        attr_lines ++ ["  marker_groups={#{marker_groups_code}}"]
+      else
+        attr_lines
+      end
 
     # Only include theme if it's not the default or empty
-    attr_lines = if theme && theme != :responsive && theme != "" do
-      attr_lines ++ ["  theme={:#{theme}}"]
-    else
-      attr_lines
-    end
+    attr_lines =
+      if theme && theme != :responsive && theme != "" do
+        attr_lines ++ ["  theme={:#{theme}}"]
+      else
+        attr_lines
+      end
 
     # Only include layout if it's not the default or empty
-    attr_lines = if layout && layout != :side_by_side && layout != "" do
-      attr_lines ++ ["  layout={:#{layout}}"]
-    else
-      attr_lines
-    end
+    attr_lines =
+      if layout && layout != :side_by_side && layout != "" do
+        attr_lines ++ ["  layout={:#{layout}}"]
+      else
+        attr_lines
+      end
 
     # Create minimal render call if no attributes
-    render_call = if attr_lines == [] do
-      "<FlyMapEx.render />"
-    else
-      "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
-    end
+    render_call =
+      if attr_lines == [] do
+        "<FlyMapEx.render />"
+      else
+        "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
+      end
 
     # usage_note = "# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
 
@@ -128,25 +136,28 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     attr_lines = ["      marker_groups={#{context_lower}_map_groups()}"]
 
     # Only include theme if it's not the default or empty
-    attr_lines = if theme && theme != :responsive && theme != "" do
-      attr_lines ++ ["      theme={:#{theme}}"]
-    else
-      attr_lines
-    end
+    attr_lines =
+      if theme && theme != :responsive && theme != "" do
+        attr_lines ++ ["      theme={:#{theme}}"]
+      else
+        attr_lines
+      end
 
     # Only include layout if it's not the default or empty
-    attr_lines = if layout && layout != :side_by_side && layout != "" do
-      attr_lines ++ ["      layout={:#{layout}}"]
-    else
-      attr_lines
-    end
+    attr_lines =
+      if layout && layout != :side_by_side && layout != "" do
+        attr_lines ++ ["      layout={:#{layout}}"]
+      else
+        attr_lines
+      end
 
     # Build module comment with optional code comment
-    module_comment = if code_comment do
-      "# #{String.capitalize(context)} Map Module\n# #{code_comment}"
-    else
-      "# #{String.capitalize(context)} Map Module"
-    end
+    module_comment =
+      if code_comment do
+        "# #{String.capitalize(context)} Map Module\n# #{code_comment}"
+      else
+        "# #{String.capitalize(context)} Map Module"
+      end
 
     lines = [
       module_comment,
@@ -176,24 +187,27 @@ defmodule DemoWeb.Helpers.CodeGenerator do
 
   defp generate_json_config(marker_groups, theme, layout, context, code_comment \\ nil) do
     # Convert marker_groups to JSON representation
-    json_groups = try do
-      marker_groups
-      |> Enum.map(fn group ->
-        nodes_json = group.nodes |> Enum.map(&"\"#{&1}\"") |> Enum.join(", ")
-        style_name = get_style_name(group.style)
-        "    {\n      \"nodes\": [#{nodes_json}],\n      \"style\": \"#{style_name}\",\n      \"label\": \"#{group.label}\"\n    }"
-      end)
-      |> Enum.join(",\n")
-    rescue
-      _ -> "    // Error parsing groups"
-    end
+    json_groups =
+      try do
+        marker_groups
+        |> Enum.map(fn group ->
+          nodes_json = group.nodes |> Enum.map(&"\"#{&1}\"") |> Enum.join(", ")
+          style_name = get_style_name(group.style)
+
+          "    {\n      \"nodes\": [#{nodes_json}],\n      \"style\": \"#{style_name}\",\n      \"label\": \"#{group.label}\"\n    }"
+        end)
+        |> Enum.join(",\n")
+      rescue
+        _ -> "    // Error parsing groups"
+      end
 
     # Build JSON with optional code comment
-    json_comment = if code_comment do
-      "  \"comment\": \"#{code_comment}\","
-    else
-      ""
-    end
+    json_comment =
+      if code_comment do
+        "  \"comment\": \"#{code_comment}\","
+      else
+        ""
+      end
 
     lines = [
       "{",

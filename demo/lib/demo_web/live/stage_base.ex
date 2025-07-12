@@ -18,13 +18,18 @@ defmodule DemoWeb.Live.StageBase do
   # Optional callbacks with default implementations
   @callback default_example() :: String.t()
   @callback handle_stage_event(String.t(), map(), Phoenix.LiveView.Socket.t()) ::
-    {:noreply, Phoenix.LiveView.Socket.t()}
+              {:noreply, Phoenix.LiveView.Socket.t()}
   @callback stage_theme() :: atom()
   @callback stage_layout() :: atom()
   @callback get_example_theme(String.t()) :: atom()
-  @callback get_example_layout(String.t()) :: atom()
 
-  @optional_callbacks [default_example: 0, handle_stage_event: 3, stage_theme: 0, stage_layout: 0, get_example_theme: 1, get_example_layout: 1]
+  @optional_callbacks [
+    default_example: 0,
+    handle_stage_event: 3,
+    stage_theme: 0,
+    stage_layout: 0,
+    get_example_theme: 1
+  ]
 
   defmacro __using__(_opts) do
     quote do
@@ -39,18 +44,21 @@ defmodule DemoWeb.Live.StageBase do
       def mount(_params, _session, socket) do
         examples = stage_examples()
         tabs = stage_tabs()
-        default_example = if function_exported?(__MODULE__, :default_example, 0) do
-          default_example()
-        else
-          # Use first tab key as default
-          tabs |> List.first() |> Map.get(:key)
-        end
 
-        {:ok, assign(socket,
-          examples: examples,
-          tabs: tabs,
-          current_example: default_example
-        )}
+        default_example =
+          if function_exported?(__MODULE__, :default_example, 0) do
+            default_example()
+          else
+            # Use first tab key as default
+            tabs |> List.first() |> Map.get(:key)
+          end
+
+        {:ok,
+         assign(socket,
+           examples: examples,
+           tabs: tabs,
+           current_example: default_example
+         )}
       end
 
       def handle_event("switch_example", %{"option" => option}, socket) do
@@ -66,12 +74,13 @@ defmodule DemoWeb.Live.StageBase do
       end
 
       def render(assigns) do
-        stage_page = __MODULE__
-        |> Module.split()
-        |> List.last()
-        |> String.replace("Live", "")
-        |> String.downcase()
-        |> String.to_atom()
+        stage_page =
+          __MODULE__
+          |> Module.split()
+          |> List.last()
+          |> String.replace("Live", "")
+          |> String.downcase()
+          |> String.to_atom()
 
         # Use function component approach
         DemoWeb.Components.StageLayout.stage_layout(%{
@@ -85,8 +94,14 @@ defmodule DemoWeb.Live.StageBase do
           examples: assigns.examples,
           advanced_topics: get_advanced_topics(),
           navigation: stage_navigation(),
+          layout: stage_layout(),
           get_focused_code: fn example, marker_groups ->
-            get_focused_code(example, marker_groups, current_example_description(assigns), current_example_code_comment(assigns))
+            get_focused_code(
+              example,
+              marker_groups,
+              current_example_description(assigns),
+              current_example_code_comment(assigns)
+            )
           end,
           current_example_description: current_example_description(assigns),
           current_example_code_comment: current_example_code_comment(assigns)
@@ -96,10 +111,12 @@ defmodule DemoWeb.Live.StageBase do
       # Common helper functions
       defp current_marker_groups(assigns) do
         case Map.get(assigns.examples, String.to_atom(assigns.current_example), []) do
-          nil -> nil  # Pass nil through to indicate no marker groups
+          # Pass nil through to indicate no marker groups
+          nil -> nil
           # Support both old format (list of marker groups) and new format (map with metadata)
           %{marker_groups: groups} -> groups
-          groups when is_list(groups) -> groups  # Backward compatibility
+          # Backward compatibility
+          groups when is_list(groups) -> groups
           groups -> groups
         end
       end
@@ -123,6 +140,7 @@ defmodule DemoWeb.Live.StageBase do
       end
 
       defp count_total_nodes(marker_groups) when is_nil(marker_groups), do: 0
+
       defp count_total_nodes(marker_groups) do
         Enum.reduce(marker_groups, 0, fn group, acc ->
           nodes = group[:nodes] || []
@@ -130,30 +148,37 @@ defmodule DemoWeb.Live.StageBase do
         end)
       end
 
-      defp get_focused_code(example, marker_groups, current_example_description, code_comment \\ nil) do
+      defp get_focused_code(
+             example,
+             marker_groups,
+             current_example_description,
+             code_comment \\ nil
+           ) do
         context = get_context_name(example)
 
         # Check for per-example theme first, then fall back to stage theme
-        theme = if function_exported?(__MODULE__, :get_example_theme, 1) do
-          case apply(__MODULE__, :get_example_theme, [example]) do
-            nil -> get_stage_theme()
-            "" -> get_stage_theme()
-            value -> value
+        theme =
+          if function_exported?(__MODULE__, :get_example_theme, 1) do
+            case apply(__MODULE__, :get_example_theme, [example]) do
+              nil -> get_stage_theme()
+              "" -> get_stage_theme()
+              value -> value
+            end
+          else
+            get_stage_theme()
           end
-        else
-          get_stage_theme()
-        end
 
         # Check for per-example layout first, then fall back to stage layout
-        layout = if function_exported?(__MODULE__, :get_example_layout, 1) do
-          case apply(__MODULE__, :get_example_layout, [example]) do
-            nil -> get_stage_layout()
-            "" -> get_stage_layout()
-            value -> value
+        layout =
+          if function_exported?(__MODULE__, :get_example_layout, 1) do
+            case apply(__MODULE__, :get_example_layout, [example]) do
+              nil -> get_stage_layout()
+              "" -> get_stage_layout()
+              value -> value
+            end
+          else
+            get_stage_layout()
           end
-        else
-          get_stage_layout()
-        end
 
         CodeGenerator.generate_flymap_code(
           marker_groups,
@@ -198,7 +223,6 @@ defmodule DemoWeb.Live.StageBase do
         |> List.first()
         |> String.downcase()
       end
-
 
       # Allow implementations to override these functions
       # defoverridable [get_context_name: 1]

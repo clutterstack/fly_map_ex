@@ -30,7 +30,7 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - Single vs. multiple markers
 - Multiple groups organization
 
-### Stage 2: Styling Markers
+### Stage 2: Marker Styles
 #### Implementation progress 
 [x] Phase 1: Foundation ✅ COMPLETED - Tabbed Interface
 [ ] Phase 2: Enhanced Interactivity (ready to start)
@@ -60,7 +60,7 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - Custom theme creation
 - Configuration vs. inline theming
 
-### Stage 4: Interactive Builder/Playground
+### Interactive Builder/Playground
 
 #### Implementation progress 
 [x] Phase 1: Foundation ✅ COMPLETED - Tabbed Interface
@@ -106,7 +106,7 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - **Later** Add/remove region buttons
 - **Later** Group management controls
 
-### Stage 2: Styling Markers
+### Stage 2: Marker Styles
 
 **✅ COMPLETED: Tabbed Interface Implementation**
 
@@ -210,7 +210,7 @@ This document outlines the educational design for transforming the FlyMapEx demo
 - [ ] Save/load custom theme configurations
 - [ ] Theme comparison tool with side-by-side preview
 
-### Stage 4: Interactive Builder/Playground
+### Interactive Builder/Playground
 
 **✅ COMPLETED: Tabbed Interface Implementation**
 

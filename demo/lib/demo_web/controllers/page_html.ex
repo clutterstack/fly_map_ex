@@ -6,5 +6,7 @@ defmodule DemoWeb.PageHTML do
   """
   use DemoWeb, :html
 
+  import DemoWeb.Components.{SidebarLayout, Navigation}
+
   embed_templates "page_html/*"
 end

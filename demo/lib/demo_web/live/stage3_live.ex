@@ -39,7 +39,8 @@ defmodule DemoWeb.Stage3Live do
           }
         ],
         description: "Predefined themes for common use cases",
-        code_comment: "Theme presets provide consistent styling for common deployment scenarios. Use :dashboard for compact controls, :monitoring for status dashboards, :presentation for demos, and :minimal for clean interfaces."
+        code_comment:
+          "Theme presets provide consistent styling for common deployment scenarios. Use :dashboard for compact controls, :monitoring for status dashboards, :presentation for demos, and :minimal for clean interfaces."
       },
       responsive: %{
         marker_groups: [
@@ -55,7 +56,8 @@ defmodule DemoWeb.Stage3Live do
           }
         ],
         description: "Adaptive theming that responds to context",
-        code_comment: "The responsive theme automatically adapts to your site's design system by reading CSS custom properties. Perfect for seamless integration with existing design systems and automatic light/dark mode support."
+        code_comment:
+          "The responsive theme automatically adapts to your site's design system by reading CSS custom properties. Perfect for seamless integration with existing design systems and automatic light/dark mode support."
       },
       custom: %{
         marker_groups: [
@@ -76,7 +78,8 @@ defmodule DemoWeb.Stage3Live do
           }
         ],
         description: "Custom theme creation with full control",
-        code_comment: "Custom themes offer complete control over map appearance. Define land_color, ocean_color, border_color, and background_color properties. Supports hex, RGB, HSL, CSS variables, and named colours for maximum flexibility."
+        code_comment:
+          "Custom themes offer complete control over map appearance. Define land_color, ocean_color, border_color, and background_color properties. Supports hex, RGB, HSL, CSS variables, and named colours for maximum flexibility."
       },
       configuration: %{
         marker_groups: [
@@ -92,7 +95,8 @@ defmodule DemoWeb.Stage3Live do
           }
         ],
         description: "Theme configuration and deployment patterns",
-        code_comment: "Configure themes at the application level in config.exs for consistent theming across your entire app. Theme precedence: inline props > component defaults > app config > library defaults."
+        code_comment:
+          "Configure themes at the application level in config.exs for consistent theming across your entire app. Theme precedence: inline props > component defaults > app config > library defaults."
       }
     }
   end
@@ -173,8 +177,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use CSS custom properties for theme switching to avoid layout thrashing and enable smooth transitions.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -200,8 +203,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Create theme inheritance hierarchies to reduce duplication and maintain consistency across your organization.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -216,7 +218,8 @@ defmodule DemoWeb.Stage3Live do
         "Implementation Patterns",
         [
           {"User Preferences", "Store and persist theme choices in browser storage"},
-          {"Context Switching", "Automatically adapt themes based on time, location, or user context"},
+          {"Context Switching",
+           "Automatically adapt themes based on time, location, or user context"},
           {"Smooth Transitions", "Implement animated theme changes with CSS transitions"},
           {"System Integration", "Respect OS-level dark/light mode preferences"}
         ]
@@ -227,8 +230,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use Phoenix LiveView's push_event to update CSS custom properties for instant theme changes without page reloads.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -242,16 +244,19 @@ defmodule DemoWeb.Stage3Live do
         "Ready-to-use themes optimized for common use cases. Quick to implement and consistently styled."
       ),
       ContentHelpers.status_steps([
-        {:dashboard, ":dashboard", "Compact design for control panels and admin interfaces.", "bg-primary"},
-        {:monitoring, ":monitoring", "Standard size with clear visibility for status dashboards.", "bg-success"},
-        {:presentation, ":presentation", "Large markers with warm colours for demos and presentations.", "bg-secondary"},
-        {:minimal, "Also available", ":minimal • :dark • :light • :high_contrast", "bg-base-content"}
+        {:dashboard, ":dashboard", "Compact design for control panels and admin interfaces.",
+         "bg-primary"},
+        {:monitoring, ":monitoring", "Standard size with clear visibility for status dashboards.",
+         "bg-success"},
+        {:presentation, ":presentation",
+         "Large markers with warm colours for demos and presentations.", "bg-secondary"},
+        {:minimal, "Also available", ":minimal • :dark • :light • :high_contrast",
+         "bg-base-content"}
       ]),
       ContentHelpers.pro_tip(
         "Use preset themes when you need consistent styling or want to match common interface patterns.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -267,12 +272,16 @@ defmodule DemoWeb.Stage3Live do
         "CSS Custom Properties",
         [
           "Reads your site's CSS variables:",
-          ContentHelpers.titled_list([
-            "--color-background → land areas",
-            "--color-border → country borders",
-            "--color-muted → ocean areas"
-          ], type: :arrows)
-        ] |> Enum.join()
+          ContentHelpers.titled_list(
+            [
+              "--color-background → land areas",
+              "--color-border → country borders",
+              "--color-muted → ocean areas"
+            ],
+            type: :arrows
+          )
+        ]
+        |> Enum.join()
       ),
       ContentHelpers.info_box(
         :success,
@@ -285,8 +294,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use as your default theme for maintenance-free branding consistency.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -300,12 +308,15 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.info_box(
         :primary,
         "Theme Properties",
-        ContentHelpers.titled_list([
-          "land_color → Countries and land masses",
-          "ocean_color → Water areas",
-          "border_color → Country borders",
-          "background_color → Container background"
-        ], type: :arrows)
+        ContentHelpers.titled_list(
+          [
+            "land_color → Countries and land masses",
+            "ocean_color → Water areas",
+            "border_color → Country borders",
+            "background_color → Container background"
+          ],
+          type: :arrows
+        )
       ),
       ContentHelpers.info_box(
         :success,
@@ -320,8 +331,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use custom themes when you need precise visual control or brand-specific experiences.",
         type: :production
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -359,8 +369,7 @@ defmodule DemoWeb.Stage3Live do
       ContentHelpers.pro_tip(
         "Use config-based themes for centralized management and consistency across your application.",
         type: :best_practice
-      ),
-      "</div>"
+      )
     ]
     |> Enum.join()
   end
@@ -372,7 +381,8 @@ defmodule DemoWeb.Stage3Live do
       "responsive" -> :responsive
       "custom" -> :minimal
       "configuration" -> :light
-      _ -> nil  # Fall back to stage theme
+      # Fall back to stage theme
+      _ -> nil
     end
   end
 end

@@ -6,13 +6,13 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   formatting, and DaisyUI-styled components used throughout the demo application.
   """
 
-
   @doc """
   Converts a string from Markdown to HTML.
   Takes a string (use heredocs for multiple lines)
   """
   def convert_markdown(markdown, opts \\ []) do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+
     ~s"""
     #{Earmark.as_html!(markdown, earmark_opts)}
     """
@@ -72,16 +72,18 @@ defmodule DemoWeb.Helpers.ContentHelpers do
     type = Keyword.get(opts, :type, :bullets)
     class = Keyword.get(opts, :class, "text-sm text-base-content/70 space-y-1")
 
-    list_items = Enum.map(items, fn item ->
-      marker = case type do
-        :bullets -> "•"
-        :arrows -> "→"
-        :checks -> "✓"
-        _ -> "•"
-      end
+    list_items =
+      Enum.map(items, fn item ->
+        marker =
+          case type do
+            :bullets -> "•"
+            :arrows -> "→"
+            :checks -> "✓"
+            _ -> "•"
+          end
 
-      "<li>#{marker} #{item}</li>"
-    end)
+        "<li>#{marker} #{item}</li>"
+      end)
 
     ~s"""
     <ul class="#{class}">
@@ -114,9 +116,10 @@ defmodule DemoWeb.Helpers.ContentHelpers do
     cols = Keyword.get(opts, :cols, 2)
     gap = Keyword.get(opts, :gap, "gap-2")
 
-    items = Enum.map(colors, fn {color, label} ->
-      color_indicator(color, label, opts)
-    end)
+    items =
+      Enum.map(colors, fn {color, label} ->
+        color_indicator(color, label, opts)
+      end)
 
     ~s"""
     <div class="grid grid-cols-#{cols} #{gap} text-sm">
@@ -131,13 +134,14 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def pro_tip(content, opts \\ []) do
     type = Keyword.get(opts, :type, :tip)
 
-    {bg_class, border_class, text_class, icon} = case type do
-      :tip -> {"bg-base-200", "border-base-300", "text-base-content/70", "Pro Tip:"}
-      :warning -> {"bg-warning/10", "border-warning/20", "text-warning", "Warning:"}
-      :best_practice -> {"bg-primary/10", "border-primary/20", "text-primary", "Best Practice:"}
-      :production -> {"bg-success/10", "border-success/20", "text-success", "Production Tip:"}
-      _ -> {"bg-base-200", "border-base-300", "text-base-content/70", "Note:"}
-    end
+    {bg_class, border_class, text_class, icon} =
+      case type do
+        :tip -> {"bg-base-200", "border-base-300", "text-base-content/70", "Pro Tip:"}
+        :warning -> {"bg-warning/10", "border-warning/20", "text-warning", "Warning:"}
+        :best_practice -> {"bg-primary/10", "border-primary/20", "text-primary", "Best Practice:"}
+        :production -> {"bg-success/10", "border-success/20", "text-success", "Production Tip:"}
+        _ -> {"bg-base-200", "border-base-300", "text-base-content/70", "Note:"}
+      end
 
     ~s"""
     <div class="#{bg_class} border #{border_class} rounded-lg p-3">
@@ -152,15 +156,16 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   Creates parameter documentation with examples.
   """
   def parameter_doc(name, type, description, example \\ nil) do
-    example_html = if example do
-      ~s"""
-      <div class="mt-1">
-        <strong>Example:</strong> #{code_snippet(example, inline: true)}
-      </div>
-      """
-    else
-      ""
-    end
+    example_html =
+      if example do
+        ~s"""
+        <div class="mt-1">
+          <strong>Example:</strong> #{code_snippet(example, inline: true)}
+        </div>
+        """
+      else
+        ""
+      end
 
     ~s"""
     <div class="space-y-1">
@@ -181,9 +186,10 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def ul_with_bold(title, cases, opts \\ []) do
     class = Keyword.get(opts, :class, "")
 
-    case_items = Enum.map(cases, fn {use_case, description} ->
-      "<li><strong>#{use_case}:</strong> #{description}</li>"
-    end)
+    case_items =
+      Enum.map(cases, fn {use_case, description} ->
+        "<li><strong>#{use_case}:</strong> #{description}</li>"
+      end)
 
     ~s"""
     <div class="#{class}">
@@ -201,17 +207,18 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   def status_steps(steps, opts \\ []) do
     gap = Keyword.get(opts, :gap, "space-y-3")
 
-    step_items = Enum.map(steps, fn {_status, title, description, color} ->
-      ~s"""
-      <div class="flex items-start space-x-3 p-3 #{color}/10 border #{color}/20 rounded-lg">
-        <div class="w-4 h-4 rounded-full #{color} mt-0.5"></div>
-        <div>
-          <h5 class="font-medium #{color}">#{title}</h5>
-          <p class="text-sm #{color}/80">#{description}</p>
+    step_items =
+      Enum.map(steps, fn {_status, title, description, color} ->
+        ~s"""
+        <div class="flex items-start space-x-3 p-3 #{color}/10 border #{color}/20 rounded-lg">
+          <div class="w-4 h-4 rounded-full #{color} mt-0.5"></div>
+          <div>
+            <h5 class="font-medium #{color}">#{title}</h5>
+            <p class="text-sm #{color}/80">#{description}</p>
+          </div>
         </div>
-      </div>
-      """
-    end)
+        """
+      end)
 
     ~s"""
     <div class="#{gap}">

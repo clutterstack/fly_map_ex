@@ -235,7 +235,7 @@ defmodule DemoWeb.MapDemoLive do
                 phx-debounce="300"
               >{@code_input}</textarea>
             </form>
-
+            
     <!-- Validation Errors -->
             <%= if @validation_errors != [] do %>
               <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
@@ -247,7 +247,7 @@ defmodule DemoWeb.MapDemoLive do
                 </ul>
               </div>
             <% end %>
-
+            
     <!-- Hints Section -->
             <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
               <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
@@ -256,14 +256,17 @@ defmodule DemoWeb.MapDemoLive do
                   <strong>Styles (optional):</strong>
                   operational(), warning(), danger(), primary(), cycle(0)
                 </p>
-                <p><strong>Auto-cycling:</strong> Groups without styles get distinct colours automatically</p>
+                <p>
+                  <strong>Auto-cycling:</strong>
+                  Groups without styles get distinct colours automatically
+                </p>
                 <p><strong>Sample Regions:</strong> "sjc", "fra", "ams", "lhr", "ord", "dfw"</p>
                 <p><strong>Custom Coordinates:</strong> Use maps with label and coordinates fields</p>
               </div>
             </div>
           </div>
         </div>
-
+        
     <!-- Preview Section -->
         <div class="space-y-4">
           <!-- Live Map Preview -->
@@ -271,17 +274,14 @@ defmodule DemoWeb.MapDemoLive do
             <h2 class="text-xl font-semibold mb-4 text-base-content">Live Preview</h2>
 
             <%= if @marker_groups != [] do %>
-              <FlyMapEx.render
-                marker_groups={@marker_groups}
-                class="demo-map"
-              />
+              <FlyMapEx.render marker_groups={@marker_groups} class="demo-map" />
             <% else %>
               <div class="flex items-center justify-center h-64 bg-base-200/50 rounded-lg border-2 border-dashed border-base-300">
                 <p class="text-base-content/60">Map preview will appear here once code is valid</p>
               </div>
             <% end %>
           </div>
-
+          
     <!-- Generated HEEx Code -->
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-4">
@@ -308,7 +308,7 @@ defmodule DemoWeb.MapDemoLive do
           </div>
         </div>
       </div>
-
+      
     <!-- Documentation Section -->
       <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>

@@ -47,23 +47,23 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
       <!-- Map Display -->
       <div class={["space-y-4", @map_class]}>
         <%= if @map_title || @title do %>
-          <h2 class="text-xl font-semibold text-base-content/80"><%= @map_title || @title %></h2>
+          <h2 class="text-xl font-semibold text-base-content/80">{@map_title || @title}</h2>
         <% end %>
 
         <div class="p-4 bg-base-200 rounded-lg">
           <FlyMapEx.render {@map_attrs} />
         </div>
       </div>
-
-      <!-- Code Display -->
+      
+    <!-- Code Display -->
       <%= if @show_code do %>
         <div class={["space-y-4", @code_class]}>
-          <h2 class="text-xl font-semibold text-base-content/80"><%= @code_title %></h2>
+          <h2 class="text-xl font-semibold text-base-content/80">{@code_title}</h2>
           <div class="bg-base-200 rounded-lg p-4">
-            <pre class="text-sm text-base-content overflow-x-auto"><code><%= @code_string %></code></pre>
+            <pre class="text-sm text-base-content overflow-x-auto whitespace-pre-wrap break-words"><code><%= @code_string %></code></pre>
           </div>
 
-          <%= render_slot(@extra_content) %>
+          {render_slot(@extra_content)}
         </div>
       <% end %>
     </div>
@@ -92,14 +92,16 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Handle nil marker_groups differently from empty list
     # nil means no marker_groups attribute at all
     # [] means empty marker_groups attribute
-    marker_groups = case marker_groups do
-      nil -> nil  # Keep nil to indicate no marker_groups attribute
-      groups -> groups
-    end
+    marker_groups =
+      case marker_groups do
+        # Keep nil to indicate no marker_groups attribute
+        nil -> nil
+        groups -> groups
+      end
 
     # Build map attributes - only include marker_groups if not nil and not empty
     map_attrs = %{layout: layout}
-    
+
     map_attrs =
       if marker_groups != nil and marker_groups != [] do
         Map.put(map_attrs, :marker_groups, marker_groups)
@@ -127,7 +129,11 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Generate the component call
     component_attrs =
       if theme != nil do
-        theme_str = if is_atom(theme), do: ":#{theme}", else: "FlyMapEx.Theme.custom_theme(#{inspect(theme)})"
+        theme_str =
+          if is_atom(theme),
+            do: ":#{theme}",
+            else: "FlyMapEx.Theme.custom_theme(#{inspect(theme)})"
+
         "\n  theme={#{theme_str}}"
       else
         ""
@@ -168,12 +174,14 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
         cond do
           Map.has_key?(group, :nodes) or Map.has_key?(group, "nodes") ->
             nodes_str = format_nodes(group[:nodes] || Map.get(group, "nodes"))
+
             "    %{\n      nodes: " <>
               nodes_str <>
               style_field <> label_field <> "\n    }"
 
           Map.has_key?(group, :markers) or Map.has_key?(group, "markers") ->
             markers_str = format_markers(group[:markers] || Map.get(group, "markers"))
+
             "    %{\n      nodes: " <>
               markers_str <>
               style_field <> label_field <> "\n    }"
@@ -202,6 +210,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           # Handle custom coordinate nodes
           label = Map.get(node, :label) || Map.get(node, "label")
           coords = format_coordinates(Map.get(node, :coordinates) || Map.get(node, "coordinates"))
+
           if label do
             "%{label: #{inspect(label)}, coordinates: #{coords}}"
           else
@@ -218,6 +227,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
         label = Map.get(marker, :label) || Map.get(marker, "label")
         lat = Map.get(marker, :lat) || Map.get(marker, "lat")
         lng = Map.get(marker, :lng) || Map.get(marker, "lng")
+
         if label do
           "\n      %{coordinates: {#{lat}, #{lng}}, label: #{inspect(label)}}"
         else
@@ -263,9 +273,17 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     additional_params =
       []
       |> maybe_add_param(:size, Map.get(style_map, :size), Map.get(defaults, :size))
-      |> maybe_add_param(:animation, Map.get(style_map, :animation), Map.get(defaults, :animation))
+      |> maybe_add_param(
+        :animation,
+        Map.get(style_map, :animation),
+        Map.get(defaults, :animation)
+      )
       |> maybe_add_param(:glow, Map.get(style_map, :glow), Map.get(defaults, :glow))
-      |> maybe_add_param(:gradient, Map.get(style_map, :gradient), Map.get(defaults, :gradient, false))
+      |> maybe_add_param(
+        :gradient,
+        Map.get(style_map, :gradient),
+        Map.get(defaults, :gradient, false)
+      )
 
     # Combine with original args
     all_params = args ++ additional_params
@@ -339,16 +357,25 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
         true ->
           # Custom style
-          {"FlyMapEx.Style.custom", [inspect(colour)], %{size: 4, animation: :none, glow: false, gradient: false}}
+          {"FlyMapEx.Style.custom", [inspect(colour)],
+           %{size: 4, animation: :none, glow: false, gradient: false}}
       end
 
     # Build list of additional parameters (those that differ from actual defaults)
     additional_params =
       []
       |> maybe_add_param(:size, Map.get(style_map, :size), Map.get(defaults, :size))
-      |> maybe_add_param(:animation, Map.get(style_map, :animation), Map.get(defaults, :animation))
+      |> maybe_add_param(
+        :animation,
+        Map.get(style_map, :animation),
+        Map.get(defaults, :animation)
+      )
       |> maybe_add_param(:glow, Map.get(style_map, :glow), Map.get(defaults, :glow, false))
-      |> maybe_add_param(:gradient, Map.get(style_map, :gradient), Map.get(defaults, :gradient, false))
+      |> maybe_add_param(
+        :gradient,
+        Map.get(style_map, :gradient),
+        Map.get(defaults, :gradient, false)
+      )
 
     # Combine all parameters
     all_params = params ++ additional_params

@@ -1,7 +1,7 @@
 defmodule DemoWeb.Helpers.StageConfig do
   @moduledoc """
   Configuration helpers and validation for stage components.
-  
+
   This module provides utilities for validating tab configurations,
   normalizing example data, and managing stage-specific settings.
   """
@@ -18,7 +18,7 @@ defmodule DemoWeb.Helpers.StageConfig do
   @doc """
   Validates a single tab configuration.
   """
-  def validate_tab(%{key: key, label: label, content: content} = tab) 
+  def validate_tab(%{key: key, label: label, content: content} = tab)
       when is_binary(key) and is_binary(label) and is_binary(content) do
     tab
   end
@@ -54,6 +54,7 @@ defmodule DemoWeb.Helpers.StageConfig do
           %{key: "example", label: "Example", content: ""},
           %{key: "advanced", label: "Advanced", content: ""}
         ]
+
       :styling ->
         [
           %{key: "automatic", label: "Automatic", content: ""},
@@ -61,6 +62,7 @@ defmodule DemoWeb.Helpers.StageConfig do
           %{key: "custom", label: "Custom", content: ""},
           %{key: "mixed", label: "Mixed", content: ""}
         ]
+
       :theming ->
         [
           %{key: "light", label: "Light Theme", content: ""},
@@ -68,6 +70,7 @@ defmodule DemoWeb.Helpers.StageConfig do
           %{key: "responsive", label: "Responsive", content: ""},
           %{key: "custom", label: "Custom Theme", content: ""}
         ]
+
       :layout ->
         [
           %{key: "side_by_side", label: "Side by Side", content: ""},
@@ -75,6 +78,7 @@ defmodule DemoWeb.Helpers.StageConfig do
           %{key: "map_only", label: "Map Only", content: ""},
           %{key: "legend_only", label: "Legend Only", content: ""}
         ]
+
       _ ->
         default_tabs(:basic)
     end
@@ -86,26 +90,28 @@ defmodule DemoWeb.Helpers.StageConfig do
   def stage_navigation(current_stage) do
     stages = [:stage1, :stage2, :stage3, :stage4]
     current_index = Enum.find_index(stages, &(&1 == current_stage))
-    
-    prev_stage = if current_index && current_index > 0 do
-      Enum.at(stages, current_index - 1)
-    else
-      nil
-    end
-    
-    next_stage = if current_index && current_index < length(stages) - 1 do
-      Enum.at(stages, current_index + 1)
-    else
-      nil
-    end
-    
+
+    prev_stage =
+      if current_index && current_index > 0 do
+        Enum.at(stages, current_index - 1)
+      else
+        nil
+      end
+
+    next_stage =
+      if current_index && current_index < length(stages) - 1 do
+        Enum.at(stages, current_index + 1)
+      else
+        nil
+      end
+
     %{prev: prev_stage, next: next_stage}
   end
 
   @doc """
   Validates marker group structure.
   """
-  def validate_marker_group(%{nodes: nodes, label: label} = group) 
+  def validate_marker_group(%{nodes: nodes, label: label} = group)
       when is_list(nodes) and is_binary(label) do
     validated_nodes = Enum.filter(nodes, &valid_node?/1)
     Map.put(group, :nodes, validated_nodes)
@@ -180,7 +186,7 @@ defmodule DemoWeb.Helpers.StageConfig do
     String.length(node) == 3 and String.match?(node, ~r/^[a-z]{3}$/)
   end
 
-  defp valid_node?(%{coordinates: {lat, lng}} = _node) 
+  defp valid_node?(%{coordinates: {lat, lng}} = _node)
        when is_number(lat) and is_number(lng) do
     # Validate coordinate ranges
     lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180

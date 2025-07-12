@@ -39,9 +39,11 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
           "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
           get_header_classes(@color)
         ]}
-        phx-click={JS.toggle(to: "##{@id}-content") |> JS.toggle_class("rotate-180", to: "##{@id}-icon")}
+        phx-click={
+          JS.toggle(to: "##{@id}-content") |> JS.toggle_class("rotate-180", to: "##{@id}-icon")
+        }
       >
-        <h3 class="font-semibold"><%= @title %></h3>
+        <h3 class="font-semibold">{@title}</h3>
         <svg
           id={"#{@id}-icon"}
           class={["w-5 h-5 transition-transform duration-200", if(@open, do: "rotate-180", else: "")]}
@@ -61,7 +63,7 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
           unless(@open, do: "hidden", else: "")
         ]}
       >
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """
@@ -94,19 +96,16 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
             ]}
             phx-click={show_tab(tab.id, @tabs)}
           >
-            <%= tab.label %>
+            {tab.label}
           </button>
         <% end %>
       </div>
-
-      <!-- Tab Content -->
+      
+    <!-- Tab Content -->
       <div class="mt-4">
         <%= for tab <- @tabs do %>
-          <div
-            id={"tab-#{tab.id}"}
-            class={unless(tab.id == @active_tab, do: "hidden", else: "")}
-          >
-            <%= Phoenix.HTML.raw(tab.content) %>
+          <div id={"tab-#{tab.id}"} class={unless(tab.id == @active_tab, do: "hidden", else: "")}>
+            {Phoenix.HTML.raw(tab.content)}
           </div>
         <% end %>
       </div>
@@ -132,15 +131,18 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
     ~H"""
     <div class={["relative inline-block", @class]}>
       <div class="group">
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
         <div class={[
           "absolute z-10 px-3 py-2 text-sm font-medium text-base-100 bg-neutral rounded-lg shadow-sm",
           "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
           "pointer-events-none whitespace-nowrap",
           get_tooltip_position(@position)
         ]}>
-          <%= @text %>
-          <div class={["absolute w-2 h-2 bg-neutral transform rotate-45", get_tooltip_arrow(@position)]}>
+          {@text}
+          <div class={[
+            "absolute w-2 h-2 bg-neutral transform rotate-45",
+            get_tooltip_arrow(@position)
+          ]}>
           </div>
         </div>
       </div>
@@ -164,12 +166,8 @@ defmodule DemoWeb.Components.ProgressiveDisclosure do
       <h2 class="text-2xl font-bold text-base-content mb-4">Learn More</h2>
       <div class="space-y-3">
         <%= for topic <- @topics do %>
-          <.expandable_section
-            title={topic.title}
-            id={topic.id}
-            color="blue"
-          >
-            <%= Phoenix.HTML.raw(topic.content) %>
+          <.expandable_section title={topic.title} id={topic.id} color="blue">
+            {Phoenix.HTML.raw(topic.content)}
           </.expandable_section>
         <% end %>
       </div>

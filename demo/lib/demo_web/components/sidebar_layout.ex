@@ -3,12 +3,12 @@ defmodule DemoWeb.Components.SidebarLayout do
 
   @doc """
   Renders a sidebar layout with navigation and main content areas.
-  
+
   The sidebar contains navigation and supplementary content, while the main area
   displays the primary content (typically maps and interactive elements).
-  
+
   ## Examples
-  
+
       <.sidebar_layout>
         <:sidebar>
           <.demo_navigation current_page={:stage1} />
@@ -27,8 +27,11 @@ defmodule DemoWeb.Components.SidebarLayout do
   """
   attr :class, :string, default: "", doc: "Additional CSS classes for the layout container"
   attr :sidebar_width, :string, default: "w-64", doc: "Width of the sidebar (Tailwind class)"
-  
-  slot :sidebar, required: true, doc: "Sidebar content including navigation and supplementary info"
+
+  slot :sidebar,
+    required: true,
+    doc: "Sidebar content including navigation and supplementary info"
+
   slot :main, required: true, doc: "Main content area"
 
   def sidebar_layout(assigns) do
@@ -40,12 +43,12 @@ defmodule DemoWeb.Components.SidebarLayout do
         @sidebar_width
       ]}>
         <div class="flex flex-col bg-base-100 border-r border-base-300 w-full">
-          <%= render_slot(@sidebar) %>
+          {render_slot(@sidebar)}
         </div>
       </div>
       
-      <!-- Mobile sidebar overlay -->
-      <div 
+    <!-- Mobile sidebar overlay -->
+      <div
         class="lg:hidden fixed inset-0 z-50 bg-base-content/50 backdrop-blur-sm"
         x-data="{ open: false }"
         x-show="open"
@@ -58,7 +61,7 @@ defmodule DemoWeb.Components.SidebarLayout do
         x-transition:leave-end="opacity-0"
         style="display: none;"
       >
-        <div 
+        <div
           class={[
             "fixed inset-y-0 left-0 flex flex-col bg-base-100 border-r border-base-300",
             @sidebar_width
@@ -79,17 +82,23 @@ defmodule DemoWeb.Components.SidebarLayout do
               x-on:click="open = false"
             >
               <span class="sr-only">Close sidebar</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          
-          <%= render_slot(@sidebar) %>
+
+          {render_slot(@sidebar)}
         </div>
       </div>
       
-      <!-- Main content -->
+    <!-- Main content -->
       <div class="flex-1 flex flex-col lg:pl-64">
         <!-- Mobile header with menu button -->
         <div class="lg:hidden flex items-center justify-between p-4 bg-base-100 border-b border-base-300">
@@ -100,16 +109,26 @@ defmodule DemoWeb.Components.SidebarLayout do
             x-on:click="document.querySelector('[x-data]').open = true"
           >
             <span class="sr-only">Open sidebar</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
             </svg>
           </button>
           <h1 class="text-lg font-semibold text-base-content">FlyMapEx Demo</h1>
         </div>
         
-        <!-- Main content area -->
+    <!-- Main content area -->
         <main class="flex-1 overflow-y-auto">
-          <%= render_slot(@main) %>
+          {render_slot(@main)}
         </main>
       </div>
     </div>
