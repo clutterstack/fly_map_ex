@@ -26,10 +26,11 @@ defmodule FlyMapEx do
   ## Module Architecture
 
   ### Core Components
-  - `FlyMapEx.render/1` - Main entry point with card layout
+  - `FlyMapEx.render/1` - Main entry point with card layout (supports interactive and static modes)
   - `FlyMapEx.Component` - Stateful LiveView component with interactive legend
+  - `FlyMapEx.StaticComponent` - Stateless component for non-interactive rendering
   - `FlyMapEx.Components.WorldMap` - SVG world map rendering
-  - `FlyMapEx.Components.LegendComponent` - Interactive legend with group toggling
+  - `FlyMapEx.Components.LegendComponent` - Legend with optional interactivity
 
   ### Supporting Components
   - `FlyMapEx.Components.Marker` - Reusable marker rendering (map + legend)
@@ -48,20 +49,21 @@ defmodule FlyMapEx do
 
   ```
   FlyMapEx.render/1 (main entry)
-  ├── FlyMapEx.Theme (theme colours)
-  ├── FlyMapEx.Components.WorldMap
-  │   ├── FlyMapEx.WorldMapPaths (geography)
-  │   ├── FlyMapEx.Components.Marker (markers)
-  │   │   └── FlyMapEx.Components.GlowFilter (effects)
-  │   ├── FlyMapEx.Regions (coordinates)
-  │   └── FlyMapEx.Nodes (data processing)
-  └── FlyMapEx.Components.LegendComponent
-      ├── FlyMapEx.Components.Marker (indicators)
-      └── FlyMapEx.Regions (region info)
-
-  FlyMapEx.Component (stateful alternative)
-  ├── [same as above]
-  └── [includes state management for interactive toggling]
+  ├── interactive: true  → FlyMapEx.Component (LiveComponent)
+  ├── interactive: false → FlyMapEx.StaticComponent (Component)
+  └── Both use:
+      ├── FlyMapEx.Shared (shared logic)
+      ├── FlyMapEx.Theme (theme colours)
+      ├── FlyMapEx.Components.WorldMap
+      │   ├── FlyMapEx.WorldMapPaths (geography)
+      │   ├── FlyMapEx.Components.Marker (markers)
+      │   │   └── FlyMapEx.Components.GlowFilter (effects)
+      │   ├── FlyMapEx.Regions (coordinates)
+      │   └── FlyMapEx.Nodes (data processing)
+      └── FlyMapEx.Components.LegendComponent
+          ├── interactive: true/false (conditional behavior)
+          ├── FlyMapEx.Components.Marker (indicators)
+          └── FlyMapEx.Regions (region info)
   ```
 
   ## Data Flow
@@ -74,7 +76,7 @@ defmodule FlyMapEx do
 
   ## Integration Patterns
 
-  ### Basic Usage (Stateless)
+  ### Basic Usage (Interactive - Default)
   ```elixir
   <FlyMapEx.render
     marker_groups={@groups}
@@ -83,7 +85,17 @@ defmodule FlyMapEx do
   />
   ```
 
-  ### Advanced Usage (Stateful)
+  ### Static Usage (Non-Interactive)
+  ```elixir
+  <FlyMapEx.render
+    marker_groups={@groups}
+    theme={:dark}
+    show_regions={true}
+    interactive={false}
+  />
+  ```
+
+  ### Advanced Interactive Usage (Direct LiveComponent)
   ```elixir
   <.live_component
     module={FlyMapEx.Component}
@@ -120,6 +132,9 @@ defmodule FlyMapEx do
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool) or custom theme map
   * `class` - Additional CSS classes for the container
   * `show_regions` - Whether to show region markers (default: nil, uses config default)
+  * `interactive` - Whether the component should be interactive (default: true)
+    * `true` - Uses LiveComponent with toggleable legend
+    * `false` - Uses static Component for better performance
 
   ## Examples
 
@@ -170,7 +185,7 @@ defmodule FlyMapEx do
         ]} />
       </div>
   """
-  # Legacy attributes for backward compatibility when used as function component
+  # Attributes for function component
   attr(:marker_groups, :list, default: [])
   attr(:theme, :any, default: nil)
   attr(:class, :string, default: "")
@@ -179,23 +194,36 @@ defmodule FlyMapEx do
   attr(:all_instances_data, :map, default: %{})
   attr(:show_regions, :boolean, default: false)
   attr(:layout, :atom, default: nil)
+  attr(:interactive, :boolean, default: true)
 
   def render(assigns) do
-    # Delegate to the LiveView component
-    # This allows existing code to continue working without changes
-    ~H"""
-    <.live_component
-      module={FlyMapEx.Component}
-      id={assigns[:id] || "fly-map-#{System.unique_integer([:positive])}"}
-      marker_groups={@marker_groups}
-      theme={@theme}
-      class={@class}
-      initially_visible={@initially_visible}
-      available_apps={@available_apps}
-      all_instances_data={@all_instances_data}
-      show_regions={@show_regions}
-      layout={@layout}
-    />
-    """
+    # Choose between interactive and static components based on interactive attribute
+    if assigns.interactive do
+      ~H"""
+      <.live_component
+        module={FlyMapEx.Component}
+        id={assigns[:id] || "fly-map-#{System.unique_integer([:positive])}"}
+        marker_groups={@marker_groups}
+        theme={@theme}
+        class={@class}
+        initially_visible={@initially_visible}
+        available_apps={@available_apps}
+        all_instances_data={@all_instances_data}
+        show_regions={@show_regions}
+        layout={@layout}
+      />
+      """
+    else
+      ~H"""
+      <FlyMapEx.StaticComponent.render
+        marker_groups={@marker_groups}
+        theme={@theme}
+        class={@class}
+        initially_visible={@initially_visible}
+        show_regions={@show_regions}
+        layout={@layout}
+      />
+      """
+    end
   end
 end

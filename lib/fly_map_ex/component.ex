@@ -128,7 +128,7 @@ defmodule FlyMapEx.Component do
   use Phoenix.LiveComponent
   require Logger
 
-  alias FlyMapEx.{Theme, Style, Nodes}
+  alias FlyMapEx.{Theme, Shared}
   alias FlyMapEx.Components.{WorldMap, LegendComponent}
 
   @impl true
@@ -169,11 +169,11 @@ defmodule FlyMapEx.Component do
     # Extract initially_visible groups or default to all
     initially_visible = Map.get(assigns, :initially_visible, :all)
 
-    # Normalize marker groups
-    normalized_groups = normalize_marker_groups(assigns.marker_groups || [])
+    # Normalize marker groups using shared logic
+    normalized_groups = Shared.normalize_marker_groups(assigns.marker_groups || [])
 
     # Determine initial selected groups based on initially_visible
-    selected_groups = determine_initial_selection(normalized_groups, initially_visible)
+    selected_groups = Shared.determine_initial_selection(normalized_groups, initially_visible)
 
     # Use theme colours - theme can be atom or map
     map_theme = Theme.map_theme(assigns[:theme] || FlyMapEx.Config.default_theme())
@@ -245,8 +245,8 @@ defmodule FlyMapEx.Component do
 
   @impl true
   def render(assigns) do
-    # Filter visible groups based on selected_groups
-    visible_groups = filter_visible_groups(assigns.marker_groups, assigns.selected_groups)
+    # Filter visible groups based on selected_groups using shared logic
+    visible_groups = Shared.filter_visible_groups(assigns.marker_groups, assigns.selected_groups)
 
     assigns = assign(assigns, :visible_groups, visible_groups)
 
@@ -254,8 +254,8 @@ defmodule FlyMapEx.Component do
     <div class={@class}>
       <div class="card bg-base-100">
         <div class="card-body">
-          <div class={layout_container_class(@layout)}>
-            <div class={map_container_class(@layout)}>
+          <div class={Shared.layout_container_class(@layout)}>
+            <div class={Shared.map_container_class(@layout)}>
               <div class="rounded-lg border overflow-hidden" style={"background-color: #{@map_theme.land}"}>
                 <WorldMap.render
                   marker_groups={@visible_groups}
@@ -265,13 +265,14 @@ defmodule FlyMapEx.Component do
               </div>
             </div>
 
-            <div class={legend_container_class(@layout)}>
+            <div class={Shared.legend_container_class(@layout)}>
               <LegendComponent.legend
                 marker_groups={@marker_groups}
                 selected_groups={@selected_groups}
                 region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
                 marker_opacity={FlyMapEx.Config.marker_opacity()}
                 show_regions={@show_regions}
+                interactive={true}
                 target={@myself}
               />
             </div>
@@ -282,182 +283,4 @@ defmodule FlyMapEx.Component do
     """
   end
 
-  # Private functions moved from FlyMapEx module
-
-  defp normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    # First pass: normalize each group with initial labels
-    initial_groups = marker_groups
-    |> Enum.with_index()
-    |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
-
-    # Second pass: ensure unique group_labels for toggle functionality
-    ensure_unique_group_labels(initial_groups)
-  end
-
-  defp normalize_marker_group(%{style: style} = group, _index) when not is_nil(style) do
-    # Normalize the style and process nodes
-    normalized_style = Style.normalize(style)
-    group = Map.put(group, :style, normalized_style)
-
-    # Add group_label from label if not already present (for toggle functionality)
-    group = add_group_label_if_needed(group)
-
-    if Map.has_key?(group, :nodes) do
-      case Nodes.process_marker_group(group) do
-        {:ok, processed_group} -> processed_group
-        processed_group -> processed_group
-      end
-    else
-      group
-    end
-  end
-
-  defp normalize_marker_group(group, index) do
-    # No style specified - automatically assign using Style.cycle/1
-    cycled_style = Style.cycle(index)
-    group = Map.put(group, :style, cycled_style)
-
-    # Add group_label from label if not already present (for toggle functionality)
-    group = add_group_label_if_needed(group)
-
-    if Map.has_key?(group, :nodes) do
-      case Nodes.process_marker_group(group) do
-        {:ok, processed_group} -> processed_group
-        processed_group -> processed_group
-      end
-    else
-      group
-    end
-  end
-
-  defp determine_initial_selection(marker_groups, :all) do
-    # Select all groups that have a group_label
-    marker_groups
-    |> Enum.filter(&Map.has_key?(&1, :group_label))
-    |> Enum.map(& &1.group_label)
-  end
-
-  defp determine_initial_selection(_marker_groups, :none), do: []
-
-  defp determine_initial_selection(_marker_groups, labels) when is_list(labels), do: labels
-
-  defp filter_visible_groups(marker_groups, selected_groups) when is_list(selected_groups) do
-    # Only show groups that are selected (have group_label in selected_groups)
-    # If selected_groups is empty, no groups will be visible
-    Enum.filter(marker_groups, fn group ->
-      case Map.get(group, :group_label) do
-        # Groups without group_label are always shown
-        nil -> true
-        group_label -> group_label in selected_groups
-      end
-    end)
-  end
-
-  defp filter_visible_groups(marker_groups, _), do: marker_groups
-
-  # Helper function to add group_label from label if not already present
-  defp add_group_label_if_needed(group) do
-    if Map.has_key?(group, :group_label) do
-      group
-    else
-      case Map.get(group, :label) do
-        nil ->
-          # Generate default label if missing
-          default_label = generate_default_label(group)
-          group
-          |> Map.put(:label, default_label)
-          |> Map.put(:group_label, default_label)
-        label ->
-          Map.put(group, :group_label, label)
-      end
-    end
-  end
-
-  # Generate default label for groups without explicit labels
-  defp generate_default_label(group) do
-    cond do
-      # If we have nodes, create label based on count
-      Map.has_key?(group, :nodes) and not is_nil(Map.get(group, :nodes)) ->
-        node_count = length(Map.get(group, :nodes, []))
-        case node_count do
-          0 -> "Empty Group"
-          1 -> "Single Node"
-          count -> "#{count} Nodes"
-        end
-
-      # If we have a style, use it to generate label
-      Map.has_key?(group, :style) ->
-        style_name =
-          case Map.get(group, :style) do
-            atom when is_atom(atom) ->
-              atom |> to_string() |> String.replace("_", " ") |> String.capitalize()
-            _ ->
-              "Styled Group"
-          end
-        style_name
-
-      # Fallback to generic label
-      true -> "Marker Group"
-    end
-  end
-
-  # Ensure all groups have unique group_labels for proper toggle functionality
-  defp ensure_unique_group_labels(groups) do
-    # Track used labels and their counts
-    {final_groups, _label_counts} =
-      Enum.reduce(groups, {[], %{}}, fn group, {acc_groups, label_counts} ->
-        group_label = Map.get(group, :group_label)
-
-        if group_label do
-          # Check if this label has been used before
-          count = Map.get(label_counts, group_label, 0)
-
-          {unique_label, updated_counts} =
-            if count == 0 do
-              # First use of this label
-              {group_label, Map.put(label_counts, group_label, 1)}
-            else
-              # Duplicate label - make it unique
-              unique_label = "#{group_label} #{count + 1}"
-              {unique_label, Map.put(label_counts, group_label, count + 1)}
-            end
-
-          updated_group = Map.put(group, :group_label, unique_label)
-          {[updated_group | acc_groups], updated_counts}
-        else
-          # No group_label, keep as is
-          {[group | acc_groups], label_counts}
-        end
-      end)
-
-    # Return groups in original order
-    Enum.reverse(final_groups)
-  end
-
-  # Layout helper functions
-  defp layout_container_class(:side_by_side) do
-    Logger.debug("Explicit :side_by_side layout")
-    "flex flex-col lg:flex-row gap-4"
-  end
-
-  defp layout_container_class(_) do
-    Logger.debug("No map layout specified; using default stacked")
-    "space-y-4"
-  end
-
-  defp map_container_class(:side_by_side) do
-    "lg:w-[65%] flex-shrink-0"
-  end
-
-  defp map_container_class(_) do
-    ""
-  end
-
-  defp legend_container_class(:side_by_side) do
-    "lg:w-[35%] flex-shrink-0"
-  end
-
-  defp legend_container_class(_) do
-    ""
-  end
 end
