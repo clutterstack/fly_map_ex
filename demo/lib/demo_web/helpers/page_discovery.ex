@@ -63,10 +63,32 @@ defmodule DemoWeb.Helpers.PageDiscovery do
   # Private functions
   
   defp discover_page_modules do
+    # Force loading of all DemoWeb.Pages modules by checking filesystem
+    ensure_pages_loaded()
+    
     # Get all loaded modules and filter for DemoWeb.Pages.*
     :code.all_loaded()
     |> Enum.map(fn {module, _} -> module end)
     |> Enum.filter(&is_page_module?/1)
+  end
+  
+  defp ensure_pages_loaded do
+    # Get the lib directory path
+    lib_path = Path.join([File.cwd!(), "lib", "demo_web", "pages"])
+    
+    if File.exists?(lib_path) do
+      File.ls!(lib_path)
+      |> Enum.filter(&String.ends_with?(&1, ".ex"))
+      |> Enum.each(fn filename ->
+        module_name = 
+          filename
+          |> String.replace(".ex", "")
+          |> Macro.camelize()
+        
+        module = String.to_atom("Elixir.DemoWeb.Pages.#{module_name}")
+        Code.ensure_loaded(module)
+      end)
+    end
   end
   
   defp is_page_module?(module) do
@@ -78,26 +100,24 @@ defmodule DemoWeb.Helpers.PageDiscovery do
     # Ensure module is loaded
     Code.ensure_loaded(module)
     
+    # Get metadata from the page_metadata/0 function if it exists
+    metadata = 
+      if function_exported?(module, :page_metadata, 0) do
+        apply(module, :page_metadata, [])
+      else
+        %{}
+      end
+    
     %Page{
-      slug: get_module_attribute(module, :slug) || derive_slug_from_module(module),
-      title: get_module_attribute(module, :title) || "Untitled Page",
-      description: get_module_attribute(module, :description),
-      nav_order: get_module_attribute(module, :nav_order),
-      keywords: get_module_attribute(module, :keywords),
+      slug: metadata[:slug] || derive_slug_from_module(module),
+      title: metadata[:title] || "Untitled Page",
+      description: metadata[:description],
+      nav_order: metadata[:nav_order],
+      keywords: metadata[:keywords],
       module: module
     }
   end
   
-  defp get_module_attribute(module, attribute) do
-    case module.__info__(:attributes) do
-      attributes when is_list(attributes) ->
-        case Keyword.get(attributes, attribute) do
-          [value] -> value
-          _ -> nil
-        end
-      _ -> nil
-    end
-  end
   
   defp derive_slug_from_module(module) do
     module

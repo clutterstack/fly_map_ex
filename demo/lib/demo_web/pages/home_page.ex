@@ -11,6 +11,16 @@ defmodule DemoWeb.Pages.HomePage do
   @keywords "elixir, phoenix, maps, fly.io, interactive, world map"
   @slug "home"
   
+  def page_metadata do
+    %{
+      title: @title,
+      description: @description,
+      nav_order: @nav_order,
+      keywords: @keywords,
+      slug: @slug
+    }
+  end
+  
   def marker_groups do
     [
       %{

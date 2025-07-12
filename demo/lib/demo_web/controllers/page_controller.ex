@@ -4,7 +4,7 @@ defmodule DemoWeb.PageController do
   alias DemoWeb.Helpers.PageDiscovery
 
   def show(conn, params) do
-    slug = params["page"] || "home"
+    slug = params["page"] || conn.path_params["page"] || "home"
     case PageDiscovery.get_page(slug) do
       nil ->
         conn
