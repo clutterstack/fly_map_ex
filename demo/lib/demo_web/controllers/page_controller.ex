@@ -2,10 +2,8 @@ defmodule DemoWeb.PageController do
   use DemoWeb, :controller
 
   alias DemoWeb.Helpers.PageDiscovery
-  alias DemoWeb.Layouts
-  import DemoWeb.Helpers.ContentHelpers
 
-  def show(conn, params) do
+  def show(conn, _params) do
     base_assigns = %{messenger: "flooo"}
     render(conn, :show, base_assigns)
 
@@ -18,8 +16,8 @@ defmodule DemoWeb.PageController do
       nav_order: 0,
       keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
       slug: "home",
-      current_page: "home"
-      # home_content: Layouts.home_heex(%{})
+      current_page: "home",
+      flash: conn.assigns[:flash] || %{}
     }
     render(conn, :home, home_assigns)
   end
@@ -31,11 +29,10 @@ defmodule DemoWeb.PageController do
       nav_order: 1,
       keywords: "about, flymap, elixir, phoenix, documentation",
       slug: "about",
-      current_page: "about"
-
+      current_page: "about",
+      flash: conn.assigns[:flash] || %{}
     }
-        render(conn, :about, about_assigns)
-
+    render(conn, :about, about_assigns)
   end
 
 

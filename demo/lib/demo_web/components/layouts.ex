@@ -31,7 +31,7 @@ defmodule DemoWeb.Layouts do
 
   attr :current_page, :atom, required: true
   attr :class, :string, default: ""
-  attr :title, :string, default: "FlyMapEx Demo"
+  slot :title, required: true
   slot :sidebar_extra
   slot :description
   slot :content
