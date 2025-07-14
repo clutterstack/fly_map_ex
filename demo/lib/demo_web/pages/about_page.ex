@@ -4,26 +4,21 @@ defmodule DemoWeb.Pages.AboutPage do
   """
 
   import DemoWeb.Helpers.ContentHelpers
-
-  @title "About FlyMapEx"
-  @description "Learn more about the FlyMapEx library and its capabilities."
-  @nav_order 1
-  @keywords "about, flymap, elixir, phoenix, documentation"
-  @slug "about"
+  # use Phoenix.Component
 
   def page_metadata do
     %{
-      title: @title,
-      description: @description,
-      nav_order: @nav_order,
-      keywords: @keywords,
-      slug: @slug
+      title: "About FlyMapEx",
+      description: "More about the FlyMapEx library and its capabilities.",
+      nav_order: 1,
+      keywords: "about, flymap, elixir, phoenix, documentation",
+      slug: "about"
     }
   end
 
-  def content(_assigns) do
-    convert_markdown("""
-
+  def content(assigns) do
+    ~s"""
+    <%= convert_markdown("
     # About FlyMapEx
 
     FlyMapEx is a Phoenix LiveView library for displaying interactive world maps
@@ -42,8 +37,9 @@ defmodule DemoWeb.Pages.AboutPage do
     - **Responsive Design**: Works on all screen sizes
     - **Easy Integration**: Simple component-based API
 
-    """) <>
-    info_box(:primary, "Documentation",
-      "Visit our GitHub repository for complete documentation and examples.")
+    ") %>
+    <%= info_box(:primary, "Documentation",
+      "Visit our GitHub repository for complete documentation and examples.") %>
+      """
   end
 end

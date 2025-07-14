@@ -12,10 +12,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   def convert_markdown(markdown, opts \\ []) do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-
-    ~s"""
-    #{Earmark.as_html!(markdown, earmark_opts)}
-    """
+    Earmark.as_html!(markdown, earmark_opts)
   end
 
   @doc """
