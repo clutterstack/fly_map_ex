@@ -17,14 +17,19 @@ defmodule DemoWeb.Router do
   scope "/", DemoWeb do
     pipe_through :browser
 
-    get "/", PageController, :show, page: "home", as: :home_page
+    get "/", PageController, :home
+    get "/about", PageController, :about
+
+    get "/greet", PageController, :show
+
+    # get "/", PageController, :show, page: "home", as: :home_page
     live "/map", MachineMapLive, :index
     live "/demo", MapDemoLive, :index
     live "/stage1", Stage1Live
     live "/stage2", Stage2Live
     live "/stage3", Stage3Live
     live "/stage4", Stage4Live
-    
+
     # Dynamic static pages - must be last to avoid conflicts
     get "/:page", PageController, :show
   end

@@ -1,13 +1,5 @@
-<.page_template
-  current_page={String.to_atom(@page_slug)}
-  flash={@flash}
-  class="max-w-4xl"
->
-  <:title><%= @page_title %></:title>
-  <:description><%= @page_description || "" %></:description>
-  <:content>
-    <div class="prose prose-lg max-w-none">
-      <%= raw @page_content %>
-    </div>
-  </:content>
-</.page_template>
+<!--Layouts.app flash={@flash} -->
+  <section>
+ <.greet messenger={@messenger} />
+   </section>
+<!-- /Layouts.app -->

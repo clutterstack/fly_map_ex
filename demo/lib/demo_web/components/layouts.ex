@@ -29,7 +29,14 @@ defmodule DemoWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :current_page, :atom, required: true
+  attr :class, :string, default: ""
+  attr :title, :string, default: "FlyMapEx Demo"
+  slot :sidebar_extra
+  slot :description
+  slot :content
   slot :inner_block, required: true
+
 
   def app(assigns) do
     ~H"""
@@ -155,4 +162,5 @@ defmodule DemoWeb.Layouts do
     </div>
     """
   end
+
 end

@@ -1,0 +1,42 @@
+<Layouts.app flash={@flash}>
+ <FlyMapEx.StaticComponent.render
+        marker_groups={
+           [
+            %{
+              nodes: ["sjc", "fra"],
+              label: "Production Servers"
+            },
+            %{
+              nodes: ["ams", "lhr"],
+              label: "Staging Environment"
+            },
+            %{
+              nodes: ["ord"],
+              label: "Development"
+            },
+            %{
+              nodes: ["nrt", "syd"],
+              label: "Testing"
+            }
+          ]
+        }
+        theme={:responsive}
+        layout={:side_by_side}
+        show_regions={false}
+    />
+
+    <%= convert_markdown("
+    * Interactive World Maps: Display Fly.io regions with customizable markers and themes
+    * Real-time Updates: LiveView components that respond to data changes
+    * Multiple Themes: Dashboard, monitoring, presentation, and more
+    * Responsive Design: Works seamlessly on desktop and mobile devices
+    * Flexible Configuration: Easy to customize colours, animations, and layouts
+    ") %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <%= info_box(:primary, "Get Started",
+        "Explore the interactive stages to learn how to use FlyMapEx in your own applications.") %>
+      <%= info_box(:success, "Live Example",
+        "The map above shows real Fly.io regions with sample data to demonstrate the library's capabilities.") %>
+    </div>
+</Layouts.app>
