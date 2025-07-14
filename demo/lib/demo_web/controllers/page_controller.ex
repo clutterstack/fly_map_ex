@@ -16,7 +16,7 @@ defmodule DemoWeb.PageController do
       nav_order: 0,
       keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
       slug: "home",
-      current_page: "home",
+      current_page: :home,
       flash: conn.assigns[:flash] || %{}
     }
     render(conn, :home, home_assigns)
@@ -29,7 +29,7 @@ defmodule DemoWeb.PageController do
       nav_order: 1,
       keywords: "about, flymap, elixir, phoenix, documentation",
       slug: "about",
-      current_page: "about",
+      current_page: :about,
       flash: conn.assigns[:flash] || %{}
     }
     render(conn, :about, about_assigns)

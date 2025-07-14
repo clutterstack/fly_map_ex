@@ -1,7 +1,6 @@
 defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
   import DemoWeb.Layouts, only: [theme_toggle: 1]
-  alias DemoWeb.Helpers.PageDiscovery
 
   @doc """
   Renders a navigation component with configurable layout.
@@ -132,8 +131,14 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp nav_items do
-    # Fixed navigation items (LiveView routes)
-    fixed_items = [
+    # Static page navigation items (dead views)
+    static_pages = [
+      {"/", "Home", :home},
+      {"/about", "About", :about}
+    ]
+    
+    # LiveView navigation items
+    live_view_items = [
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
       {"/stage3", "Map Themes", :stage3},
@@ -141,16 +146,7 @@ defmodule DemoWeb.Components.Navigation do
       {"/map", "Machine Map", :machine_map}
     ]
     
-    # Add all pages from PageDiscovery
-    content_pages = 
-      PageDiscovery.navigation_pages()
-      |> Enum.map(fn page ->
-        path = if page.slug == "home", do: "/", else: "/#{page.slug}"
-        key = if page.slug == "home", do: :map_demo, else: String.to_atom(page.slug)
-        {path, page.title, key}
-      end)
-    
-    content_pages ++ fixed_items
+    static_pages ++ live_view_items
   end
 
   defp sidebar_nav_link_class(current_page, page_key) do
