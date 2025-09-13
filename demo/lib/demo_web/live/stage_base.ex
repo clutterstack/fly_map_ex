@@ -37,8 +37,6 @@ defmodule DemoWeb.Live.StageBase do
 
       use DemoWeb, :live_view
 
-      import DemoWeb.Components.StageLayout
-
       alias DemoWeb.Helpers.CodeGenerator
 
       def mount(_params, _session, socket) do
@@ -159,11 +157,7 @@ defmodule DemoWeb.Live.StageBase do
         # Check for per-example theme first, then fall back to stage theme
         theme =
           if function_exported?(__MODULE__, :get_example_theme, 1) do
-            case apply(__MODULE__, :get_example_theme, [example]) do
-              nil -> get_stage_theme()
-              "" -> get_stage_theme()
-              value -> value
-            end
+            apply(__MODULE__, :get_example_theme, [example]) || get_stage_theme()
           else
             get_stage_theme()
           end
@@ -171,11 +165,7 @@ defmodule DemoWeb.Live.StageBase do
         # Check for per-example layout first, then fall back to stage layout
         layout =
           if function_exported?(__MODULE__, :get_example_layout, 1) do
-            case apply(__MODULE__, :get_example_layout, [example]) do
-              nil -> get_stage_layout()
-              "" -> get_stage_layout()
-              value -> value
-            end
+            apply(__MODULE__, :get_example_layout, [example]) || get_stage_layout()
           else
             get_stage_layout()
           end
@@ -193,11 +183,7 @@ defmodule DemoWeb.Live.StageBase do
 
       defp get_stage_theme do
         if function_exported?(__MODULE__, :stage_theme, 0) do
-          case stage_theme() do
-            nil -> :responsive
-            "" -> :responsive
-            value -> value
-          end
+          stage_theme()
         else
           :responsive
         end
@@ -206,8 +192,6 @@ defmodule DemoWeb.Live.StageBase do
       defp get_stage_layout do
         if function_exported?(__MODULE__, :stage_layout, 0) do
           case stage_layout() do
-            nil -> :side_by_side
-            "" -> :side_by_side
             value -> value
           end
         else

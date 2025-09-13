@@ -25,7 +25,6 @@ defmodule DemoWeb.Helpers.CodeGenerator do
   def generate_flymap_code(marker_groups, opts \\ []) do
     theme = Keyword.get(opts, :theme, :responsive)
     layout = Keyword.get(opts, :layout, :side_by_side)
-    context = Keyword.get(opts, :context, "Configuration")
     format = Keyword.get(opts, :format, :heex)
     code_comment = Keyword.get(opts, :code_comment, nil)
 
@@ -77,7 +76,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
 
   # Private implementation functions
 
-  defp generate_heex_template(marker_groups, theme, layout, code_comment \\ nil) do
+  defp generate_heex_template(marker_groups, theme, layout, code_comment) do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     guide_comment = ""
     # Add additional code comment if provided

@@ -235,15 +235,4 @@ defmodule DemoWeb.Stage1Live do
     """
   end
 
-  # Helper content functions
-
-  defp coordinate_format_content do
-    ~s"""
-    <div class="space-y-2 text-sm">
-      #{ContentHelpers.parameter_doc("Latitude", "number", "North/South position (-90 to 90)", nil)}
-      #{ContentHelpers.parameter_doc("Longitude", "number", "East/West position (-180 to 180)", nil)}
-      #{ContentHelpers.parameter_doc("Example", "tuple", "San Francisco coordinates", "{37.7749, -122.4194}")}
-    </div>
-    """
-  end
 end

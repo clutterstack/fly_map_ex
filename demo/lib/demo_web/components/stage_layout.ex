@@ -45,8 +45,6 @@ defmodule DemoWeb.Components.StageLayout do
   attr :layout, :atom, default: :side_by_side
 
   def stage_layout(assigns) do
-    assigns
-
     ~H"""
     <!-- Top navigation for mobile/narrow screens -->
     <div class="lg:hidden">
@@ -111,6 +109,8 @@ defmodule DemoWeb.Components.StageLayout do
   Renders the full-width map display.
   """
   attr :marker_groups, :list, required: true
+  attr :layout, :atom, default: :side_by_side
+
 
   def stage_map(assigns) do
     ~H"""
@@ -142,7 +142,7 @@ defmodule DemoWeb.Components.StageLayout do
           show_tabs={false}
         />
       </div>
-      
+
     <!-- Code Examples Panel -->
       <div>
         <.code_examples_panel
