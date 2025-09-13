@@ -206,15 +206,25 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
         node when is_binary(node) ->
           inspect(node)
 
+        {lat, lng} when is_number(lat) and is_number(lng) ->
+          # Handle coordinate tuples
+          "{#{lat}, #{lng}}"
+
         node when is_map(node) ->
-          # Handle custom coordinate nodes
+          # Handle map-based nodes
           label = Map.get(node, :label) || Map.get(node, "label")
+          region = Map.get(node, :region) || Map.get(node, "region")
           coords = format_coordinates(Map.get(node, :coordinates) || Map.get(node, "coordinates"))
 
-          if label do
-            "%{label: #{inspect(label)}, coordinates: #{coords}}"
-          else
-            "%{coordinates: #{coords}}"
+          cond do
+            label && region ->
+              "%{label: #{inspect(label)}, region: #{inspect(region)}}"
+            label && coords ->
+              "%{label: #{inspect(label)}, coordinates: #{coords}}"
+            coords ->
+              "%{coordinates: #{coords}}"
+            true ->
+              inspect(node)
           end
       end)
 

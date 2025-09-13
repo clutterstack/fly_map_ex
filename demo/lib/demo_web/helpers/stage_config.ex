@@ -186,9 +186,20 @@ defmodule DemoWeb.Helpers.StageConfig do
     String.length(node) == 3 and String.match?(node, ~r/^[a-z]{3}$/)
   end
 
+  defp valid_node?({lat, lng}) when is_number(lat) and is_number(lng) do
+    # Validate coordinate tuple ranges
+    lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180
+  end
+
+  defp valid_node?(%{region: region, label: label})
+       when is_binary(region) and is_binary(label) do
+    # Validate custom region label format
+    String.length(region) == 3 and String.match?(region, ~r/^[a-z]{3}$/)
+  end
+
   defp valid_node?(%{coordinates: {lat, lng}} = _node)
        when is_number(lat) and is_number(lng) do
-    # Validate coordinate ranges
+    # Validate coordinate ranges in map format (legacy)
     lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180
   end
 

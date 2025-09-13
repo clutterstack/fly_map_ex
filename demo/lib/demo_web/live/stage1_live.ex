@@ -29,11 +29,11 @@ defmodule DemoWeb.Stage1Live do
         marker_groups: [
           %{
             # San Francisco, somewhere in the North Sea
-            nodes: [%{coordinates: {37.8, -122.4}}, %{coordinates: {56, 3.6}}]
+            nodes: [{37.8, -122.4}, {56, 3.6}]
           }
         ],
         description: "Single node with custom coordinates",
-        code_comment: "Use coordinates for precise positioning anywhere on the map"
+        code_comment: "Use coordinate tuples for precise positioning anywhere on the map"
       },
       fly_regions: %{
         marker_groups: [
@@ -54,7 +54,7 @@ defmodule DemoWeb.Stage1Live do
           },
           %{
             nodes: [
-              %{coordinates: {47.0, -27.2}}
+              {47.0, -27.2}
             ]
           }
         ],
@@ -218,8 +218,10 @@ defmodule DemoWeb.Stage1Live do
         <h4 class="font-semibold text-base-content mb-2">Node Specifications</h4>
         <div class="space-y-2 text-sm">
           #{ContentHelpers.parameter_doc("Region Code", "string", "3-letter region identifier", ~s("sjc"))}
+          #{ContentHelpers.parameter_doc("Coordinate Tuple", "tuple", "lat/lng coordinates", ~s({40.7128, -74.0060}))}
+          #{ContentHelpers.parameter_doc("Custom Region Label", "map", "custom label for region", ~s(%{label: "NYC Office", region: "lhr"}))}
           #{ContentHelpers.parameter_doc("Custom Node", "map", "coordinates and label", ~s(%{coordinates: {lat, lng}, label: "Name"}))}
-          #{ContentHelpers.parameter_doc("Mixed", "list", "combination of types", ~s(["sjc", %{coordinates: {40.7128, -74.0060}, label: "NYC"}]))}
+          #{ContentHelpers.parameter_doc("Mixed", "list", "combination of types", ~s(["sjc", {40.7128, -74.0060}, %{label: "NYC", region: "lhr"}]))}
         </div>
       </div>
     </div>
