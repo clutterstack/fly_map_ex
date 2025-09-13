@@ -363,9 +363,8 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           {"%{colour: \"#0ea5e9\"}", [], %{colour: "#0ea5e9", size: 4, animation: :none, glow: false}}
 
         true ->
-          # Custom style
-          {"FlyMapEx.Style.custom", [inspect(colour)],
-           %{size: 4, animation: :none, glow: false, gradient: false}}
+          # Custom style - use direct style map format
+          {nil, [], %{size: 4, animation: :none, glow: false, gradient: false}}
       end
 
     # Build list of additional parameters (those that differ from actual defaults)
@@ -387,16 +386,21 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Combine all parameters
     all_params = params ++ additional_params
 
-    # Format with multi-line if we have additional parameters
-    if length(additional_params) > 0 do
-      param_lines = Enum.map(all_params, fn param -> "        #{param}" end)
-      function_name <> "(\n" <> Enum.join(param_lines, ",\n") <> "\n      )"
+    # Handle direct style map format (when function_name is nil)
+    if function_name == nil do
+      format_direct_style_map(style_map)
     else
-      # Single line for simple cases
-      if length(all_params) > 0 do
-        function_name <> "(" <> Enum.join(all_params, ", ") <> ")"
+      # Format with multi-line if we have additional parameters
+      if length(additional_params) > 0 do
+        param_lines = Enum.map(all_params, fn param -> "        #{param}" end)
+        function_name <> "(\n" <> Enum.join(param_lines, ",\n") <> "\n      )"
       else
-        function_name <> "()"
+        # Single line for simple cases
+        if length(all_params) > 0 do
+          function_name <> "(" <> Enum.join(all_params, ", ") <> ")"
+        else
+          function_name <> "()"
+        end
       end
     end
   end
@@ -419,4 +423,35 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   end
 
   defp maybe_add_param(params, _key, _value, _default), do: params
+
+  # Format a style map as a direct style map (primary interface)
+  defp format_direct_style_map(style_map) do
+    # Build the style map representation
+    style_fields = []
+
+    # Add colour field
+    colour = Map.get(style_map, :colour)
+    style_fields = if colour, do: style_fields ++ ["colour: #{inspect(colour)}"], else: style_fields
+
+    # Add size field if different from default
+    size = Map.get(style_map, :size, 4)
+    style_fields = if size != 4, do: style_fields ++ ["size: #{size}"], else: style_fields
+
+    # Add animation field if different from default
+    animation = Map.get(style_map, :animation, :none)
+    style_fields = if animation != :none, do: style_fields ++ ["animation: :#{animation}"], else: style_fields
+
+    # Add glow field if true
+    glow = Map.get(style_map, :glow, false)
+    style_fields = if glow, do: style_fields ++ ["glow: true"], else: style_fields
+
+    # Format as multi-line style map
+    if length(style_fields) > 1 do
+      field_lines = Enum.map(style_fields, fn field -> "        #{field}" end)
+      "%{\n" <> Enum.join(field_lines, ",\n") <> "\n      }"
+    else
+      # Single field - format inline
+      "%{" <> Enum.join(style_fields, ", ") <> "}"
+    end
+  end
 end
