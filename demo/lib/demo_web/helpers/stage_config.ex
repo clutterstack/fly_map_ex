@@ -121,7 +121,7 @@ defmodule DemoWeb.Helpers.StageConfig do
     %{
       nodes: [],
       label: Map.get(group, :label, "Unknown Group"),
-      style: Map.get(group, :style, :primary)
+      style: Map.get(group, :style, :operational)
     }
   end
 

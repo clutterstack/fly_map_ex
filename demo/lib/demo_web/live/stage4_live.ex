@@ -26,6 +26,23 @@ defmodule DemoWeb.Stage4Live do
         code_comment:
           "# Monitoring Dashboard Example\n# This demonstrates a practical monitoring scenario with production servers\n# and maintenance windows, using operational and warning styles for clear status visualization."
       },
+      custom: %{
+        marker_groups: [
+          %{
+            nodes: ["sjc", "fra"],
+            style: %{
+              colour: "#8b5cf6",    # hex, named colour, or CSS variable
+              size: 8,             # radius in pixels
+              animation: :pulse,   # :none, :pulse, :fade
+              glow: true           # boolean for glow effect
+            },
+            label: "Custom Group"
+          }
+        ],
+        description: "Direct style maps with full control over appearance",
+        code_comment:
+          "Direct style maps are the primary interface for custom styling"
+      },
       freeform: %{
         marker_groups: [],
         description: "Interactive builder for custom map configurations",
@@ -47,6 +64,11 @@ defmodule DemoWeb.Stage4Live do
         key: "guided",
         label: "Guided Scenarios",
         content: get_guided_content()
+      },
+      %{
+        key: "custom",
+        label: "Custom",
+        content: get_custom_content()
       },
       %{
         key: "freeform",
@@ -239,6 +261,41 @@ defmodule DemoWeb.Stage4Live do
     |> Enum.join()
   end
 
+  defp get_custom_content do
+    [
+      ContentHelpers.content_section(
+        "Direct Style Maps",
+        ~s"""
+        Define fully custom marker styles using direct style maps - the primary interface for custom styling.
+        """
+      ),
+      ContentHelpers.code_snippet(
+        ~s"""
+        %{
+          nodes: ["sjc", "fra"],
+          style: %{
+            colour: "#8b5cf6",    # hex, named colour, or CSS variable
+            size: 8,             # radius in pixels
+            animation: :pulse,   # :none, :pulse, :fade
+            glow: true           # boolean for glow effect
+          },
+          label: "Custom Group"
+        }
+        """
+      ),
+      ContentHelpers.ul_with_bold(
+        "Style Parameters",
+        [
+          {"colour/color", "Hex codes, named colours (:blue), CSS variables (var(--primary))"},
+          {"size", "Marker radius in pixels (default: 4)"},
+          {"animation", ":none, :pulse, :fade (default: :none)"},
+          {"glow", "Boolean for enhanced visibility (default: false)"}
+        ]
+      )
+    ]
+    |> Enum.join()
+  end
+
   defp get_freeform_content do
     [
       ContentHelpers.content_section(
@@ -382,12 +439,12 @@ defmodule DemoWeb.Stage4Live do
     [
       %{
         nodes: ["sjc", "fra", "ams", "lhr"],
-        style: FlyMapEx.Style.operational(),
+        style: :operational,
         label: "Production Servers"
       },
       %{
         nodes: ["syd", "nrt"],
-        style: FlyMapEx.Style.warning(),
+        style: :warning,
         label: "Maintenance Windows"
       }
     ]
@@ -399,17 +456,17 @@ defmodule DemoWeb.Stage4Live do
     [
       %{
         nodes: ["sjc", "fra"],
-        style: FlyMapEx.Style.operational(),
+        style: :operational,
         label: "Deployed v2.1.0"
       },
       %{
         nodes: ["ams", "lhr"],
-        style: FlyMapEx.Style.operational(),
+        style: :operational,
         label: "Deploying v2.1.0"
       },
       %{
         nodes: ["syd", "nrt", "dfw"],
-        style: FlyMapEx.Style.inactive(),
+        style: :inactive,
         label: "Pending Deployment"
       }
     ]
@@ -421,22 +478,22 @@ defmodule DemoWeb.Stage4Live do
     [
       %{
         nodes: ["sjc", "fra", "ams"],
-        style: FlyMapEx.Style.operational(),
+        style: :operational,
         label: "Healthy Services"
       },
       %{
         nodes: ["lhr"],
-        style: FlyMapEx.Style.danger(),
+        style: :danger,
         label: "Critical Issues"
       },
       %{
         nodes: ["syd"],
-        style: FlyMapEx.Style.warning(),
+        style: :warning,
         label: "Degraded Performance"
       },
       %{
         nodes: ["nrt"],
-        style: FlyMapEx.Style.info(),
+        style: FlyMapEx.Style.named_colours(:cyan),
         label: "Acknowledged Issues"
       }
     ]

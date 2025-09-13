@@ -24,17 +24,17 @@ defmodule DemoWeb.Stage3Live do
         marker_groups: [
           %{
             nodes: ["sjc", "fra", "ams"],
-            style: FlyMapEx.Style.operational(),
+            style: :operational,
             label: "Production Servers"
           },
           %{
             nodes: ["lhr", "syd"],
-            style: FlyMapEx.Style.warning(),
+            style: :warning,
             label: "Maintenance Mode"
           },
           %{
             nodes: ["ord", "nrt"],
-            style: FlyMapEx.Style.danger(),
+            style: :danger,
             label: "Failed Nodes"
           }
         ],
@@ -46,12 +46,12 @@ defmodule DemoWeb.Stage3Live do
         marker_groups: [
           %{
             nodes: ["sjc", "fra", "ams", "lhr"],
-            style: FlyMapEx.Style.operational(),
+            style: :operational,
             label: "Global Infrastructure"
           },
           %{
             nodes: ["ord", "nrt"],
-            style: FlyMapEx.Style.inactive(),
+            style: :inactive,
             label: "Standby Nodes"
           }
         ],
@@ -63,17 +63,17 @@ defmodule DemoWeb.Stage3Live do
         marker_groups: [
           %{
             nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
+            style: %{colour: "#10b981", size: 8, animation: :pulse, glow: true},
             label: "High-Performance Tier"
           },
           %{
             nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
+            style: %{colour: "#f59e0b", size: 6, animation: :fade, glow: false},
             label: "Standard Tier"
           },
           %{
             nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
+            style: %{colour: "#ef4444", size: 10, animation: :pulse, glow: true},
             label: "Critical Alert"
           }
         ],
@@ -85,12 +85,12 @@ defmodule DemoWeb.Stage3Live do
         marker_groups: [
           %{
             nodes: ["sjc", "fra", "ams"],
-            style: FlyMapEx.Style.operational(),
+            style: :operational,
             label: "Production Environment"
           },
           %{
             nodes: ["lhr", "syd"],
-            style: FlyMapEx.Style.warning(),
+            style: :warning,
             label: "Staging Environment"
           }
         ],

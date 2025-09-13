@@ -66,83 +66,70 @@ defmodule DemoWeb.Stage2Live do
           }
         ],
         description: "Named colours",
-        code_comment: "FlyMapEx.Style.named_colours/1"
+        code_comment: "FlyMapEx.Style.named_colours/1 provides access to predefined colors"
       },
       semantic: %{
         marker_groups: [
           %{
             nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.operational(),
+            style: :operational,
             label: "Production Servers"
           },
           %{
             nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.warning(),
+            style: :warning,
             label: "Maintenance Mode"
           },
           %{
             nodes: ["ord"],
-            style: FlyMapEx.Style.danger(),
+            style: :danger,
             label: "Failed Nodes"
           },
           %{
             nodes: ["nrt", "syd"],
-            style: FlyMapEx.Style.inactive(),
+            style: :inactive,
             label: "Offline Nodes"
           }
         ],
         description: "Semantic styling with meaningful colours",
-        code_comment: "There's a "
+        code_comment: "Semantic presets resolve from configuration"
       },
       custom: %{
         marker_groups: [
-          %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.custom("#10b981", size: 8, animation: :pulse, glow: true),
-            label: "High-Performance Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.custom("#f59e0b", size: 6, animation: :fade, glow: false),
-            label: "Standard Servers"
-          },
-          %{
-            nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#ef4444", size: 10, animation: :pulse, glow: true),
-            label: "Critical Alerts"
-          },
-          %{
-            nodes: ["nrt"],
-            style: FlyMapEx.Style.custom("#6b7280", size: 4, animation: :none, glow: false),
-            label: "Maintenance"
-          }
+           %{
+              nodes: ["sjc", "fra"],
+              style: %{
+                colour: "#8b5cf6",    # hex, named colour, or CSS variable
+                size: 8,             # radius in pixels
+                animation: :pulse,   # :none, :pulse, :fade
+                glow: true           # boolean for glow effect
+              },
+              label: "Custom Group"
+            }
+
         ],
-        description: "Custom styling with full control over appearance",
+        description: "Direct style maps with full control over appearance",
         code_comment:
-          "FlyMapEx.Style.custom/2 allows complete customization of colour, size, animation, and effects"
+          "Direct style maps are the primary interface for custom styling"
       },
       mixed: %{
         marker_groups: [
           %{
-            nodes: ["sjc", "fra"],
-            style: FlyMapEx.Style.operational(),
-            label: "Operational (Semantic)"
-          },
-          %{
             nodes: ["ams", "lhr"],
-            style: FlyMapEx.Style.cycle(1),
-            label: "The first style in the "
+            style: :warning,
+            label: "Maintenance Mode"
           },
           %{
-            nodes: ["ord"],
-            style: FlyMapEx.Style.custom("#9333ea", size: 8, animation: :pulse, glow: true),
-            label: "Special Deploy (Custom)"
+            nodes: ["sjc", "fra"],
+            style: %{
+              colour: "#8b5cf6",    # hex, named colour, or CSS variable
+              size: 8,             # radius in pixels
+              animation: :pulse,   # :none, :pulse, :fade
+              glow: true           # boolean for glow effect
           },
-          %{
-            nodes: ["nrt", "syd"],
-            style: :inactive,
-            label: "Offline (Atom)"
-          }
+          label: "Custom Group"
+      }
+
         ],
         description: "Mixed styling approaches in one map",
         code_comment: "You can mix semantic, automatic, custom, and atom styles in the same map"
@@ -269,16 +256,28 @@ defmodule DemoWeb.Stage2Live do
   defp get_custom_styling_content do
     [
       ContentHelpers.content_section(
-        "Custom Style Parameters",
-        "Build completely custom styles with #{ContentHelpers.code_snippet("FlyMapEx.Style.custom/2", inline: true)}:"
+        "Custom Style Maps",
+        "Create fully custom marker styles using direct style maps:"
       ),
       ContentHelpers.code_snippet(
-        "FlyMapEx.Style.custom(\"#3b82f6\", [\n  size: 10,        # radius in pixels\n  animation: :pulse,   # :none, :pulse, :fade\n  glow: true       # enable glow effect\n])"
+        ~s"""
+        %{
+          nodes: ["sjc", "fra"],
+          style: %{
+            colour: "#3b82f6",   # or :color
+            size: 10,            # radius in pixels
+            animation: :pulse,   # :none, :pulse, :fade
+            glow: true           # enable glow effect
+          },
+          label: "Custom Markers"
+        }
+        """
       ),
       ContentHelpers.ul_with_bold(
         "Available Parameters",
         [
-          {"size", "Marker radius in pixels (default: 6)"},
+          {"colour/color", "Hex codes, named colours (:blue), CSS variables"},
+          {"size", "Marker radius in pixels (default: 4)"},
           {"animation", ":none, :pulse, :fade (default: :none)"},
           {"glow", "Boolean for glow effect (default: false)"}
         ]
@@ -356,24 +355,32 @@ defmodule DemoWeb.Stage2Live do
   defp get_custom_content do
     [
       ContentHelpers.content_section(
-        "Custom Parameters",
+        "Direct Style Maps",
         ~s"""
-        Build completely custom styles with `FlyMapEx.Style.custom/2`."
+        Define fully custom marker styles using direct style maps - the primary interface for custom styling.
+        """
+      ),
+      ContentHelpers.code_snippet(
+        ~s"""
+        %{
+          nodes: ["sjc", "fra"],
+          style: %{
+            colour: "#8b5cf6",    # hex, named colour, or CSS variable
+            size: 8,             # radius in pixels
+            animation: :pulse,   # :none, :pulse, :fade
+            glow: true           # boolean for glow effect
+          },
+          label: "Custom Group"
+        }
         """
       ),
       ContentHelpers.ul_with_bold(
-        "Animation Options",
+        "Style Parameters",
         [
-          {":none", "Static markers"},
-          {":pulse", "Radius grows/shrinks"},
-          {":fade", "Opacity changes"}
-        ]
-      ),
-      ContentHelpers.ul_with_bold(
-        "Glow Effect",
-        [
-          {"glow: false", "Standard markers"},
-          {"glow: true", "Enhanced visibility with shadow"}
+          {"colour/color", "Hex codes, named colours (:blue), CSS variables (var(--primary))"},
+          {"size", "Marker radius in pixels (default: 4)"},
+          {"animation", ":none, :pulse, :fade (default: :none)"},
+          {"glow", "Boolean for enhanced visibility (default: false)"}
         ]
       )
     ]

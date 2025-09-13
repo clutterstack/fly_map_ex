@@ -226,8 +226,8 @@ defmodule Demo.MachineDiscovery do
   Convert app machines data to marker groups for FlyMapEx.
 
   Takes a map of app names to machine discovery results and converts them
-  to FlyMapEx marker groups format with distinct cycling colors for each app.
-  Uses FlyMapEx.Style.cycle/1 to automatically assign visually distinct colors.
+  to FlyMapEx marker groups format with distinct colors for each app.
+  Uses stable hashing to assign visually distinct styles based on app names.
 
   ## Examples
 
@@ -237,8 +237,8 @@ defmodule Demo.MachineDiscovery do
       ...> }
       iex> Demo.MachineDiscovery.from_app_machines(app_machines)
       [
-        %{nodes: ["yyz", "fra"], style: FlyMapEx.Style.cycle(0), label: "app1 (2 machines)"},
-        %{nodes: ["lhr"], style: FlyMapEx.Style.cycle(1), label: "app2 (1 machine)"}
+        %{nodes: ["yyz", "fra"], style: %{colour: "#2563eb", size: 6, ...}, label: "app1 (2 machines)"},
+        %{nodes: ["lhr"], style: %{colour: "#16a34a", size: 6, ...}, label: "app2 (1 machine)"}
       ]
   """
   def from_app_machines(app_machines) when is_map(app_machines) do

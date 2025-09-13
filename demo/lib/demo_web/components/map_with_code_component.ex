@@ -318,15 +318,12 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   defp format_arg(arg), do: inspect(arg)
 
   defp get_function_defaults(function_name) do
-    # Get defaults from FlyMapEx.Style functions
+    # Get defaults for preset styles
     case function_name do
-      :operational -> FlyMapEx.Style.operational()
-      :warning -> FlyMapEx.Style.warning()
-      :danger -> FlyMapEx.Style.danger()
-      :inactive -> FlyMapEx.Style.inactive()
-      :primary -> FlyMapEx.Style.primary()
-      :secondary -> FlyMapEx.Style.secondary()
-      :info -> FlyMapEx.Style.info()
+      :operational -> %{colour: "#10b981", size: 4, animation: :none, glow: false}
+      :warning -> %{colour: "#f59e0b", size: 4, animation: :none, glow: false}
+      :danger -> %{colour: "#ef4444", size: 4, animation: :pulse, glow: false}
+      :inactive -> %{colour: "#6b7280", size: 4, animation: :none, glow: false}
       :cycle -> FlyMapEx.Style.cycle(0)
       :custom -> %{size: 4, animation: :none, glow: false, gradient: false}
       _ -> %{size: 4, animation: :none, glow: false, gradient: false}
@@ -345,25 +342,25 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           {function_name, [], %{size: 4, animation: :none, glow: false, gradient: false}}
 
         colour == "#10b981" ->
-          {"FlyMapEx.Style.operational", [], FlyMapEx.Style.operational()}
+          {":operational", [], %{colour: "#10b981", size: 4, animation: :none, glow: false}}
 
         colour == "#f59e0b" ->
-          {"FlyMapEx.Style.warning", [], FlyMapEx.Style.warning()}
+          {":warning", [], %{colour: "#f59e0b", size: 4, animation: :none, glow: false}}
 
         colour == "#ef4444" ->
-          {"FlyMapEx.Style.danger", [], FlyMapEx.Style.danger()}
+          {":danger", [], %{colour: "#ef4444", size: 4, animation: :pulse, glow: false}}
 
         colour == "#6b7280" ->
-          {"FlyMapEx.Style.inactive", [], FlyMapEx.Style.inactive()}
+          {":inactive", [], %{colour: "#6b7280", size: 4, animation: :none, glow: false}}
 
         colour == "#3b82f6" ->
-          {"FlyMapEx.Style.primary", [], FlyMapEx.Style.primary()}
+          {"FlyMapEx.Style.named_colours", [":blue"], FlyMapEx.Style.named_colours(:blue)}
 
         colour == "#14b8a6" ->
-          {"FlyMapEx.Style.secondary", [], FlyMapEx.Style.secondary()}
+          {"FlyMapEx.Style.named_colours", [":teal"], FlyMapEx.Style.named_colours(:teal)}
 
         colour == "#0ea5e9" ->
-          {"FlyMapEx.Style.info", [], FlyMapEx.Style.info()}
+          {"%{colour: \"#0ea5e9\"}", [], %{colour: "#0ea5e9", size: 4, animation: :none, glow: false}}
 
         true ->
           # Custom style
