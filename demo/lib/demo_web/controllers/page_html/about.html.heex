@@ -2,7 +2,7 @@
   <:title>About FlyMapEx</:title>
   <:description>More about the FlyMapEx library and its capabilities.</:description>
   <:content>
-    <.markdown content={"
+    <.markdown content={~s"""
         FlyMapEx is a Phoenix LiveView library for displaying interactive world maps
         with Fly.io region markers. It provides components for visualizing node deployments
         across different regions with configurable styles, animations, and themes.
@@ -19,7 +19,7 @@
         - **Responsive Design**: Works on all screen sizes
         - **Easy Integration**: Simple component-based API
 
-        "} />
+        """} />
     <.info_box_component type={:primary} title="Documentation">
       Visit our GitHub repository for complete documentation and examples.
     </.info_box_component>
