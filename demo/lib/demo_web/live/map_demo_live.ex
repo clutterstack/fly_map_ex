@@ -202,7 +202,7 @@ defmodule DemoWeb.MapDemoLive do
     marker_groups_code = inspect(marker_groups, pretty: true, width: 60)
 
     """
-    <FlyMapEx.render
+    <FlyMapEx.node_map
       marker_groups={#{marker_groups_code}}
       class="my-map"
     />
@@ -274,7 +274,7 @@ defmodule DemoWeb.MapDemoLive do
             <h2 class="text-xl font-semibold mb-4 text-base-content">Live Preview</h2>
 
             <%= if @marker_groups != [] do %>
-              <FlyMapEx.render marker_groups={@marker_groups} class="demo-map" />
+              <FlyMapEx.node_map marker_groups={@marker_groups} class="demo-map" />
             <% else %>
               <div class="flex items-center justify-center h-64 bg-base-200/50 rounded-lg border-2 border-dashed border-base-300">
                 <p class="text-base-content/60">Map preview will appear here once code is valid</p>

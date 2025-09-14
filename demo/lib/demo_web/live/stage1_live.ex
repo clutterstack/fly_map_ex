@@ -23,17 +23,21 @@ defmodule DemoWeb.Stage1Live do
       blank_map: %{
         marker_groups: nil,
         description: "Just the map",
-        code_comment: "An empty map with no markers\nUseful for displaying the world map alone"
+        code_comment: "`FlyMapEx.node_map/1` with no explicit assigns gets an empty map in the default style."
       },
       by_coords: %{
         marker_groups: [
           %{
             # San Francisco, somewhere in the North Sea
             nodes: [{37.8, -122.4}, {56, 3.6}]
+          },
+          %{
+            # Iqaluit approximately
+            nodes: [{63.7, 68.5}]
           }
         ],
-        description: "Single node with custom coordinates",
-        code_comment: "Use coordinate tuples for precise positioning anywhere on the map"
+        description: "Markers placed by coordinates",
+        code_comment: "Nodes can be positioned with `{latitude, longitude}` tuples."
       },
       fly_regions: %{
         marker_groups: [
@@ -41,8 +45,8 @@ defmodule DemoWeb.Stage1Live do
             nodes: ["fra", "sin"]
           }
         ],
-        description: "Single node using Fly.io region code",
-        code_comment: "Use 3-letter region codes for Fly.io infrastructure locations"
+        description: "Markers placed using Fly.io region code",
+        code_comment: "Use 3-letter region codes for Fly.io worker locations."
       },
       multiple_nodes: %{
         marker_groups: [

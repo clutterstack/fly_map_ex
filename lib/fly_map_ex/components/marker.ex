@@ -224,7 +224,7 @@ defmodule FlyMapEx.Components.Marker do
         %{
           attributeName: "r",
           values: FlyMapEx.Config.pulse_radius_values(context, marker_radius),
-          dur: FlyMapEx.Config.pulse_duration(),
+          dur: FlyMapEx.Config.animation_duration(),
           repeatCount: "indefinite"
         }
 
@@ -236,7 +236,7 @@ defmodule FlyMapEx.Components.Marker do
   defp build_opacity_animation_attributes(animation) do
     case animation do
       anim when anim == :fade ->
-        dur = FlyMapEx.Config.fade_duration()
+        dur = FlyMapEx.Config.animation_duration()
 
         %{
           attributeName: "opacity",

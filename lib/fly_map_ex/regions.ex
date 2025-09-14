@@ -140,52 +140,6 @@ defmodule FlyMapEx.Regions do
 
   def coordinates(_), do: {:error, :invalid_input}
 
-  @deprecated "Use coordinates/1 instead for better error handling"
-  @doc """
-  Get coordinates for a region code (backward compatibility).
-
-  Returns {longitude, latitude} tuple or handles special cases with fallback coordinates.
-  **Deprecated**: Use coordinates/1 instead for better error handling.
-
-  ## Examples
-
-      iex> FlyMapEx.Regions.coordinates_legacy("sjc")
-      {-122, 37}
-
-      iex> FlyMapEx.Regions.coordinates_legacy("unknown")
-      {-190, 0}   # Off-screen position
-  """
-  def coordinates_legacy(region) when is_binary(region) do
-    try do
-      region_atom = String.to_existing_atom(region)
-
-      case @regions[region_atom] do
-        {lat, long} -> {lat, long}
-        nil -> handle_special_region(region)
-      end
-    rescue
-      ArgumentError -> handle_special_region(region)
-    end
-  end
-
-  def coordinates_legacy(_), do: handle_special_region("unknown")
-
-  @doc """
-  Get human-readable name for a region code with error handling.
-
-  Returns {:ok, name} for valid regions or {:error, reason} for failures.
-
-  ## Examples
-
-      iex> FlyMapEx.Regions.name("sjc")
-      {:ok, "San Jose"}
-
-      iex> FlyMapEx.Regions.name("unknown")
-      {:error, :unknown_region}
-
-      iex> FlyMapEx.Regions.name(123)
-      {:error, :invalid_input}
-  """
   def name(region) when is_binary(region) do
     try do
       region_atom = String.to_existing_atom(region)
@@ -200,63 +154,6 @@ defmodule FlyMapEx.Regions do
   end
 
   def name(_), do: {:error, :invalid_input}
-
-  @deprecated "Use name/1 instead for better error handling"
-  @doc """
-  Get human-readable name for a region code (backward compatibility).
-
-  Returns string name or nil for unknown regions.
-  **Deprecated**: Use name/1 instead for better error handling.
-
-  ## Examples
-
-      iex> FlyMapEx.Regions.name_legacy("sjc")
-      "San Jose"
-
-      iex> FlyMapEx.Regions.name_legacy("unknown")
-      nil
-  """
-  def name_legacy(region) when is_binary(region) do
-    try do
-      region_atom = String.to_existing_atom(region)
-      @region_names[region_atom]
-    rescue
-      ArgumentError -> nil
-    end
-  end
-
-  def name_legacy(_), do: nil
-
-  @doc """
-  Get formatted display name for a list of regions.
-
-  ## Examples
-
-      iex> FlyMapEx.Regions.display_name(["sjc"])
-      "San Jose"
-
-      iex> FlyMapEx.Regions.display_name([])
-      "your computer"
-
-      iex> FlyMapEx.Regions.display_name(["sjc", "fra"])
-      "sjc, fra"
-  """
-  def display_name([region]) when is_binary(region) do
-    case name_legacy(region) do
-      nil -> region
-      human_name -> human_name
-    end
-  end
-
-  def display_name([]) do
-    "your computer"
-  end
-
-  def display_name(regions) when is_list(regions) do
-    Enum.join(regions, ", ")
-  end
-
-  def display_name(_), do: "unknown"
 
   @doc """
   Validate if a region code is a known Fly.io region.

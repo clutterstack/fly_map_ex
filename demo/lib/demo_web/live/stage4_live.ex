@@ -202,7 +202,7 @@ defmodule DemoWeb.Stage4Live do
         ]
       ),
       ContentHelpers.code_snippet(
-        "# Custom interactive map\n<FlyMapEx.render\n  marker_groups={@marker_groups}\n  theme={:custom}\n  on_marker_click={&handle_marker_click/1}\n  custom_animations={%{pulse_speed: :fast}}\n/>"
+        "# Custom interactive map\n<FlyMapEx.node_map\n  marker_groups={@marker_groups}\n  theme={:custom}\n  on_marker_click={&handle_marker_click/1}\n  custom_animations={%{pulse_speed: :fast}}\n/>"
       ),
       ContentHelpers.pro_tip(
         "Start with standard configurations and gradually add customizations as your requirements become clearer.",

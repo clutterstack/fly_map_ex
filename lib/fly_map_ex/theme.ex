@@ -29,7 +29,7 @@ defmodule FlyMapEx.Theme do
   ### Basic Theme Usage
 
       # Use predefined theme
-      <FlyMapEx.render marker_groups={groups} theme={:dark} />
+      <FlyMapEx.node_map marker_groups={groups} theme={:dark} />
 
       # Use with FlyMapEx.Component
       <.live_component
@@ -71,7 +71,7 @@ defmodule FlyMapEx.Theme do
         }
 
       # Usage in templates
-      <FlyMapEx.render marker_groups={groups} theme={:corporate} />
+      <FlyMapEx.node_map marker_groups={groups} theme={:corporate} />
 
   ### Responsive Theme Usage
 
@@ -111,7 +111,7 @@ defmodule FlyMapEx.Theme do
 
       # Use with DaisyUI theme switching
       <div data-theme="dark">
-        <FlyMapEx.render marker_groups={groups} theme={:dark} />
+        <FlyMapEx.node_map marker_groups={groups} theme={:dark} />
       </div>
 
   ## Performance Considerations

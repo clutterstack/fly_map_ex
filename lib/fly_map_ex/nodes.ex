@@ -35,15 +35,29 @@ defmodule FlyMapEx.Nodes do
       "fra"  # Frankfurt, Germany
       "lhr"  # London Heathrow, UK
 
+  ### Coordinate Tuples
+
+      # Direct coordinate tuple (label will be generated)
+      {40.7128, -74.0060}  # New York City
+      {51.5074, -0.1278}   # London
+
+  ### Custom Region Labels
+
+      # Custom label for Fly.io region
+      %{
+        label: "My Production Server",
+        region: "sjc"  # Uses San Jose coordinates
+      }
+
   ### Custom Node Maps
 
-      # Full node specification
+      # Full node specification with coordinates
       %{
         label: "Custom Server",
         coordinates: {40.7128, -74.0060}  # New York City
       }
 
-      # Coordinates only (label will be generated)
+      # Coordinates only (label will be generated) - legacy format
       %{
         coordinates: {51.5074, -0.1278}  # London
       }
@@ -57,8 +71,9 @@ defmodule FlyMapEx.Nodes do
         label: "Production Servers",
         nodes: [
           "sjc",                                    # Fly.io region
-          "fra",                                    # Fly.io region
-          %{label: "Custom", coordinates: {40.0, -74.0}}  # Custom node
+          {40.0, -74.0},                           # Coordinate tuple
+          %{label: "NYC Office", region: "lhr"},   # Custom label for region
+          %{label: "Custom", coordinates: {52.0, 13.0}}  # Full custom node
         ]
       }
 
@@ -66,7 +81,7 @@ defmodule FlyMapEx.Nodes do
         {:ok, processed_group} ->
           # All nodes normalized successfully
           render_map(processed_group)
-        
+
         {:error, reasons} ->
           # Handle validation errors
           handle_errors(reasons)
@@ -78,7 +93,18 @@ defmodule FlyMapEx.Nodes do
       {:ok, node} = FlyMapEx.Nodes.normalize_node("sjc")
       # => {:ok, %{label: "San Jose", coordinates: {37.3382, -121.8863}}}
 
-      # Process custom node
+      # Process coordinate tuple
+      {:ok, node} = FlyMapEx.Nodes.normalize_node({52.5200, 13.4050})
+      # => {:ok, %{label: "Node at 52.52, 13.405", coordinates: {52.5200, 13.4050}}}
+
+      # Process custom region label
+      {:ok, node} = FlyMapEx.Nodes.normalize_node(%{
+        label: "Berlin Office",
+        region: "fra"
+      })
+      # => {:ok, %{label: "Berlin Office", coordinates: {50.1109, 8.6821}}}
+
+      # Process custom node with coordinates
       {:ok, node} = FlyMapEx.Nodes.normalize_node(%{
         label: "Data Center",
         coordinates: {52.5200, 13.4050}
@@ -94,6 +120,11 @@ defmodule FlyMapEx.Nodes do
         coordinates: "not a tuple"
       })
 
+      # Invalid region
+      {:error, :unknown_region} = FlyMapEx.Nodes.normalize_node(%{
+        label: "Custom", region: "invalid"
+      })
+
   ## Coordinate System
 
   All coordinates use the WGS84 coordinate system:
@@ -101,18 +132,12 @@ defmodule FlyMapEx.Nodes do
   - **Longitude**: -180 to 180 degrees (West to East)
   - **Format**: `{latitude, longitude}` tuple of numbers
 
-  ## Legacy Support
-
-  The module provides legacy functions for backward compatibility:
-  - `process_marker_group_legacy/1`: Uses fallback coordinates for unknown regions
-  - `normalize_node_legacy/1`: Raises exceptions instead of returning error tuples
-
-  These functions are deprecated and should be avoided in new code.
 
   ## Error Types
 
   - `:unknown_region`: Fly.io region code not found
   - `:invalid_coordinates`: Malformed coordinate data
+  - `:invalid_region`: Invalid region in region-based node map
   - `:invalid_format`: Input doesn't match any expected format
 
   ## Performance Considerations
@@ -149,20 +174,6 @@ defmodule FlyMapEx.Nodes do
 
   def process_marker_group(group), do: {:ok, group}
 
-  @deprecated "Use process_marker_group/1 instead for better error handling"
-  @doc """
-  Process a single marker group to normalize nodes (backward compatibility).
-
-  Uses legacy error handling that falls back to off-screen coordinates for unknown regions.
-  **Deprecated**: Use process_marker_group/1 instead for better error handling.
-  """
-  def process_marker_group_legacy(%{nodes: nodes} = group) when is_list(nodes) do
-    processed_nodes = Enum.map(nodes, &normalize_node_legacy/1)
-    Map.put(group, :nodes, processed_nodes)
-  end
-
-  def process_marker_group_legacy(group), do: group
-
   # Helper function to collect results
   defp collect_results(results) do
     {oks, errors} = Enum.split_with(results, &match?({:ok, _}, &1))
@@ -178,16 +189,31 @@ defmodule FlyMapEx.Nodes do
 
   Returns {:ok, normalized_node} for valid input or {:error, reason} for failures.
 
+  Supports four input formats:
+  - Region string: `"sjc"` → auto-label from Regions
+  - Coordinate tuple: `{lat, lng}` → auto-label from coordinates
+  - Custom region label: `%{label: "Name", region: "sjc"}` → custom label with region lookup
+  - Custom coordinates: `%{label: "Name", coordinates: {lat, lng}}` → full control
+
   ## Examples
 
       # Fly.io region code
       iex> FlyMapEx.Nodes.normalize_node("sjc")
       {:ok, %{label: "San Jose", coordinates: {37, -122}}}
 
-      # Already normalized node
+      # Coordinate tuple
+      iex> FlyMapEx.Nodes.normalize_node({40.0, -74.0})
+      {:ok, %{label: "Node at 40.0, -74.0", coordinates: {40.0, -74.0}}}
+
+      # Custom region label
+      iex> FlyMapEx.Nodes.normalize_node(%{label: "Production", region: "sjc"})
+      {:ok, %{label: "Production", coordinates: {37, -122}}}
+
+      # Custom coordinates
       iex> FlyMapEx.Nodes.normalize_node(%{label: "Custom", coordinates: {40.0, -74.0}})
       {:ok, %{label: "Custom", coordinates: {40.0, -74.0}}}
 
+      # Error cases
       iex> FlyMapEx.Nodes.normalize_node("invalid_region")
       {:error, :unknown_region}
 
@@ -210,6 +236,20 @@ defmodule FlyMapEx.Nodes do
     end
   end
 
+  def normalize_node({lat, long} = _node) when is_number(lat) and is_number(long) do
+    {:ok, %{label: "Node at #{lat}, #{long}", coordinates: {lat, long}}}
+  end
+
+  def normalize_node(%{label: label, region: region})
+      when is_binary(label) and is_binary(region) do
+    case Regions.coordinates(region) do
+      {:ok, {lat, long}} ->
+        {:ok, %{label: label, coordinates: {lat, long}}}
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def normalize_node(%{label: label, coordinates: {lat, long}} = node)
       when is_binary(label) and is_number(lat) and is_number(long) do
     {:ok, node}
@@ -224,67 +264,12 @@ defmodule FlyMapEx.Nodes do
     {:error, :invalid_coordinates}
   end
 
+  def normalize_node(%{region: _invalid}) do
+    {:error, :invalid_region}
+  end
+
   def normalize_node(_invalid) do
     {:error, :invalid_format}
   end
 
-  @deprecated "Use normalize_node/1 instead for better error handling"
-  @doc """
-  Normalize a node to the standard format (backward compatibility).
-
-  Returns normalized node map or raises ArgumentError for invalid input.
-  **Deprecated**: Use normalize_node/1 instead for better error handling.
-
-  ## Examples
-
-      # Fly.io region code
-      iex> FlyMapEx.Nodes.normalize_node_legacy("sjc")
-      %{label: "San Jose", coordinates: {37, -122}}
-
-      # Already normalized node
-      iex> FlyMapEx.Nodes.normalize_node_legacy(%{label: "Custom", coordinates: {40.0, -74.0}})
-      %{label: "Custom", coordinates: {40.0, -74.0}}
-  """
-  def normalize_node_legacy(node) when is_binary(node) do
-    # Assume it's a Fly.io region code for backward compatibility
-    case Regions.coordinates(node) do
-      {:ok, {lat, long}} ->
-        label = case Regions.name(node) do
-          {:ok, name} -> name
-          {:error, _} -> node
-        end
-        %{
-          label: label,
-          coordinates: {lat, long}
-        }
-      {:error, _} ->
-        # Unknown region, place off-screen
-        %{
-          label: node,
-          coordinates: {0, -190}
-        }
-    end
-  end
-
-  def normalize_node_legacy(%{label: label, coordinates: {lat, long}} = node)
-      when is_binary(label) and is_number(lat) and is_number(long) do
-    # Already in correct format
-    node
-  end
-
-  def normalize_node_legacy(%{coordinates: {lat, long}} = node)
-      when is_number(lat) and is_number(long) do
-    # Has coordinates but no label
-    Map.put(node, :label, "Node at #{lat}, #{long}")
-  end
-
-  def normalize_node_legacy(invalid) do
-    raise ArgumentError, """
-    Invalid node format: #{inspect(invalid)}
-
-    Expected either:
-    - A Fly.io region code string (e.g., "sjc")
-    - A node map with label and coordinates (e.g., %{label: "Server", coordinates: {40.0, -74.0}})
-    """
-  end
 end

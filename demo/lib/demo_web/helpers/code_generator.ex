@@ -10,7 +10,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
   @doc """
   Generate HEEx template code for a given marker_groups configuration.
 
-  Returns the complete <FlyMapEx.render> call as a string that can be:
+  Returns the complete <FlyMapEx.node_map> call as a string that can be:
   1. Displayed in code panels
   2. Evaluated to get marker_groups data for rendering
 
@@ -50,7 +50,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       })
 
     # Handle case where marker_groups is nil (no variable declaration)
-    if full_code == "<FlyMapEx.render />" do
+    if full_code == "<FlyMapEx.node_map />" do
       # Return empty list for display purposes
       "[]"
     else
@@ -117,9 +117,9 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     # Create minimal render call if no attributes
     render_call =
       if attr_lines == [] do
-        "<FlyMapEx.render />"
+        "<FlyMapEx.node_map />"
       else
-        "<FlyMapEx.render\n#{Enum.join(attr_lines, "\n")}\n/>"
+        "<FlyMapEx.node_map\n#{Enum.join(attr_lines, "\n")}\n/>"
       end
 
     # usage_note = "# Add this to your LiveView template\n# Remember to import FlyMapEx in your view module"
@@ -169,7 +169,7 @@ defmodule DemoWeb.Helpers.CodeGenerator do
       "",
       "  def render_#{context_lower}_map(assigns) do",
       "    ~H\"\"\"",
-      "    <FlyMapEx.render",
+      "    <FlyMapEx.node_map",
       "#{Enum.join(attr_lines, "\n")}",
       "    />",
       "    \"\"\"",

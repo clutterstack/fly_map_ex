@@ -20,13 +20,13 @@ defmodule FlyMapEx do
 
   ## Components
 
-  - `FlyMapEx.render/1` - Complete map with card and legend.
+  - `FlyMapEx.node_map/1` - Complete map with card and legend.
   - `FlyMapEx.Components.WorldMap.render/1` - Just the SVG map
 
   ## Module Architecture
 
   ### Core Components
-  - `FlyMapEx.render/1` - Main entry point with card layout (supports interactive and static modes)
+  - `FlyMapEx.node_map/1` - Main entry point with card layout (supports interactive and static modes)
   - `FlyMapEx.Component` - Stateful LiveView component with interactive legend
   - `FlyMapEx.StaticComponent` - Stateless component for non-interactive rendering
   - `FlyMapEx.Components.WorldMap` - SVG world map rendering
@@ -48,7 +48,7 @@ defmodule FlyMapEx do
   ## Component Relationships
 
   ```
-  FlyMapEx.render/1 (main entry)
+  FlyMapEx.node_map/1 (main entry)
   ├── interactive: true  → FlyMapEx.Component (LiveComponent)
   ├── interactive: false → FlyMapEx.StaticComponent (Component)
   └── Both use:
@@ -78,7 +78,7 @@ defmodule FlyMapEx do
 
   ### Basic Usage (Interactive - Default)
   ```elixir
-  <FlyMapEx.render
+  <FlyMapEx.node_map
     marker_groups={@groups}
     theme={:dark}
     show_regions={true}
@@ -87,7 +87,7 @@ defmodule FlyMapEx do
 
   ### Static Usage (Non-Interactive)
   ```elixir
-  <FlyMapEx.render
+  <FlyMapEx.node_map
     marker_groups={@groups}
     theme={:dark}
     show_regions={true}
@@ -126,8 +126,12 @@ defmodule FlyMapEx do
   ## Attributes
 
   * `marker_groups` - List of marker group maps, each containing:
-    * `nodes` - List of nodes, each either a region code string or %{label: "", coordinates: {lat, long}}
-    * `style` - Style definition (keyword list or map) or FlyMapEx.Style builder result
+    * `nodes` - List of nodes in one of four formats:
+      * Region string: `"sjc"` (auto-label from region name)
+      * Coordinate tuple: `{lat, lng}` (auto-label from coordinates)
+      * Custom region label: `%{label: "Name", region: "sjc"}` (custom label with region lookup)
+      * Custom coordinates: `%{label: "Name", coordinates: {lat, lng}}` (full control)
+    * `style` - Style definition: direct map (%{colour: "#abc", size: 8}) or preset atom (:operational)
     * `label` - Display label for this group
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool) or custom theme map
   * `class` - Additional CSS classes for the container
@@ -138,50 +142,52 @@ defmodule FlyMapEx do
 
   ## Examples
 
-      # Inline style definitions
-      <FlyMapEx.render marker_groups={[
+      # Direct style maps (primary interface)
+      <FlyMapEx.node_map marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style: [colour: "#10b981", size: 8],
+          style: %{colour: "#10b981", size: 8},
           label: "Production Servers"
         },
         %{
           nodes: ["ams"],
-          style: [colour: "#ef4444", size: 10, animation: :pulse],
+          style: %{colour: "#ef4444", size: 10, animation: :pulse},
           label: "Critical Issues"
         }
       ]} theme={:dark} />
 
-      # Using style builder functions
-      <FlyMapEx.render marker_groups={[
+      # Using semantic presets
+      <FlyMapEx.node_map marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style: FlyMapEx.Style.operational(),
+          style: :operational,
           label: "Healthy Nodes"
         },
         %{
           nodes: ["ams"],
-          style: FlyMapEx.Style.danger(size: 12),
+          style: %{colour: "#ef4444", size: 12, animation: :pulse},
           label: "Failed Nodes"
         }
       ]} theme={:minimal} />
 
-      # Mix of region codes and coordinates
-      <FlyMapEx.render marker_groups={[
+      # Mix of all node formats
+      <FlyMapEx.node_map marker_groups={[
         %{
           nodes: [
-            %{label: "Custom Server", coordinates: {40.7128, -74.0060}},
-            "fra"  # Mix with region codes
+            "sjc",                                           # Region string
+            {40.7128, -74.0060},                            # Coordinate tuple
+            %{label: "London Office", region: "lhr"},       # Custom region label
+            %{label: "Custom Server", coordinates: {52.0, 13.0}}  # Custom coordinates
           ],
-          style: FlyMapEx.Style.active(colour: "#custom"),
+          style: %{colour: "#custom", size: 8},
           label: "Mixed Deployment"
         }
       ]} />
 
       # CSS variables for dynamic theming
       <div style="--primary: #ff6b6b;">
-        <FlyMapEx.render marker_groups={[
-          %{nodes: ["sjc"], style: [colour: "var(--primary)", size: 8], label: "Dynamic"}
+        <FlyMapEx.node_map marker_groups={[
+          %{nodes: ["sjc"], style: %{colour: "var(--primary)", size: 8}, label: "Dynamic"}
         ]} />
       </div>
   """
@@ -196,7 +202,7 @@ defmodule FlyMapEx do
   attr(:layout, :atom, default: nil)
   attr(:interactive, :boolean, default: true)
 
-  def render(assigns) do
+  def node_map(assigns) do
     # Choose between interactive and static components based on interactive attribute
     if assigns.interactive do
       ~H"""

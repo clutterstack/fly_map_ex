@@ -87,8 +87,8 @@ defmodule FlyMapEx.Adapters do
       iex> machines = [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}, {"123abc", "yyz"}]
       iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Running Machines")
       [
-        %{nodes: ["yyz"], style: FlyMapEx.Style.primary(), label: "Running Machines (2)", machine_count: 2},
-        %{nodes: ["lhr"], style: FlyMapEx.Style.primary(), label: "Running Machines (1)", machine_count: 1}
+        %{nodes: ["yyz"], style: FlyMapEx.Style.named_colours(:blue), label: "Running Machines (2)", machine_count: 2},
+        %{nodes: ["lhr"], style: FlyMapEx.Style.named_colours(:blue), label: "Running Machines (1)", machine_count: 1}
       ]
 
       iex> FlyMapEx.Adapters.from_machine_tuples(machines, "Operational", :operational)
@@ -97,7 +97,7 @@ defmodule FlyMapEx.Adapters do
         %{nodes: ["lhr"], style: FlyMapEx.Style.operational(), label: "Operational (1)", machine_count: 1}
       ]
   """
-  def from_machine_tuples(machine_tuples, label, style_key \\ :primary)
+  def from_machine_tuples(machine_tuples, label, style_key \\ :operational)
 
   def from_machine_tuples(machine_tuples, label, style_key) when is_list(machine_tuples) do
     machine_tuples

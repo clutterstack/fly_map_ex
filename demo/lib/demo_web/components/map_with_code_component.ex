@@ -51,7 +51,7 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
         <% end %>
 
         <div class="p-4 bg-base-200 rounded-lg">
-          <FlyMapEx.render {@map_attrs} />
+          <FlyMapEx.node_map {@map_attrs} />
         </div>
       </div>
       
@@ -149,10 +149,10 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
     # If we have no variable declaration and no attributes, show minimal version
     if marker_groups_code == "" and component_attrs == "" do
-      "<FlyMapEx.render />"
+      "<FlyMapEx.node_map />"
     else
       marker_groups_code <>
-        "\n\n<FlyMapEx.render" <> marker_groups_attr <> component_attrs <> "\n/>"
+        "\n\n<FlyMapEx.node_map" <> marker_groups_attr <> component_attrs <> "\n/>"
     end
   end
 

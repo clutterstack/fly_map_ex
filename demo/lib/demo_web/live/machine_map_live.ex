@@ -203,7 +203,7 @@ defmodule DemoWeb.MachineMapLive do
       
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
-        <FlyMapEx.render
+        <FlyMapEx.node_map
           marker_groups={@marker_groups}
           class="machine-map"
           show_regions={false}

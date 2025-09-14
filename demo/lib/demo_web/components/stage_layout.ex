@@ -111,11 +111,10 @@ defmodule DemoWeb.Components.StageLayout do
   attr :marker_groups, :list, required: true
   attr :layout, :atom, default: :side_by_side
 
-
   def stage_map(assigns) do
     ~H"""
     <div class="mb-8 p-6 bg-base-200 rounded-lg">
-      <FlyMapEx.render marker_groups={@marker_groups} layout={@layout} />
+      <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} />
     </div>
     """
   end

@@ -28,7 +28,7 @@ defmodule FlyMapEx.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 1.0.17"},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.38", only: :dev, runtime: false}
     ]
   end
 

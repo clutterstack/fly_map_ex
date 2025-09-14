@@ -12,7 +12,7 @@ FlyMapEx provides Phoenix LiveView components for creating interactive world map
 
 - Interactive SVG world map with hover effects
 - Support for Fly.io region codes and custom coordinates `{lat, lng}`
-- Semantic marker styles (operational, warning, danger, inactive)
+- Direct style maps and configurable semantic presets (operational, warning, danger, inactive)
 - Color cycling system for multiple marker groups
 - Configurable animations (pulse, fade)
 - Built-in themes (light, dark, minimal, cool, warm, high contrast)
@@ -35,24 +35,24 @@ end
 ## Basic usage
 
 ### Interactive mode (default - existing behavior)
-  <FlyMapEx.render marker_groups={@groups} theme={:dark} />
+  <FlyMapEx.node_map marker_groups={@groups} theme={:dark} />
 
   ### Static mode (new non-interactive version)  
-  <FlyMapEx.render marker_groups={@groups} theme={:dark} interactive={false} />
+  <FlyMapEx.node_map marker_groups={@groups} theme={:dark} interactive={false} />
 
   ### Direct component usage
   <FlyMapEx.StaticComponent.render marker_groups={@groups} theme={:dark} />
 
 ```heex
-<FlyMapEx.render marker_groups={[
+<FlyMapEx.node_map marker_groups={[
   %{
     nodes: ["sjc"],
-    style: FlyMapEx.Style.operational(),
+    style: %{colour: "#10b981", size: 8},
     label: "Production Server"
   },
   %{
     nodes: ["fra", "ams"],
-    style: FlyMapEx.Style.warning(),
+    style: :warning,
     label: "Staging Servers"
   }
 ]} />
@@ -61,10 +61,10 @@ end
 ### With Themes
 
 ```heex
-<FlyMapEx.render
+<FlyMapEx.node_map
   marker_groups={[%{
     nodes: ["sjc"],
-    style: FlyMapEx.Style.operational(),
+    style: :operational,
     label: "Production"
   }]}
   theme={:dark}
@@ -74,13 +74,13 @@ end
 ### Custom Coordinates and Styling
 
 ```heex
-<FlyMapEx.render
+<FlyMapEx.node_map
   marker_groups={[%{
     nodes: [
       %{label: "NYC Office", coordinates: {40.7128, -74.0060}},
       "sjc"
     ],
-    style: FlyMapEx.Style.custom("#00ff00", size: 10, animation: :pulse),
+    style: %{colour: "#00ff00", size: 10, animation: :pulse},
     label: "Global Infrastructure"
   }]}
   map_theme{%{land: "#1f2937", ocean: "#111827"}}
@@ -90,7 +90,7 @@ end
 
 ## Components
 
-### FlyMapEx.render/1
+### FlyMapEx.node_map/1
 
 The main entry point component that renders a complete world map with regions, legend, and optional progress tracking.
 
@@ -151,9 +151,6 @@ FlyMapEx.Style.operational()  # Green, animated (healthy/running)
 FlyMapEx.Style.warning()      # Amber, static with gradient (degraded)
 FlyMapEx.Style.danger()       # Red, bouncing animation (failed/critical)
 FlyMapEx.Style.inactive()     # Gray, small and static (stopped/offline)
-FlyMapEx.Style.primary()      # Blue, static with gradient
-FlyMapEx.Style.secondary()    # Teal, static
-FlyMapEx.Style.info()         # Light blue, static
 ```
 
 #### Color Cycling
@@ -168,22 +165,41 @@ FlyMapEx.Style.cycle(2)  # Amber
 #### Custom Styles
 
 ```elixir
-FlyMapEx.Style.custom("#3b82f6", size: 10, animated: true, animation: :pulse)
+FlyMapEx.Style.custom("#3b82f6", size: 10, animation: :pulse)
 ```
 
+#### User-Defined Presets
 
- 1. Application Configuration
+Define reusable style presets in your application configuration:
 
-  Configure global defaults in your config/config.exs:
+```elixir
+# config/config.exs
+config :fly_map_ex, :style_presets,
+  brand_primary: [colour: "#your-brand", size: 8, animation: :pulse],
+  monitoring_alert: [colour: "#ff6b6b", size: 10, glow: true],
+  dashboard_info: [colour: "#4dabf7", size: 6]
 
-  config :fly_map_ex,
-    marker_opacity: 0.9,
-    marker_base_radius: 3,
-    neutral_marker_light: "#your-brand-color"
+# Usage
+%{nodes: ["sjc"], style: :brand_primary, label: "Production"}
+# Or explicitly
+%{nodes: ["sjc"], style: FlyMapEx.Style.preset(:brand_primary), label: "Production"}
+```
 
-  2. Custom Style Modules
+### Configuration
 
-  Create your own style builders:
+Configure global defaults in your config/config.exs:
+
+```elixir
+config :fly_map_ex,
+  marker_opacity: 0.9,
+  default_marker_radius: 8,
+  animation_duration: "2s",
+  default_theme: :dark
+```
+
+### Custom Style Modules
+
+Create your own style builders:
 
   defmodule MyApp.MapStyles do
     def brand_primary(opts \\ []) do

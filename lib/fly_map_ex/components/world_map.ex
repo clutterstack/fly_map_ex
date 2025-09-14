@@ -234,7 +234,7 @@ defmodule FlyMapEx.Components.WorldMap do
         toppath: "M #{@minx + 1} #{@miny + 0.5} H #{@width - 0.5}",
         btmpath: "M #{@minx + 1} #{@miny + @height - 1} H #{@width - 0.5}",
         marker_opacity: FlyMapEx.Config.marker_opacity(),
-        hover_opacity: FlyMapEx.Config.hover_opacity(),
+        # hover_opacity removed - use CSS :hover states instead
         default_marker_radius: FlyMapEx.Config.default_marker_radius(),
         region_marker_radius: FlyMapEx.Config.region_marker_radius(),
         show_regions: show_regions
@@ -263,7 +263,6 @@ defmodule FlyMapEx.Components.WorldMap do
         /* Generated at <%= DateTime.utc_now() |> DateTime.to_string() %> */
         svg {
           --marker-opacity: <%= @marker_opacity %>;
-          --hover-opacity: <%= @hover_opacity %>;
           --neutral-marker-color: <%= get_region_marker_color(@colours) %>;
           --neutral-text-color: <%= get_region_text_color(@colours) %>;
           /* Fallback colors when CSS variables fail */

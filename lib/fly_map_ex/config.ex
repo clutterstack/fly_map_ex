@@ -21,14 +21,7 @@ defmodule FlyMapEx.Config do
     Application.get_env(:fly_map_ex, :marker_opacity, 1.0)
   end
 
-  @doc """
-  Opacity for markers in hover state.
-
-  Default: 1.0
-  """
-  def hover_opacity do
-    Application.get_env(:fly_map_ex, :hover_opacity, 1.0)
-  end
+  # Note: Hover opacity removed - use CSS :hover states instead
 
   @doc """
   Opacity range for animated markers as {min, max} tuple.
@@ -55,43 +48,7 @@ defmodule FlyMapEx.Config do
     Application.get_env(:fly_map_ex, :region_marker_radius, round(0.5 * default_marker_radius()))
   end
 
-  @doc """
-  Neutral colour for Fly region markers in light mode.
-
-  This colour should contrast well with light backgrounds.
-  Default: "#6b7280" (medium gray)
-  """
-  def neutral_marker_light do
-    Application.get_env(:fly_map_ex, :neutral_marker_light, "#6b7280")
-  end
-
-  @doc """
-  Neutral colour for Fly region markers in dark mode.
-
-  This colour should contrast well with dark backgrounds.
-  Default: "#9ca3af" (light gray)
-  """
-  def neutral_marker_dark do
-    Application.get_env(:fly_map_ex, :neutral_marker_dark, "#9ca3af")
-  end
-
-  @doc """
-  Neutral colour for Fly region marker text in light mode.
-
-  Default: "#374151" (dark gray)
-  """
-  def neutral_text_light do
-    Application.get_env(:fly_map_ex, :neutral_text_light, "#374151")
-  end
-
-  @doc """
-  Neutral colour for Fly region marker text in dark mode.
-
-  Default: "#d1d5db" (light gray)
-  """
-  def neutral_text_dark do
-    Application.get_env(:fly_map_ex, :neutral_text_dark, "#d1d5db")
-  end
+  # Note: Neutral marker colors are now handled by the Theme module
 
   @doc """
   Default visibility setting for Fly region markers.
@@ -105,21 +62,12 @@ defmodule FlyMapEx.Config do
   end
 
   @doc """
-  Animation duration for pulse animations in seconds.
+  Animation duration for all animations in seconds.
 
-  Default: "2.5s"
+  Default: "2s"
   """
-  def pulse_duration do
-    Application.get_env(:fly_map_ex, :pulse_duration, "2s")
-  end
-
-  @doc """
-  Animation duration for fade animations in seconds.
-
-  Default: "3s"
-  """
-  def fade_duration do
-    Application.get_env(:fly_map_ex, :fade_duration, "2s")
+  def animation_duration do
+    Application.get_env(:fly_map_ex, :animation_duration, "2s")
   end
 
   @doc """
