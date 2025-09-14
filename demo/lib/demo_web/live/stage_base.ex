@@ -16,7 +16,6 @@ defmodule DemoWeb.Live.StageBase do
   @callback get_advanced_topics() :: list(map())
 
   # Optional callbacks with default implementations
-  @callback default_example() :: String.t()
   @callback handle_stage_event(String.t(), map(), Phoenix.LiveView.Socket.t()) ::
               {:noreply, Phoenix.LiveView.Socket.t()}
   @callback stage_theme() :: atom()
@@ -24,7 +23,6 @@ defmodule DemoWeb.Live.StageBase do
   @callback get_example_theme(String.t()) :: atom()
 
   @optional_callbacks [
-    default_example: 0,
     handle_stage_event: 3,
     stage_theme: 0,
     stage_layout: 0,
@@ -43,19 +41,14 @@ defmodule DemoWeb.Live.StageBase do
         examples = stage_examples()
         tabs = stage_tabs()
 
-        default_example =
-          if function_exported?(__MODULE__, :default_example, 0) do
-            default_example()
-          else
-            # Use first tab key as default
-            tabs |> List.first() |> Map.get(:key)
-          end
+        # Use first tab key as default
+        first_tab = tabs |> List.first() |> Map.get(:key)
 
         {:ok,
          assign(socket,
            examples: examples,
            tabs: tabs,
-           current_example: default_example
+           current_example: first_tab
          )}
       end
 
@@ -93,6 +86,7 @@ defmodule DemoWeb.Live.StageBase do
           advanced_topics: get_advanced_topics(),
           navigation: stage_navigation(),
           layout: stage_layout(),
+          theme: current_theme(assigns),
           get_focused_code: fn example, marker_groups ->
             get_focused_code(
               example,
@@ -134,6 +128,20 @@ defmodule DemoWeb.Live.StageBase do
           %{code_comment: comment} -> comment
           # No comment for old format
           _ -> nil
+        end
+      end
+
+      defp current_theme(assigns) do
+        # Check for dynamic theme from map_config first
+        case Map.get(assigns, :map_config) do
+          %{theme: theme} when theme != nil -> theme
+          _ ->
+            # Fall back to per-example theme, then stage theme
+            if function_exported?(__MODULE__, :get_example_theme, 1) do
+              apply(__MODULE__, :get_example_theme, [assigns.current_example]) || get_stage_theme()
+            else
+              get_stage_theme()
+            end
         end
       end
 

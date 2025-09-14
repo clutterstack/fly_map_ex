@@ -20,11 +20,6 @@ defmodule DemoWeb.Stage1Live do
 
   def stage_examples do
     %{
-      blank_map: %{
-        marker_groups: nil,
-        description: "Just the map",
-        code_comment: "`FlyMapEx.node_map/1` with no explicit assigns gets an empty map in the default style."
-      },
       by_coords: %{
         marker_groups: [
           %{
@@ -83,11 +78,6 @@ defmodule DemoWeb.Stage1Live do
   def stage_tabs do
     [
       %{
-        key: "blank_map",
-        label: "The map",
-        content: get_blank_map_content()
-      },
-      %{
         key: "by_coords",
         label: "Coordinate positioning",
         content: get_coordinates_content()
@@ -132,24 +122,11 @@ defmodule DemoWeb.Stage1Live do
     ]
   end
 
-  def default_example, do: "blank_map"
 
   def stage_theme, do: :responsive
   def stage_layout, do: :side_by_side
 
   # Content generation functions using ContentHelpers
-  defp get_blank_map_content do
-    [
-      ContentHelpers.content_section(
-        "Just a map",
-        ~s"""
-
-        Here's a map with an empty marker group
-        """
-      )
-    ]
-    |> Enum.join()
-  end
 
   defp get_coordinates_content do
     [

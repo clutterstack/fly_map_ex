@@ -20,83 +20,56 @@ defmodule DemoWeb.Stage3Live do
 
   def stage_examples do
     %{
+      blank_map: %{
+        marker_groups: [],
+        description: "SVG world map foundation",
+        code_comment: "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
+      },
       presets: %{
         marker_groups: [
           %{
             nodes: ["sjc", "fra", "ams"],
-            style: :operational,
+            style: %{colour: "#3b82f6", size: 8},
             label: "Production Servers"
           },
           %{
             nodes: ["lhr", "syd"],
-            style: :warning,
-            label: "Maintenance Mode"
-          },
-          %{
-            nodes: ["ord", "nrt"],
-            style: :danger,
-            label: "Failed Nodes"
+            style: %{colour: "#f59e0b", size: 8},
+            label: "Staging Environment"
           }
         ],
-        description: "Predefined themes for common use cases",
+        description: "Built-in theme presets",
         code_comment:
-          "Theme presets provide consistent styling for common deployment scenarios. Use :dashboard for compact controls, :monitoring for status dashboards, :presentation for demos, and :minimal for clean interfaces."
-      },
-      responsive: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra", "ams", "lhr"],
-            style: :operational,
-            label: "Global Infrastructure"
-          },
-          %{
-            nodes: ["ord", "nrt"],
-            style: :inactive,
-            label: "Standby Nodes"
-          }
-        ],
-        description: "Adaptive theming that responds to context",
-        code_comment:
-          "The responsive theme automatically adapts to your site's design system by reading CSS custom properties. Perfect for seamless integration with existing design systems and automatic light/dark mode support."
+          "FlyMapEx includes seven preset themes: :light, :dark, :minimal, :cool, :warm, :high_contrast, and :responsive. Each controls map background colours and neutral elements."
       },
       custom: %{
         marker_groups: [
           %{
             nodes: ["sjc", "fra"],
-            style: %{colour: "#10b981", size: 8, animation: :pulse, glow: true},
-            label: "High-Performance Tier"
+            style: %{colour: "#10b981", size: 8},
+            label: "Primary Services"
           },
           %{
             nodes: ["ams", "lhr"],
-            style: %{colour: "#f59e0b", size: 6, animation: :fade, glow: false},
-            label: "Standard Tier"
-          },
-          %{
-            nodes: ["ord"],
-            style: %{colour: "#ef4444", size: 10, animation: :pulse, glow: true},
-            label: "Critical Alert"
+            style: %{colour: "#f59e0b", size: 8},
+            label: "Secondary Services"
           }
         ],
-        description: "Custom theme creation with full control",
+        description: "Custom theme creation methods",
         code_comment:
-          "Custom themes offer complete control over map appearance. Define land_color, ocean_color, border_color, and background_color properties. Supports hex, RGB, HSL, CSS variables, and named colours for maximum flexibility."
+          "Two ways to create custom themes: inline theme maps or config-registered themes. Define land, ocean, border, neutral_marker, and neutral_text properties."
       },
       configuration: %{
         marker_groups: [
           %{
             nodes: ["sjc", "fra", "ams"],
-            style: :operational,
+            style: %{colour: "#3b82f6", size: 8},
             label: "Production Environment"
-          },
-          %{
-            nodes: ["lhr", "syd"],
-            style: :warning,
-            label: "Staging Environment"
           }
         ],
-        description: "Theme configuration and deployment patterns",
+        description: "Application-level theme configuration",
         code_comment:
-          "Configure themes at the application level in config.exs for consistent theming across your entire app. Theme precedence: inline props > component defaults > app config > library defaults."
+          "Set default themes in config.exs for consistent theming across your app. Theme resolution: inline props → custom themes → app default → library default."
       }
     }
   end
@@ -104,18 +77,18 @@ defmodule DemoWeb.Stage3Live do
   def stage_tabs do
     [
       %{
+        key: "blank_map",
+        label: "The Map",
+        content: get_blank_map_content()
+      },
+      %{
         key: "presets",
         label: "Theme Presets",
         content: get_presets_content()
       },
       %{
-        key: "responsive",
-        label: "Responsive",
-        content: get_responsive_content()
-      },
-      %{
         key: "custom",
-        label: "Custom",
+        label: "Custom Themes",
         content: get_custom_content()
       },
       %{
@@ -148,7 +121,6 @@ defmodule DemoWeb.Stage3Live do
     ]
   end
 
-  def default_example, do: "presets"
 
   # Default theme - overridden by get_example_theme() per example
   def stage_theme, do: :responsive
@@ -236,101 +208,118 @@ defmodule DemoWeb.Stage3Live do
   end
 
   # Tab content creation functions using ContentHelpers
+  defp get_blank_map_content do
+    [
+      ContentHelpers.content_section(
+        "The SVG World Map",
+        "FlyMapEx renders an SVG world map with country borders, land masses, and ocean areas. Themes control the colours of these geographic elements."
+      ),
+      ContentHelpers.ul_with_bold(
+        "Map Elements",
+        [
+          {"Land", "Country and continental land masses"},
+          {"Ocean", "Water bodies and sea areas"},
+          {"Border", "Country boundaries and coastlines"},
+          {"Neutral Markers", "Default region indicators"},
+          {"Neutral Text", "Labels and region names"}
+        ]
+      )
+    ]
+    |> Enum.join()
+  end
 
   defp get_presets_content do
     [
       ContentHelpers.content_section(
-        "Predefined Theme Presets",
-        "Ready-to-use themes optimized for common use cases. Quick to implement and consistently styled."
+        "Built-in Theme Presets",
+        "Seven ready-to-use themes that control map background colours, borders, and neutral elements."
       ),
       ContentHelpers.status_steps([
-        {:dashboard, ":dashboard", "Compact design for control panels and admin interfaces.",
-         "bg-primary"},
-        {:monitoring, ":monitoring", "Standard size with clear visibility for status dashboards.",
-         "bg-success"},
-        {:presentation, ":presentation",
-         "Large markers with warm colours for demos and presentations.", "bg-secondary"},
-        {:minimal, "Also available", ":minimal • :dark • :light • :high_contrast",
-         "bg-base-content"}
+        {:light, ":light", "Clean, bright theme with gray land masses and dark borders", "bg-base-100"},
+        {:dark, ":dark", "Dark background with subtle borders for dark mode interfaces", "bg-base-300"},
+        {:minimal, ":minimal", "Transparent backgrounds with subtle borders for overlays", "bg-base-200"},
+        {:cool, ":cool", "Blue-toned theme suitable for technical applications", "bg-info"},
+        {:warm, ":warm", "Earth-toned theme with warm colours for friendly interfaces", "bg-warning"},
+        {:high_contrast, ":high_contrast", "Maximum contrast theme for accessibility", "bg-base-content"},
+        {:responsive, ":responsive", "CSS variable-based theme that adapts to system preferences", "bg-primary"}
       ]),
-      ContentHelpers.pro_tip(
-        "Use preset themes when you need consistent styling or want to match common interface patterns.",
-        type: :best_practice
-      )
+      """
+      <div class="mt-4 p-4 bg-base-200 rounded-lg">
+        <h4 class="font-semibold mb-2">Try Different Themes:</h4>
+        <div class="flex flex-wrap gap-2">
+          <button phx-click="switch_theme" phx-value-theme="light" class="btn btn-sm btn-outline">Light</button>
+          <button phx-click="switch_theme" phx-value-theme="dark" class="btn btn-sm btn-outline">Dark</button>
+          <button phx-click="switch_theme" phx-value-theme="minimal" class="btn btn-sm btn-outline">Minimal</button>
+          <button phx-click="switch_theme" phx-value-theme="cool" class="btn btn-sm btn-outline">Cool</button>
+          <button phx-click="switch_theme" phx-value-theme="warm" class="btn btn-sm btn-outline">Warm</button>
+          <button phx-click="switch_theme" phx-value-theme="high_contrast" class="btn btn-sm btn-outline">High Contrast</button>
+          <button phx-click="switch_theme" phx-value-theme="responsive" class="btn btn-sm btn-outline">Responsive</button>
+        </div>
+      </div>
+      """
     ]
     |> Enum.join()
   end
 
-  defp get_responsive_content do
-    [
-      ContentHelpers.content_section(
-        "Responsive Theme",
-        "Automatically adapts to your site's design system using CSS custom properties. Perfect for seamless integration."
-      ),
-      ContentHelpers.info_box(
-        :primary,
-        "CSS Custom Properties",
-        [
-          "Reads your site's CSS variables:",
-          ContentHelpers.titled_list(
-            [
-              "--color-background → land areas",
-              "--color-border → country borders",
-              "--color-muted → ocean areas"
-            ],
-            type: :arrows
-          )
-        ]
-        |> Enum.join()
-      ),
-      ContentHelpers.info_box(
-        :success,
-        "Context Awareness",
-        "Automatically adapts to light/dark mode and high contrast settings."
-      ),
-      ContentHelpers.code_snippet(
-        ":root {\n  --color-background: #f8fafc;\n  --color-border: #e2e8f0;\n  --color-muted: #cbd5e1;\n}"
-      ),
-      ContentHelpers.pro_tip(
-        "Use as your default theme for maintenance-free branding consistency.",
-        type: :best_practice
-      )
-    ]
-    |> Enum.join()
-  end
 
   defp get_custom_content do
     [
       ContentHelpers.content_section(
         "Custom Theme Creation",
-        "Create completely custom themes with full control over colours. Perfect for branded experiences."
+        "Two approaches for creating custom themes: inline theme maps or config-registered themes."
       ),
       ContentHelpers.info_box(
         :primary,
-        "Theme Properties",
+        "Theme Structure",
         ContentHelpers.titled_list(
           [
-            "land_color → Countries and land masses",
-            "ocean_color → Water areas",
-            "border_color → Country borders",
-            "background_color → Container background"
+            "land → Countries and land masses",
+            "ocean → Water bodies",
+            "border → Country borders and coastlines",
+            "neutral_marker → Default region markers",
+            "neutral_text → Labels and region names"
           ],
           type: :arrows
         )
       ),
-      ContentHelpers.info_box(
-        :success,
-        "Colour Formats",
-        "Supports hex, RGB, HSL, CSS variables, and named colours."
+      ContentHelpers.code_snippet(
+        """
+        # Method 1: Inline custom theme
+        <FlyMapEx.node_map
+          marker_groups={@groups}
+          theme=%{
+            land: "#f8fafc",
+            ocean: "#e2e8f0",
+            border: "#475569",
+            neutral_marker: "#64748b",
+            neutral_text: "#334155"
+          }
+        />
+        """
       ),
-      ContentHelpers.info_box(
-        :warning,
-        "Accessibility",
-        "Ensure 4.5:1 contrast ratio and don't rely solely on colour for information."
-      ),
-      ContentHelpers.pro_tip(
-        "Use custom themes when you need precise visual control or brand-specific experiences.",
-        type: :production
+      ContentHelpers.code_snippet(
+        """
+        # Method 2: Config-registered themes
+        # config/config.exs
+        config :fly_map_ex, :custom_themes,
+          corporate: %{
+            land: "#f8fafc",
+            ocean: "#e2e8f0",
+            border: "#475569",
+            neutral_marker: "#64748b",
+            neutral_text: "#334155"
+          },
+          sunset: %{
+            land: "#fef3c7",
+            ocean: "#fbbf24",
+            border: "#d97706",
+            neutral_marker: "#b45309",
+            neutral_text: "#92400e"
+          }
+
+        # Usage
+        <FlyMapEx.node_map theme={:corporate} />
+        """
       )
     ]
     |> Enum.join()
@@ -339,36 +328,48 @@ defmodule DemoWeb.Stage3Live do
   defp get_configuration_content do
     [
       ContentHelpers.content_section(
-        "Theme Configuration",
-        "Configure themes at the application level for consistent theming across your entire app."
+        "Application-Level Theme Configuration",
+        "Set default themes and create custom theme registries in your application config."
       ),
-      ContentHelpers.info_box(
-        :primary,
-        "Application Config",
-        ContentHelpers.code_snippet(
-          "# config/config.exs\nconfig :fly_map_ex,\n  default_theme: :responsive"
-        )
+      ContentHelpers.code_snippet(
+        """
+        # config/config.exs
+        config :fly_map_ex,
+          default_theme: :responsive,
+          custom_themes: %{
+            corporate: %{
+              land: "#f8fafc",
+              ocean: "#e2e8f0",
+              border: "#475569",
+              neutral_marker: "#64748b",
+              neutral_text: "#334155"
+            },
+            brand: %{
+              land: "#fef3c7",
+              ocean: "#fed7aa",
+              border: "#d97706",
+              neutral_marker: "#92400e",
+              neutral_text: "#451a03"
+            }
+          }
+        """
       ),
       ContentHelpers.ul_with_bold(
-        "Environment-Specific Themes",
+        "Theme Resolution Priority",
         [
-          {"Development", ":light - Bright debugging"},
-          {"Production", ":responsive - Adaptive"},
-          {"Testing", ":high_contrast - Maximum visibility"}
+          {"1. Inline theme prop", "<FlyMapEx.node_map theme={:dark} />"},
+          {"2. Custom themes", "config :fly_map_ex, :custom_themes"},
+          {"3. Application default", "config :fly_map_ex, :default_theme"},
+          {"4. Library default", ":light theme"}
         ]
       ),
       ContentHelpers.ul_with_bold(
-        "Precedence Order",
+        "Environment Patterns",
         [
-          {"1. Inline theme prop", "Highest priority"},
-          {"2. Component default", "Component-level setting"},
-          {"3. Application config", "App-wide configuration"},
-          {"4. Library default", "Fallback theme"}
+          {"Development", ":light for debugging visibility"},
+          {"Production", ":responsive for automatic adaptation"},
+          {"Testing", ":high_contrast for accessibility testing"}
         ]
-      ),
-      ContentHelpers.pro_tip(
-        "Use config-based themes for centralized management and consistency across your application.",
-        type: :best_practice
       )
     ]
     |> Enum.join()
@@ -377,12 +378,12 @@ defmodule DemoWeb.Stage3Live do
   # Per-example theme implementation
   def get_example_theme(example) do
     case example do
-      "presets" -> :dashboard
-      "responsive" -> :responsive
+      "presets" -> :light
       "custom" -> :minimal
-      "configuration" -> :light
+      "configuration" -> :warm
       # Fall back to stage theme
       _ -> nil
     end
   end
+
 end

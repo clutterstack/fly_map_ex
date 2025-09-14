@@ -164,8 +164,7 @@ defmodule DemoWeb.Helpers.StageConfig do
       description: Map.get(config, :description, ""),
       examples: validate_examples(Map.get(config, :examples, %{})),
       tabs: validate_tabs(Map.get(config, :tabs, [])),
-      navigation: Map.get(config, :navigation, %{prev: nil, next: nil}),
-      default_example: Map.get(config, :default_example, "unknown")
+      navigation: Map.get(config, :navigation, %{prev: nil, next: nil})
     }
   end
 

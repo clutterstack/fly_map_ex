@@ -141,9 +141,9 @@ defmodule DemoWeb.Components.Navigation do
 
     # LiveView navigation items
     live_view_items = [
+      {"/stage3", "The Map", :stage3},
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
-      {"/stage3", "Map Themes", :stage3},
       {"/stage4", "Builder", :stage4},
       {"/map", "Machine Map", :machine_map}
     ]

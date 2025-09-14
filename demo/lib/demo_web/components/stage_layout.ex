@@ -43,6 +43,7 @@ defmodule DemoWeb.Components.StageLayout do
   attr :navigation, :map, required: true
   attr :get_focused_code, :any, required: true
   attr :layout, :atom, default: :side_by_side
+  attr :theme, :any, default: nil
 
   def stage_layout(assigns) do
     ~H"""
@@ -66,7 +67,7 @@ defmodule DemoWeb.Components.StageLayout do
 
       <:main>
         <div class="w-full p-8">
-          <.stage_map marker_groups={@marker_groups} layout={@layout} />
+          <.stage_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
 
           <.stage_content_panels
             tabs={@tabs}
@@ -110,11 +111,12 @@ defmodule DemoWeb.Components.StageLayout do
   """
   attr :marker_groups, :list, required: true
   attr :layout, :atom, default: :side_by_side
+  attr :theme, :any, default: nil
 
   def stage_map(assigns) do
     ~H"""
     <div class="mb-8 p-6 bg-base-200 rounded-lg">
-      <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} />
+      <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
     </div>
     """
   end
