@@ -162,42 +162,40 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
   end
 
   defp format_marker_groups_code(marker_groups) do
-    # Format marker groups as readable Elixir code
-    groups_lines =
-      Enum.map(marker_groups, fn group ->
-        style_str = format_style(Map.get(group, :style) || Map.get(group, "style"))
-        label = Map.get(group, :label) || Map.get(group, "label")
-
-        style_field = if style_str, do: ",\n      style: " <> style_str, else: ""
-        label_field = if label, do: ",\n      label: " <> inspect(label), else: ""
-
-        cond do
-          Map.has_key?(group, :nodes) or Map.has_key?(group, "nodes") ->
-            nodes_str = format_nodes(group[:nodes] || Map.get(group, "nodes"))
-
-            "    %{\n      nodes: " <>
-              nodes_str <>
-              style_field <> label_field <> "\n    }"
-
-          Map.has_key?(group, :markers) or Map.has_key?(group, "markers") ->
-            markers_str = format_markers(group[:markers] || Map.get(group, "markers"))
-
-            "    %{\n      nodes: " <>
-              markers_str <>
-              style_field <> label_field <> "\n    }"
-
-          true ->
-            if style_str || label do
-              "    %{" <> style_field <> label_field <> "\n    }"
-            else
-              "    %{}\n    "
-            end
-        end
-      end)
-
+    groups_lines = Enum.map(marker_groups, &format_single_group/1)
     groups_content = Enum.join(groups_lines, ",\n")
-
     "marker_groups = [\n" <> groups_content <> "\n]"
+  end
+
+  defp format_single_group(group) do
+    # Normalize group by extracting values consistently
+    style = Map.get(group, :style) || Map.get(group, "style")
+    label = Map.get(group, :label) || Map.get(group, "label")
+    nodes = Map.get(group, :nodes) || Map.get(group, "nodes") ||
+            Map.get(group, :markers) || Map.get(group, "markers")
+
+    # Build field strings
+    fields = []
+
+    fields = if nodes, do: fields ++ ["nodes: #{format_nodes_data(nodes)}"], else: fields
+    fields = if style, do: fields ++ ["style: #{format_style(style)}"], else: fields
+    fields = if label, do: fields ++ ["label: #{inspect(label)}"], else: fields
+
+    # Format as map
+    if length(fields) == 0 do
+      "    %{}"
+    else
+      field_lines = Enum.map(fields, &("      " <> &1))
+      "    %{\n" <> Enum.join(field_lines, ",\n") <> "\n    }"
+    end
+  end
+
+  defp format_nodes_data(nodes) when is_list(nodes) do
+    # Handle both :nodes and :markers data - they're formatted the same way
+    case List.first(nodes) do
+      %{lat: _, lng: _} -> format_markers(nodes)
+      _ -> format_nodes(nodes)
+    end
   end
 
   defp format_nodes(nodes) when is_list(nodes) do
