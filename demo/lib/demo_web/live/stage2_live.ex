@@ -6,19 +6,21 @@ defmodule DemoWeb.Stage2Live do
   including automatic cycling, semantic presets, custom parameters, and mixed approaches.
   """
 
-  use DemoWeb.Live.StageBase
+  use DemoWeb.Live.DocBase
 
   alias DemoWeb.Helpers.{ContentHelpers, StageConfig}
 
-  # Required StageBase callbacks
+  # Required DocBase callbacks
 
-  def stage_title, do: "Stage 2: Marker Styles"
+  def doc_title, do: "Stage 2: Marker Styles"
 
-  def stage_description do
+  def doc_description do
     "Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system."
   end
 
-  def stage_examples do
+  def doc_component_type, do: :map
+
+  def doc_examples do
     %{
       automatic: %{
         marker_groups: [
@@ -137,7 +139,7 @@ defmodule DemoWeb.Stage2Live do
     }
   end
 
-  def stage_tabs do
+  def doc_tabs do
     [
       %{
         key: "automatic",
@@ -162,33 +164,14 @@ defmodule DemoWeb.Stage2Live do
     ]
   end
 
-  def stage_navigation, do: StageConfig.stage_navigation(:stage2)
+  def doc_navigation, do: StageConfig.stage_navigation(:stage2)
 
-  def get_advanced_topics do
-    [
-      %{
-        id: "style-functions",
-        title: "Style Function Reference",
-        content: get_style_functions_content()
-      },
-      %{
-        id: "custom-styling",
-        title: "Custom Style Parameters",
-        content: get_custom_styling_content()
-      },
-      %{
-        id: "production-config",
-        title: "Production Configuration",
-        content: get_production_config_content()
-      }
-    ]
-  end
 
   def default_example, do: "automatic"
 
-  def stage_theme, do: :dashboard
+  def doc_theme, do: :dashboard
 
-  def stage_layout, do: :side_by_side
+  def doc_layout, do: :side_by_side
 
   # Optional StageBase callbacks
 

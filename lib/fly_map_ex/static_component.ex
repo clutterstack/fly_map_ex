@@ -18,7 +18,7 @@ defmodule FlyMapEx.StaticComponent do
 
   ## Usage
 
-  This component accepts the same attributes as FlyMapEx.Component but renders
+  This component accepts the same attributes as FlyMapEx.LiveComponent but renders
   everything as static content:
 
       <FlyMapEx.StaticComponent.render
@@ -29,7 +29,7 @@ defmodule FlyMapEx.StaticComponent do
             style: :primary
           },
           %{
-            label: "Development", 
+            label: "Development",
             nodes: ["ams", "nrt"],
             style: :secondary
           }
@@ -97,7 +97,7 @@ defmodule FlyMapEx.StaticComponent do
 
   ## Attributes
 
-  All attributes are the same as FlyMapEx.Component except for interactive
+  All attributes are the same as FlyMapEx.LiveComponent except for interactive
   behavior which is not applicable.
 
   ## Examples

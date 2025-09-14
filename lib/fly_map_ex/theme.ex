@@ -33,7 +33,7 @@ defmodule FlyMapEx.Theme do
 
       # Use with FlyMapEx.Component
       <.live_component
-        module={FlyMapEx.Component}
+        module={FlyMapEx.LiveComponent}
         id="map"
         marker_groups={@groups}
         theme={:cool}
@@ -43,7 +43,7 @@ defmodule FlyMapEx.Theme do
 
       # Get theme colours directly
       theme_colours = FlyMapEx.Theme.map_theme(:warm)
-      
+
       <FlyMapEx.Components.WorldMap.render
         marker_groups={@groups}
         colours={theme_colours}
@@ -79,7 +79,7 @@ defmodule FlyMapEx.Theme do
 
       # Manual responsive theme
       responsive_colours = FlyMapEx.Theme.responsive_map_theme()
-      
+
       <FlyMapEx.Components.WorldMap.render
         marker_groups={@groups}
         colours={responsive_colours}
@@ -280,7 +280,7 @@ defmodule FlyMapEx.Theme do
       config :fly_map_ex, :custom_themes,
         corporate: %{
           land: "#f8fafc",
-          ocean: "#e2e8f0", 
+          ocean: "#e2e8f0",
           border: "#475569",
           neutral_marker: "#64748b",
           neutral_text: "#334155"

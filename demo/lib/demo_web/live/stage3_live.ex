@@ -6,19 +6,21 @@ defmodule DemoWeb.Stage3Live do
   including predefined presets, responsive theming, custom themes, and configuration patterns.
   """
 
-  use DemoWeb.Live.StageBase
+  use DemoWeb.Live.DocBase
 
   alias DemoWeb.Helpers.{ContentHelpers, StageConfig}
 
-  # Required StageBase callbacks
+  # Required DocBase callbacks
 
-  def stage_title, do: "Stage 3: Map Themes"
+  def doc_title, do: "Stage 3: Map Themes"
 
-  def stage_description do
+  def doc_description do
     "Control overall visual presentation and branding with FlyMapEx's comprehensive theming system."
   end
 
-  def stage_examples do
+  def doc_component_type, do: :map
+
+  def doc_examples do
     %{
       blank_map: %{
         marker_groups: [],
@@ -74,7 +76,7 @@ defmodule DemoWeb.Stage3Live do
     }
   end
 
-  def stage_tabs do
+  def doc_tabs do
     [
       %{
         key: "blank_map",
@@ -99,33 +101,14 @@ defmodule DemoWeb.Stage3Live do
     ]
   end
 
-  def stage_navigation, do: StageConfig.stage_navigation(:stage3)
+  def doc_navigation, do: StageConfig.stage_navigation(:stage3)
 
-  def get_advanced_topics do
-    [
-      %{
-        id: "theme-performance",
-        title: "Theme Performance Optimization",
-        content: get_theme_performance_content()
-      },
-      %{
-        id: "theme-libraries",
-        title: "Creating Theme Libraries",
-        content: get_theme_libraries_content()
-      },
-      %{
-        id: "dynamic-switching",
-        title: "Dynamic Theme Switching",
-        content: get_dynamic_switching_content()
-      }
-    ]
-  end
 
 
   # Default theme - overridden by get_example_theme() per example
-  def stage_theme, do: :responsive
+  def doc_theme, do: :responsive
 
-  def stage_layout, do: :stacked
+  def doc_layout, do: :stacked
 
   # Content generation functions using ContentHelpers
 

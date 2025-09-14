@@ -1,4 +1,4 @@
-defmodule FlyMapEx.Component do
+defmodule FlyMapEx.LiveComponent do
   @moduledoc """
   Stateful Live Component for FlyMapEx that manages its own selection state.
 
@@ -22,7 +22,7 @@ defmodule FlyMapEx.Component do
   The simplest way to use the component is with just marker groups:
 
       <.live_component
-        module={FlyMapEx.Component}
+        module={FlyMapEx.LiveComponent}
         id="world-map"
         marker_groups={[
           %{
@@ -41,7 +41,7 @@ defmodule FlyMapEx.Component do
   ### Advanced Configuration
 
       <.live_component
-        module={FlyMapEx.Component}
+        module={FlyMapEx.LiveComponent}
         id="world-map"
         marker_groups={@marker_groups}
         theme={:dark}

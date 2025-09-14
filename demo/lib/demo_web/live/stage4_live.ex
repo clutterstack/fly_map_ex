@@ -6,19 +6,21 @@ defmodule DemoWeb.Stage4Live do
   including guided scenarios, freeform building, and code export functionality.
   """
 
-  use DemoWeb.Live.StageBase
+  use DemoWeb.Live.DocBase
 
   alias DemoWeb.Helpers.{ContentHelpers, StageConfig, CodeGenerator}
 
-  # Required StageBase callbacks
+  # Required DocBase callbacks
 
-  def stage_title, do: "Interactive Builder"
+  def doc_title, do: "Interactive Builder"
 
-  def stage_description do
+  def doc_description do
     "Apply your knowledge to build real-world map configurations with guided scenarios, freeform building, and code export."
   end
 
-  def stage_examples do
+  def doc_component_type, do: :map
+
+  def doc_examples do
     %{
       guided: %{
         marker_groups: evaluate_scenario_code(get_scenario_code("monitoring")),
@@ -58,7 +60,7 @@ defmodule DemoWeb.Stage4Live do
     }
   end
 
-  def stage_tabs do
+  def doc_tabs do
     [
       %{
         key: "guided",
@@ -83,33 +85,14 @@ defmodule DemoWeb.Stage4Live do
     ]
   end
 
-  def stage_navigation, do: StageConfig.stage_navigation(:stage4)
+  def doc_navigation, do: StageConfig.stage_navigation(:stage4)
 
-  def get_advanced_topics do
-    [
-      %{
-        id: "scenario-templates",
-        title: "Building Scenario Templates",
-        content: get_scenario_templates_content()
-      },
-      %{
-        id: "integration-patterns",
-        title: "Production Integration Patterns",
-        content: get_integration_patterns_content()
-      },
-      %{
-        id: "advanced-customization",
-        title: "Advanced Customization Techniques",
-        content: get_advanced_customization_content()
-      }
-    ]
-  end
 
   def default_example, do: "guided"
 
-  def stage_theme, do: :presentation
+  def doc_theme, do: :presentation
 
-  def stage_layout, do: :map_only
+  def doc_layout, do: :map_only
 
   # Optional StageBase callbacks
 

@@ -6,19 +6,21 @@ defmodule DemoWeb.Stage1Live do
   for FlyMapEx marker groups, including coordinates, regions, and grouping patterns.
   """
 
-  use DemoWeb.Live.StageBase
+  use DemoWeb.Live.DocBase
 
   alias DemoWeb.Helpers.{ContentHelpers, StageConfig}
 
-  # Required StageBase callbacks
+  # Required DocBase callbacks
 
-  def stage_title, do: "Stage 1: Defining Marker Groups"
+  def doc_title, do: "Stage 1: Defining Marker Groups"
 
-  def stage_description do
+  def doc_description do
     "Learn the fundamental data structure and syntax options for FlyMapEx marker groups."
   end
 
-  def stage_examples do
+  def doc_component_type, do: :map
+
+  def doc_examples do
     %{
       by_coords: %{
         marker_groups: [
@@ -75,7 +77,7 @@ defmodule DemoWeb.Stage1Live do
     }
   end
 
-  def stage_tabs do
+  def doc_tabs do
     [
       %{
         key: "by_coords",
@@ -100,31 +102,10 @@ defmodule DemoWeb.Stage1Live do
     ]
   end
 
-  def stage_navigation, do: StageConfig.stage_navigation(:stage1)
+  def doc_navigation, do: StageConfig.stage_navigation(:stage1)
 
-  def get_advanced_topics do
-    [
-      %{
-        id: "coordinate-systems",
-        title: "Understanding Coordinate Systems",
-        content: get_coordinate_systems_content()
-      },
-      %{
-        id: "data-structure",
-        title: "Marker Group Data Structure",
-        content: get_data_structure_content()
-      },
-      %{
-        id: "production-tips",
-        title: "Production Usage Tips",
-        content: get_production_tips_content()
-      }
-    ]
-  end
-
-
-  def stage_theme, do: :responsive
-  def stage_layout, do: :side_by_side
+  def doc_theme, do: :responsive
+  def doc_layout, do: :side_by_side
 
   # Content generation functions using ContentHelpers
 
@@ -194,62 +175,5 @@ defmodule DemoWeb.Stage1Live do
   end
 
 
-  # Advanced topics content
-
-  defp get_coordinate_systems_content do
-    ~s"""
-    <div class="space-y-4">
-      <p class="text-sm text-base-content/80">
-        FlyMapEx supports two coordinate systems for maximum flexibility:
-      </p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h4 class="font-semibold text-base-content mb-2">WGS84 Geographic Coordinates</h4>
-          #{ContentHelpers.titled_list(["Standard latitude and longitude", "Range: -90 to 90 (latitude), -180 to 180 (longitude)", "Example: {37.7749, -122.4194} for San Francisco", "Use when you need precise custom locations"])}
-        </div>
-        <div>
-          <h4 class="font-semibold text-base-content mb-2">Fly.io Region Codes</h4>
-          #{ContentHelpers.titled_list(["Pre-defined 3-letter codes", ~s(Examples: "sjc", "fra", "ams", "lhr"), "Automatically resolved to exact coordinates", "Use for Fly.io infrastructure mapping"])}
-        </div>
-      </div>
-    </div>
-    """
-  end
-
-  defp get_data_structure_content do
-    ~s"""
-    <div class="space-y-4">
-      <p class="text-sm text-base-content/80">
-        Each marker group follows a consistent structure:
-      </p>
-      #{ContentHelpers.code_snippet(~s"""
-    %{
-      nodes: [list_of_nodes],    # Required: nodes to display
-      style: style_specification, # Optional: visual styling
-      label: "Group Name"        # Required: legend label
-    }
-    """)}
-      <div class="mt-4">
-        <h4 class="font-semibold text-base-content mb-2">Node Specifications</h4>
-        <div class="space-y-2 text-sm">
-          #{ContentHelpers.parameter_doc("Region Code", "string", "3-letter region identifier", ~s("sjc"))}
-          #{ContentHelpers.parameter_doc("Coordinate Tuple", "tuple", "lat/lng coordinates", ~s({40.7128, -74.0060}))}
-          #{ContentHelpers.parameter_doc("Custom Region Label", "map", "custom label for region", ~s(%{label: "NYC Office", region: "lhr"}))}
-          #{ContentHelpers.parameter_doc("Custom Node", "map", "coordinates and label", ~s(%{coordinates: {lat, lng}, label: "Name"}))}
-          #{ContentHelpers.parameter_doc("Mixed", "list", "combination of types", ~s(["sjc", {40.7128, -74.0060}, %{label: "NYC", region: "lhr"}]))}
-        </div>
-      </div>
-    </div>
-    """
-  end
-
-  defp get_production_tips_content do
-    ~s"""
-    <div class="space-y-4">
-      #{ContentHelpers.ul_with_bold("Performance Considerations", [{"Groups with fewer than 20 nodes", "render efficiently"}, {"Use region codes when possible", "for smaller bundle size"}, {"Consider grouping related nodes", "for better organization"}])}
-      #{ContentHelpers.ul_with_bold("Common Patterns", [{"Environment-based", "Production, Staging, Development"}, {"Service-based", "API Servers, Databases, CDN"}, {"Status-based", "Healthy, Warning, Error"}, {"Region-based", "US East, EU West, Asia Pacific"}])}
-    </div>
-    """
-  end
 
 end

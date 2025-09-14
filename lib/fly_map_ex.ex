@@ -49,7 +49,7 @@ defmodule FlyMapEx do
 
   ```
   FlyMapEx.node_map/1 (main entry)
-  ├── interactive: true  → FlyMapEx.Component (LiveComponent)
+  ├── interactive: true  → FlyMapEx.LiveComponent (LiveComponent)
   ├── interactive: false → FlyMapEx.StaticComponent (Component)
   └── Both use:
       ├── FlyMapEx.Shared (shared logic)
@@ -98,7 +98,7 @@ defmodule FlyMapEx do
   ### Advanced Interactive Usage (Direct LiveComponent)
   ```elixir
   <.live_component
-    module={FlyMapEx.Component}
+    module={FlyMapEx.LiveComponent}
     id="interactive-map"
     marker_groups={@groups}
     theme={:dashboard}
@@ -207,7 +207,7 @@ defmodule FlyMapEx do
     if assigns.interactive do
       ~H"""
       <.live_component
-        module={FlyMapEx.Component}
+        module={FlyMapEx.LiveComponent}
         id={assigns[:id] || "fly-map-#{System.unique_integer([:positive])}"}
         marker_groups={@marker_groups}
         theme={@theme}
