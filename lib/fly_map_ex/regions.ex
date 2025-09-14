@@ -4,6 +4,19 @@ defmodule FlyMapEx.Regions do
 
   Provides functions for converting Fly.io region codes to geographic coordinates
   and human-readable names for map display.
+
+  ## Custom Regions
+
+  You can define custom regions in your application configuration:
+
+      config :fly_map_ex, :custom_regions, %{
+        "dev" => %{name: "Development", coordinates: {47.6062, -122.3321}},
+        "laptop-chris" => %{name: "Chris's Laptop", coordinates: {49.2827, -123.1207}},
+        "office-nyc" => %{name: "NYC Office", coordinates: {40.7128, -74.0060}}
+      }
+
+  Custom regions will be merged with built-in Fly.io regions, with custom regions
+  taking precedence if there are naming conflicts.
   """
 
   @regions %{
@@ -83,27 +96,40 @@ defmodule FlyMapEx.Regions do
   }
 
   @doc """
-  Returns all available Fly.io region codes as strings.
+  Returns all available region codes as strings, including custom regions.
 
   ## Examples
 
       iex> FlyMapEx.Regions.list()
-      ["ams", "iad", "atl", ...]
+      ["ams", "iad", "atl", "dev", "laptop-chris", ...]
   """
   def list do
-    Map.keys(@regions) |> Enum.map(&Atom.to_string/1)
+    built_in = Map.keys(@regions) |> Enum.map(&Atom.to_string/1)
+    custom = Map.keys(get_custom_regions())
+    Enum.uniq(built_in ++ custom)
   end
 
   @doc """
   Returns all region data as a map of {region_code, {longitude, latitude}}.
+  Includes both built-in Fly.io regions and custom regions from configuration.
 
   ## Examples
 
       iex> FlyMapEx.Regions.all()
-      %{ams: {5, 52}, iad: {-77, 39}, ...}
+      %{ams: {5, 52}, iad: {-77, 39}, "dev" => {47.6062, -122.3321}, ...}
   """
   def all do
-    @regions
+    custom_regions =
+      get_custom_regions()
+      |> Enum.map(fn {key, %{coordinates: coords}} -> {key, coords} end)
+      |> Map.new()
+
+    built_in_as_strings =
+      @regions
+      |> Enum.map(fn {key, coords} -> {Atom.to_string(key), coords} end)
+      |> Map.new()
+
+    Map.merge(built_in_as_strings, custom_regions)
   end
 
   @doc """
@@ -126,30 +152,46 @@ defmodule FlyMapEx.Regions do
       {:error, :invalid_input}
   """
   def coordinates(region) when is_binary(region) do
-    try do
-      region_atom = String.to_existing_atom(region)
+    # First check custom regions
+    case get_custom_regions()[region] do
+      %{coordinates: {lat, long}} ->
+        {:ok, {lat, long}}
 
-      case @regions[region_atom] do
-        {lat, long} -> {:ok, {lat, long}}
-        nil -> handle_special_region_with_error(region)
-      end
-    rescue
-      ArgumentError -> handle_special_region_with_error(region)
+      nil ->
+        # Then check built-in Fly.io regions
+        try do
+          region_atom = String.to_existing_atom(region)
+
+          case @regions[region_atom] do
+            {lat, long} -> {:ok, {lat, long}}
+            nil -> {:error, :unknown_region}
+          end
+        rescue
+          ArgumentError -> {:error, :unknown_region}
+        end
     end
   end
 
   def coordinates(_), do: {:error, :invalid_input}
 
   def name(region) when is_binary(region) do
-    try do
-      region_atom = String.to_existing_atom(region)
+    # First check custom regions
+    case get_custom_regions()[region] do
+      %{name: name} ->
+        {:ok, name}
 
-      case @region_names[region_atom] do
-        nil -> {:error, :unknown_region}
-        name -> {:ok, name}
-      end
-    rescue
-      ArgumentError -> {:error, :unknown_region}
+      nil ->
+        # Then check built-in Fly.io regions
+        try do
+          region_atom = String.to_existing_atom(region)
+
+          case @region_names[region_atom] do
+            nil -> {:error, :unknown_region}
+            name -> {:ok, name}
+          end
+        rescue
+          ArgumentError -> {:error, :unknown_region}
+        end
     end
   end
 
@@ -167,21 +209,18 @@ defmodule FlyMapEx.Regions do
       false
   """
   def valid?(region) when is_binary(region) do
-    region in list()
+    # Check custom regions first
+    Map.has_key?(get_custom_regions(), region) or
+      # Then check built-in regions
+      region in (Map.keys(@regions) |> Enum.map(&Atom.to_string/1))
   end
 
   def valid?(_), do: false
 
   # Private functions
 
-  # Seattle coordinates for development
-  defp handle_special_region("dev"), do: {-122, 47}
-  # Off-screen position for unknown regions
-  defp handle_special_region("unknown"), do: {-190, 0}
-  # Default off-screen for any other case
-  defp handle_special_region(_), do: {-190, 0}
-
-  # Error-handling version of special region handling
-  defp handle_special_region_with_error("dev"), do: {:ok, {-122, 47}}
-  defp handle_special_region_with_error(_), do: {:error, :unknown_region}
+  # Get custom regions from application configuration
+  defp get_custom_regions do
+    Application.get_env(:fly_map_ex, :custom_regions, %{})
+  end
 end

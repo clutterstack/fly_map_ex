@@ -145,11 +145,6 @@ defmodule DemoWeb.Stage2Live do
         content: get_automatic_content()
       },
       %{
-        key: "named_colours",
-        label: "Named colours",
-        content: get_named_content()
-      },
-      %{
         key: "semantic",
         label: "Semantic",
         content: get_semantic_content()
@@ -321,22 +316,6 @@ defmodule DemoWeb.Stage2Live do
     |> Enum.join()
   end
 
-  defp get_named_content do
-    [
-      ContentHelpers.content_section(
-        "Named colours",
-        ~s"""
-        Pick a colour by name using `FlyMapEx.Style.named_colours/1`.
-
-        Available colours:
-
-
-        """
-      )
-    ]
-    |> Enum.join()
-  end
-
   defp get_semantic_content do
     [
       ContentHelpers.content_section(
@@ -409,4 +388,5 @@ defmodule DemoWeb.Stage2Live do
     ]
     |> Enum.join()
   end
+
 end

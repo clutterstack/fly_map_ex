@@ -64,6 +64,18 @@ defmodule DemoWeb.Stage1Live do
         ],
         description: "Multiple groups with different purposes",
         code_comment: "Separate groups allow different styling and organization"
+      },
+      custom_regions: %{
+        marker_groups: [
+          %{
+            nodes: ["dev", "laptop-chris", "office-nyc"]
+          },
+          %{
+            nodes: ["fra", "sin", "lhr"]
+          }
+        ],
+        description: "Mix of custom and Fly.io regions",
+        code_comment: "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
       }
     }
   end
@@ -84,6 +96,11 @@ defmodule DemoWeb.Stage1Live do
         key: "fly_regions",
         label: "Fly.io regions",
         content: get_region_content()
+      },
+      %{
+        key: "custom_regions",
+        label: "Custom Regions",
+        content: get_custom_regions_content()
       },
       %{
         key: "multiple_nodes",
@@ -163,7 +180,7 @@ defmodule DemoWeb.Stage1Live do
         """
       ),
       ContentHelpers.pro_tip(
-        ~s(Use "dev" for development environments - maps to Seattle coordinates.)
+        ~s(Custom regions like "dev", "laptop-chris", "office-nyc" can be configured in your app config for mixed Fly.io + local deployments.)
       )
     ]
     |> Enum.join()
@@ -182,6 +199,23 @@ defmodule DemoWeb.Stage1Live do
     ]
     |> Enum.join()
   end
+
+  defp get_custom_regions_content do
+    [
+      ContentHelpers.content_section(
+        "Custom Regions for Mixed Deployments",
+        "Define custom regions in your app config for mixed Fly.io + local deployments. Perfect for showing development environments, office locations, or hybrid cloud setups."
+      ),
+      ContentHelpers.code_snippet(
+        "# config/config.exs\nconfig :fly_map_ex, :custom_regions, %{\n  \"dev\" => %{name: \"Development\", coordinates: {47.6062, -122.3321}},\n  \"laptop-chris\" => %{name: \"Chris's Laptop\", coordinates: {49.2827, -123.1207}},\n  \"office-nyc\" => %{name: \"NYC Office\", coordinates: {40.7128, -74.0060}}\n}"
+      ),
+      ContentHelpers.pro_tip(
+        "Custom regions are treated like Fly.io regions once configured."
+      )
+    ]
+    |> Enum.join()
+  end
+
 
   # Advanced topics content
 

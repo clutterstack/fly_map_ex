@@ -449,8 +449,7 @@ defmodule FlyMapEx.Components.WorldMap do
   end
 
   defp all_regions_with_coords do
-    for {region_atom, coords} <- Regions.all() do
-      region_string = Atom.to_string(region_atom)
+    for {region_string, coords} <- Regions.all() do
       svg_coords = wgs84_to_svg(coords, @bbox)
       {region_string, svg_coords}
     end
