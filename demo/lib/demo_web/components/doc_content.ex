@@ -1,9 +1,10 @@
-defmodule DemoWeb.Components.StageLayout do
+defmodule DemoWeb.Components.DocContent do
   @moduledoc """
-  Reusable layout component for stage pages in the FlyMapEx demo.
+  Reusable layout component for documentation pages in the generic tutorial system.
 
-  This component provides the common structure used across all stage pages,
-  including the title section, map display, side-by-side panels, and navigation.
+  This component provides the common structure used across all documentation pages,
+  including the title section, interactive component display, side-by-side panels,
+  and navigation. Generalized from StageLayout to support multiple component types.
   """
 
   use Phoenix.Component
@@ -11,23 +12,22 @@ defmodule DemoWeb.Components.StageLayout do
 
   import DemoWeb.Components.Navigation
   import DemoWeb.Components.InteractiveControls
-  import DemoWeb.Components.ProgressiveDisclosure
-  import DemoWeb.Components.SidebarLayout
+  import DemoWeb.Helpers.DocComponentRegistry
 
   @doc """
-  Renders the complete stage layout with all common elements.
+  Renders the complete documentation layout with all common elements.
 
   ## Attributes
 
   - `current_page` - Current page atom for navigation
   - `tabs` - List of tab configurations
   - `current_tab` - Current active tab
-  - `title` - Stage title
-  - `description` - Stage description
-  - `marker_groups` - Current marker groups for map display
+  - `title` - Documentation title
+  - `description` - Documentation description
+  - `component_type` - Type of interactive component (:map, :chart, etc.)
+  - `examples` - Current examples for component display
   - `current_example` - Current example key
-  - `examples` - Map of all examples
-  - `advanced_topics` - List of advanced topics for disclosure
+  - `all_examples` - Map of all examples
   - `navigation` - Navigation configuration with prev/next
   - `get_focused_code` - Function to get focused code
   """
@@ -36,64 +36,50 @@ defmodule DemoWeb.Components.StageLayout do
   attr :current_tab, :string, required: true
   attr :title, :string, required: true
   attr :description, :string, required: true
-  attr :marker_groups, :list, required: true
+  attr :component_type, :atom, required: true
+  attr :examples, :any, required: true
   attr :current_example, :string, required: true
-  attr :examples, :map, required: true
-  attr :advanced_topics, :list, required: true
+  attr :all_examples, :map, required: true
   attr :navigation, :map, required: true
   attr :get_focused_code, :any, required: true
   attr :layout, :atom, default: :side_by_side
   attr :theme, :any, default: nil
 
-  def stage_layout(assigns) do
+  def doc_layout(assigns) do
     ~H"""
-    <!-- Top navigation for mobile/narrow screens -->
-    <div class="lg:hidden">
-      <.navigation layout={:topbar} current_page={@current_page} />
-    </div>
+    <DemoWeb.Layouts.app  flash={@flash} current_page={@current_page}>
+          <:title>@{:title}</:title>
 
-    <.sidebar_layout>
-      <:sidebar>
-        <!-- Sidebar navigation for wide screens -->
-        <div class="hidden lg:block h-full">
-          <.navigation
-            layout={:sidebar}
-            current_page={@current_page}
-            tabs={@tabs}
-            current_tab={@current_tab}
-          />
-        </div>
-      </:sidebar>
-
-      <:main>
         <div class="w-full p-8">
-          <.stage_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
+          <.doc_component
+            component_type={@component_type}
+            examples={@examples}
+            layout={@layout}
+            theme={@theme}
+          />
 
-          <.stage_content_panels
+          <.doc_content_panels
             tabs={@tabs}
             current_tab={@current_tab}
             current_example={@current_example}
             current_example_description={@current_example_description}
-            marker_groups={@marker_groups}
+            examples={@examples}
             get_focused_code={@get_focused_code}
           />
 
-          <.stage_advanced_topics topics={@advanced_topics} />
-
-          <.stage_navigation navigation={@navigation} />
+          <.doc_navigation navigation={@navigation} />
         </div>
-      </:main>
-    </.sidebar_layout>
+    </DemoWeb.Layouts.app>
     """
   end
 
   @doc """
-  Renders the stage header with title and description.
+  Renders the documentation header with title and description.
   """
   attr :title, :string, required: true
   attr :description, :string, required: true
 
-  def stage_header(assigns) do
+  def doc_header(assigns) do
     ~H"""
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
@@ -107,16 +93,21 @@ defmodule DemoWeb.Components.StageLayout do
   end
 
   @doc """
-  Renders the full-width map display.
+  Renders the interactive component display using the component registry.
   """
-  attr :marker_groups, :list, required: true
+  attr :component_type, :atom, required: true
+  attr :examples, :any, required: true
   attr :layout, :atom, default: :side_by_side
   attr :theme, :any, default: nil
 
-  def stage_map(assigns) do
+  def doc_component(assigns) do
     ~H"""
     <div class="mb-8 p-6 bg-base-200 rounded-lg">
-      <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
+      <.render_component
+        component_type={@component_type}
+        examples={@examples}
+        opts={%{layout: @layout, theme: @theme}}
+      />
     </div>
     """
   end
@@ -128,10 +119,10 @@ defmodule DemoWeb.Components.StageLayout do
   attr :current_tab, :string, required: true
   attr :current_example, :string, required: true
   attr :current_example_description, :string, required: true
-  attr :marker_groups, :list, required: true
+  attr :examples, :any, required: true
   attr :get_focused_code, :any, required: true
 
-  def stage_content_panels(assigns) do
+  def doc_content_panels(assigns) do
     ~H"""
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       <!-- Tabbed Info Panel -->
@@ -144,12 +135,12 @@ defmodule DemoWeb.Components.StageLayout do
         />
       </div>
 
-    <!-- Code Examples Panel -->
+      <!-- Code Examples Panel -->
       <div>
         <.code_examples_panel
           current_example={@current_example}
           current_example_description={@current_example_description}
-          marker_groups={@marker_groups}
+          examples={@examples}
           get_focused_code={@get_focused_code}
         />
       </div>
@@ -162,7 +153,7 @@ defmodule DemoWeb.Components.StageLayout do
   """
   attr :current_example, :string, required: true
   attr :current_example_description, :string, required: true
-  attr :marker_groups, :list, required: true
+  attr :examples, :any, required: true
   attr :get_focused_code, :any, required: true
 
   def code_examples_panel(assigns) do
@@ -171,35 +162,24 @@ defmodule DemoWeb.Components.StageLayout do
       <!-- Quick Stats -->
       <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
         <div class="text-sm text-primary">
-          {@current_example_description} • {if @marker_groups, do: length(@marker_groups), else: 0} groups • {count_total_nodes(
-            @marker_groups
+          {@current_example_description} • {if @examples, do: get_examples_count(@examples), else: 0} groups • {count_total_nodes(
+            @examples
           )} nodes
         </div>
       </div>
       <div class="p-4">
-        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code><%= @get_focused_code.(@current_example, @marker_groups) %></code></pre>
+        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code><%= @get_focused_code.(@current_example, @examples) %></code></pre>
       </div>
     </div>
     """
   end
 
   @doc """
-  Renders the advanced topics section.
-  """
-  attr :topics, :list, required: true
-
-  def stage_advanced_topics(assigns) do
-    ~H"""
-    <.learn_more_section topics={@topics} />
-    """
-  end
-
-  @doc """
-  Renders the stage navigation with prev/next buttons.
+  Renders the documentation navigation with prev/next buttons.
   """
   attr :navigation, :map, required: true
 
-  def stage_navigation(assigns) do
+  def doc_navigation(assigns) do
     ~H"""
     <div class="mt-8 flex justify-between">
       <%= if @navigation.prev do %>
@@ -234,14 +214,20 @@ defmodule DemoWeb.Components.StageLayout do
 
   # Helper functions
 
-  defp count_total_nodes(marker_groups) when is_nil(marker_groups), do: 0
+  defp get_examples_count(examples) when is_nil(examples), do: 0
+  defp get_examples_count(examples) when is_list(examples), do: length(examples)
+  defp get_examples_count(_), do: 1
 
-  defp count_total_nodes(marker_groups) do
-    Enum.reduce(marker_groups, 0, fn group, acc ->
+  defp count_total_nodes(examples) when is_nil(examples), do: 0
+
+  defp count_total_nodes(examples) when is_list(examples) do
+    Enum.reduce(examples, 0, fn group, acc ->
       nodes = group[:nodes] || []
       acc + length(nodes)
     end)
   end
+
+  defp count_total_nodes(_), do: 0
 
   defp get_prev_label(stage) do
     case stage do
