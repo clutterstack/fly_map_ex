@@ -1,6 +1,5 @@
 defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
-  import DemoWeb.Components.ThemeToggle
 
   @doc """
   Renders a navigation component with configurable layout.
@@ -52,11 +51,6 @@ defmodule DemoWeb.Components.Navigation do
           <% end %>
         </nav>
       </div>
-
-    <!-- Theme Toggle -->
-      <div class="p-4 border-t border-base-300">
-        <.theme_toggle />
-      </div>
     </nav>
     """
   end
@@ -82,11 +76,6 @@ defmodule DemoWeb.Components.Navigation do
                 </.link>
               <% end %>
             </div>
-          </div>
-
-    <!-- Theme toggle -->
-          <div class="hidden sm:flex items-center">
-            <.theme_toggle />
           </div>
 
     <!-- Mobile menu button -->
@@ -122,9 +111,6 @@ defmodule DemoWeb.Components.Navigation do
             </.link>
           <% end %>
         </div>
-        <div class="pt-2 pb-3 px-3 border-t border-base-300">
-          <.theme_toggle />
-        </div>
       </div>
     </nav>
     """
@@ -132,6 +118,7 @@ defmodule DemoWeb.Components.Navigation do
 
   defp nav_items do
     # Static page navigation items (dead views)
+    # path, label, module
     static_pages = [
       {"/", "Home", :home},
       {"/about", "About", :about},
@@ -142,6 +129,7 @@ defmodule DemoWeb.Components.Navigation do
     # LiveView navigation items
     live_view_items = [
       {"/stage3", "The Map", :stage3},
+      {"/live_layout", "Testing Live Layout", :live_with_layout},
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
       {"/stage4", "Builder", :stage4},

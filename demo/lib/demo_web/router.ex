@@ -19,11 +19,11 @@ defmodule DemoWeb.Router do
 
     get "/", PageController, :home
     get "/about", PageController, :about
-
     get "/greet", PageController, :show
 
     # get "/", PageController, :show, page: "home", as: :home_page
     live "/map", MachineMapLive, :index
+    live "/live_layout", LiveWithLayout
     live "/demo", MapDemoLive, :index
     live "/stage1", Stage1Live
     live "/stage2", Stage2Live

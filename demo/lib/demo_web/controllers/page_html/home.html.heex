@@ -1,7 +1,6 @@
 <Layouts.app flash={@flash} current_page={@current_page}>
   <:title>FlyMapEx Demo Home</:title>
   <:description>This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.</:description>
-  <:content>
     <FlyMapEx.StaticComponent.render
       marker_groups={
         [
@@ -44,5 +43,4 @@
         The map above shows real Fly.io regions with sample data to demonstrate the library's capabilities.
       </.info_box_component>
     </div>
-  </:content>
 </Layouts.app>
