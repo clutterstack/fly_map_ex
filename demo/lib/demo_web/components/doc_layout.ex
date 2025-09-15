@@ -12,7 +12,6 @@ defmodule DemoWeb.Components.DocLayout do
 
   import DemoWeb.Components.Navigation
   import DemoWeb.Components.InteractiveControls
-  import DemoWeb.Components.SidebarLayout
   import DemoWeb.Helpers.DocComponentRegistry
 
   @doc """
@@ -48,25 +47,9 @@ defmodule DemoWeb.Components.DocLayout do
 
   def doc_layout(assigns) do
     ~H"""
-    <!-- Top navigation for mobile/narrow screens -->
-    <div class="lg:hidden">
-      <.navigation layout={:topbar} current_page={@current_page} />
-    </div>
+    <DemoWeb.Layouts.app  flash={@flash} current_page={@current_page}>
+          <:title>@{:title}</:title>
 
-    <.sidebar_layout>
-      <:sidebar>
-        <!-- Sidebar navigation for wide screens -->
-        <div class="hidden lg:block h-full">
-          <.navigation
-            layout={:sidebar}
-            current_page={@current_page}
-            tabs={@tabs}
-            current_tab={@current_tab}
-          />
-        </div>
-      </:sidebar>
-
-      <:main>
         <div class="w-full p-8">
           <.doc_component
             component_type={@component_type}
@@ -86,8 +69,7 @@ defmodule DemoWeb.Components.DocLayout do
 
           <.doc_navigation navigation={@navigation} />
         </div>
-      </:main>
-    </.sidebar_layout>
+    </DemoWeb.Layouts.app>
     """
   end
 

@@ -31,7 +31,7 @@ defmodule DemoWeb.Router do
     live "/stage4", Stage4Live
 
     # Dynamic static pages - must be last to avoid conflicts
-    get "/:page", PageController, :show
+    live "/:page", PageLive, :show
   end
 
   # Other scopes may use custom stacks.

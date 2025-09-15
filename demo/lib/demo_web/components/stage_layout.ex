@@ -5,14 +5,13 @@ defmodule DemoWeb.Components.StageLayout do
   This component provides the common structure used across all stage pages,
   including the title section, map display, side-by-side panels, and navigation.
   """
-
+  use Phoenix.LiveView
   use Phoenix.Component
   use DemoWeb, :verified_routes
 
   import DemoWeb.Components.Navigation
   import DemoWeb.Components.InteractiveControls
   import DemoWeb.Components.ProgressiveDisclosure
-  import DemoWeb.Components.SidebarLayout
 
   @doc """
   Renders the complete stage layout with all common elements.
@@ -47,25 +46,9 @@ defmodule DemoWeb.Components.StageLayout do
 
   def stage_layout(assigns) do
     ~H"""
-    <!-- Top navigation for mobile/narrow screens -->
-    <div class="lg:hidden">
-      <.navigation layout={:topbar} current_page={@current_page} />
-    </div>
+      <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
+      <:title>Interactive Code Builder</:title>
 
-    <.sidebar_layout>
-      <:sidebar>
-        <!-- Sidebar navigation for wide screens -->
-        <div class="hidden lg:block h-full">
-          <.navigation
-            layout={:sidebar}
-            current_page={@current_page}
-            tabs={@tabs}
-            current_tab={@current_tab}
-          />
-        </div>
-      </:sidebar>
-
-      <:main>
         <div class="w-full p-8">
           <.stage_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
 
@@ -82,9 +65,9 @@ defmodule DemoWeb.Components.StageLayout do
 
           <.stage_navigation navigation={@navigation} />
         </div>
-      </:main>
-    </.sidebar_layout>
-    """
+    </DemoWeb.Layouts.app>
+        """
+
   end
 
   @doc """
