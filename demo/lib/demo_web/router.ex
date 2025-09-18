@@ -31,7 +31,7 @@ defmodule DemoWeb.Router do
     live "/stage4", Stage4Live
 
     # Dynamic liveview pages - must be last to avoid conflicts
-    live "/:page_id", PageLiveBackwards
+    live "/:page_id", PageLive
 
   end
 

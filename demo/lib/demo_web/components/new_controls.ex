@@ -48,7 +48,6 @@ defmodule DemoWeb.Components.NewControls do
   def new_tabbed_info_panel(assigns) do
   ~H"""
   <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
-  <p>Current_tab: {inspect(@current_tab)}</p>
     <!-- Tab Navigation -->
     <%= if @show_tabs do %>
       <div class="border-b border-base-300 bg-base-200">

@@ -10,13 +10,13 @@ defmodule DemoWeb.PageLive do
       page_module = Module.concat(DemoWeb.Content, Demo.ContentMap.get_page_module(current_page))
       # content = apply(module, :get_content, [])
 
-      %{:title => title, :description => description} = apply(page_module, :doc_metadata, [])
+      %{:title => title, :description => description, :template => template} = apply(page_module, :doc_metadata, [])
 
-      # template_module = Module.concat(DemoWeb.Content, template)
+      template_module = Module.concat(DemoWeb.Content, template)
 
         socket =
           socket
-          |> assign(title: title, description: description)
+          |> assign(title: title, description: description, template_module: template_module)
           |> assign(page_module: page_module)
           |> assign(current_page: current_page)
       {:ok, socket}
@@ -28,15 +28,14 @@ defmodule DemoWeb.PageLive do
     <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
       <:title>{@title}</:title>
       <:description>{@description}</:description>
-      <p>We have a current_page value: {@current_page}.</p>
-      Here comes the page's function component
-      <%= apply(@page_module, :show, [%{current_page: @current_page, page_module: @page_module}]) %>
+      <.live_component module={@template_module} id={@current_page} page_module={@page_module} />
     </DemoWeb.Layouts.app>
     """
   end
 
-        # Here comes a live component
-      # <.live_component module={@module} id={@current_page} />
+      #   Here comes the template function component
+      # <%= apply(@template_module, :render, [%{current_page: @current_page, page_module: @page_module}]) %>
+
 
 
 end
