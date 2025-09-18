@@ -74,9 +74,8 @@ defmodule DemoWeb.Helpers.CodeGenerator do
     end
   end
 
-  # Private implementation functions
 
-  defp generate_heex_template(marker_groups, theme, layout, code_comment) do
+  def generate_heex_template(marker_groups, theme, layout, code_comment) do
     marker_groups_code = generate_marker_groups_code(marker_groups)
     guide_comment = ""
     # Add additional code comment if provided

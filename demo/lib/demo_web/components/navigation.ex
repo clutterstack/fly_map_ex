@@ -133,7 +133,10 @@ defmodule DemoWeb.Components.Navigation do
       {"/stage1", "Placing Markers", :stage1},
       {"/stage2", "Marker Styles", :stage2},
       {"/stage4", "Builder", :stage4},
-      {"/map", "Machine Map", :machine_map}
+      {"/map", "Machine Map", :machine_map},
+      {"/test_content", "Test content with PageLive", :page_live},
+      {"/node_placement", "Node placement with PageLive", :page_live},
+      {"/node_placement_backwards", "Node placement with PageLiveBackwards", :page_live_backwards}
     ]
 
     static_pages ++ live_view_items

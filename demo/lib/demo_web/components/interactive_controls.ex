@@ -12,7 +12,7 @@ defmodule DemoWeb.Components.InteractiveControls do
 
   ## Attributes
   * `options` - List of option maps with :key, :label, and optional :description
-  * `current` - Current active option key  
+  * `current` - Current active option key
   * `event` - Phoenix event name to trigger on click
   * `class` - Additional CSS classes for the container
   """
@@ -49,7 +49,7 @@ defmodule DemoWeb.Components.InteractiveControls do
   * `active` - Boolean indicating if the toggle is active
   * `event` - Phoenix event name to trigger on click
   * `active_label` - Label to show when active
-  * `inactive_label` - Label to show when inactive  
+  * `inactive_label` - Label to show when inactive
   * `active_color` - Color scheme when active (default: "blue")
   * `class` - Additional CSS classes
   """
@@ -140,7 +140,7 @@ defmodule DemoWeb.Components.InteractiveControls do
 
   ## Attributes
   * `tabs` - List of tab maps with :key, :label, :content
-  * `current` - Current active tab key
+  * `current` - Current active tab index
   * `event` - Phoenix event name to trigger on tab click
   * `show_tabs` - Whether to show the tab navigation (default: true)
   * `class` - Additional CSS classes
@@ -174,7 +174,7 @@ defmodule DemoWeb.Components.InteractiveControls do
           </nav>
         </div>
       <% end %>
-      
+
     <!-- Tab Content -->
       <div class="p-4">
         <%= case Enum.find(@tabs, &(&1.key == @current)) do %>
@@ -191,6 +191,66 @@ defmodule DemoWeb.Components.InteractiveControls do
     </div>
     """
   end
+
+    @doc """
+  Renders a tabbed info panel that combines navigation and content.
+
+  ## Attributes
+  * `tabs` - List of tab maps with :key, :label, :content
+  * `current` - Current active tab index
+  * `event` - Phoenix event name to trigger on tab click
+  * `show_tabs` - Whether to show the tab navigation (default: true)
+  * `class` - Additional CSS classes
+  """
+  attr :tabs, :list, required: true
+  attr :current, :integer, default: 0
+  attr :event, :string, required: true
+  attr :show_tabs, :boolean, default: true
+  attr :class, :string, default: "tabdiv"
+  attr :myself, :any
+  def new_tabbed_info_panel(assigns) do
+  ~H"""
+  <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
+  <p>Show tabs: {inspect(@show_tabs)}</p>
+    <!-- Tab Navigation -->
+    <%= if @show_tabs do %>
+      <div class="border-b border-base-300 bg-base-200">
+        <nav class="flex space-x-1 p-1">
+          <%= for {tab, idx} <- Enum.with_index(@tabs) do %>
+            <button
+              phx-click="switch_tab"
+              phx-value-index={idx}
+              phx-target={@myself}
+              class={[
+                "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
+                get_tab_classes(idx == @current)
+              ]}
+            >
+              {tab.label}
+            </button>
+          <% end %>
+        </nav>
+      </div>
+    <% end %>
+
+    <!-- Tab Content -->
+    <div class="p-4">
+      <%= case Enum.at(@tabs, @current) do %>
+        <% %{content: content} when is_binary(content) -> %>
+          {Phoenix.HTML.raw(content)}
+        <% %{content_slot: content_slot} -> %>
+          {render_slot(content_slot)}
+        <% tab -> %>
+          <%= if tab do %>
+            {Phoenix.HTML.raw(tab.content)}
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+  """
+end
+
 
   # Private helper functions
 

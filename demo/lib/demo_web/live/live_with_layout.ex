@@ -9,9 +9,9 @@ defmodule DemoWeb.LiveWithLayout do
   - Copy-to-clipboard functionality
   """
 
-  use Phoenix.LiveView
+  use DemoWeb, :live_view
 
-  import DemoWeb.Components.Navigation
+  # import DemoWeb.Components.Navigation
 
   def mount(_params, _session, socket) do
     # Default example marker groups to start with
