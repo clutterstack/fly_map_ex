@@ -16,7 +16,6 @@ defmodule Demo.ContentMap do
     "test_content" => "TestContent",
     "test_content_live" => "TestContentLive",
     "node_placement" => "NodePlacement",
-    "node_placement_backwards" => "NodePlacementBackwards",
     "live_comp" => "LiveComp"
   }
 
