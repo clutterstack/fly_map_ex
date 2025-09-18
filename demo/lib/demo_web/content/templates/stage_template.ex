@@ -11,14 +11,12 @@ defmodule DemoWeb.Content.StageTemplate do
   use DemoWeb, :live_component
   require Logger
 
-  alias DemoWeb.Component.NewCodeFormat
   import DemoWeb.Components.NewControls
 
   def mount(socket) do
     {:ok,
-      socket
-      |> assign(:current_tab, 0)
-    }
+     socket
+     |> assign(:current_tab, 0)}
   end
 
   # attr :page_module, :any, required: true
@@ -35,94 +33,38 @@ defmodule DemoWeb.Content.StageTemplate do
   def render(assigns) do
     # assigns = %{assigns | tabies: get_tabs(assigns.page_module)}
     tabs = get_tabs(assigns.page_module)
+
     assigns =
       assigns
-        |> assign_new(:tabs, fn -> tabs end)
-        |> assign_new(:tab_data, fn -> get_tab_data(assigns.page_module, tabs, assigns.current_tab) end)
+      |> assign_new(:tabs, fn -> tabs end)
+      |> assign_new(:tab_data, fn ->
+        get_tab_data(assigns.page_module, tabs, assigns.current_tab)
+      end)
 
     ~H"""
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="content-panels">
       <!-- Map Panel -->
-        <.stage_map {@tab_data.example} />
+      <.stage_map {@tab_data.example} />
       <!-- Tabbed Info Panel -->
-        <.new_tabbed_info_panel
-          tabs={@tabs}
-          current_tab={@current_tab}
-          class={@class}
-          show_tabs={@show_tabs}
-          click_target={@myself}
-          tab_content={@tab_data.content}
-          tab_example={@tab_data.example}
-        />
+      <.new_tabbed_info_panel
+        tabs={@tabs}
+        current_tab={@current_tab}
+        class={@class}
+        show_tabs={@show_tabs}
+        click_target={@myself}
+        tab_content={@tab_data.content}
+        tab_example={@tab_data.example}
+      />
       <!-- Code Examples Panel -->
-        <.code_example_panel {@tab_data.example} />
+      <.code_example_panel {@tab_data.example} />
     </div>
     """
   end
-
-  # <.content_panel
-  #           tabs={@tabs}
-  #           current_tab={@current_tab}
-  #         />
-
-    @doc """
-  Renders the side-by-side content panels with tabbed info and code examples.
-  """
-  # attr :tabs, :list, required: true
-  # attr :click_target, :string
-  # attr :class, :string, default: nil
-  # attr :show_tabs, :boolean, default: true
-  # attr :current_tab, :integer, default: 0
-  # attr :examples, :any, required: true
-  # attr :get_focused_code, :any, required: true
-  # attr :tab_data, :any
-
-  # def content_panel(assigns) do
-  #   ~H"""
-  #   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="content-panels">
-  #     <!-- Map Panel -->
-  #       <.stage_map {@tab_data.example} />
-  #     <!-- Tabbed Info Panel -->
-  #       <.new_tabbed_info_panel
-  #         tabs={@tabs}
-  #         current_tab={@current_tab}
-  #         class={@class}
-  #         show_tabs={@show_tabs}
-  #         click_target={@click_target}
-  #         tab_content={@tab_data.content}
-  #         tab_example={@tab_data.example}
-  #       />
-  #       <!-- Code Examples Panel -->
-  #       <.code_example_panel {@tab_data.example} />
-
-  #       />
-  #   </div>
-  #   """
-  # end
-
-
-#  marker_groups={@tab_data.example.marker_groups}
-#           theme={@tab_data.example.marker_groups}
-#           show_regions={@tab_data.example.show_regions || false}
-#           layout={@tab_data.example.layout || nil}
-          # description={@tab_data.example.description || ""}
 
   def handle_event("switch_tab", %{"index" => idx_str}, socket) do
     idx = String.to_integer(idx_str)
     Logger.info("Switching to tab #{idx}")
     {:noreply, assign(socket, :current_tab, idx)}
-  end
-
-
-
-  def dummy_code(assigns) do
-    ~H"""
-    <div class="mb-8 p-6 bg-base-200 rounded-lg">
-      <pre><code>
-          {inspect @marker_groups}
-      </code></pre>
-    </div>
-    """
   end
 
   def code_example_panel(assigns) do
@@ -144,8 +86,6 @@ defmodule DemoWeb.Content.StageTemplate do
     """
   end
 
-
-
   @doc """
   Renders the full-width map display.
   """
@@ -155,7 +95,7 @@ defmodule DemoWeb.Content.StageTemplate do
 
   def stage_map(assigns) do
     ~H"""
-    <div class="mb-8 p-6 bg-base-200 rounded-lg col-span-2">
+    <div class="bg-base-100 rounded-lg col-span-2">
       <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
     </div>
     """
@@ -193,7 +133,5 @@ defmodule DemoWeb.Content.StageTemplate do
 
   defp count_total_nodes(_), do: 0
 
-
-  #get_content("custom_regions").content
-
+  # get_content("custom_regions").content
 end

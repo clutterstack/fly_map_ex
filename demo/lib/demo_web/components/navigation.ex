@@ -25,7 +25,7 @@ defmodule DemoWeb.Components.Navigation do
           FlyMapEx Demo
         </.link>
       </div>
-
+      
     <!-- Navigation Links -->
       <div class="flex-1 overflow-y-auto">
         <nav class="px-2 py-4 space-y-1">
@@ -33,7 +33,7 @@ defmodule DemoWeb.Components.Navigation do
             <.link navigate={path} class={sidebar_nav_link_class(@current_page, key)}>
               {title}
             </.link>
-
+            
     <!-- Show tabs as nested items if this is the current page and tabs are provided -->
             <%= if @current_page == key and length(@tabs) > 0 do %>
               <div class="ml-4 mt-2 space-y-1">
@@ -77,7 +77,7 @@ defmodule DemoWeb.Components.Navigation do
               <% end %>
             </div>
           </div>
-
+          
     <!-- Mobile menu button -->
           <div class="sm:hidden flex items-center">
             <button
@@ -101,7 +101,7 @@ defmodule DemoWeb.Components.Navigation do
           </div>
         </div>
       </div>
-
+      
     <!-- Mobile menu -->
       <div class="sm:hidden" id="mobile-menu" x-data="{ open: false }" x-show="open">
         <div class="pt-2 pb-3 space-y-1">
@@ -123,7 +123,6 @@ defmodule DemoWeb.Components.Navigation do
       {"/", "Home", :home},
       {"/about", "About", :about},
       {"/demo", "Demo", :demo}
-
     ]
 
     # LiveView navigation items

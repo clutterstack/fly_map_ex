@@ -98,21 +98,23 @@ defmodule DemoWeb.Stage2Live do
       },
       custom: %{
         marker_groups: [
-           %{
-              nodes: ["sjc", "fra"],
-              style: %{
-                colour: "#8b5cf6",    # hex, named colour, or CSS variable
-                size: 8,             # radius in pixels
-                animation: :pulse,   # :none, :pulse, :fade
-                glow: true           # boolean for glow effect
-              },
-              label: "Custom Group"
-            }
-
+          %{
+            nodes: ["sjc", "fra"],
+            style: %{
+              # hex, named colour, or CSS variable
+              colour: "#8b5cf6",
+              # radius in pixels
+              size: 8,
+              # :none, :pulse, :fade
+              animation: :pulse,
+              # boolean for glow effect
+              glow: true
+            },
+            label: "Custom Group"
+          }
         ],
         description: "Direct style maps with full control over appearance",
-        code_comment:
-          "Direct style maps are the primary interface for custom styling"
+        code_comment: "Direct style maps are the primary interface for custom styling"
       },
       mixed: %{
         marker_groups: [
@@ -124,14 +126,17 @@ defmodule DemoWeb.Stage2Live do
           %{
             nodes: ["sjc", "fra"],
             style: %{
-              colour: "#8b5cf6",    # hex, named colour, or CSS variable
-              size: 8,             # radius in pixels
-              animation: :pulse,   # :none, :pulse, :fade
-              glow: true           # boolean for glow effect
-          },
-          label: "Custom Group"
-      }
-
+              # hex, named colour, or CSS variable
+              colour: "#8b5cf6",
+              # radius in pixels
+              size: 8,
+              # :none, :pulse, :fade
+              animation: :pulse,
+              # boolean for glow effect
+              glow: true
+            },
+            label: "Custom Group"
+          }
         ],
         description: "Mixed styling approaches in one map",
         code_comment: "You can mix semantic, automatic, custom, and atom styles in the same map"
@@ -165,7 +170,6 @@ defmodule DemoWeb.Stage2Live do
   end
 
   def doc_navigation, do: StageConfig.stage_navigation(:stage2)
-
 
   def default_example, do: "automatic"
 
@@ -237,20 +241,18 @@ defmodule DemoWeb.Stage2Live do
         "Custom Style Maps",
         "Create fully custom marker styles using direct style maps:"
       ),
-      ContentHelpers.code_snippet(
-        ~s"""
-        %{
-          nodes: ["sjc", "fra"],
-          style: %{
-            colour: "#3b82f6",   # or :color
-            size: 10,            # radius in pixels
-            animation: :pulse,   # :none, :pulse, :fade
-            glow: true           # enable glow effect
-          },
-          label: "Custom Markers"
-        }
-        """
-      ),
+      ContentHelpers.code_snippet(~s"""
+      %{
+        nodes: ["sjc", "fra"],
+        style: %{
+          colour: "#3b82f6",   # or :color
+          size: 10,            # radius in pixels
+          animation: :pulse,   # :none, :pulse, :fade
+          glow: true           # enable glow effect
+        },
+        label: "Custom Markers"
+      }
+      """),
       ContentHelpers.ul_with_bold(
         "Available Parameters",
         [
@@ -322,20 +324,18 @@ defmodule DemoWeb.Stage2Live do
         Define fully custom marker styles using direct style maps - the primary interface for custom styling.
         """
       ),
-      ContentHelpers.code_snippet(
-        ~s"""
-        %{
-          nodes: ["sjc", "fra"],
-          style: %{
-            colour: "#8b5cf6",    # hex, named colour, or CSS variable
-            size: 8,             # radius in pixels
-            animation: :pulse,   # :none, :pulse, :fade
-            glow: true           # boolean for glow effect
-          },
-          label: "Custom Group"
-        }
-        """
-      ),
+      ContentHelpers.code_snippet(~s"""
+      %{
+        nodes: ["sjc", "fra"],
+        style: %{
+          colour: "#8b5cf6",    # hex, named colour, or CSS variable
+          size: 8,             # radius in pixels
+          animation: :pulse,   # :none, :pulse, :fade
+          glow: true           # boolean for glow effect
+        },
+        label: "Custom Group"
+      }
+      """),
       ContentHelpers.ul_with_bold(
         "Style Parameters",
         [
@@ -371,5 +371,4 @@ defmodule DemoWeb.Stage2Live do
     ]
     |> Enum.join()
   end
-
 end

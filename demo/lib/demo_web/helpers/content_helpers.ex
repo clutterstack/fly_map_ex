@@ -23,11 +23,11 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   attr :content, :string, required: true
   attr :class, :string, default: ""
-  
+
   def markdown(assigns) do
     ~H"""
     <div class={@class}>
-      <%= raw(convert_markdown(@content)) %>
+      {raw(convert_markdown(@content))}
     </div>
     """
   end
@@ -58,19 +58,19 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :description, :string, default: nil
   attr :class, :string, default: "space-y-4 list-disc"
   slot :inner_block, required: false
-  
+
   def content_section_component(assigns) do
     ~H"""
     <div class={@class}>
       <div>
-        <h4 class="font-semibold text-base-content mb-2"><%= @title %></h4>
+        <h4 class="font-semibold text-base-content mb-2">{@title}</h4>
         <%= if @description do %>
           <div class="text-sm text-base-content/70 mb-3">
-            <%= raw(convert_markdown(@description)) %>
+            {raw(convert_markdown(@description))}
           </div>
         <% end %>
         <%= if @inner_block != [] do %>
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         <% end %>
       </div>
     </div>
@@ -99,18 +99,18 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :title, :string, required: true
   attr :class, :string, default: ""
   slot :inner_block, required: true
-  
+
   def info_box_component(assigns) do
     {bg_class, border_class, text_class} = get_semantic_classes(assigns.type)
-    
+
     assigns = assign(assigns, :bg_class, bg_class)
-    assigns = assign(assigns, :border_class, border_class) 
+    assigns = assign(assigns, :border_class, border_class)
     assigns = assign(assigns, :text_class, text_class)
-    
+
     ~H"""
     <div class={[@bg_class, @border_class, "rounded-lg p-4", @class]}>
-      <h5 class={["font-medium mb-2", @text_class]}><%= @title %></h5>
-      <%= render_slot(@inner_block) %>
+      <h5 class={["font-medium mb-2", @text_class]}>{@title}</h5>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -134,11 +134,11 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :code, :string, required: true
   attr :inline, :boolean, default: false
   attr :class, :string, default: ""
-  
+
   def code_snippet_component(assigns) do
     ~H"""
     <%= if @inline do %>
-      <code class={["bg-base-100 px-1 rounded", @class]}><%= @code %></code>
+      <code class={["bg-base-100 px-1 rounded", @class]}>{@code}</code>
     <% else %>
       <pre class={["bg-base-200 p-4 rounded-lg text-sm", @class]}><code><%= @code %></code></pre>
     <% end %>
@@ -178,21 +178,22 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :items, :list, required: true
   attr :type, :atom, default: :bullets
   attr :class, :string, default: "text-sm text-base-content/70 space-y-1"
-  
+
   def titled_list_component(assigns) do
-    marker = case assigns.type do
-      :bullets -> "•"
-      :arrows -> "→"
-      :checks -> "✓"
-      _ -> "•"
-    end
-    
+    marker =
+      case assigns.type do
+        :bullets -> "•"
+        :arrows -> "→"
+        :checks -> "✓"
+        _ -> "•"
+      end
+
     assigns = assign(assigns, :marker, marker)
-    
+
     ~H"""
     <ul class={@class}>
       <%= for item <- @items do %>
-        <li><%= @marker %> <%= raw(item) %></li>
+        <li>{@marker} {raw(item)}</li>
       <% end %>
     </ul>
     """
@@ -264,7 +265,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :type, :atom, default: :tip
   attr :class, :string, default: ""
   slot :inner_block, required: true
-  
+
   def pro_tip_component(assigns) do
     {bg_class, border_class, text_class, icon} =
       case assigns.type do
@@ -276,14 +277,14 @@ defmodule DemoWeb.Helpers.ContentHelpers do
       end
 
     assigns = assign(assigns, :bg_class, bg_class)
-    assigns = assign(assigns, :border_class, border_class) 
+    assigns = assign(assigns, :border_class, border_class)
     assigns = assign(assigns, :text_class, text_class)
     assigns = assign(assigns, :icon, icon)
-    
+
     ~H"""
     <div class={[@bg_class, "border", @border_class, "rounded-lg p-3", @class]}>
       <p class={["text-xs", @text_class]}>
-        <strong><%= @icon %></strong> <%= render_slot(@inner_block) %>
+        <strong>{@icon}</strong> {render_slot(@inner_block)}
       </p>
     </div>
     """
@@ -324,15 +325,15 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :type, :string, required: true
   attr :description, :string, required: true
   attr :example, :string, default: nil
-  
+
   def parameter_doc_component(assigns) do
     ~H"""
     <div class="space-y-1">
       <div>
-        <strong><%= @name %>:</strong> <%= @description %>
+        <strong>{@name}:</strong> {@description}
       </div>
       <div class="text-xs text-base-content/60">
-        Type: <%= @type %>
+        Type: {@type}
       </div>
       <%= if @example do %>
         <div class="mt-1">
@@ -370,14 +371,14 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   attr :title, :string, required: true
   attr :cases, :list, required: true
   attr :class, :string, default: ""
-  
+
   def ul_with_bold_component(assigns) do
     ~H"""
     <div class={@class}>
-      <h5 class="font-medium text-base-content mb-2"><%= @title %></h5>
+      <h5 class="font-medium text-base-content mb-2">{@title}</h5>
       <ul class="text-sm text-base-content/70 space-y-1">
         <%= for {use_case, description} <- @cases do %>
-          <li><strong><%= use_case %>:</strong> <%= description %></li>
+          <li><strong>{use_case}:</strong> {description}</li>
         <% end %>
       </ul>
     </div>

@@ -1,46 +1,48 @@
 <Layouts.app flash={@flash} current_page={@current_page}>
   <:title>FlyMapEx Demo Home</:title>
-  <:description>This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.</:description>
-    <FlyMapEx.StaticComponent.render
-      marker_groups={
-        [
-          %{
-            nodes: ["sjc", "fra"],
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            label: "Staging Environment"
-          },
-          %{
-            nodes: ["ord"],
-            label: "Development"
-          },
-          %{
-            nodes: ["nrt", "syd"],
-            label: "Testing"
-          }
-        ]
+  <:description>
+    This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
+  </:description>
+  <FlyMapEx.StaticComponent.render
+    marker_groups={[
+      %{
+        nodes: ["sjc", "fra"],
+        label: "Production Servers"
+      },
+      %{
+        nodes: ["ams", "lhr"],
+        label: "Staging Environment"
+      },
+      %{
+        nodes: ["ord"],
+        label: "Development"
+      },
+      %{
+        nodes: ["nrt", "syd"],
+        label: "Testing"
       }
-      theme={:responsive}
-      layout={:side_by_side}
-      show_regions={false}
-    />
+    ]}
+    theme={:responsive}
+    layout={:side_by_side}
+    show_regions={false}
+  />
 
-    <.markdown content={~s"""
+  <.markdown content={
+    ~s"""
     * Interactive World Maps: Display Fly.io regions with customizable markers and themes
     * Real-time Updates: LiveView components that respond to data changes
     * Multiple Themes: Dashboard, monitoring, presentation, and more
     * Responsive Design: Works seamlessly on desktop and mobile devices
     * Flexible Configuration: Easy to customize colours, animations, and layouts
-    """} />
+    """
+  } />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <.info_box_component type={:primary} title="Get Started">
-        Explore the interactive stages to learn how to use FlyMapEx in your own applications.
-      </.info_box_component>
-      <.info_box_component type={:success} title="Live Example">
-        The map above shows real Fly.io regions with sample data to demonstrate the library's capabilities.
-      </.info_box_component>
-    </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <.info_box_component type={:primary} title="Get Started">
+      Explore the interactive stages to learn how to use FlyMapEx in your own applications.
+    </.info_box_component>
+    <.info_box_component type={:success} title="Live Example">
+      The map above shows real Fly.io regions with sample data to demonstrate the library's capabilities.
+    </.info_box_component>
+  </div>
 </Layouts.app>

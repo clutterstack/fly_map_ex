@@ -143,7 +143,7 @@ defmodule DemoWeb.Components.StageLayout do
           show_tabs={false}
         />
       </div>
-
+      
     <!-- Code Examples Panel -->
       <div>
         <.code_examples_panel

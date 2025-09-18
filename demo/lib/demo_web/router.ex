@@ -32,7 +32,6 @@ defmodule DemoWeb.Router do
 
     # Dynamic liveview pages - must be last to avoid conflicts
     live "/:page_id", PageLive
-
   end
 
   # Other scopes may use custom stacks.

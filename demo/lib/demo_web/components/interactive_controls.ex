@@ -174,7 +174,7 @@ defmodule DemoWeb.Components.InteractiveControls do
           </nav>
         </div>
       <% end %>
-
+      
     <!-- Tab Content -->
       <div class="p-4">
         <%= case Enum.find(@tabs, &(&1.key == @current)) do %>
@@ -192,7 +192,7 @@ defmodule DemoWeb.Components.InteractiveControls do
     """
   end
 
-    @doc """
+  @doc """
   Renders a tabbed info panel that combines navigation and content.
 
   ## Attributes
@@ -208,49 +208,49 @@ defmodule DemoWeb.Components.InteractiveControls do
   attr :show_tabs, :boolean, default: true
   attr :class, :string, default: "tabdiv"
   attr :myself, :any
+
   def new_tabbed_info_panel(assigns) do
-  ~H"""
-  <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
-  <p>Show tabs: {inspect(@show_tabs)}</p>
-    <!-- Tab Navigation -->
-    <%= if @show_tabs do %>
-      <div class="border-b border-base-300 bg-base-200">
-        <nav class="flex space-x-1 p-1">
-          <%= for {tab, idx} <- Enum.with_index(@tabs) do %>
-            <button
-              phx-click="switch_tab"
-              phx-value-index={idx}
-              phx-target={@myself}
-              class={[
-                "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
-                get_tab_classes(idx == @current)
-              ]}
-            >
-              {tab.label}
-            </button>
-          <% end %>
-        </nav>
-      </div>
-    <% end %>
-
-    <!-- Tab Content -->
-    <div class="p-4">
-      <%= case Enum.at(@tabs, @current) do %>
-        <% %{content: content} when is_binary(content) -> %>
-          {Phoenix.HTML.raw(content)}
-        <% %{content_slot: content_slot} -> %>
-          {render_slot(content_slot)}
-        <% tab -> %>
-          <%= if tab do %>
-            {Phoenix.HTML.raw(tab.content)}
-          <% end %>
+    ~H"""
+    <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
+      <p>Show tabs: {inspect(@show_tabs)}</p>
+      <!-- Tab Navigation -->
+      <%= if @show_tabs do %>
+        <div class="border-b border-base-300 bg-base-200">
+          <nav class="flex space-x-1 p-1">
+            <%= for {tab, idx} <- Enum.with_index(@tabs) do %>
+              <button
+                phx-click="switch_tab"
+                phx-value-index={idx}
+                phx-target={@myself}
+                class={[
+                  "px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                  "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
+                  get_tab_classes(idx == @current)
+                ]}
+              >
+                {tab.label}
+              </button>
+            <% end %>
+          </nav>
+        </div>
       <% end %>
+      
+    <!-- Tab Content -->
+      <div class="p-4">
+        <%= case Enum.at(@tabs, @current) do %>
+          <% %{content: content} when is_binary(content) -> %>
+            {Phoenix.HTML.raw(content)}
+          <% %{content_slot: content_slot} -> %>
+            {render_slot(content_slot)}
+          <% tab -> %>
+            <%= if tab do %>
+              {Phoenix.HTML.raw(tab.content)}
+            <% end %>
+        <% end %>
+      </div>
     </div>
-  </div>
-  """
-end
-
+    """
+  end
 
   # Private helper functions
 

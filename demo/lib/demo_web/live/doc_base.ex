@@ -137,7 +137,9 @@ defmodule DemoWeb.Live.DocBase do
       defp current_theme(assigns) do
         # Check for dynamic theme from map_config first
         case Map.get(assigns, :map_config) do
-          %{theme: theme} when theme != nil -> theme
+          %{theme: theme} when theme != nil ->
+            theme
+
           _ ->
             # Fall back to per-example theme, then doc theme
             if function_exported?(__MODULE__, :get_example_theme, 1) do

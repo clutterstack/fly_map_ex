@@ -25,7 +25,8 @@ defmodule DemoWeb.Stage3Live do
       blank_map: %{
         marker_groups: [],
         description: "SVG world map foundation",
-        code_comment: "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
+        code_comment:
+          "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
       },
       presets: %{
         marker_groups: [
@@ -102,8 +103,6 @@ defmodule DemoWeb.Stage3Live do
   end
 
   def doc_navigation, do: StageConfig.stage_navigation(:stage3)
-
-
 
   # Default theme - overridden by get_example_theme() per example
   def doc_theme, do: :responsive
@@ -218,13 +217,19 @@ defmodule DemoWeb.Stage3Live do
         "Seven ready-to-use themes that control map background colours, borders, and neutral elements."
       ),
       ContentHelpers.status_steps([
-        {:light, ":light", "Clean, bright theme with gray land masses and dark borders", "bg-base-100"},
-        {:dark, ":dark", "Dark background with subtle borders for dark mode interfaces", "bg-base-300"},
-        {:minimal, ":minimal", "Transparent backgrounds with subtle borders for overlays", "bg-base-200"},
+        {:light, ":light", "Clean, bright theme with gray land masses and dark borders",
+         "bg-base-100"},
+        {:dark, ":dark", "Dark background with subtle borders for dark mode interfaces",
+         "bg-base-300"},
+        {:minimal, ":minimal", "Transparent backgrounds with subtle borders for overlays",
+         "bg-base-200"},
         {:cool, ":cool", "Blue-toned theme suitable for technical applications", "bg-info"},
-        {:warm, ":warm", "Earth-toned theme with warm colours for friendly interfaces", "bg-warning"},
-        {:high_contrast, ":high_contrast", "Maximum contrast theme for accessibility", "bg-base-content"},
-        {:responsive, ":responsive", "CSS variable-based theme that adapts to system preferences", "bg-primary"}
+        {:warm, ":warm", "Earth-toned theme with warm colours for friendly interfaces",
+         "bg-warning"},
+        {:high_contrast, ":high_contrast", "Maximum contrast theme for accessibility",
+         "bg-base-content"},
+        {:responsive, ":responsive", "CSS variable-based theme that adapts to system preferences",
+         "bg-primary"}
       ]),
       """
       <div class="mt-4 p-4 bg-base-200 rounded-lg">
@@ -243,7 +248,6 @@ defmodule DemoWeb.Stage3Live do
     ]
     |> Enum.join()
   end
-
 
   defp get_custom_content do
     [
@@ -265,45 +269,41 @@ defmodule DemoWeb.Stage3Live do
           type: :arrows
         )
       ),
-      ContentHelpers.code_snippet(
-        """
-        # Method 1: Inline custom theme
-        <FlyMapEx.node_map
-          marker_groups={@groups}
-          theme=%{
-            land: "#f8fafc",
-            ocean: "#e2e8f0",
-            border: "#475569",
-            neutral_marker: "#64748b",
-            neutral_text: "#334155"
-          }
-        />
-        """
-      ),
-      ContentHelpers.code_snippet(
-        """
-        # Method 2: Config-registered themes
-        # config/config.exs
-        config :fly_map_ex, :custom_themes,
-          corporate: %{
-            land: "#f8fafc",
-            ocean: "#e2e8f0",
-            border: "#475569",
-            neutral_marker: "#64748b",
-            neutral_text: "#334155"
-          },
-          sunset: %{
-            land: "#fef3c7",
-            ocean: "#fbbf24",
-            border: "#d97706",
-            neutral_marker: "#b45309",
-            neutral_text: "#92400e"
-          }
+      ContentHelpers.code_snippet("""
+      # Method 1: Inline custom theme
+      <FlyMapEx.node_map
+        marker_groups={@groups}
+        theme=%{
+          land: "#f8fafc",
+          ocean: "#e2e8f0",
+          border: "#475569",
+          neutral_marker: "#64748b",
+          neutral_text: "#334155"
+        }
+      />
+      """),
+      ContentHelpers.code_snippet("""
+      # Method 2: Config-registered themes
+      # config/config.exs
+      config :fly_map_ex, :custom_themes,
+        corporate: %{
+          land: "#f8fafc",
+          ocean: "#e2e8f0",
+          border: "#475569",
+          neutral_marker: "#64748b",
+          neutral_text: "#334155"
+        },
+        sunset: %{
+          land: "#fef3c7",
+          ocean: "#fbbf24",
+          border: "#d97706",
+          neutral_marker: "#b45309",
+          neutral_text: "#92400e"
+        }
 
-        # Usage
-        <FlyMapEx.node_map theme={:corporate} />
-        """
-      )
+      # Usage
+      <FlyMapEx.node_map theme={:corporate} />
+      """)
     ]
     |> Enum.join()
   end
@@ -314,29 +314,27 @@ defmodule DemoWeb.Stage3Live do
         "Application-Level Theme Configuration",
         "Set default themes and create custom theme registries in your application config."
       ),
-      ContentHelpers.code_snippet(
-        """
-        # config/config.exs
-        config :fly_map_ex,
-          default_theme: :responsive,
-          custom_themes: %{
-            corporate: %{
-              land: "#f8fafc",
-              ocean: "#e2e8f0",
-              border: "#475569",
-              neutral_marker: "#64748b",
-              neutral_text: "#334155"
-            },
-            brand: %{
-              land: "#fef3c7",
-              ocean: "#fed7aa",
-              border: "#d97706",
-              neutral_marker: "#92400e",
-              neutral_text: "#451a03"
-            }
+      ContentHelpers.code_snippet("""
+      # config/config.exs
+      config :fly_map_ex,
+        default_theme: :responsive,
+        custom_themes: %{
+          corporate: %{
+            land: "#f8fafc",
+            ocean: "#e2e8f0",
+            border: "#475569",
+            neutral_marker: "#64748b",
+            neutral_text: "#334155"
+          },
+          brand: %{
+            land: "#fef3c7",
+            ocean: "#fed7aa",
+            border: "#d97706",
+            neutral_marker: "#92400e",
+            neutral_text: "#451a03"
           }
-        """
-      ),
+        }
+      """),
       ContentHelpers.ul_with_bold(
         "Theme Resolution Priority",
         [
@@ -368,5 +366,4 @@ defmodule DemoWeb.Stage3Live do
       _ -> nil
     end
   end
-
 end

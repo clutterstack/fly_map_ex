@@ -36,7 +36,6 @@ defmodule DemoWeb.Layouts do
   # slot :content
   slot :inner_block, required: true
 
-
   def app(assigns) do
     ~H"""
     <.flash_group flash={@flash} />
@@ -50,8 +49,8 @@ defmodule DemoWeb.Layouts do
             <.theme_toggle />
             <.navigation layout={:sidebar} current_page={@current_page} />
           </div>
-
-          <!-- Additional sidebar content if provided -->
+          
+    <!-- Additional sidebar content if provided -->
           <%= if @sidebar_extra != [] do %>
             <div class="border-t border-base-300">
               {render_slot(@sidebar_extra)}
@@ -59,8 +58,8 @@ defmodule DemoWeb.Layouts do
           <% end %>
         </div>
       </div>
-
-      <!-- Mobile sidebar overlay -->
+      
+    <!-- Mobile sidebar overlay -->
       <div
         class="lg:hidden fixed inset-0 z-50 bg-base-content/50 backdrop-blur-sm"
         x-data="{ open: false }"
@@ -116,8 +115,8 @@ defmodule DemoWeb.Layouts do
           <% end %>
         </div>
       </div>
-
-      <!-- Main content -->
+      
+    <!-- Main content -->
       <div class="flex-1 flex flex-col lg:pl-64">
         <!-- Mobile header with menu button -->
         <div class="lg:hidden flex items-center justify-between p-4 bg-base-100 border-b border-base-300">
@@ -144,23 +143,23 @@ defmodule DemoWeb.Layouts do
           </button>
           <h1 class="text-lg font-semibold text-base-content">FlyMapEx Demo</h1>
         </div>
-
-        <!-- Main content area -->
+        
+    <!-- Main content area -->
         <main class="flex-1 overflow-y-auto">
           <div class={["w-full p-8", @class]}>
             <!-- Page Title -->
             <h1 class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-balance">
               {render_slot(@title)}
             </h1>
-
-            <!-- Page Description (optional) -->
+            
+    <!-- Page Description (optional) -->
             <%= if @description != [] do %>
               <div class="mt-4 leading-7 text-base-content/70">
                 {render_slot(@description)}
               </div>
             <% end %>
-
-            <!-- Main Content -->
+            
+    <!-- Main Content -->
             <div class="mt-6">
               {render_slot(@inner_block)}
             </div>
@@ -250,6 +249,4 @@ defmodule DemoWeb.Layouts do
     </div>
     """
   end
-
-
 end

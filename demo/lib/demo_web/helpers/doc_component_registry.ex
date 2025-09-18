@@ -41,7 +41,7 @@ defmodule DemoWeb.Helpers.DocComponentRegistry do
         ~H"""
         <div class="p-8 bg-base-200 rounded-lg text-center">
           <p class="text-base-content/70">
-            No component registered for type: <%= @component_type %>
+            No component registered for type: {@component_type}
           </p>
           <p class="text-sm text-base-content/50 mt-2">
             Register one with DocComponentRegistry.register/2

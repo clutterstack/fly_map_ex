@@ -171,8 +171,10 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
     # Normalize group by extracting values consistently
     style = Map.get(group, :style) || Map.get(group, "style")
     label = Map.get(group, :label) || Map.get(group, "label")
-    nodes = Map.get(group, :nodes) || Map.get(group, "nodes") ||
-            Map.get(group, :markers) || Map.get(group, "markers")
+
+    nodes =
+      Map.get(group, :nodes) || Map.get(group, "nodes") ||
+        Map.get(group, :markers) || Map.get(group, "markers")
 
     # Build field strings
     fields = []
@@ -217,10 +219,13 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           cond do
             label && region ->
               "%{label: #{inspect(label)}, region: #{inspect(region)}}"
+
             label && coords ->
               "%{label: #{inspect(label)}, coordinates: #{coords}}"
+
             coords ->
               "%{coordinates: #{coords}}"
+
             true ->
               inspect(node)
           end
@@ -358,7 +363,8 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
           {"FlyMapEx.Style.named_colours", [":teal"], FlyMapEx.Style.named_colours(:teal)}
 
         colour == "#0ea5e9" ->
-          {"%{colour: \"#0ea5e9\"}", [], %{colour: "#0ea5e9", size: 4, animation: :none, glow: false}}
+          {"%{colour: \"#0ea5e9\"}", [],
+           %{colour: "#0ea5e9", size: 4, animation: :none, glow: false}}
 
         true ->
           # Custom style - use direct style map format
@@ -429,7 +435,9 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
     # Add colour field
     colour = Map.get(style_map, :colour)
-    style_fields = if colour, do: style_fields ++ ["colour: #{inspect(colour)}"], else: style_fields
+
+    style_fields =
+      if colour, do: style_fields ++ ["colour: #{inspect(colour)}"], else: style_fields
 
     # Add size field if different from default
     size = Map.get(style_map, :size, 4)
@@ -437,7 +445,9 @@ defmodule DemoWeb.Components.MapWithCodeComponent do
 
     # Add animation field if different from default
     animation = Map.get(style_map, :animation, :none)
-    style_fields = if animation != :none, do: style_fields ++ ["animation: :#{animation}"], else: style_fields
+
+    style_fields =
+      if animation != :none, do: style_fields ++ ["animation: :#{animation}"], else: style_fields
 
     # Add glow field if true
     glow = Map.get(style_map, :glow, false)

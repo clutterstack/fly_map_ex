@@ -5,23 +5,25 @@ defmodule DemoWeb.PageLive do
 
   use DemoWeb, :live_view
 
-    def mount(%{"page_id" => current_page}, _session, socket) do
+  def mount(%{"page_id" => current_page}, _session, socket) do
+    page_module = Module.concat(DemoWeb.Content, Demo.ContentMap.get_page_module(current_page))
+    # content = apply(module, :get_content, [])
 
-      page_module = Module.concat(DemoWeb.Content, Demo.ContentMap.get_page_module(current_page))
-      # content = apply(module, :get_content, [])
+    %{:title => title, :description => description, :template => template} =
+      apply(page_module, :doc_metadata, [])
 
-      %{:title => title, :description => description, :template => template} = apply(page_module, :doc_metadata, [])
+    template_module = Module.concat(DemoWeb.Content, template)
 
-      template_module = Module.concat(DemoWeb.Content, template)
+    socket =
+      socket
+      |> assign(title: title, description: description, template_module: template_module)
+      |> assign(page_module: page_module)
+      |> assign(current_page: current_page)
 
-        socket =
-          socket
-          |> assign(title: title, description: description, template_module: template_module)
-          |> assign(page_module: page_module)
-          |> assign(current_page: current_page)
-      {:ok, socket}
-    end
-# , elements: Content.get(id)
+    {:ok, socket}
+  end
+
+  # , elements: Content.get(id)
 
   def render(assigns) do
     ~H"""
@@ -33,9 +35,6 @@ defmodule DemoWeb.PageLive do
     """
   end
 
-      #   Here comes the template function component
-      # <%= apply(@template_module, :render, [%{current_page: @current_page, page_module: @page_module}]) %>
-
-
-
+  #   Here comes the template function component
+  # <%= apply(@template_module, :render, [%{current_page: @current_page, page_module: @page_module}]) %>
 end

@@ -1,8 +1,6 @@
 defmodule DemoWeb.Content.NodePlacement do
   @moduledoc """
-  A content page to be rendered from PageLive.
-
-
+  A content page to be rendered from PageLive within the StageTemplate live_component.
   """
 
   alias DemoWeb.Helpers.ContentHelpers
@@ -24,28 +22,33 @@ defmodule DemoWeb.Content.NodePlacement do
     [
       %{
         key: "by_coords",
-        label: "Coordinate positioning",
+        label: "Coordinate positioning"
       },
       %{
         key: "fly_regions",
-        label: "Fly.io regions",
+        label: "Fly.io regions"
       },
       %{
         key: "custom_regions",
-        label: "Custom Regions",
+        label: "Custom Regions"
       },
       %{
         key: "multiple",
-        label: "Multiple",
+        label: "Multiple"
       }
     ]
   end
 
-  # Content generation functions using ContentHelpers
-
+  @doc """
+   All the content for each tab:
+  * `content`: Info to go into the info panel
+  * `example`: A description for the code panel label, an optional code comment,
+    and the assigns to pass to the FlyMapEx.node_map component.
+  """
   def get_content("by_coords") do
     %{
-      content: [
+      content:
+        [
           ContentHelpers.content_section(
             "Custom Coordinates",
             ~s"""
@@ -62,6 +65,8 @@ defmodule DemoWeb.Content.NodePlacement do
         ]
         |> Enum.join(),
       example: %{
+        description: "Markers placed by coordinates",
+        code_comment: "Nodes can be positioned with `{latitude, longitude}` tuples.",
         marker_groups: [
           %{
             # San Francisco, somewhere in the North Sea
@@ -71,16 +76,15 @@ defmodule DemoWeb.Content.NodePlacement do
             # Iqaluit approximately
             nodes: [{63.7, 68.5}]
           }
-        ],
-        description: "Markers placed by coordinates",
-        code_comment: "Nodes can be positioned with `{latitude, longitude}` tuples."
+        ]
       }
     }
   end
 
   def get_content("fly_regions") do
     %{
-      content: [
+      content:
+        [
           ContentHelpers.content_section(
             "Fly.io Region Codes",
             ~s"""
@@ -107,15 +111,16 @@ defmodule DemoWeb.Content.NodePlacement do
 
   def get_content("multiple") do
     %{
-      content: [
-        ContentHelpers.content_section(
-          "Multiple node groups",
-          "Combine multiple nodes under a single label and styling for logical organization."
-        ),
-        ContentHelpers.pro_tip(
-          "Group related nodes together (e.g., all production servers, all staging environments).",
-          type: :best_practice
-        )
+      content:
+        [
+          ContentHelpers.content_section(
+            "Multiple node groups",
+            "Combine multiple nodes under a single label and styling for logical organization."
+          ),
+          ContentHelpers.pro_tip(
+            "Group related nodes together (e.g., all production servers, all staging environments).",
+            type: :best_practice
+          )
         ]
         |> Enum.join(),
       example: %{
@@ -138,34 +143,35 @@ defmodule DemoWeb.Content.NodePlacement do
     }
   end
 
-    def get_content("custom_regions") do
-      %{
-        content: [
-            ContentHelpers.content_section(
-              "Custom Regions for Mixed Deployments",
-              "Define custom regions in your app config for mixed Fly.io + local deployments. Perfect for showing development environments, office locations, or hybrid cloud setups."
-            ),
-            ContentHelpers.code_snippet(
-              "# config/config.exs\nconfig :fly_map_ex, :custom_regions, %{\n  \"dev\" => %{name: \"Development\", coordinates: {47.6062, -122.3321}},\n  \"laptop-chris\" => %{name: \"Chris's Laptop\", coordinates: {49.2827, -123.1207}},\n  \"office-nyc\" => %{name: \"NYC Office\", coordinates: {40.7128, -74.0060}}\n}"
-            ),
-            ContentHelpers.pro_tip(
-              "Custom regions are treated like Fly.io regions once configured."
-            )
-          ]
-          |> Enum.join(),
-        example: %{
-          marker_groups: [
-            %{
-              nodes: ["dev", "laptop-chris", "office-nyc"]
-            },
-            %{
-              nodes: ["fra", "sin", "lhr"]
-            }
-          ],
-          description: "Mix of custom and Fly.io regions",
-          code_comment: "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
-        }
+  def get_content("custom_regions") do
+    %{
+      content:
+        [
+          ContentHelpers.content_section(
+            "Custom Regions for Mixed Deployments",
+            "Define custom regions in your app config for mixed Fly.io + local deployments. Perfect for showing development environments, office locations, or hybrid cloud setups."
+          ),
+          ContentHelpers.code_snippet(
+            "# config/config.exs\nconfig :fly_map_ex, :custom_regions, %{\n  \"dev\" => %{name: \"Development\", coordinates: {47.6062, -122.3321}},\n  \"laptop-chris\" => %{name: \"Chris's Laptop\", coordinates: {49.2827, -123.1207}},\n  \"office-nyc\" => %{name: \"NYC Office\", coordinates: {40.7128, -74.0060}}\n}"
+          ),
+          ContentHelpers.pro_tip(
+            "Custom regions are treated like Fly.io regions once configured."
+          )
+        ]
+        |> Enum.join(),
+      example: %{
+        marker_groups: [
+          %{
+            nodes: ["dev", "laptop-chris", "office-nyc"]
+          },
+          %{
+            nodes: ["fra", "sin", "lhr"]
+          }
+        ],
+        description: "Mix of custom and Fly.io regions",
+        code_comment:
+          "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
       }
-    end
-
+    }
   end
+end

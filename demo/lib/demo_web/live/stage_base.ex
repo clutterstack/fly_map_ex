@@ -134,11 +134,14 @@ defmodule DemoWeb.Live.StageBase do
       defp current_theme(assigns) do
         # Check for dynamic theme from map_config first
         case Map.get(assigns, :map_config) do
-          %{theme: theme} when theme != nil -> theme
+          %{theme: theme} when theme != nil ->
+            theme
+
           _ ->
             # Fall back to per-example theme, then stage theme
             if function_exported?(__MODULE__, :get_example_theme, 1) do
-              apply(__MODULE__, :get_example_theme, [assigns.current_example]) || get_stage_theme()
+              apply(__MODULE__, :get_example_theme, [assigns.current_example]) ||
+                get_stage_theme()
             else
               get_stage_theme()
             end

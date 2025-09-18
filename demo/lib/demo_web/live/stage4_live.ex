@@ -33,17 +33,20 @@ defmodule DemoWeb.Stage4Live do
           %{
             nodes: ["sjc", "fra"],
             style: %{
-              colour: "#8b5cf6",    # hex, named colour, or CSS variable
-              size: 8,             # radius in pixels
-              animation: :pulse,   # :none, :pulse, :fade
-              glow: true           # boolean for glow effect
+              # hex, named colour, or CSS variable
+              colour: "#8b5cf6",
+              # radius in pixels
+              size: 8,
+              # :none, :pulse, :fade
+              animation: :pulse,
+              # boolean for glow effect
+              glow: true
             },
             label: "Custom Group"
           }
         ],
         description: "Direct style maps with full control over appearance",
-        code_comment:
-          "Direct style maps are the primary interface for custom styling"
+        code_comment: "Direct style maps are the primary interface for custom styling"
       },
       freeform: %{
         marker_groups: [],
@@ -86,7 +89,6 @@ defmodule DemoWeb.Stage4Live do
   end
 
   def doc_navigation, do: StageConfig.stage_navigation(:stage4)
-
 
   def default_example, do: "guided"
 
@@ -252,20 +254,18 @@ defmodule DemoWeb.Stage4Live do
         Define fully custom marker styles using direct style maps - the primary interface for custom styling.
         """
       ),
-      ContentHelpers.code_snippet(
-        ~s"""
-        %{
-          nodes: ["sjc", "fra"],
-          style: %{
-            colour: "#10b981",    # hex, named colour, or CSS variable
-            size: 8,             # radius in pixels
-            animation: :pulse,   # :none, :pulse, :fade
-            glow: true           # boolean for glow effect
-          },
-          label: "Custom Group"
-        }
-        """
-      ),
+      ContentHelpers.code_snippet(~s"""
+      %{
+        nodes: ["sjc", "fra"],
+        style: %{
+          colour: "#10b981",    # hex, named colour, or CSS variable
+          size: 8,             # radius in pixels
+          animation: :pulse,   # :none, :pulse, :fade
+          glow: true           # boolean for glow effect
+        },
+        label: "Custom Group"
+      }
+      """),
       ContentHelpers.ul_with_bold(
         "Style Parameters",
         [

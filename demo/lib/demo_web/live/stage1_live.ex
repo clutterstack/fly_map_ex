@@ -72,7 +72,8 @@ defmodule DemoWeb.Stage1Live do
           }
         ],
         description: "Mix of custom and Fly.io regions",
-        code_comment: "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
+        code_comment:
+          "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
       }
     }
   end
@@ -167,13 +168,8 @@ defmodule DemoWeb.Stage1Live do
       ContentHelpers.code_snippet(
         "# config/config.exs\nconfig :fly_map_ex, :custom_regions, %{\n  \"dev\" => %{name: \"Development\", coordinates: {47.6062, -122.3321}},\n  \"laptop-chris\" => %{name: \"Chris's Laptop\", coordinates: {49.2827, -123.1207}},\n  \"office-nyc\" => %{name: \"NYC Office\", coordinates: {40.7128, -74.0060}}\n}"
       ),
-      ContentHelpers.pro_tip(
-        "Custom regions are treated like Fly.io regions once configured."
-      )
+      ContentHelpers.pro_tip("Custom regions are treated like Fly.io regions once configured.")
     ]
     |> Enum.join()
   end
-
-
-
 end

@@ -152,8 +152,8 @@ defmodule DemoWeb.Components.DocLayout do
           show_tabs={false}
         />
       </div>
-
-      <!-- Code Examples Panel -->
+      
+    <!-- Code Examples Panel -->
       <div>
         <.code_examples_panel
           current_example={@current_example}

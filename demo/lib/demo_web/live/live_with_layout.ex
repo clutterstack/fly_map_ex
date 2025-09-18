@@ -206,116 +206,116 @@ defmodule DemoWeb.LiveWithLayout do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
       <:title>Interactive Code Builder</:title>
-        <p class="text-lg mb-6 text-base-content/80">
-          Build marker groups for FlyMapEx with real-time validation and live preview.
-        </p>
+      <p class="text-lg mb-6 text-base-content/80">
+        Build marker groups for FlyMapEx with real-time validation and live preview.
+      </p>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Code Input Section -->
-          <div class="space-y-4">
-            <div class="bg-base-100 rounded-lg shadow-lg p-6">
-              <h2 class="text-xl font-semibold mb-4 text-base-content">Marker Groups Code</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Code Input Section -->
+        <div class="space-y-4">
+          <div class="bg-base-100 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-base-content">Marker Groups Code</h2>
 
-              <form phx-change="update_code">
-                <textarea
-                  name="code"
-                  class="textarea textarea-bordered w-full h-96 font-mono text-sm"
-                  placeholder="Enter your marker groups..."
-                  phx-debounce="300"
-                >{@code_input}</textarea>
-              </form>
-
-      <!-- Validation Errors -->
-              <%= if @validation_errors != [] do %>
-                <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
-                  <h3 class="text-error font-semibold mb-2">Validation Errors:</h3>
-                  <ul class="list-disc list-inside space-y-1">
-                    <%= for error <- @validation_errors do %>
-                      <li class="text-error/80 text-sm">{error}</li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
-
-      <!-- Hints Section -->
-              <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
-                <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
-                <div class="text-sm text-info/80 space-y-1">
-                  <p>
-                    <strong>Styles (optional):</strong>
-                    operational(), warning(), danger(), primary(), cycle(0)
-                  </p>
-                  <p>
-                    <strong>Auto-cycling:</strong>
-                    Groups without styles get distinct colours automatically
-                  </p>
-                  <p><strong>Sample Regions:</strong> "sjc", "fra", "ams", "lhr", "ord", "dfw"</p>
-                  <p><strong>Custom Coordinates:</strong> Use maps with label and coordinates fields</p>
-                </div>
+            <form phx-change="update_code">
+              <textarea
+                name="code"
+                class="textarea textarea-bordered w-full h-96 font-mono text-sm"
+                placeholder="Enter your marker groups..."
+                phx-debounce="300"
+              >{@code_input}</textarea>
+            </form>
+            
+    <!-- Validation Errors -->
+            <%= if @validation_errors != [] do %>
+              <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
+                <h3 class="text-error font-semibold mb-2">Validation Errors:</h3>
+                <ul class="list-disc list-inside space-y-1">
+                  <%= for error <- @validation_errors do %>
+                    <li class="text-error/80 text-sm">{error}</li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            
+    <!-- Hints Section -->
+            <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
+              <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
+              <div class="text-sm text-info/80 space-y-1">
+                <p>
+                  <strong>Styles (optional):</strong>
+                  operational(), warning(), danger(), primary(), cycle(0)
+                </p>
+                <p>
+                  <strong>Auto-cycling:</strong>
+                  Groups without styles get distinct colours automatically
+                </p>
+                <p><strong>Sample Regions:</strong> "sjc", "fra", "ams", "lhr", "ord", "dfw"</p>
+                <p><strong>Custom Coordinates:</strong> Use maps with label and coordinates fields</p>
               </div>
             </div>
           </div>
+        </div>
+        
+    <!-- Preview Section -->
+        <div class="space-y-4">
+          <!-- Live Map Preview -->
+          <div class="bg-base-100 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-base-content">Live Preview</h2>
 
-      <!-- Preview Section -->
-          <div class="space-y-4">
-            <!-- Live Map Preview -->
-            <div class="bg-base-100 rounded-lg shadow-lg p-6">
-              <h2 class="text-xl font-semibold mb-4 text-base-content">Live Preview</h2>
-
-              <%= if @marker_groups != [] do %>
-                <FlyMapEx.node_map marker_groups={@marker_groups} class="demo-map" />
-              <% else %>
-                <div class="flex items-center justify-center h-64 bg-base-200/50 rounded-lg border-2 border-dashed border-base-300">
-                  <p class="text-base-content/60">Map preview will appear here once code is valid</p>
-                </div>
-              <% end %>
-            </div>
-
-      <!-- Generated HEEx Code -->
-            <div class="bg-base-100 rounded-lg shadow-lg p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-base-content">Generated HEEx Code</h2>
-                <%= if @generated_heex != "" do %>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    phx-click="copy_heex"
-                    onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)"
-                  >
-                    Copy Code
-                  </button>
-                  <div class="hidden">{@generated_heex}</div>
-                <% end %>
+            <%= if @marker_groups != [] do %>
+              <FlyMapEx.node_map marker_groups={@marker_groups} class="demo-map" />
+            <% else %>
+              <div class="flex items-center justify-center h-64 bg-base-200/50 rounded-lg border-2 border-dashed border-base-300">
+                <p class="text-base-content/60">Map preview will appear here once code is valid</p>
               </div>
-
+            <% end %>
+          </div>
+          
+    <!-- Generated HEEx Code -->
+          <div class="bg-base-100 rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold text-base-content">Generated HEEx Code</h2>
               <%= if @generated_heex != "" do %>
-                <pre class="bg-base-200 p-4 rounded-lg overflow-x-auto text-sm"><code>{@generated_heex}</code></pre>
-              <% else %>
-                <div class="bg-base-200/50 p-4 rounded-lg border-2 border-dashed border-base-300">
-                  <p class="text-base-content/60 text-center">Generated HEEx code will appear here</p>
-                </div>
+                <button
+                  class="btn btn-sm btn-primary"
+                  phx-click="copy_heex"
+                  onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)"
+                >
+                  Copy Code
+                </button>
+                <div class="hidden">{@generated_heex}</div>
               <% end %>
             </div>
+
+            <%= if @generated_heex != "" do %>
+              <pre class="bg-base-200 p-4 rounded-lg overflow-x-auto text-sm"><code>{@generated_heex}</code></pre>
+            <% else %>
+              <div class="bg-base-200/50 p-4 rounded-lg border-2 border-dashed border-base-300">
+                <p class="text-base-content/60 text-center">Generated HEEx code will appear here</p>
+              </div>
+            <% end %>
           </div>
         </div>
+      </div>
+      
+    <!-- Documentation Section -->
+      <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>
+        <div class="prose prose-sm max-w-none">
+          <ol class="list-decimal list-inside space-y-2 text-base-content/80">
+            <li>Edit the marker groups code in the left panel</li>
+            <li>See validation errors and hints below the code editor</li>
+            <li>Watch the live map preview update automatically</li>
+            <li>Copy the generated HEEx code to use in your project</li>
+          </ol>
 
-      <!-- Documentation Section -->
-        <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
-          <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>
-          <div class="prose prose-sm max-w-none">
-            <ol class="list-decimal list-inside space-y-2 text-base-content/80">
-              <li>Edit the marker groups code in the left panel</li>
-              <li>See validation errors and hints below the code editor</li>
-              <li>Watch the live map preview update automatically</li>
-              <li>Copy the generated HEEx code to use in your project</li>
-            </ol>
-
-            <h3 class="text-lg font-semibold mt-6 mb-3 text-base-content">Marker Group Structure</h3>
-            <div class="bg-base-200 p-4 rounded-lg text-sm">
-              <p>Each marker group is a map with nodes, style, and label fields.</p>
-              <p>Nodes can be region codes or coordinate maps.</p>
-            </div>
+          <h3 class="text-lg font-semibold mt-6 mb-3 text-base-content">Marker Group Structure</h3>
+          <div class="bg-base-200 p-4 rounded-lg text-sm">
+            <p>Each marker group is a map with nodes, style, and label fields.</p>
+            <p>Nodes can be region codes or coordinate maps.</p>
           </div>
         </div>
+      </div>
     </DemoWeb.Layouts.app>
     """
   end
