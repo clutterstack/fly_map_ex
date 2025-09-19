@@ -3,11 +3,6 @@ defmodule DemoWeb.PageController do
 
   alias DemoWeb.Helpers.PageDiscovery
 
-  def show(conn, _params) do
-    base_assigns = %{messenger: "flooo"}
-    render(conn, :show, base_assigns)
-  end
-
   def home(conn, _params) do
     home_assigns = %{
       title: "FlyMapEx Demo Home",

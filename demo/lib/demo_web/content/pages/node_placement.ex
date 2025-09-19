@@ -20,6 +20,9 @@ defmodule DemoWeb.Content.NodePlacement do
 
   def tabs do
     [
+      %{key: "blank_map",
+        label: "Blank map"
+      },
       %{
         key: "by_coords",
         label: "Coordinate positioning"
@@ -45,6 +48,36 @@ defmodule DemoWeb.Content.NodePlacement do
   * `example`: A description for the code panel label, an optional code comment,
     and the assigns to pass to the FlyMapEx.node_map component.
   """
+
+  def get_content("blank_map") do
+    %{
+      content:
+        [
+          ContentHelpers.content_section(
+            "The SVG World Map",
+            "FlyMapEx renders an SVG world map with country borders, land masses, and ocean areas. Themes control the colours of these geographic elements."
+          ),
+          ContentHelpers.ul_with_bold(
+            "Map Elements",
+            [
+              {"Land", "Country and continental land masses"},
+              {"Ocean", "Water bodies and sea areas"},
+              {"Border", "Country boundaries and coastlines"},
+              {"Neutral Markers", "Default region indicators"},
+              {"Neutral Text", "Labels and region names"}
+            ]
+          )
+        ]
+        |> Enum.join(),
+      example: %{
+          marker_groups: [],
+          description: "SVG world map foundation",
+          code_comment:
+            "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
+      }
+    }
+  end
+
   def get_content("by_coords") do
     %{
       content:
@@ -152,7 +185,17 @@ defmodule DemoWeb.Content.NodePlacement do
             "Define custom regions in your app config for mixed Fly.io + local deployments. Perfect for showing development environments, office locations, or hybrid cloud setups."
           ),
           ContentHelpers.code_snippet(
-            "# config/config.exs\nconfig :fly_map_ex, :custom_regions, %{\n  \"dev\" => %{name: \"Development\", coordinates: {47.6062, -122.3321}},\n  \"laptop-chris\" => %{name: \"Chris's Laptop\", coordinates: {49.2827, -123.1207}},\n  \"office-nyc\" => %{name: \"NYC Office\", coordinates: {40.7128, -74.0060}}\n}"
+            """
+            # config/config.exs
+
+            config :fly_map_ex, :custom_regions,
+              %{
+                "dev" => %{name: "Development", coordinates: {47.6062, -122.3321}},
+                "laptop-chris" =>
+                     %{name: "Chris's Laptop", coordinates: {49.2827, -123.1207}},
+                "office-nyc" => %{name: "NYC Office", coordinates: {40.7128, -74.0060}}
+              }
+            """
           ),
           ContentHelpers.pro_tip(
             "Custom regions are treated like Fly.io regions once configured."

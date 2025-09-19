@@ -79,7 +79,7 @@ defmodule DemoWeb.Content.StageTemplate do
         </div>
       </div>
       <div class="p-4">
-        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code><%= DemoWeb.Helpers.CodeGenerator.generate_heex_template(@marker_groups, nil, nil, "code comment") %>
+        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code><%= DemoWeb.Helpers.CodeGenerator.generate_heex_template(@marker_groups, nil, nil, @code_comment) %>
           </code></pre>
       </div>
     </div>

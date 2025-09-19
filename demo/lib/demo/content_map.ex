@@ -16,7 +16,10 @@ defmodule Demo.ContentMap do
     "test_content" => "TestContent",
     "test_content_live" => "TestContentLive",
     "node_placement" => "NodePlacement",
-    "live_comp" => "LiveComp"
+    "live_comp" => "LiveComp",
+    "marker_styling"=> "MarkerStyling",
+    "theming" => "Theming",
+    "interactive_builder" => "InteractiveBuilder"
   }
 
   def get(id), do: Map.fetch!(@sections, id)

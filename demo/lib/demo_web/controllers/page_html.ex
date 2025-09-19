@@ -9,18 +9,4 @@ defmodule DemoWeb.PageHTML do
 
   embed_templates "page_html/*"
 
-
-  # Put a function component in
-  def greet(assigns) do
-    ~H"""
-    <h2>Hello World, from {@messenger}!</h2>
-    """
-  end
-
-  # Could put HEEx here instead of in page_html/ template files:
-  # def home(assigns) do
-  #   ~H"""
-  # ...
-  #   """
-
 end

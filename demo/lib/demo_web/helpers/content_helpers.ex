@@ -124,7 +124,7 @@ defmodule DemoWeb.Helpers.ContentHelpers do
     if inline do
       ~s(<code class="bg-base-100 px-1 rounded">#{code}</code>)
     else
-      ~s(<pre class="bg-base-200 p-4 rounded-lg text-sm"><code>#{code}</code></pre>)
+      ~s(<pre class="bg-base-200 p-4 whitespace-pre-wrap overflow-x-auto rounded-lg text-sm"><code>#{code}</code></pre>)
     end
   end
 
