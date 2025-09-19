@@ -118,21 +118,20 @@ defmodule DemoWeb.Components.Navigation do
 
   defp nav_items do
     # Static page navigation items (dead views)
-    # path, label, module
+    # path, label, key
     static_pages = [
-      {"/", "Home", :home},
-      {"/about", "About", :about},
-      {"/demo", "Demo", :demo}
+      {"/", "Home", "home"},
+      {"/about", "About", "about"}
     ]
 
     # LiveView navigation items
     live_view_items = [
-      {"/live_layout", "Testing Live Layout", :live_with_layout},
-      {"/map", "Machine Map", :machine_map},
-      {"/node_placement", "Node placement with PageLive", :page_live},
-      {"/marker_styling", "Marker styling", :page_live},
-      {"/theming", "Map theming", :page_live},
-      {"/interactive_builder", "Interactive (not yet) builder", :page_live}
+      {"/node_placement", "Node placement", "node_placement"},
+      {"/marker_styling", "Marker styling", "marker_styling"},
+      {"/theming", "Map theming", "theming"},
+      {"/demo", "Demo", "demo"},
+      {"/live_layout", "Testing Live Layout", "live_with_layout"},
+      {"/my_machines", "Machine Map", "machine_map"}
     ]
 
     static_pages ++ live_view_items

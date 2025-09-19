@@ -26,7 +26,7 @@ defmodule DemoWeb.LiveWithLayout do
 
     socket =
       socket
-      |> assign(:current_page, :live_layout)
+      |> assign(:current_page, "live_with_layout")
       |> assign(:code_input, String.trim(default_code))
       |> assign(:marker_groups, [])
       |> assign(:validation_errors, [])

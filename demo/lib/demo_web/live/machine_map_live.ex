@@ -167,7 +167,7 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
-    <DemoWeb.Layouts.app flash={@flash} current_page={:machine_map}>
+    <DemoWeb.Layouts.app flash={@flash} current_page={"machine_map"}>
       <:title>All Fly Machines on this private network</:title>
       <:description>Running Machines by internal DNS</:description>
 

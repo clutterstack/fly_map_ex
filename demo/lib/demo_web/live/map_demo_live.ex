@@ -211,7 +211,7 @@ defmodule DemoWeb.MapDemoLive do
 
   def render(assigns) do
     ~H"""
-    <DemoWeb.Layouts.app flash={@flash} current_page={:map_demo}>
+    <DemoWeb.Layouts.app flash={@flash} current_page={"demo"}>
       <:title>FlyMapEx Interactive Code Builder</:title>
       <:description>Build marker groups for FlyMapEx with real-time validation and live preview.</:description>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
