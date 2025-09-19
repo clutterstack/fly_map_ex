@@ -23,8 +23,6 @@ defmodule DemoWeb.PageLive do
     {:ok, socket}
   end
 
-  # , elements: Content.get(id)
-
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
@@ -34,7 +32,4 @@ defmodule DemoWeb.PageLive do
     </DemoWeb.Layouts.app>
     """
   end
-
-  #   Here comes the template function component
-  # <%= apply(@template_module, :render, [%{current_page: @current_page, page_module: @page_module}]) %>
 end

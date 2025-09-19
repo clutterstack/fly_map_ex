@@ -127,11 +127,7 @@ defmodule DemoWeb.Components.Navigation do
 
     # LiveView navigation items
     live_view_items = [
-      {"/stage3", "The Map", :stage3},
       {"/live_layout", "Testing Live Layout", :live_with_layout},
-      {"/stage1", "Placing Markers", :stage1},
-      {"/stage2", "Marker Styles", :stage2},
-      {"/stage4", "Builder", :stage4},
       {"/map", "Machine Map", :machine_map},
       {"/node_placement", "Node placement with PageLive", :page_live},
       {"/marker_styling", "Marker styling", :page_live},

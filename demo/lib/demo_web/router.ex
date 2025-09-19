@@ -24,10 +24,6 @@ defmodule DemoWeb.Router do
     live "/map", MachineMapLive, :index
     live "/live_layout", LiveWithLayout
     live "/demo", MapDemoLive, :index
-    live "/stage1", Stage1Live
-    live "/stage2", Stage2Live
-    live "/stage3", Stage3Live
-    live "/stage4", Stage4Live
 
     # Dynamic liveview pages - must be last to avoid conflicts
     live "/:page_id", PageLive

@@ -18,7 +18,7 @@ defmodule DemoWeb.Components.NewControls do
   * `class` - Additional CSS classes
   """
 
-  def new_tabbed_info_panel(assigns) do
+  def tabbed_info_panel(assigns) do
     ~H"""
     <div class={["bg-base-100 border border-base-300 rounded-lg overflow-hidden", @class]}>
       <!-- Tab Navigation -->

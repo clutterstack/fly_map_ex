@@ -7,10 +7,6 @@ defmodule Demo.Application do
 
   @impl true
   def start(_type, _args) do
-    # Initialize documentation system registries
-    DemoWeb.Helpers.DocCodeGeneratorRegistry.init_defaults()
-    DemoWeb.Helpers.DocComponentRegistry.init_defaults()
-
     children = [
       DemoWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:demo, :dns_cluster_query) || :ignore},

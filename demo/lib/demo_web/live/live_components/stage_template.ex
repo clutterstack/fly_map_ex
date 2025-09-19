@@ -46,7 +46,7 @@ defmodule DemoWeb.Content.StageTemplate do
       <!-- Map Panel -->
       <.stage_map {@tab_data.example} />
       <!-- Tabbed Info Panel -->
-      <.new_tabbed_info_panel
+      <.tabbed_info_panel
         tabs={@tabs}
         current_tab={@current_tab}
         class={@class}
