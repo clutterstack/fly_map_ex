@@ -9,7 +9,6 @@ defmodule DemoWeb.MachineMapLive do
 
   alias Demo.MachineDiscovery
   alias DemoWeb.Components.LoadingOverlay
-  import DemoWeb.Components.Navigation
 
   def mount(_params, _session, socket) do
     socket =

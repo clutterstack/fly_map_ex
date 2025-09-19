@@ -11,8 +11,6 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
-  import DemoWeb.Components.Navigation
-
   def mount(_params, _session, socket) do
     # Default example marker groups to start with
     default_code = """

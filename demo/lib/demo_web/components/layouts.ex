@@ -28,7 +28,7 @@ defmodule DemoWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
-  attr :current_page, :atom, required: true
+  attr :current_page, :string, required: true
   attr :class, :string, default: ""
   slot :title, required: true
   slot :sidebar_extra
@@ -49,7 +49,7 @@ defmodule DemoWeb.Layouts do
             <.theme_toggle />
             <.navigation layout={:sidebar} current_page={@current_page} />
           </div>
-          
+
     <!-- Additional sidebar content if provided -->
           <%= if @sidebar_extra != [] do %>
             <div class="border-t border-base-300">
@@ -58,7 +58,7 @@ defmodule DemoWeb.Layouts do
           <% end %>
         </div>
       </div>
-      
+
     <!-- Mobile sidebar overlay -->
       <div
         class="lg:hidden fixed inset-0 z-50 bg-base-content/50 backdrop-blur-sm"
@@ -115,7 +115,7 @@ defmodule DemoWeb.Layouts do
           <% end %>
         </div>
       </div>
-      
+
     <!-- Main content -->
       <div class="flex-1 flex flex-col lg:pl-64">
         <!-- Mobile header with menu button -->
@@ -143,7 +143,7 @@ defmodule DemoWeb.Layouts do
           </button>
           <h1 class="text-lg font-semibold text-base-content">FlyMapEx Demo</h1>
         </div>
-        
+
     <!-- Main content area -->
         <main class="flex-1 overflow-y-auto">
           <div class={["w-full p-8", @class]}>
@@ -151,14 +151,14 @@ defmodule DemoWeb.Layouts do
             <h1 class="text-[2rem] mt-4 font-semibold leading-10 tracking-tighter text-balance">
               {render_slot(@title)}
             </h1>
-            
+
     <!-- Page Description (optional) -->
             <%= if @description != [] do %>
               <div class="mt-4 leading-7 text-base-content/70">
                 {render_slot(@description)}
               </div>
             <% end %>
-            
+
     <!-- Main Content -->
             <div class="mt-6">
               {render_slot(@inner_block)}
