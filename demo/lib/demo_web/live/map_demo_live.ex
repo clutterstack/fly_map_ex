@@ -211,16 +211,9 @@ defmodule DemoWeb.MapDemoLive do
 
   def render(assigns) do
     ~H"""
-    <.navigation layout={:topbar} current_page={:map_demo} />
-    <div class="container mx-auto px-4 py-8">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-base-content">FlyMapEx Interactive Code Builder</h1>
-      </div>
-
-      <p class="text-lg mb-6 text-base-content/80">
-        Build marker groups for FlyMapEx with real-time validation and live preview.
-      </p>
-
+    <DemoWeb.Layouts.app flash={@flash} current_page={:map_demo}>
+      <:title>FlyMapEx Interactive Code Builder</:title>
+      <:description>Build marker groups for FlyMapEx with real-time validation and live preview.</:description>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Code Input Section -->
         <div class="space-y-4">
@@ -235,7 +228,7 @@ defmodule DemoWeb.MapDemoLive do
                 phx-debounce="300"
               >{@code_input}</textarea>
             </form>
-            
+
     <!-- Validation Errors -->
             <%= if @validation_errors != [] do %>
               <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
@@ -247,7 +240,7 @@ defmodule DemoWeb.MapDemoLive do
                 </ul>
               </div>
             <% end %>
-            
+
     <!-- Hints Section -->
             <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
               <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
@@ -266,7 +259,7 @@ defmodule DemoWeb.MapDemoLive do
             </div>
           </div>
         </div>
-        
+
     <!-- Preview Section -->
         <div class="space-y-4">
           <!-- Live Map Preview -->
@@ -281,7 +274,7 @@ defmodule DemoWeb.MapDemoLive do
               </div>
             <% end %>
           </div>
-          
+
     <!-- Generated HEEx Code -->
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-4">
@@ -308,7 +301,7 @@ defmodule DemoWeb.MapDemoLive do
           </div>
         </div>
       </div>
-      
+
     <!-- Documentation Section -->
       <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>
@@ -327,7 +320,7 @@ defmodule DemoWeb.MapDemoLive do
           </div>
         </div>
       </div>
-    </div>
+    </DemoWeb.Layouts.app>
     """
   end
 end

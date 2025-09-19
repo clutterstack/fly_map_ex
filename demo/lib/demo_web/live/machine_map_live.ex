@@ -167,13 +167,10 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
-    <.navigation layout={:topbar} current_page={:machine_map} />
-    <div class="container mx-auto px-4 py-8">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-base-content">Fly.io Multi-App Machine Map</h1>
-      </div>
-      <h2 class="text-xl mb-4 text-base-content">Apps with active Machines on this network</h2>
-      
+    <DemoWeb.Layouts.app flash={@flash} current_page={:machine_map}>
+      <:title>All Fly Machines on this private network</:title>
+      <:description>Running Machines by internal DNS</:description>
+
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>
         <div class="bg-info/10 border border-info/20 rounded-lg p-6 mb-6">
@@ -200,7 +197,7 @@ defmodule DemoWeb.MachineMapLive do
           </div>
         </div>
       <% end %>
-      
+
     <!-- World Map -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6 relative">
         <FlyMapEx.node_map
@@ -215,11 +212,11 @@ defmodule DemoWeb.MachineMapLive do
           message={if @map_refreshing, do: "Refreshing Map Data", else: "Loading Map Data"}
         />
       </div>
-      
+
     <!-- Machine Details -->
       <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">Mapped Machines</h2>
-        
+
     <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="bg-info/10 p-4 rounded-lg">
@@ -240,7 +237,7 @@ defmodule DemoWeb.MachineMapLive do
             </p>
           </div>
         </div>
-        
+
     <!-- Machines by Region -->
         <div class="mt-6">
           <h3 class="text-lg font-medium mb-4 text-base-content">By region</h3>
@@ -271,7 +268,7 @@ defmodule DemoWeb.MachineMapLive do
           Make sure you're running on Fly.io's private network (WireGuard) for DNS queries to work.
         </p>
       </div>
-    </div>
+    </DemoWeb.Layouts.app>
     """
   end
 
@@ -299,16 +296,4 @@ defmodule DemoWeb.MachineMapLive do
       System.get_env("FLY_APP_NAME")
   end
 
-  # A group is a map
-  #   %{nodes: ["sjc", "fra"], style: FlyMapEx.Style.primary(), label: "Active Regions"},
-  #  We could define a function like the following and add it to the list in the marker_groups
-  # assign in order to display the Fly.io deployment regions as active markers (the FlyMapEx lib
-  # can display them out of the box, though)
-  # defp fly_regions_group do
-  #   %{
-  #     nodes: FlyMapEx.Regions.list(),
-  #     style: FlyMapEx.Style.info(size: 4, animated: false),
-  #     label: "Fly.io regions"
-  #   }
-  # end
 end

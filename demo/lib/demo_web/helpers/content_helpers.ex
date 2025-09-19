@@ -120,7 +120,6 @@ defmodule DemoWeb.Helpers.ContentHelpers do
   """
   def code_snippet(code, opts \\ []) do
     inline = Keyword.get(opts, :inline, false)
-
     if inline do
       ~s(<code class="bg-base-100 px-1 rounded">#{code}</code>)
     else
