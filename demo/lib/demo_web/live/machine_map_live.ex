@@ -10,7 +10,10 @@ defmodule DemoWeb.MachineMapLive do
   alias Demo.MachineDiscovery
   alias DemoWeb.Components.LoadingOverlay
 
+  def page_title(), do: "Machine Map"
+
   def mount(_params, _session, socket) do
+
     socket =
       socket
       |> assign(:available_apps, [])
@@ -166,8 +169,8 @@ defmodule DemoWeb.MachineMapLive do
 
   def render(assigns) do
     ~H"""
-    <DemoWeb.Layouts.app flash={@flash} current_page={"machine_map"}>
-      <:title>All Fly Machines on this private network</:title>
+    <DemoWeb.Layouts.app flash={@flash} current_page={"my_machines"}>
+      <:title>{page_title()}</:title>
       <:description>Running Machines by internal DNS</:description>
 
     <!-- Initial Loading State -->

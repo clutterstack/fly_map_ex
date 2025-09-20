@@ -1,5 +1,6 @@
 defmodule DemoWeb.Components.Navigation do
   use Phoenix.Component
+  alias DemoWeb.RouteRegistry
 
   @doc """
   Renders a navigation component with configurable layout.
@@ -117,24 +118,12 @@ defmodule DemoWeb.Components.Navigation do
   end
 
   defp nav_items do
-    # Static page navigation items (dead views)
-    # path, label, key
-    static_pages = [
-      {"/", "Home", "home"},
-      {"/about", "About", "about"}
-    ]
-
-    # LiveView navigation items
-    live_view_items = [
-      {"/node_placement", "Node placement", "node_placement"},
-      {"/marker_styling", "Marker styling", "marker_styling"},
-      {"/theming", "Map theming", "theming"},
-      {"/demo", "Demo", "demo"},
-      {"/live_layout", "Testing Live Layout", "live_with_layout"},
-      {"/my_machines", "Machine Map", "machine_map"}
-    ]
-
-    static_pages ++ live_view_items
+    # Navigation items are generated from RouteRegistry in configured order
+    # Titles are extracted from actual page sources via ContentMap
+    RouteRegistry.navigation_routes()
+    |> Enum.map(fn route ->
+      {route.path, DemoWeb.ContentMap.get_page_title(route.key), route.key}
+    end)
   end
 
   defp sidebar_nav_link_class(current_page, page_key) do

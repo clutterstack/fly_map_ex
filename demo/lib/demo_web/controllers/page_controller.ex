@@ -1,33 +1,24 @@
 defmodule DemoWeb.PageController do
   use DemoWeb, :controller
+  alias DemoWeb.RouteRegistry
 
-  def home(conn, _params) do
-    home_assigns = %{
-      title: "FlyMapEx Demo Home",
-      description:
-        "This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.",
-      nav_order: 0,
-      keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
-      slug: "home",
-      current_page: "home",
+  def home(conn, _params), do: render_static_page(conn, "home")
+  def about(conn, _params), do: render_static_page(conn, "about")
+
+  defp render_static_page(conn, page_key) do
+    route = RouteRegistry.get_route(page_key)
+
+    assigns = %{
+      page_title: route.title,
+      title: route.title,
+      description: Map.get(route, :description, ""),
+      keywords: Map.get(route, :keywords, ""),
+      nav_order: route.nav_order,
+      slug: page_key,
+      current_page: page_key,
       flash: conn.assigns[:flash] || %{}
     }
 
-    render(conn, :home, home_assigns)
+    render(conn, route.controller_action, assigns)
   end
-
-  def about(conn, _params) do
-    about_assigns = %{
-      title: "About FlyMapEx",
-      description: "More about the FlyMapEx library and its capabilities.",
-      nav_order: 1,
-      keywords: "about, flymap, elixir, phoenix, documentation",
-      slug: "about",
-      current_page: "about",
-      flash: conn.assigns[:flash] || %{}
-    }
-
-    render(conn, :about, about_assigns)
-  end
-
 end

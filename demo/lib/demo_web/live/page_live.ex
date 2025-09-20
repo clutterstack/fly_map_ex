@@ -6,7 +6,7 @@ defmodule DemoWeb.PageLive do
   use DemoWeb, :live_view
 
   def mount(%{"page_id" => current_page}, _session, socket) do
-    page_module = Module.concat(DemoWeb.Content, Demo.ContentMap.get_page_module(current_page))
+    page_module = DemoWeb.ContentMap.get_page_module(current_page)
     # content = apply(module, :get_content, [])
 
     %{:title => title, :description => description, :template => template} =

@@ -11,7 +11,8 @@ defmodule DemoWeb.LiveWithLayout do
 
   use DemoWeb, :live_view
 
-  # import DemoWeb.Components.Navigation
+
+  def page_title(), do: "Testing Live Layout"
 
   def mount(_params, _session, socket) do
     # Default example marker groups to start with
@@ -205,7 +206,7 @@ defmodule DemoWeb.LiveWithLayout do
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
-      <:title>Interactive Code Builder</:title>
+      <:title>{page_title()}</:title>
       <p class="text-lg mb-6 text-base-content/80">
         Build marker groups for FlyMapEx with real-time validation and live preview.
       </p>
@@ -224,7 +225,7 @@ defmodule DemoWeb.LiveWithLayout do
                 phx-debounce="300"
               >{@code_input}</textarea>
             </form>
-            
+
     <!-- Validation Errors -->
             <%= if @validation_errors != [] do %>
               <div class="mt-4 bg-error/10 border border-error/20 rounded-lg p-4">
@@ -236,7 +237,7 @@ defmodule DemoWeb.LiveWithLayout do
                 </ul>
               </div>
             <% end %>
-            
+
     <!-- Hints Section -->
             <div class="mt-4 bg-info/10 border border-info/20 rounded-lg p-4">
               <h3 class="text-info font-semibold mb-2">Quick Reference:</h3>
@@ -255,7 +256,7 @@ defmodule DemoWeb.LiveWithLayout do
             </div>
           </div>
         </div>
-        
+
     <!-- Preview Section -->
         <div class="space-y-4">
           <!-- Live Map Preview -->
@@ -270,7 +271,7 @@ defmodule DemoWeb.LiveWithLayout do
               </div>
             <% end %>
           </div>
-          
+
     <!-- Generated HEEx Code -->
           <div class="bg-base-100 rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-4">
@@ -297,7 +298,7 @@ defmodule DemoWeb.LiveWithLayout do
           </div>
         </div>
       </div>
-      
+
     <!-- Documentation Section -->
       <div class="mt-8 bg-base-100 rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold mb-4 text-base-content">How to Use</h2>

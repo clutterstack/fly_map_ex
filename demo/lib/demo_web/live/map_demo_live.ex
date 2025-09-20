@@ -11,6 +11,8 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
+  def page_title, do: "Interactive Builder Boop"
+
   def mount(_params, _session, socket) do
     # Default example marker groups to start with
     default_code = """
@@ -210,7 +212,7 @@ defmodule DemoWeb.MapDemoLive do
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={"demo"}>
-      <:title>FlyMapEx Interactive Code Builder</:title>
+      <:title>{page_title()}</:title>
       <:description>Build marker groups for FlyMapEx with real-time validation and live preview.</:description>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Code Input Section -->
