@@ -15,9 +15,6 @@ defmodule DemoWeb.LiveWithLayout do
 
   use DemoWeb, :live_view
 
-
-  # def page_title(), do: "Testing Live Layout"
-
   @doc """
   Returns SEO metadata for this LiveView page.
 

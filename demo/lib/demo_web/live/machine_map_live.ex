@@ -16,8 +16,6 @@ defmodule DemoWeb.MachineMapLive do
   alias Demo.MachineDiscovery
   alias DemoWeb.Components.LoadingOverlay
 
-  def page_title(), do: "Machine Map"
-
   @doc """
   Returns SEO metadata for this LiveView page.
 
@@ -33,7 +31,7 @@ defmodule DemoWeb.MachineMapLive do
   """
   def get_metadata do
     %{
-      title: page_title(),
+      title: "Machine map",
       description: "Visualize your deployed machines across different Fly.io regions.",
       keywords: "elixir, phoenix, maps, fly.io, machines, deployment, visualization"
     }

@@ -151,4 +151,66 @@ defmodule DemoWeb.RouteRegistry do
   def route_exists?(key) do
     get_route(key) != nil
   end
+
+  @doc """
+  Gets the module for a content page.
+
+  Used by PageLive to resolve content modules.
+  Only works for content modules, not LiveView modules.
+  """
+  def get_route_module(id) do
+    case get_route(id) do
+      %{type: :content, module: module} -> module
+      _ -> raise ArgumentError, "Page '#{id}' is not a content module"
+    end
+  end
+
+  @doc """
+  Gets the display title for any registered page.
+
+  For content modules: Extracts title from doc_metadata/0
+  For LiveView modules: Extracts title from page_title/0
+  For static pages: Returns stored title from RouteRegistry
+  For unregistered pages: Returns humanized page ID
+
+  ## Examples
+
+      get_route_title("basic_use")  # => "Basic use" (from doc_metadata)
+      get_route_title("demo")       # => "Interactive Builder" (from page_title)
+      get_route_title("unknown_page") # => "Unknown Page" (humanized fallback)
+  """
+  def get_route_title(page_id) do
+    case get_route(page_id) do
+      %{type: :content, module: module} ->
+        try do
+          %{title: title} = apply(module, :doc_metadata, [])
+          title
+        rescue
+          _ -> humanize_page_id(page_id)
+        end
+
+      %{type: :liveview, module: module} ->
+        try do
+          apply(module, :page_title, [])
+        rescue
+          _ -> humanize_page_id(page_id)
+        end
+
+      %{type: :static, title: title} ->
+        title
+
+      nil ->
+        require Logger
+        Logger.info("Page '#{page_id}' not found in RouteRegistry")
+        humanize_page_id(page_id)
+    end
+  end
+
+  defp humanize_page_id(page_id) do
+    page_id
+    |> String.replace("_", " ")
+    |> String.split()
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join(" ")
+  end
 end

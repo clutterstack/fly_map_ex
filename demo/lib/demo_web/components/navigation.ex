@@ -119,10 +119,10 @@ defmodule DemoWeb.Components.Navigation do
 
   defp nav_items do
     # Navigation items are generated from RouteRegistry in configured order
-    # Titles are extracted from actual page sources via ContentMap
+    # Titles are extracted from actual page sources via RouteRegistry
     RouteRegistry.navigation_routes()
     |> Enum.map(fn route ->
-      {route.path, DemoWeb.ContentMap.get_page_title(route.key), route.key}
+      {route.path, RouteRegistry.get_route_title(route.key), route.key}
     end)
   end
 

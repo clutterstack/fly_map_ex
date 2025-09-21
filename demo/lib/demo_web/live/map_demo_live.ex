@@ -17,8 +17,6 @@ defmodule DemoWeb.MapDemoLive do
 
   use Phoenix.LiveView
 
-  def page_title, do: "Interactive Builder"
-
   @doc """
   Returns SEO metadata for this LiveView page.
 
@@ -43,7 +41,7 @@ defmodule DemoWeb.MapDemoLive do
   """
   def get_metadata do
     %{
-      title: page_title(),
+      title: "Interactive builder",
       description: "Build marker groups for FlyMapEx with real-time validation and live preview.",
       keywords: "elixir, phoenix, maps, interactive, builder, validation, preview"
     }
