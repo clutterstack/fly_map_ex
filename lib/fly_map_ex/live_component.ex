@@ -17,7 +17,7 @@ defmodule FlyMapEx.LiveComponent do
 
   ## Usage
 
-  ### Basic Usage
+  ### Basic use
 
   The simplest way to use the component is with just marker groups:
 

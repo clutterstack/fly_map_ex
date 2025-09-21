@@ -192,9 +192,9 @@ defmodule FlyMapEx.Components.LegendComponent do
                   do: "text-primary",
                   else: "text-base-content")
               ]}>
-                <span>{group.label}</span>
-                <span class="text-xs text-base-content/60 ml-1">
-                  • nodes: {format_nodes_display(group.nodes, "none")}
+                <span>{group.label}:</span>
+                <span class="text-xs text-base-content/60 ml-2">
+                     {format_nodes_display(group.nodes, "none")}
                 </span>
                 <%= if @interactive and Map.has_key?(group, :group_label) and group.group_label in @selected_groups do %>
                   <svg class="inline w-3 h-3 ml-1 text-primary" fill="currentColor" viewBox="0 0 20 20">

@@ -36,6 +36,15 @@ defmodule DemoWeb.LiveWithLayout do
     }
   end
 
+  @doc """
+  Returns the page title for navigation purposes.
+
+  Extracts the title from the standardized metadata.
+  """
+  def page_title do
+    get_metadata().title
+  end
+
   def mount(_params, _session, socket) do
     # Set SEO metadata for root layout
     metadata = get_metadata()

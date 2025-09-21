@@ -32,7 +32,7 @@ def deps do
 end
 ```
 
-## Basic usage
+## Basic useage
 
 ### Interactive mode (default - existing behavior)
   <FlyMapEx.node_map marker_groups={@groups} theme={:dark} />

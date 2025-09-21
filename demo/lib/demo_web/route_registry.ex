@@ -191,9 +191,17 @@ defmodule DemoWeb.RouteRegistry do
 
       %{type: :liveview, module: module} ->
         try do
-          apply(module, :page_title, [])
+          # Try get_metadata/0 first (standardized SEO metadata)
+          %{title: title} = apply(module, :get_metadata, [])
+          title
         rescue
-          _ -> humanize_page_id(page_id)
+          _ ->
+            try do
+              # Fall back to page_title/0 for backward compatibility
+              apply(module, :page_title, [])
+            rescue
+              _ -> humanize_page_id(page_id)
+            end
         end
 
       %{type: :static, title: title} ->

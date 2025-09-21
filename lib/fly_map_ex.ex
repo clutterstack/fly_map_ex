@@ -76,7 +76,7 @@ defmodule FlyMapEx do
 
   ## Integration Patterns
 
-  ### Basic Usage (Interactive - Default)
+  ### Basic use (Interactive - Default)
   ```elixir
   <FlyMapEx.node_map
     marker_groups={@groups}

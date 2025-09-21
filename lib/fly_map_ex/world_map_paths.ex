@@ -88,7 +88,7 @@ defmodule FlyMapEx.WorldMapPaths do
 
   ## Examples
 
-      # Basic usage with colour scheme
+      # Basic use with colour scheme
       <FlyMapEx.WorldMapPaths.render
         colours={%{
           border: "#374151",
