@@ -23,12 +23,18 @@
       }
     ]}
     theme={:responsive}
-    layout={:side_by_side}
+    layout={:stacked}
     show_regions={false}
   />
 
   <.markdown content={
     ~s"""
+    FlyMapEx provides a responsive, configurable function component for placing groups of markers onto a simple world map, with or without an accompanying legend.
+
+    The simplest usage is to give it groups of coordinates or Fly.io region codes. 
+
+    Map colours, marker styles, and map / legend layout can be customised.
+
     * Interactive World Maps: Display Fly.io regions with customizable markers and themes
     * Real-time Updates: LiveView components that respond to data changes
     * Multiple Themes: Dashboard, monitoring, presentation, and more

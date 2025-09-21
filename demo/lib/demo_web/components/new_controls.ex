@@ -44,7 +44,7 @@ defmodule DemoWeb.Components.NewControls do
       <% end %>
 
     <!-- Tab Content -->
-      <div class="p-4">
+      <div class="p-4 panel">
         {Phoenix.HTML.raw(@tab_content)}
       </div>
     </div>

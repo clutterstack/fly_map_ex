@@ -2,7 +2,7 @@
 
 This guide shows how to use the `DemoWeb.Components.PageTemplate` component to create consistent non-live pages in the demo application.
 
-## Basic Usage
+## Basic useage
 
 The page template provides a consistent layout with navigation, theming, and responsive design for static content pages.
 

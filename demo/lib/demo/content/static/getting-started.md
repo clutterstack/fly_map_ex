@@ -20,7 +20,7 @@ def deps do
 end
 ```
 
-## Basic Usage
+## Basic useage
 
 The simplest way to use FlyMapEx is with the main render function:
 

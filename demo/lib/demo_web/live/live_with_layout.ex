@@ -1,20 +1,48 @@
 defmodule DemoWeb.LiveWithLayout do
   @moduledoc """
-  Interactive code builder for FlyMapEx components.
+  Development/testing LiveView for layout and component experimentation.
 
-  Allows users to build marker groups through a live code editor with:
-  - Real-time validation for region codes and syntax
-  - Autocomplete hints for regions and styles
-  - Live preview of the generated HEEx code
-  - Copy-to-clipboard functionality
+  This module serves as a testing ground for FlyMapEx components and
+  layout functionality during development. It includes similar functionality
+  to MapDemoLive but with different layout configurations for testing purposes.
+
+  ## SEO Metadata
+
+  This LiveView implements the standardized SEO metadata pattern using `get_metadata/0`
+  which returns a map containing title, description, and keywords for search engine optimization.
+  The metadata is automatically assigned to the socket in `mount/3` and rendered in the root layout.
   """
 
   use DemoWeb, :live_view
 
 
-  def page_title(), do: "Testing Live Layout"
+  # def page_title(), do: "Testing Live Layout"
+
+  @doc """
+  Returns SEO metadata for this LiveView page.
+
+  This function provides structured metadata that is used by the root layout
+  to render appropriate meta tags for search engine optimization.
+
+  ## Returns
+
+  A map containing:
+  - `:title` - The page title for browser tabs and search results
+  - `:description` - Page description for search engine snippets
+  - `:keywords` - Comma-separated keywords for search indexing
+  """
+  def get_metadata do
+    %{
+      title: "Testing Live Layout",
+      description: "Development page for testing LiveView layouts and components.",
+      keywords: "elixir, phoenix, liveview, testing, development"
+    }
+  end
 
   def mount(_params, _session, socket) do
+    # Set SEO metadata for root layout
+    metadata = get_metadata()
+
     # Default example marker groups to start with
     default_code = """
     [
@@ -27,6 +55,9 @@ defmodule DemoWeb.LiveWithLayout do
 
     socket =
       socket
+      |> assign(:page_title, metadata.title)
+      |> assign(:description, metadata.description)
+      |> assign(:keywords, metadata.keywords)
       |> assign(:current_page, "live_with_layout")
       |> assign(:code_input, String.trim(default_code))
       |> assign(:marker_groups, [])
@@ -206,7 +237,7 @@ defmodule DemoWeb.LiveWithLayout do
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={@current_page}>
-      <:title>{page_title()}</:title>
+      <:title>{@page_title}</:title>
       <p class="text-lg mb-6 text-base-content/80">
         Build marker groups for FlyMapEx with real-time validation and live preview.
       </p>

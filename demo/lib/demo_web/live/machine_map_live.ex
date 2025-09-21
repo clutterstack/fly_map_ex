@@ -3,6 +3,12 @@ defmodule DemoWeb.MachineMapLive do
   LiveView component that displays a real-time world map of Fly.io machines.
 
   Periodically discovers machines using DNS and displays them on a FlyMapEx world map.
+
+  ## SEO Metadata
+
+  This LiveView implements the standardized SEO metadata pattern using `get_metadata/0`
+  which returns a map containing title, description, and keywords for search engine optimization.
+  The metadata is automatically assigned to the socket in `mount/3` and rendered in the root layout.
   """
 
   use Phoenix.LiveView
@@ -12,10 +18,36 @@ defmodule DemoWeb.MachineMapLive do
 
   def page_title(), do: "Machine Map"
 
+  @doc """
+  Returns SEO metadata for this LiveView page.
+
+  This function provides structured metadata that is used by the root layout
+  to render appropriate meta tags for search engine optimization.
+
+  ## Returns
+
+  A map containing:
+  - `:title` - The page title for browser tabs and search results
+  - `:description` - Page description for search engine snippets
+  - `:keywords` - Comma-separated keywords for search indexing
+  """
+  def get_metadata do
+    %{
+      title: page_title(),
+      description: "Visualize your deployed machines across different Fly.io regions.",
+      keywords: "elixir, phoenix, maps, fly.io, machines, deployment, visualization"
+    }
+  end
+
   def mount(_params, _session, socket) do
+    # Set SEO metadata for root layout
+    metadata = get_metadata()
 
     socket =
       socket
+      |> assign(:page_title, metadata.title)
+      |> assign(:description, metadata.description)
+      |> assign(:keywords, metadata.keywords)
       |> assign(:available_apps, [])
       |> assign(:selected_apps, [])
       |> assign(:app_machines, %{})
@@ -170,8 +202,8 @@ defmodule DemoWeb.MachineMapLive do
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={"my_machines"}>
-      <:title>{page_title()}</:title>
-      <:description>Running Machines by internal DNS</:description>
+      <:title>{@page_title}</:title>
+      <:description>{@description}</:description>
 
     <!-- Initial Loading State -->
       <%= if @apps_loading && @available_apps == [] do %>

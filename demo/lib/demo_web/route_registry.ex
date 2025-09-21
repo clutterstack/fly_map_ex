@@ -7,12 +7,35 @@ defmodule DemoWeb.RouteRegistry do
   - Page titles and navigation order
   - Module mappings for different page types
   - Navigation visibility and organization
+  - SEO metadata for static pages
 
   Eliminates duplication across router.ex, content_map.ex, and navigation.ex.
+
+  ## SEO Metadata System
+
+  For static pages (type `:static`), this registry provides SEO metadata including
+  title, description, and keywords. The PageController extracts this metadata and
+  passes it to the root layout for rendering as meta tags.
+
+  LiveView pages (type `:liveview`) handle their own SEO metadata through the
+  standardized `get_metadata/0` function pattern implemented in each LiveView module.
+
+  ## Route Structure
+
+  Each route entry contains:
+  - `path` - URL path for the route
+  - `key` - Unique identifier for the route
+  - `type` - Route type (`:static`, `:liveview`, `:content`)
+  - `title` - Page title for SEO and navigation
+  - `description` - Page description for search engines (static pages only)
+  - `keywords` - Comma-separated keywords for search indexing (static pages only)
+  - `nav_order` - Position in navigation menu
+  - Additional type-specific fields
   """
 
   @routes [
     # Static pages
+    # PageController uses some of this.
     %{
       path: "/",
       key: "home",
@@ -23,23 +46,12 @@ defmodule DemoWeb.RouteRegistry do
       keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
       nav_order: 1
     },
-    %{
-      path: "/about",
-      key: "about",
-      type: :static,
-      controller_action: :about,
-      title: "About FlyMapEx",
-      description: "More about the FlyMapEx library and its capabilities.",
-      keywords: "about, flymap, elixir, phoenix, documentation",
-      nav_order: 2
-    },
-
     # Tutorial content modules (in learning order)
     %{
-      path: "/node_placement",
-      key: "node_placement",
+      path: "/basic_use",
+      key: "basic_use",
       type: :content,
-      module: DemoWeb.Content.NodePlacement,
+      module: DemoWeb.Content.BasicUsage,
       nav_order: 3
     },
     %{

@@ -8,6 +8,8 @@ This Phoenix LiveView application demonstrates real-time machine discovery and v
 - **Interactive World Map**: Shows machines as markers on a world map with marker grouping
 - **Live Updates**: Automatically updates the map when machines are added/removed
 - **Error Handling**: Gracefully handles DNS lookup failures and missing apps
+- **SEO Metadata System**: Standardized SEO metadata with data locality and type safety
+- **DaisyUI Theming**: Responsive light/dark theme support throughout the application
 
 ## Running the Demo
 
@@ -79,3 +81,39 @@ fly deploy
 ```
 
 The demo will automatically discover machines in your Fly.io app when running on the platform.
+
+## Architecture
+
+### SEO Metadata System
+
+The demo implements a comprehensive SEO metadata system designed for maintainability and type safety:
+
+#### LiveView Metadata Pattern
+
+Each LiveView module includes a standardized `get_metadata/0` function:
+
+```elixir
+def get_metadata do
+  %{
+    title: page_title(),
+    description: "Page description for search engines",
+    keywords: "relevant, search, keywords"
+  }
+end
+```
+
+#### Implementation Details
+
+1. **Data Locality**: Metadata lives with the content it describes
+2. **Type Safety**: Compile-time validation ensures metadata consistency
+3. **Standardization**: Consistent pattern across all LiveView modules
+4. **Root Layout Integration**: Metadata automatically rendered as `<meta>` tags
+
+#### Technical Flow
+
+1. LiveView `mount/3` calls `get_metadata/0` and assigns to socket
+2. Root layout conditionally renders SEO meta tags from socket assigns
+3. Static pages use RouteRegistry metadata via PageController
+4. Page titles handled by Phoenix LiveView's built-in `@page_title` mechanism
+
+This approach ensures proper SEO meta tags are present on initial page load for search engine indexing while maintaining the benefits of LiveView's real-time updates.

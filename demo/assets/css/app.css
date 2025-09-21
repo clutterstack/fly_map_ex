@@ -100,9 +100,33 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session] { display: contents }
 
-/* This file is for your main application CSS */
 
-ul li {
-  list-style-type: disc;
-  list-style-position: inside;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* This file is for your main application CSS */
+@layer base {
+  h2 {
+    @apply font-semibold text-base mb-2;
+  }
+
+
+
+  ul li {
+    list-style-type: disc;
+    list-style-position: inside;
+  }
 }
+
+.panel {
+  @apply text-base-content/70 text-sm;
+}
+
+.panel p {
+  @apply  mb-3;
+}
+
+
+ .panel ul {
+    @apply mb-3;
+  }

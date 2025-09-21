@@ -7,13 +7,52 @@ defmodule DemoWeb.MapDemoLive do
   - Autocomplete hints for regions and styles
   - Live preview of the generated HEEx code
   - Copy-to-clipboard functionality
+
+  ## SEO Metadata
+
+  This LiveView implements the standardized SEO metadata pattern using `get_metadata/0`
+  which returns a map containing title, description, and keywords for search engine optimization.
+  The metadata is automatically assigned to the socket in `mount/3` and rendered in the root layout.
   """
 
   use Phoenix.LiveView
 
-  def page_title, do: "Interactive Builder Boop"
+  def page_title, do: "Interactive Builder"
+
+  @doc """
+  Returns SEO metadata for this LiveView page.
+
+  This function provides structured metadata that is used by the root layout
+  to render appropriate meta tags for search engine optimization.
+
+  ## Returns
+
+  A map containing:
+  - `:title` - The page title for browser tabs and search results
+  - `:description` - Page description for search engine snippets
+  - `:keywords` - Comma-separated keywords for search indexing
+
+  ## Example
+
+      iex> DemoWeb.MapDemoLive.get_metadata()
+      %{
+        title: "Interactive Builder",
+        description: "Build marker groups for FlyMapEx with real-time validation and live preview.",
+        keywords: "elixir, phoenix, maps, interactive, builder, validation, preview"
+      }
+  """
+  def get_metadata do
+    %{
+      title: page_title(),
+      description: "Build marker groups for FlyMapEx with real-time validation and live preview.",
+      keywords: "elixir, phoenix, maps, interactive, builder, validation, preview"
+    }
+  end
 
   def mount(_params, _session, socket) do
+    # Set SEO metadata for root layout
+    metadata = get_metadata()
+
     # Default example marker groups to start with
     default_code = """
     [
@@ -34,6 +73,9 @@ defmodule DemoWeb.MapDemoLive do
 
     socket =
       socket
+      |> assign(:page_title, metadata.title)
+      |> assign(:description, metadata.description)
+      |> assign(:keywords, metadata.keywords)
       |> assign(:code_input, String.trim(default_code))
       |> assign(:marker_groups, [])
       |> assign(:validation_errors, [])
@@ -212,8 +254,8 @@ defmodule DemoWeb.MapDemoLive do
   def render(assigns) do
     ~H"""
     <DemoWeb.Layouts.app flash={@flash} current_page={"demo"}>
-      <:title>{page_title()}</:title>
-      <:description>Build marker groups for FlyMapEx with real-time validation and live preview.</:description>
+      <:title>{@page_title}</:title>
+      <:description>{@description}</:description>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Code Input Section -->
         <div class="space-y-4">

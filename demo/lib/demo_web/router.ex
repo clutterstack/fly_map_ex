@@ -18,7 +18,6 @@ defmodule DemoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/about", PageController, :about
 
     # get "/", PageController, :show, page: "home", as: :home_page
     live "/my_machines", MachineMapLive, :index

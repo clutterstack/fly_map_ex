@@ -6,6 +6,18 @@ defmodule DemoWeb.Layouts do
   The "root" layout is a skeleton rendered as part of the
   application router. The "app" layout is rendered as component
   in regular views and live views.
+
+  ## SEO Metadata Integration
+
+  The root layout (`root.html.heex`) includes conditional rendering of SEO meta tags
+  based on assigns passed from controllers (for static pages) or LiveViews (for dynamic pages).
+
+  Meta tags are rendered when the following assigns are present:
+  - `@description` - Renders `<meta name="description">` tag
+  - `@keywords` - Renders `<meta name="keywords">` tag
+
+  The page title is handled automatically by Phoenix LiveView's `live_title` component
+  when `@page_title` is assigned to the socket or connection.
   """
   use DemoWeb, :html
   import DemoWeb.Components.Navigation

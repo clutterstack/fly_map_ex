@@ -13,15 +13,15 @@ defmodule DemoWeb.ContentMap do
   ## Usage
 
       # Get title for any registered page
-      DemoWeb.ContentMap.get_page_title("node_placement")
-      #=> "Placing markers"
+      DemoWeb.ContentMap.get_page_title("basic_use")
+      #=> "Basic use"
 
       DemoWeb.ContentMap.get_page_title("demo")
       #=> "Interactive Builder"
 
       # List all pages for navigation
       DemoWeb.ContentMap.list_all_pages()
-      #=> ["node_placement", "marker_styling", "theming", "demo", "machine_map"]
+      #=> ["basic_use", "marker_styling", "theming", "demo", "machine_map"]
 
   ## Architecture
 
@@ -62,7 +62,7 @@ defmodule DemoWeb.ContentMap do
 
   ## Examples
 
-      get_page_title("node_placement")  # => "Placing markers" (from doc_metadata)
+      get_page_title("basic_use")  # => "Basic use" (from doc_metadata)
       get_page_title("demo")            # => "Interactive Builder" (from page_title)
       get_page_title("unknown_page")    # => "Unknown Page" (humanized fallback)
   """

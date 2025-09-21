@@ -1,4 +1,4 @@
-defmodule DemoWeb.Content.NodePlacement do
+defmodule DemoWeb.Content.BasicUsage do
   @moduledoc """
   A content page to be rendered from PageLive within the StageTemplate live_component.
   """
@@ -12,7 +12,7 @@ defmodule DemoWeb.Content.NodePlacement do
 
   def doc_metadata do
     %{
-      title: "Placing markers",
+      title: "Basic use",
       description: "Place node markers using coordinates or Fly.io region codes.",
       template: "StageTemplate"
     }
@@ -53,22 +53,17 @@ defmodule DemoWeb.Content.NodePlacement do
     %{
       content:
         [
-          ContentHelpers.content_section(
-            "The SVG World Map",
-            "FlyMapEx renders an SVG world map with country borders, land masses, and ocean areas. Themes control the colours of these geographic elements."
-          ),
-          ContentHelpers.ul_with_bold(
-            "Map Elements",
-            [
-              {"Land", "Country and continental land masses"},
-              {"Ocean", "Water bodies and sea areas"},
-              {"Border", "Country boundaries and coastlines"},
-              {"Neutral Markers", "Default region indicators"},
-              {"Neutral Text", "Labels and region names"}
-            ]
+          ContentHelpers.convert_markdown(
+          ~s"""
+          ## The SVG World Map
+
+
+          * the map is an SVG image generated using data from the Natural Earth and
+          * it uses the equirectangular projection -- a trivial conversion from (latitude, longitude) to Cartesian (y, x).
+
+          """
           )
-        ]
-        |> Enum.join(),
+        ],
       example: %{
           marker_groups: [],
           description: "SVG world map foundation",
