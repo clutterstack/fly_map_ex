@@ -42,7 +42,7 @@ defmodule DemoWeb.Content.MarkerStyling do
    All the content for each tab:
   * `content`: Info to go into the info panel
   * `example`: A description for the code panel label, an optional code comment,
-    and the assigns to pass to the FlyMapEx.node_map component.
+    and the assigns to pass to the FlyMapEx.render component.
   """
 
   def get_content("automatic") do

@@ -42,7 +42,7 @@ defmodule DemoWeb.Content.Theming do
    All the content for each tab:
   * `content`: Info to go into the info panel
   * `example`: A description for the code panel label, an optional code comment,
-    and the assigns to pass to the FlyMapEx.node_map component.
+    and the assigns to pass to the FlyMapEx.render component.
   """
 
   def get_content("blank_map") do
@@ -143,7 +143,7 @@ defmodule DemoWeb.Content.Theming do
           ),
           ContentHelpers.code_snippet("""
           # Method 1: Inline custom theme
-          <FlyMapEx.node_map
+          <FlyMapEx.render
             marker_groups={@groups}
             theme=%{
               land: "#f8fafc",
@@ -174,7 +174,7 @@ defmodule DemoWeb.Content.Theming do
             }
 
           # Usage
-          <FlyMapEx.node_map theme={:corporate} />
+          <FlyMapEx.render theme={:corporate} />
           """)
         ]
         |> Enum.join(),
@@ -230,7 +230,7 @@ defmodule DemoWeb.Content.Theming do
           ContentHelpers.ul_with_bold(
             "Theme Resolution Priority",
             [
-              {"1. Inline theme prop", "<FlyMapEx.node_map theme={:dark} />"},
+              {"1. Inline theme prop", "<FlyMapEx.render theme={:dark} />"},
               {"2. Custom themes", "config :fly_map_ex, :custom_themes"},
               {"3. Application default", "config :fly_map_ex, :default_theme"},
               {"4. Library default", ":light theme"}

@@ -96,7 +96,7 @@ defmodule DemoWeb.Content.StageTemplate do
   def stage_map(assigns) do
     ~H"""
     <div class="bg-base-100 rounded-lg col-span-2">
-      <FlyMapEx.node_map marker_groups={@marker_groups} layout={@layout} theme={@theme} />
+      <FlyMapEx.render marker_groups={@marker_groups} layout={@layout} theme={@theme} />
     </div>
     """
   end
