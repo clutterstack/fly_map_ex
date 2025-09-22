@@ -207,6 +207,7 @@ defmodule FlyMapEx.Components.WorldMap do
   attr(:colours, :map, default: %{})
   attr(:id, :string, default: "fly-region-map")
   attr(:show_regions, :boolean, default: nil)
+  attr(:interactive, :boolean, default: false)
 
   def render(assigns) do
     # Merge user colours with defaults
@@ -313,6 +314,16 @@ defmodule FlyMapEx.Components.WorldMap do
           fill: {@colours.border};
           opacity: var(--hover-opacity);
         }
+        <%= if @interactive do %>
+        /* JS-based group visibility classes for interactive mode */
+        <%= for group <- @marker_groups do %>
+        <%= if Map.has_key?(group, :group_label) do %>
+        .group-hidden-<%= String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_") %> {
+          display: none !important;
+        }
+        <% end %>
+        <% end %>
+        <% end %>
       </style>
 
       <!-- World map svg from WorldMapPaths component -->
@@ -330,7 +341,7 @@ defmodule FlyMapEx.Components.WorldMap do
       <!-- Dynamic marker group markers -->
       <%= for group <- @marker_groups do %>
         <%= for {x, y} <- get_group_coordinates(group, @bbox) do %>
-          <%= render_marker(group, x, y, @default_marker_radius) %>
+          <%= render_marker(group, x, y, @default_marker_radius, @interactive) %>
         <% end %>
       <% end %>
 
@@ -425,7 +436,7 @@ defmodule FlyMapEx.Components.WorldMap do
     {lat, lng}
   end
 
-  defp render_marker(group, x, y, _default_radius) do
+  defp render_marker(group, x, y, _default_radius, interactive) do
     # Generate gradient ID for glow-enabled markers
     gradient_id =
       if Map.get(group.style, :glow, false) do
@@ -435,12 +446,22 @@ defmodule FlyMapEx.Components.WorldMap do
         nil
       end
 
+    # Generate data attributes for JS-based interactivity
+    data_attrs =
+      if interactive and Map.has_key?(group, :group_label) do
+        safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
+        %{"data-group" => safe_group_label}
+      else
+        %{}
+      end
+
     assigns = %{
       style: group.style,
       x: x,
       y: y,
       mode: :svg,
-      gradient_id: gradient_id
+      gradient_id: gradient_id,
+      data_attrs: data_attrs
     }
 
     ~H"""

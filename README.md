@@ -32,27 +32,30 @@ def deps do
 end
 ```
 
-## Basic useage
+## Basic Usage
 
-### Interactive mode (default - existing behavior)
-  <FlyMapEx.node_map marker_groups={@groups} theme={:dark} />
-
-  ### Static mode (new non-interactive version)  
-  <FlyMapEx.node_map marker_groups={@groups} theme={:dark} interactive={false} />
-
-  ### Direct component usage
-  <FlyMapEx.StaticComponent.render marker_groups={@groups} theme={:dark} />
+### Interactive mode (default)
 
 ```heex
-<FlyMapEx.node_map marker_groups={[
+<FlyMapEx.render marker_groups={@groups} theme={:dark} />
+```
+
+### Static mode (non-interactive)
+
+```heex
+<FlyMapEx.render marker_groups={@groups} theme={:dark} interactive={false} />
+```
+
+```heex
+<FlyMapEx.render marker_groups={[
   %{
-    nodes: ["sjc"],
-    style: %{colour: "#10b981", size: 8},
+    regions: ["sjc"],
+    style_key: :primary,
     label: "Production Server"
   },
   %{
-    nodes: ["fra", "ams"],
-    style: :warning,
+    regions: ["fra", "ams"],
+    style_key: :warning,
     label: "Staging Servers"
   }
 ]} />
@@ -61,10 +64,10 @@ end
 ### With Themes
 
 ```heex
-<FlyMapEx.node_map
+<FlyMapEx.render
   marker_groups={[%{
-    nodes: ["sjc"],
-    style: :operational,
+    regions: ["sjc"],
+    style_key: :primary,
     label: "Production"
   }]}
   theme={:dark}
@@ -74,32 +77,34 @@ end
 ### Custom Coordinates and Styling
 
 ```heex
-<FlyMapEx.node_map
+<FlyMapEx.render
   marker_groups={[%{
-    nodes: [
+    regions: [
       %{label: "NYC Office", coordinates: {40.7128, -74.0060}},
       "sjc"
     ],
-    style: %{colour: "#00ff00", size: 10, animation: :pulse},
+    style_key: :primary,
     label: "Global Infrastructure"
   }]}
-  map_theme{%{land: "#1f2937", ocean: "#111827"}}
+  theme={:dark}
   class="my-custom-map"
 />
 ```
 
 ## Components
 
-### FlyMapEx.node_map/1
+### FlyMapEx.render/1
 
-The main entry point component that renders a complete world map with regions, legend, and optional progress tracking.
+The main entry point component that renders a complete world map with regions, legend, and optional interactivity.
 
 #### Attributes
 
 - `marker_groups` (required) - List of marker group maps, each containing:
-  - `nodes` - List of region codes or coordinate maps
-  - `style` - Style definition (FlyMapEx.Style function result, map, or keyword list)
+  - `regions` - List of region codes or coordinate maps
+  - `style_key` - Style key (`:primary`, `:active`, `:warning`, etc.)
   - `label` - Display label for this group
+- `interactive` - Boolean to enable/disable client-side legend toggles (default: true)
+- `on_toggle` - Boolean to send events to parent LiveView when toggling groups (default: false)
 - `theme` - Background theme (`:light`, `:dark`, `:minimal`, `:cool`, `:warm`, `:high_contrast`)
 - `background` - Custom background color map (overrides theme)
 - `class` - Additional CSS classes for the container

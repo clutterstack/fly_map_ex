@@ -20,15 +20,13 @@ defmodule FlyMapEx do
 
   ## Components
 
-  - `FlyMapEx.node_map/1` - Complete map with card and legend.
+  - `FlyMapEx.render/1` - Main function component with optional interactivity.
   - `FlyMapEx.Components.WorldMap.render/1` - Just the SVG map
 
   ## Module Architecture
 
   ### Core Components
-  - `FlyMapEx.node_map/1` - Main entry point with card layout (supports interactive and static modes)
-  - `FlyMapEx.Component` - Stateful LiveView component with interactive legend
-  - `FlyMapEx.StaticComponent` - Stateless component for non-interactive rendering
+  - `FlyMapEx.render/1` - Main entry point function component with JS-based interactivity
   - `FlyMapEx.Components.WorldMap` - SVG world map rendering
   - `FlyMapEx.Components.LegendComponent` - Legend with optional interactivity
 
@@ -48,22 +46,19 @@ defmodule FlyMapEx do
   ## Component Relationships
 
   ```
-  FlyMapEx.node_map/1 (main entry)
-  ├── interactive: true  → FlyMapEx.LiveComponent (LiveComponent)
-  ├── interactive: false → FlyMapEx.StaticComponent (Component)
-  └── Both use:
-      ├── FlyMapEx.Shared (shared logic)
-      ├── FlyMapEx.Theme (theme colours)
-      ├── FlyMapEx.Components.WorldMap
-      │   ├── FlyMapEx.WorldMapPaths (geography)
-      │   ├── FlyMapEx.Components.Marker (markers)
-      │   │   └── FlyMapEx.Components.GlowFilter (effects)
-      │   ├── FlyMapEx.Regions (coordinates)
-      │   └── FlyMapEx.Nodes (data processing)
-      └── FlyMapEx.Components.LegendComponent
-          ├── interactive: true/false (conditional behavior)
-          ├── FlyMapEx.Components.Marker (indicators)
-          └── FlyMapEx.Regions (region info)
+  FlyMapEx.render/1 (main entry)
+  ├── FlyMapEx.Shared (shared logic)
+  ├── FlyMapEx.Theme (theme colours)
+  ├── FlyMapEx.Components.WorldMap
+  │   ├── FlyMapEx.WorldMapPaths (geography)
+  │   ├── FlyMapEx.Components.Marker (markers)
+  │   │   └── FlyMapEx.Components.GlowFilter (effects)
+  │   ├── FlyMapEx.Regions (coordinates)
+  │   └── FlyMapEx.Nodes (data processing)
+  └── FlyMapEx.Components.LegendComponent
+      ├── interactive: true/false (conditional JS behavior)
+      ├── FlyMapEx.Components.Marker (indicators)
+      └── FlyMapEx.Regions (region info)
   ```
 
   ## Data Flow
@@ -78,7 +73,7 @@ defmodule FlyMapEx do
 
   ### Basic use (Interactive - Default)
   ```elixir
-  <FlyMapEx.node_map
+  <FlyMapEx.render
     marker_groups={@groups}
     theme={:dark}
     show_regions={true}
@@ -87,7 +82,7 @@ defmodule FlyMapEx do
 
   ### Static Usage (Non-Interactive)
   ```elixir
-  <FlyMapEx.node_map
+  <FlyMapEx.render
     marker_groups={@groups}
     theme={:dark}
     show_regions={true}
@@ -95,11 +90,9 @@ defmodule FlyMapEx do
   />
   ```
 
-  ### Advanced Interactive Usage (Direct LiveComponent)
+  ### Advanced Interactive Usage
   ```elixir
-  <.live_component
-    module={FlyMapEx.LiveComponent}
-    id="interactive-map"
+  <FlyMapEx.render
     marker_groups={@groups}
     theme={:dashboard}
     initially_visible={["production"]}
@@ -120,78 +113,144 @@ defmodule FlyMapEx do
   use Phoenix.Component
 
   @doc """
-  This is the main entry point for the library. It renders a card containing
-  the world map and legend.
+  Renders a world map with markers and legend using Phoenix Component patterns.
+
+  This is the main entry point for the library, providing a single function component
+  with optional JS-based interactivity for legend toggles.
 
   ## Attributes
 
   * `marker_groups` - List of marker group maps, each containing:
-    * `nodes` - List of nodes in one of four formats:
-      * Region string: `"sjc"` (auto-label from region name)
-      * Coordinate tuple: `{lat, lng}` (auto-label from coordinates)
-      * Custom region label: `%{label: "Name", region: "sjc"}` (custom label with region lookup)
-      * Custom coordinates: `%{label: "Name", coordinates: {lat, lng}}` (full control)
-    * `style` - Style definition: direct map (%{colour: "#abc", size: 8}) or preset atom (:operational)
+    * `regions` - List of region codes (`"sjc"`) or coordinate maps (`%{label: "Name", coordinates: {lat, lng}}`)
+    * `style_key` - Style key atom (`:primary`, `:active`, `:warning`, `:expected`, `:acknowledged`, `:secondary`, `:inactive`)
     * `label` - Display label for this group
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool) or custom theme map
   * `class` - Additional CSS classes for the container
   * `show_regions` - Whether to show region markers (default: nil, uses config default)
-  * `interactive` - Whether the component should be interactive (default: true)
-    * `true` - Uses LiveComponent with toggleable legend
-    * `false` - Uses static Component for better performance
+  * `interactive` - Whether legend should be interactive with JS toggles (default: true)
+  * `initially_visible` - Which groups to show initially (`:all`, `:none`, or list of labels)
+  * `layout` - Layout mode (`:stacked` or `:side_by_side`)
+  * `on_toggle` - Whether to send events to parent LiveView when groups are toggled (default: false)
 
   ## Examples
 
-      # Direct style maps (primary interface)
-      <FlyMapEx.node_map marker_groups={[
+      # Basic interactive map
+      <FlyMapEx.render marker_groups={[
         %{
-          nodes: ["sjc", "fra"],
-          style: %{colour: "#10b981", size: 8},
+          regions: ["sjc", "fra"],
+          style_key: :primary,
           label: "Production Servers"
         },
         %{
-          nodes: ["ams"],
-          style: %{colour: "#ef4444", size: 10, animation: :pulse},
+          regions: ["ams"],
+          style_key: :warning,
           label: "Critical Issues"
         }
       ]} theme={:dark} />
 
-      # Using semantic presets
-      <FlyMapEx.node_map marker_groups={[
-        %{
-          nodes: ["sjc", "fra"],
-          style: :operational,
-          label: "Healthy Nodes"
-        },
-        %{
-          nodes: ["ams"],
-          style: %{colour: "#ef4444", size: 12, animation: :pulse},
-          label: "Failed Nodes"
-        }
-      ]} theme={:minimal} />
+      # Static map (no interactivity)
+      <FlyMapEx.render
+        marker_groups={@groups}
+        theme={:minimal}
+        interactive={false}
+      />
 
-      # Mix of all node formats
-      <FlyMapEx.node_map marker_groups={[
-        %{
-          nodes: [
-            "sjc",                                           # Region string
-            {40.7128, -74.0060},                            # Coordinate tuple
-            %{label: "London Office", region: "lhr"},       # Custom region label
-            %{label: "Custom Server", coordinates: {52.0, 13.0}}  # Custom coordinates
-          ],
-          style: %{colour: "#custom", size: 8},
-          label: "Mixed Deployment"
-        }
-      ]} />
-
-      # CSS variables for dynamic theming
-      <div style="--primary: #ff6b6b;">
-        <FlyMapEx.node_map marker_groups={[
-          %{nodes: ["sjc"], style: %{colour: "var(--primary)", size: 8}, label: "Dynamic"}
-        ]} />
-      </div>
+      # Interactive with parent integration
+      <FlyMapEx.render
+        marker_groups={@groups}
+        theme={:dashboard}
+        initially_visible={["production"]}
+        on_toggle={true}
+      />
   """
   # Attributes for function component
+  attr(:marker_groups, :list, default: [])
+  attr(:theme, :any, default: nil)
+  attr(:class, :string, default: "")
+  attr(:initially_visible, :any, default: :all)
+  attr(:show_regions, :boolean, default: nil)
+  attr(:layout, :atom, default: nil)
+  attr(:interactive, :boolean, default: true)
+  attr(:on_toggle, :boolean, default: false)
+
+  def render(assigns) do
+    alias FlyMapEx.{Theme, Shared}
+    alias FlyMapEx.Components.{WorldMap, LegendComponent}
+
+    # Extract initially_visible groups or default to all
+    initially_visible = Map.get(assigns, :initially_visible, :all)
+
+    # Normalize marker groups using shared logic
+    normalized_groups = Shared.normalize_marker_groups(assigns.marker_groups || [])
+
+    # Determine initial selected groups based on initially_visible
+    selected_groups = Shared.determine_initial_selection(normalized_groups, initially_visible)
+
+    # Use theme colours - theme can be atom or map
+    map_theme = Theme.map_theme(assigns[:theme] || FlyMapEx.Config.default_theme())
+
+    # Determine if regions should be shown
+    show_regions =
+      if is_nil(assigns[:show_regions]),
+        do: FlyMapEx.Config.show_regions_default(),
+        else: assigns.show_regions
+
+    # Determine layout mode
+    layout = assigns[:layout] || FlyMapEx.Config.layout_mode()
+
+    # Filter visible groups based on selection (static for initial render)
+    visible_groups = Shared.filter_visible_groups(normalized_groups, selected_groups)
+
+    assigns =
+      assigns
+      |> assign(:marker_groups, normalized_groups)
+      |> assign(:selected_groups, selected_groups)
+      |> assign(:visible_groups, visible_groups)
+      |> assign(:map_theme, map_theme)
+      |> assign(:show_regions, show_regions)
+      |> assign(:layout, layout)
+      |> assign(:interactive, !!assigns[:interactive])
+
+    ~H"""
+    <div class={@class}>
+      <div class="card bg-base-100">
+        <div class="card-body">
+          <div class={Shared.layout_container_class(@layout)}>
+            <div class={Shared.map_container_class(@layout)}>
+              <div class="rounded-lg border overflow-hidden" style={"background-color: #{@map_theme.land}"}>
+                <WorldMap.render
+                  marker_groups={@visible_groups}
+                  colours={@map_theme}
+                  show_regions={@show_regions}
+                  interactive={@interactive}
+                />
+              </div>
+            </div>
+
+            <div class={Shared.legend_container_class(@layout)}>
+              <LegendComponent.legend
+                marker_groups={@marker_groups}
+                selected_groups={@selected_groups}
+                region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
+                marker_opacity={FlyMapEx.Config.marker_opacity()}
+                show_regions={@show_regions}
+                interactive={@interactive}
+                on_toggle={@on_toggle}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Legacy function that wraps the new render/1 function for backward compatibility.
+
+  This function will be deprecated in favor of using FlyMapEx.render/1 directly.
+  """
+  # Attributes for backward compatibility
   attr(:marker_groups, :list, default: [])
   attr(:theme, :any, default: nil)
   attr(:class, :string, default: "")

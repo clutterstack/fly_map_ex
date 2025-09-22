@@ -56,6 +56,7 @@ defmodule FlyMapEx.Components.LegendComponent do
   """
 
   use Phoenix.Component
+  alias Phoenix.LiveView.JS
 
   require Logger
 
@@ -97,6 +98,11 @@ defmodule FlyMapEx.Components.LegendComponent do
   attr(:interactive, :boolean,
     default: true,
     doc: "Whether the legend should be interactive (clickable) or static display only."
+  )
+
+  attr(:on_toggle, :boolean,
+    default: false,
+    doc: "Whether to send toggle events to parent LiveView when using JS interactivity."
   )
 
   @doc """
@@ -154,7 +160,17 @@ defmodule FlyMapEx.Components.LegendComponent do
   - Responsive spacing and typography
   """
   def legend(%{marker_groups: marker_groups} = assigns) do
-    assigns = assign(assigns, :all_legend_entries, marker_groups)
+    # Ensure boolean values
+    interactive = assigns[:interactive] != false
+    target = assigns[:target]
+    on_toggle = assigns[:on_toggle] || false
+
+    assigns =
+      assigns
+      |> assign(:all_legend_entries, marker_groups)
+      |> assign(:interactive, interactive)
+      |> assign(:target, target)
+      |> assign(:on_toggle, on_toggle)
 
     ~H"""
     <!-- Enhanced Legend -->
@@ -178,9 +194,30 @@ defmodule FlyMapEx.Components.LegendComponent do
                 do: "bg-primary/10 border border-primary/20",
                 else: if(@interactive, do: "hover:border-base-content/10 border border-transparent", else: "border border-transparent"))
             ]}
-            phx-click={if @interactive and Map.has_key?(group, :group_label), do: "toggle_marker_group", else: nil}
-            phx-target={if @interactive, do: @target, else: nil}
-            phx-value-group-label={if @interactive and Map.has_key?(group, :group_label), do: group.group_label, else: nil}
+            phx-click={
+              if @interactive and Map.has_key?(group, :group_label) do
+                if @target do
+                  # Old LiveComponent pattern
+                  "toggle_marker_group"
+                else
+                  # New JS-based pattern
+                  safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
+                  js_command =
+                    JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
+
+                  if @on_toggle do
+                    # Send event to parent LiveView for integration
+                    js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
+                  else
+                    js_command
+                  end
+                end
+              else
+                nil
+              end
+            }
+            phx-target={if @interactive && @target, do: @target, else: nil}
+            phx-value-group-label={if @interactive && @target && Map.has_key?(group, :group_label), do: group.group_label, else: nil}
           >
             <div class="flex-shrink-0 mt-0.5 p-0.5">
                 <Marker.marker style={group.style} mode={:legend} />

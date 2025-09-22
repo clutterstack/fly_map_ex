@@ -3,7 +3,7 @@ defmodule DemoWeb.Content.StageTemplate do
   A template live_component to render content from within PageLive.
 
   For each tab defined in the content module, renders:
-  * a `FlyMapEx.node_map` component
+  * a `FlyMapEx.render` component
   * a content panel with a tab switcher (if there's more than one tab), and
   * a panel showing the code to invoke the map component.
   """

@@ -173,6 +173,7 @@ defmodule FlyMapEx.Components.Marker do
   attr(:y, :float, default: 0.0)
   attr(:dim, :float, default: 0.0)
   attr(:gradient_id, :string, default: nil)
+  attr(:data_attrs, :map, default: %{})
 
   def marker(assigns) do
     assigns = assign_marker_props(assigns)
@@ -293,7 +294,7 @@ defmodule FlyMapEx.Components.Marker do
     assigns.marker_radius
 
     ~H"""
-    <g class={@css_class}>
+    <g class={@css_class} {Map.take(@data_attrs, ["data-group"])}>
       <!-- Main marker circle -->
       <circle
         cx={@x}
