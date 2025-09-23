@@ -25,7 +25,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         region_marker_colour="#94a3b8"
         marker_opacity={0.6}
         show_regions={true}
-        target={@myself}
+        interactive={true}
       />
 
   ## Data Structure
@@ -89,11 +89,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     doc: "Whether to show the 'All Fly.io Regions' entry in the legend."
   )
 
-  attr(:target, :any,
-    default: nil,
-    doc:
-      "Phoenix LiveView target for handling toggle events. Usually set to @myself in a LiveComponent."
-  )
 
   attr(:interactive, :boolean,
     default: true,
@@ -128,7 +123,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         region_marker_colour="#94a3b8"
         marker_opacity={0.6}
         show_regions={true}
-        target={@myself}
+        interactive={true}
       />
 
       # Legend without region markers
@@ -138,17 +133,17 @@ defmodule FlyMapEx.Components.LegendComponent do
         region_marker_colour="#94a3b8"
         marker_opacity={0.6}
         show_regions={false}
-        target={@myself}
+        interactive={true}
       />
 
   ## Interactive Events
 
-  The legend sends `"toggle_marker_group"` events when users click on entries.
-  Handle these events in your LiveView or LiveComponent:
+  The legend uses client-side JavaScript for toggling marker groups, avoiding server round-trips.
+  For integration with LiveView state, set `on_toggle={true}` to receive `"group_toggled"` events:
 
-      def handle_event("toggle_marker_group", %{"group-label" => group_label}, socket) do
-        selected_groups = toggle_group_selection(socket.assigns.selected_groups, group_label)
-        {:noreply, assign(socket, :selected_groups, selected_groups)}
+      def handle_event("group_toggled", %{"group_label" => group_label}, socket) do
+        # Handle group toggle in your LiveView if needed
+        {:noreply, socket}
       end
 
   ## Styling
@@ -162,14 +157,12 @@ defmodule FlyMapEx.Components.LegendComponent do
   def legend(%{marker_groups: marker_groups} = assigns) do
     # Ensure boolean values
     interactive = assigns[:interactive] != false
-    target = assigns[:target]
     on_toggle = assigns[:on_toggle] || false
 
     assigns =
       assigns
       |> assign(:all_legend_entries, marker_groups)
       |> assign(:interactive, interactive)
-      |> assign(:target, target)
       |> assign(:on_toggle, on_toggle)
 
     ~H"""
@@ -181,35 +174,58 @@ defmodule FlyMapEx.Components.LegendComponent do
           "flex items-start space-x-2 p-1 rounded transition-all duration-200",
           if(@interactive, do: "cursor-pointer", else: ""),
           if(@interactive, do: "hover:bg-base-200/50 hover:shadow-sm", else: ""),
+          if(@interactive, do: "focus:bg-base-200/70 focus:outline-none focus:ring-2 focus:ring-primary/50", else: ""),
           # Base styling - CSS classes will handle selected state
           if(@interactive, do: "hover:border-base-content/10 border border-transparent", else: "border border-transparent")
         ]}
+        tabindex={if @interactive and Map.has_key?(group, :group_label), do: "0", else: nil}
+        role={if @interactive and Map.has_key?(group, :group_label), do: "button", else: nil}
+        aria-pressed={if @interactive and Map.has_key?(group, :group_label), do: "false", else: nil}
         data-legend-group={if Map.has_key?(group, :group_label), do: String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_"), else: nil}
         phx-click={
           if @interactive and Map.has_key?(group, :group_label) do
-            if @target do
-              # Old LiveComponent pattern
-              "toggle_marker_group"
-            else
-              # New JS-based pattern with chained commands
-              safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
-              js_command =
-                JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
-                |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
+            # JS-based pattern with chained commands
+            safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
+            js_command =
+              JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
+              |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
+              |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
+              |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
+              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
+              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
 
-              if @on_toggle do
-                # Send event to parent LiveView for integration
-                js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
-              else
-                js_command
-              end
+            if @on_toggle do
+              # Send event to parent LiveView for integration
+              js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
+            else
+              js_command
             end
           else
             nil
           end
         }
-        phx-target={if @interactive && @target, do: @target, else: nil}
-        phx-value-group-label={if @interactive && @target && Map.has_key?(group, :group_label), do: group.group_label, else: nil}
+        phx-keydown={
+          if @interactive and Map.has_key?(group, :group_label) do
+            # JS-based pattern - trigger same as click on Enter
+            safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
+            js_command =
+              JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
+              |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
+              |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
+              |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
+              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
+              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
+
+            if @on_toggle do
+              js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
+            else
+              js_command
+            end
+          else
+            nil
+          end
+        }
+        phx-key="Enter"
       >
         <div class="flex-shrink-0 mt-0.5 p-0.5">
             <Marker.marker style={group.style} mode={:legend} />
@@ -222,7 +238,8 @@ defmodule FlyMapEx.Components.LegendComponent do
             </span>
             <%= if @interactive and Map.has_key?(group, :group_label) do %>
               <span class="sr-only legend-status">
-                {group.label} group visibility can be toggled
+                <span class="group-visible-text">{group.label} group is visible. Press Enter or Space to hide.</span>
+                <span class="group-hidden-text hidden">{group.label} group is hidden. Press Enter or Space to show.</span>
               </span>
             <% end %>
           </div>
@@ -250,7 +267,7 @@ defmodule FlyMapEx.Components.LegendComponent do
       </div>
 
       <div class="flex items-center justify-between mb-1">
-        <%= if @interactive, do: "(click to toggle group visibility)", else: "Legend" %>
+        <%= if @interactive, do: "(click or press Enter/Space to toggle group visibility)", else: "Legend" %>
         <div class="text-xs text-base-content/50">
           <%= total_node_count(@marker_groups) %> nodes
         </div>

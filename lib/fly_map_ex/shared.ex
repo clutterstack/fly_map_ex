@@ -189,14 +189,27 @@ defmodule FlyMapEx.Shared do
         nil ->
           # Generate default label if missing
           default_label = generate_default_label(group)
+          sanitized_label = sanitize_group_label(default_label)
           group
           |> Map.put(:label, default_label)
-          |> Map.put(:group_label, default_label)
+          |> Map.put(:group_label, sanitized_label)
         label ->
-          Map.put(group, :group_label, label)
+          # Sanitize the label for use as a group_label in CSS selectors
+          sanitized_label = sanitize_group_label(label)
+          Map.put(group, :group_label, sanitized_label)
       end
     end
   end
+
+  # Sanitize group_label for use in CSS selectors and DOM attributes
+  defp sanitize_group_label(label) when is_binary(label) do
+    label
+    |> String.replace(~r/[^a-zA-Z0-9_-]/, "_")
+    |> String.replace(~r/_{2,}/, "_")  # Replace multiple underscores with single
+    |> String.trim("_")  # Remove leading/trailing underscores
+  end
+
+  defp sanitize_group_label(label), do: to_string(label)
 
   # Generate default label for groups without explicit labels
   defp generate_default_label(group) do
