@@ -272,7 +272,7 @@ Add comprehensive integration examples:
 The `:responsive` theme automatically adapts to DaisyUI theme changes:
 
     # Automatically switches with DaisyUI light/dark themes
-    <FlyMapEx.node_map marker_groups={@groups} theme={:responsive} />
+    <FlyMapEx.render marker_groups={@groups} theme={:responsive} />
 
 ### Tailwind CSS Custom Properties
 
@@ -446,7 +446,7 @@ Configuration resolution follows this priority order:
 Add FlyMapEx to your Phoenix LiveView application:
 
     # In your LiveView template
-    <FlyMapEx.node_map marker_groups={@marker_groups} />
+    <FlyMapEx.render marker_groups={@marker_groups} />
 
 ## Fundamental Concepts
 
@@ -510,7 +510,7 @@ Create your first interactive map:
         ~H"""
         <div class="container mx-auto p-4">
           <h1 class="text-2xl mb-4">Infrastructure Map</h1>
-          <FlyMapEx.node_map
+          <FlyMapEx.render
             marker_groups={@marker_groups}
             theme={:dashboard}
             show_regions={true}
@@ -658,7 +658,7 @@ Implement robust error handling:
     def safe_render_map(marker_groups) do
       case validate_marker_groups(marker_groups) do
         {:ok, validated} ->
-          FlyMapEx.node_map(marker_groups: validated)
+          FlyMapEx.render(marker_groups: validated)
 
         {:error, reasons} ->
           Logger.warning("Map rendering failed: #{inspect(reasons)}")
