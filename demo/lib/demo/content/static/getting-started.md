@@ -38,8 +38,8 @@ defmodule MyApp.MapLive do
 
   def mount(_params, _session, socket) do
     region_groups = [
-      %{regions: ["sjc", "fra"], style_key: :primary, label: "Production"},
-      %{regions: ["ams", "lhr"], style_key: :active, label: "Staging"}
+      %{nodes: ["sjc", "fra"], style_key: :primary, label: "Production"},
+      %{nodes: ["ams", "lhr"], style_key: :active, label: "Staging"}
     ]
     
     {:ok, assign(socket, region_groups: region_groups)}

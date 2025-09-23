@@ -11,12 +11,12 @@ defmodule FlyMapEx do
       # Basic interactive map
       <FlyMapEx.render marker_groups={[
         %{
-          regions: ["sjc", "fra"],
+          nodes: ["sjc", "fra"],
           style_key: :primary,
           label: "Production Servers"
         },
         %{
-          regions: ["ams"],
+          nodes: ["ams"],
           style_key: :warning,
           label: "Critical Issues"
         }
@@ -157,12 +157,12 @@ defmodule FlyMapEx do
       # Basic interactive map
       <FlyMapEx.render marker_groups={[
         %{
-          regions: ["sjc", "fra"],
+          nodes: ["sjc", "fra"],
           style_key: :primary,
           label: "Production Servers"
         },
         %{
-          regions: ["ams"],
+          nodes: ["ams"],
           style_key: :warning,
           label: "Critical Issues"
         }

@@ -22,7 +22,7 @@ The main entry point for rendering world maps.
 
 ```elixir
 %{
-  regions: ["sjc", "fra"],     # List of Fly.io region codes
+  nodes: ["sjc", "fra"],     # List of Fly.io region codes
   style_key: :primary,         # Style identifier
   label: "Production Servers"  # Display label for legend
 }

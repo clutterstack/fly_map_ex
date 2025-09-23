@@ -49,12 +49,12 @@ end
 ```heex
 <FlyMapEx.render marker_groups={[
   %{
-    regions: ["sjc"],
+    nodes: ["sjc"],
     style_key: :primary,
     label: "Production Server"
   },
   %{
-    regions: ["fra", "ams"],
+    nodes: ["fra", "ams"],
     style_key: :warning,
     label: "Staging Servers"
   }
@@ -66,7 +66,7 @@ end
 ```heex
 <FlyMapEx.render
   marker_groups={[%{
-    regions: ["sjc"],
+    nodes: ["sjc"],
     style_key: :primary,
     label: "Production"
   }]}
@@ -79,7 +79,7 @@ end
 ```heex
 <FlyMapEx.render
   marker_groups={[%{
-    regions: [
+    nodes: [
       %{label: "NYC Office", coordinates: {40.7128, -74.0060}},
       "sjc"
     ],

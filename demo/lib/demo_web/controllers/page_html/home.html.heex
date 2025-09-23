@@ -3,7 +3,7 @@
   <:description>
     This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
   </:description>
-  <FlyMapEx.StaticComponent.render
+  <FlyMapEx.render
     marker_groups={[
       %{
         nodes: ["sjc", "fra"],
@@ -25,6 +25,7 @@
     theme={:responsive}
     layout={:stacked}
     show_regions={false}
+    interactive={false}
   />
 
   <.markdown content={
