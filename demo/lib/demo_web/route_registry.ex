@@ -41,8 +41,8 @@ defmodule DemoWeb.RouteRegistry do
       key: "home",
       type: :static,
       controller_action: :home,
-      title: "FlyMapEx Demo Home",
-      description: "This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.",
+      title: "FlyMapEx Demo",
+      description: "A demo site for FlyMapEx, a Phoenix LiveView library for displaying markers on a simple world map.",
       keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
       nav_order: 1
     },

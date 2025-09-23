@@ -267,7 +267,6 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   # Helper functions
 
-  @doc false
   # Formats a list of nodes for display in the legend.
   # Converts node structures to human-readable names and joins them with commas.
   # Returns the empty_message if no displayable nodes are found.
@@ -301,7 +300,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     end
   end
 
-  @doc false
   # Calculates the total number of unique active regions across all marker groups.
   # Used to display the "X/Y active regions" counter in the legend header.
   defp total_active_regions(marker_groups) do
@@ -311,7 +309,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     |> length()
   end
 
-  @doc false
   # Returns the total number of available Fly.io regions.
   # Used to display the "X/Y active regions" counter in the legend header.
   defp total_available_regions() do
@@ -319,7 +316,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     |> map_size()
   end
 
-  @doc false
   # Calculates the total machine count across all marker groups.
   # Uses the explicit machine_count if provided, otherwise falls back to the number of nodes.
   defp total_machine_count(marker_groups) do

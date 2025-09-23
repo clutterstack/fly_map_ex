@@ -1,48 +1,49 @@
 <Layouts.app flash={@flash} current_page={@current_page}>
   <:title>FlyMapEx Demo Home</:title>
   <:description>
-    This demo showcases FlyMapEx, a Phoenix LiveView library for displaying interactive world maps with Fly.io region markers.
+    A demo site for FlyMapEx, a Phoenix LiveView library for displaying markers on a simple world map.
   </:description>
-  <FlyMapEx.render
-    marker_groups={[
-      %{
-        nodes: ["sjc", "fra"],
-        label: "Production Servers"
-      },
-      %{
-        nodes: ["ams", "lhr"],
-        label: "Staging Environment"
-      },
-      %{
-        nodes: ["ord"],
-        label: "Development"
-      },
-      %{
-        nodes: ["nrt", "syd"],
-        label: "Testing"
-      }
-    ]}
-    theme={:responsive}
-    layout={:stacked}
-    show_regions={false}
-    interactive={false}
-  />
+  <div class="two-up">
+    <.markdown content={
+      ~s"""
+      FlyMapEx provides a configurable function component for placing groups of markers onto a simple world map, with or without a legend.
 
-  <.markdown content={
-    ~s"""
-    FlyMapEx provides a responsive, configurable function component for placing groups of markers onto a simple world map, with or without an accompanying legend.
+      The simplest usage is to give it groups of coordinates or Fly.io region codes. 
 
-    The simplest usage is to give it groups of coordinates or Fly.io region codes. 
+      Map colours, marker styles, and map / legend layout can be customised.
 
-    Map colours, marker styles, and map / legend layout can be customised.
+      * Real-time Updates: LiveView components that respond to data changes
+      * Multiple Themes: Dashboard, monitoring, presentation, and more
+      * Responsive Design: Works seamlessly on desktop and mobile devices
+      * Flexible Configuration: Easy to customize colours, animations, and layouts
+      """
+    } />
 
-    * Interactive World Maps: Display Fly.io regions with customizable markers and themes
-    * Real-time Updates: LiveView components that respond to data changes
-    * Multiple Themes: Dashboard, monitoring, presentation, and more
-    * Responsive Design: Works seamlessly on desktop and mobile devices
-    * Flexible Configuration: Easy to customize colours, animations, and layouts
-    """
-  } />
+    <FlyMapEx.render
+      marker_groups={[
+        %{
+          nodes: ["sjc", "fra"],
+          label: "Production Servers"
+        },
+        %{
+          nodes: ["ams", "lhr"],
+          label: "Staging Environment"
+        },
+        %{
+          nodes: ["ord"],
+          label: "Development"
+        },
+        %{
+          nodes: ["nrt", "syd"],
+          label: "Testing"
+        }
+      ]}
+      theme={:responsive}
+      layout={:stacked}
+      show_regions={false}
+      interactive={false}
+    />
+  </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
     <.info_box_component type={:primary} title="Get Started">

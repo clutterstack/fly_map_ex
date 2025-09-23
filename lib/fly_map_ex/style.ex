@@ -231,15 +231,8 @@ defmodule FlyMapEx.Style do
     end
   end
 
-  @doc """
-  Get a user-defined preset from application configuration.
-
-  ## Examples
-
-      iex> FlyMapEx.Style.get_user_preset(:brand_primary)
-      nil
-  """
-  def get_user_preset(preset_name) when is_atom(preset_name) do
+  # Get a user-defined preset from application configuration.
+  defp get_user_preset(preset_name) when is_atom(preset_name) do
     Application.get_env(:fly_map_ex, :style_presets, %{})
     |> case do
       presets when is_map(presets) -> Map.get(presets, preset_name)
@@ -247,23 +240,8 @@ defmodule FlyMapEx.Style do
     end
   end
 
-  @doc """
-  Get a default semantic preset.
-
-  Default presets can be overridden via application configuration:
-
-      config :fly_map_ex, :default_presets,
-        operational: %{colour: "#custom-green", size: 6},
-        warning: %{colour: "#custom-amber", size: 6},
-        danger: %{colour: "#custom-red", size: 6, animation: :pulse},
-        inactive: %{colour: "#custom-gray", size: 4}
-
-  ## Examples
-
-      iex> FlyMapEx.Style.get_default_preset(:operational)
-      %{colour: "#10b981", size: 4, animation: :none, glow: false}
-  """
-  def get_default_preset(preset_name) when is_atom(preset_name) do
+  # Get a default semantic preset.
+  defp get_default_preset(preset_name) when is_atom(preset_name) do
     # Get user-configured defaults or fall back to built-in defaults
     configured_defaults = Application.get_env(:fly_map_ex, :default_presets, %{})
 

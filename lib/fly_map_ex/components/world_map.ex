@@ -356,7 +356,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
   attr(:region_marker_radius, :integer, default: 2)
 
-  def fly_region_markers(assigns) do
+  defp fly_region_markers(assigns) do
     assigns.region_marker_radius
 
     ~H"""
@@ -368,7 +368,7 @@ defmodule FlyMapEx.Components.WorldMap do
     """
   end
 
-  def fly_region_hover_text(%{} = assigns) do
+  defp fly_region_hover_text(%{} = assigns) do
     ~H"""
     <%= for {region, {x, y}} <- all_regions_with_coords() do %>
       <g class={"region-text-group text-#{region}"} id={"region-text-#{region}"}>
@@ -532,25 +532,6 @@ defmodule FlyMapEx.Components.WorldMap do
 
   This function handles different colour formats including CSS variables
   and provides fallback colours for robust theming support.
-
-  ## Parameters
-
-  - `colours`: Map containing colour scheme configuration
-
-  ## Returns
-
-  String representing the CSS colour value
-
-  ## Examples
-
-      # Standard hex colour
-      get_region_marker_color(%{neutral_marker: "#6b7280"})
-      # => "#6b7280"
-
-      # CSS variable with fallback
-      get_region_marker_color(%{neutral_marker: "oklch(0.5 0.1 180)"})
-      # => "var(--color-base-content, #6b7280)"
-
   """
   def get_region_marker_color(colours) do
     case Map.get(colours, :neutral_marker) do
