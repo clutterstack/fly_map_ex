@@ -155,7 +155,7 @@ defmodule FlyMapEx.Nodes do
   - Custom components requiring node normalization
   """
 
-  alias FlyMapEx.Regions
+  alias FlyMapEx.FlyRegions
 
   @doc """
   Process a single marker group to normalize nodes to coordinate format.
@@ -221,10 +221,10 @@ defmodule FlyMapEx.Nodes do
       {:error, :invalid_coordinates}
   """
   def normalize_node(node) when is_binary(node) do
-    case Regions.coordinates(node) do
+    case FlyRegions.coordinates(node) do
       {:ok, {lat, long}} ->
         label =
-          case Regions.name(node) do
+          case FlyRegions.name(node) do
             {:ok, name} -> name
             {:error, _} -> node
           end
@@ -242,7 +242,7 @@ defmodule FlyMapEx.Nodes do
 
   def normalize_node(%{label: label, region: region})
       when is_binary(label) and is_binary(region) do
-    case Regions.coordinates(region) do
+    case FlyRegions.coordinates(region) do
       {:ok, {lat, long}} ->
         {:ok, %{label: label, coordinates: {lat, long}}}
       {:error, reason} ->

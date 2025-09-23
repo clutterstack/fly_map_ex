@@ -18,24 +18,18 @@ defmodule DemoWeb.PageController do
   """
 
   use DemoWeb, :controller
-  alias DemoWeb.RouteRegistry
 
-  def home(conn, _params), do: render_static_page(conn, "home")
-
-  defp render_static_page(conn, page_key) do
-    route = RouteRegistry.get_route(page_key)
-
+  def home(conn, _params) do
     assigns = %{
-      page_title: route.title,
-      title: route.title,
-      description: Map.get(route, :description, ""),
-      keywords: Map.get(route, :keywords, ""),
-      nav_order: route.nav_order,
-      slug: page_key,
-      current_page: page_key,
+      page_title: "FlyMapEx Demo",
+      title: "FlyMapEx Demo",
+      description: "A demo site for FlyMapEx, a Phoenix LiveView library for displaying markers on a simple world map.",
+      keywords: "elixir, phoenix, maps, fly.io, interactive, world map",
+      current_page: "home",
       flash: conn.assigns[:flash] || %{}
     }
 
-    render(conn, route.controller_action, assigns)
+    render(conn, :home, assigns)
   end
+
 end

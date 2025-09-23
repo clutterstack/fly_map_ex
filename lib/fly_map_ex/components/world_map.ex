@@ -112,7 +112,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
   use Phoenix.Component
 
-  alias FlyMapEx.Regions
+  alias FlyMapEx.FlyRegions
   alias FlyMapEx.Components.Marker
   alias FlyMapEx.WorldMapPaths
 
@@ -288,7 +288,7 @@ defmodule FlyMapEx.Components.WorldMap do
           pointer-events: none;
           user-select: none;
         }
-        <%= for {region, _coords} <- all_regions_with_coords() do %>
+        <%= for {region, _coords} <- fly_regions_with_coords() do %>
         .region-<%= region %>:hover ~ .text-<%= region %> text {
           opacity: 1;
         }
@@ -323,6 +323,15 @@ defmodule FlyMapEx.Components.WorldMap do
         }
         <% end %>
         <% end %>
+
+        /* Legend styling classes for selected state */
+        .legend-selected {
+          background-color: oklch(var(--primary) / 0.1) !important;
+          border: 1px solid oklch(var(--primary) / 0.2) !important;
+        }
+        .legend-selected .legend-text {
+          color: oklch(var(--primary)) !important;
+        }
         <% end %>
       </style>
 
@@ -360,7 +369,7 @@ defmodule FlyMapEx.Components.WorldMap do
     assigns.region_marker_radius
 
     ~H"""
-    <%= for {region, {x, y}} <- all_regions_with_coords() do %>
+    <%= for {region, {x, y}} <- fly_regions_with_coords() do %>
       <g class={"region-group region-#{region}"} id={"region-#{region}"}>
         <circle cx={x} cy={y} r={@region_marker_radius} />
       </g>
@@ -370,7 +379,7 @@ defmodule FlyMapEx.Components.WorldMap do
 
   defp fly_region_hover_text(%{} = assigns) do
     ~H"""
-    <%= for {region, {x, y}} <- all_regions_with_coords() do %>
+    <%= for {region, {x, y}} <- fly_regions_with_coords() do %>
       <g class={"region-text-group text-#{region}"} id={"region-text-#{region}"}>
         <text x={x} y={y - 8} text-anchor="middle" font-size="20">{region}</text>
       </g>
@@ -419,7 +428,7 @@ defmodule FlyMapEx.Components.WorldMap do
   defp coords_lookup(%{coordinates: coords}), do: coords
 
   defp coords_lookup(region_code) when is_binary(region_code) do
-    case Regions.coordinates(region_code) do
+    case FlyRegions.coordinates(region_code) do
       {:ok, coords} -> coords
       # Off-screen fallback
       {:error, _} -> {-190, 0}
@@ -469,8 +478,8 @@ defmodule FlyMapEx.Components.WorldMap do
     """
   end
 
-  defp all_regions_with_coords do
-    for {region_string, coords} <- Regions.all() do
+  defp fly_regions_with_coords do
+    for {region_string, coords} <- FlyRegions.fly_regions() do
       svg_coords = wgs84_to_svg(coords, @bbox)
       {region_string, svg_coords}
     end

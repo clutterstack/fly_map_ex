@@ -110,11 +110,17 @@
     @apply font-semibold text-base mb-2;
   }
 
-
+  a {
+      @apply text-sky-700 dark:text-cyan-200 hover:underline decoration-dashed;
+  }
 
   ul li {
     list-style-type: disc;
     list-style-position: inside;
+  }
+
+  dt p, dt code.inline{
+    @apply font-semibold text-slate-900 dark:text-slate-100 border-none;
   }
 }
 
@@ -127,7 +133,7 @@
   @apply text-base-content/70 text-sm;
 }
 
-.panel p {
+p {
   @apply  mb-3;
 }
 

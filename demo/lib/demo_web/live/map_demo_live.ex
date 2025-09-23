@@ -177,7 +177,7 @@ defmodule DemoWeb.MapDemoLive do
 
   defp validate_node(node, group_index, node_index) when is_binary(node) do
     # Check if it's a valid Fly.io region
-    if FlyMapEx.Regions.valid?(node) do
+    if FlyMapEx.FlyRegions.valid?(node) do
       []
     else
       ["Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region"]

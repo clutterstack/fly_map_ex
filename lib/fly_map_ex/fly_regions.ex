@@ -1,4 +1,4 @@
-defmodule FlyMapEx.Regions do
+defmodule FlyMapEx.FlyRegions do
   @moduledoc """
   Fly.io region data and coordinate mapping utilities.
 
@@ -19,7 +19,7 @@ defmodule FlyMapEx.Regions do
   taking precedence if there are naming conflicts.
   """
 
-  @regions %{
+  @fly_regions %{
     ams: {52, 5},
     iad: {39, -77},
     atl: {34, -84},
@@ -57,7 +57,7 @@ defmodule FlyMapEx.Regions do
     waw: {52, 21}
   }
 
-  @region_names %{
+  @fly_region_names %{
     ams: "Amsterdam",
     iad: "Ashburn",
     atl: "Atlanta",
@@ -95,19 +95,19 @@ defmodule FlyMapEx.Regions do
     waw: "Warsaw"
   }
 
-  @doc """
-  Returns all available region codes as strings, including custom regions.
+  # @doc """
+  # Returns all available region codes as strings, including custom regions.
 
-  ## Examples
+  # ## Examples
 
-      iex> FlyMapEx.Regions.list()
-      ["ams", "iad", "atl", "dev", "laptop-chris", ...]
-  """
-  def list do
-    built_in = Map.keys(@regions) |> Enum.map(&Atom.to_string/1)
-    custom = Map.keys(get_custom_regions())
-    Enum.uniq(built_in ++ custom)
-  end
+  #     iex> FlyMapEx.FlyRegions.list()
+  #     ["ams", "iad", "atl", "dev", "laptop-chris", ...]
+  # """
+  # def list do
+  #   built_in = Map.keys(@fly_regions) |> Enum.map(&Atom.to_string/1)
+  #   custom = Map.keys(get_custom_regions())
+  #   Enum.uniq(built_in ++ custom)
+  # end
 
   @doc """
   Returns all region data as a map of {region_code, {longitude, latitude}}.
@@ -115,21 +115,21 @@ defmodule FlyMapEx.Regions do
 
   ## Examples
 
-      iex> FlyMapEx.Regions.all()
-      %{ams: {5, 52}, iad: {-77, 39}, "dev" => {47.6062, -122.3321}, ...}
+      iex> FlyMapEx.FlyRegions.fly_regions()
+      %{ams: {5, 52}, iad: {-77, 39}, ...}
   """
-  def all do
-    custom_regions =
-      get_custom_regions()
-      |> Enum.map(fn {key, %{coordinates: coords}} -> {key, coords} end)
-      |> Map.new()
-
-    built_in_as_strings =
-      @regions
+  def fly_regions do
+      @fly_regions
       |> Enum.map(fn {key, coords} -> {Atom.to_string(key), coords} end)
       |> Map.new()
+  end
 
-    Map.merge(built_in_as_strings, custom_regions)
+  @doc """
+   Returns the total number of available Fly.io regions.
+  """
+  def num_fly_regions() do
+    fly_regions()
+    |> map_size()
   end
 
   @doc """
@@ -139,16 +139,16 @@ defmodule FlyMapEx.Regions do
 
   ## Examples
 
-      iex> FlyMapEx.Regions.coordinates("sjc")
+      iex> FlyMapEx.FlyRegions.coordinates("sjc")
       {:ok, {-122, 37}}
 
-      iex> FlyMapEx.Regions.coordinates("dev")
+      iex> FlyMapEx.FlyRegions.coordinates("dev")
       {:ok, {-122, 47}}  # Seattle for development
 
-      iex> FlyMapEx.Regions.coordinates("unknown")
+      iex> FlyMapEx.FlyRegions.coordinates("unknown")
       {:error, :unknown_region}
 
-      iex> FlyMapEx.Regions.coordinates(123)
+      iex> FlyMapEx.FlyRegions.coordinates(123)
       {:error, :invalid_input}
   """
   def coordinates(region) when is_binary(region) do
@@ -162,7 +162,7 @@ defmodule FlyMapEx.Regions do
         try do
           region_atom = String.to_existing_atom(region)
 
-          case @regions[region_atom] do
+          case @fly_regions[region_atom] do
             {lat, long} -> {:ok, {lat, long}}
             nil -> {:error, :unknown_region}
           end
@@ -185,7 +185,7 @@ defmodule FlyMapEx.Regions do
         try do
           region_atom = String.to_existing_atom(region)
 
-          case @region_names[region_atom] do
+          case @fly_region_names[region_atom] do
             nil -> {:error, :unknown_region}
             name -> {:ok, name}
           end
@@ -202,17 +202,17 @@ defmodule FlyMapEx.Regions do
 
   ## Examples
 
-      iex> FlyMapEx.Regions.valid?("sjc")
+      iex> FlyMapEx.FlyRegions.valid?("sjc")
       true
 
-      iex> FlyMapEx.Regions.valid?("invalid")
+      iex> FlyMapEx.FlyRegions.valid?("invalid")
       false
   """
   def valid?(region) when is_binary(region) do
     # Check custom regions first
     Map.has_key?(get_custom_regions(), region) or
       # Then check built-in regions
-      region in (Map.keys(@regions) |> Enum.map(&Atom.to_string/1))
+      region in (Map.keys(@fly_regions) |> Enum.map(&Atom.to_string/1))
   end
 
   def valid?(_), do: false
