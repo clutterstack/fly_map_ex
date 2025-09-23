@@ -168,82 +168,50 @@ defmodule FlyMapEx.Components.LegendComponent do
     ~H"""
     <!-- Enhanced Legend -->
     <div class="text-xs text-base-content/70 space-y-1">
-      <div
-        :for={group <- @all_legend_entries}
-        class={[
-          "flex items-start space-x-2 p-1 rounded transition-all duration-200",
-          if(@interactive, do: "cursor-pointer", else: ""),
-          if(@interactive, do: "hover:bg-base-200/50 hover:shadow-sm", else: ""),
-          if(@interactive, do: "focus:bg-base-200/70 focus:outline-none focus:ring-2 focus:ring-primary/50", else: ""),
-          # Base styling - CSS classes will handle selected state
-          if(@interactive, do: "hover:border-base-content/10 border border-transparent", else: "border border-transparent")
-        ]}
-        tabindex={if @interactive and Map.has_key?(group, :group_label), do: "0", else: nil}
-        role={if @interactive and Map.has_key?(group, :group_label), do: "button", else: nil}
-        aria-pressed={if @interactive and Map.has_key?(group, :group_label), do: "false", else: nil}
-        data-legend-group={if Map.has_key?(group, :group_label), do: String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_"), else: nil}
-        phx-click={
-          if @interactive and Map.has_key?(group, :group_label) do
-            # JS-based pattern with chained commands
-            safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
-            js_command =
-              JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
-              |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
-              |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
-              |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
-              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
-              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
-
-            if @on_toggle do
-              # Send event to parent LiveView for integration
-              js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
-            else
-              js_command
-            end
-          else
-            nil
-          end
-        }
-        phx-keydown={
-          if @interactive and Map.has_key?(group, :group_label) do
-            # JS-based pattern - trigger same as click on Enter
-            safe_group_label = String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")
-            js_command =
-              JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
-              |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
-              |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
-              |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
-              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
-              |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
-
-            if @on_toggle do
-              js_command |> JS.push("group_toggled", value: %{group_label: group.group_label})
-            else
-              js_command
-            end
-          else
-            nil
-          end
-        }
-        phx-key="Enter"
-      >
-        <div class="flex-shrink-0 mt-0.5 p-0.5">
-            <Marker.marker style={group.style} mode={:legend} />
-        </div>
-        <div class="flex-grow min-w-0">
-          <div class="text-sm font-medium flex items-center text-base-content legend-text">
-            <span>{group.label}:</span>
-            <span class="text-xs text-base-content/60 ml-2">
+      <div :for={group <- @all_legend_entries}>
+        <%= if @interactive and Map.has_key?(group, :group_label) do %>
+          <button
+            class={[
+              "flex items-start space-x-2 p-1 rounded transition-all duration-200 w-full text-left",
+              "hover:bg-base-200/50 hover:shadow-sm",
+              "focus:bg-base-200/70 focus:outline-none focus:ring-2 focus:ring-primary/50",
+              "hover:border-base-content/10 border border-transparent"
+            ]}
+            aria-pressed="false"
+            data-legend-group={String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")}
+            phx-click={build_toggle_js_command(group.group_label, @on_toggle)}
+          >
+            <div class="flex-shrink-0 mt-0.5 p-0.5">
+              <Marker.marker style={group.style} mode={:legend} />
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="text-sm font-medium flex items-center text-base-content legend-text">
+                <span>{group.label}:</span>
+                <span class="text-xs text-base-content/60 ml-2">
                   {format_nodes_display(group.nodes, "none")}
-            </span>
-            <%= if @interactive and Map.has_key?(group, :group_label) do %>
-              <span class="sr-only legend-status">
-                <span class="group-visible-text">{group.label} group is visible. Press Enter or Space to hide.</span>
-                <span class="group-hidden-text hidden">{group.label} group is hidden. Press Enter or Space to show.</span>
-              </span>
-            <% end %>
+                </span>
+                <span class="sr-only legend-status">
+                  <span class="group-visible-text">{group.label} group is visible. Press Enter or Space to hide.</span>
+                  <span class="group-hidden-text hidden">{group.label} group is hidden. Press Enter or Space to show.</span>
+                </span>
+              </div>
+            </div>
+          </button>
+        <% else %>
+          <div class="flex items-start space-x-2 p-1 rounded transition-all duration-200 border border-transparent">
+            <div class="flex-shrink-0 mt-0.5 p-0.5">
+              <Marker.marker style={group.style} mode={:legend} />
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="text-sm font-medium flex items-center text-base-content legend-text">
+                <span>{group.label}:</span>
+                <span class="text-xs text-base-content/60 ml-2">
+                  {format_nodes_display(group.nodes, "none")}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+        <% end %>
       </div>
 
       <!-- All Fly.io regions -->
@@ -277,6 +245,27 @@ defmodule FlyMapEx.Components.LegendComponent do
   end
 
   # Helper functions
+
+  # Builds the JavaScript command for toggling marker group visibility.
+  # This includes toggling CSS classes, updating ARIA attributes, and optionally sending events to the parent LiveView.
+  defp build_toggle_js_command(group_label, on_toggle) do
+    safe_group_label = String.replace(group_label, ~r/[^a-zA-Z0-9_-]/, "_")
+
+    js_command =
+      JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
+      |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
+      |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
+      |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
+      |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
+      |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
+
+    if on_toggle do
+      # Send event to parent LiveView for integration
+      js_command |> JS.push("group_toggled", value: %{group_label: group_label})
+    else
+      js_command
+    end
+  end
 
   # Formats a list of nodes for display in the legend.
   # Converts node structures to human-readable names and joins them with commas.
