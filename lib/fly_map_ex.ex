@@ -8,6 +8,26 @@ defmodule FlyMapEx do
 
   ## Usage
 
+      # Basic interactive map
+      <FlyMapEx.render marker_groups={[
+        %{
+          regions: ["sjc", "fra"],
+          style_key: :primary,
+          label: "Production Servers"
+        },
+        %{
+          regions: ["ams"],
+          style_key: :warning,
+          label: "Critical Issues"
+        }
+      ]} theme={:dark} />
+
+      # Static map (no interactivity)
+      <FlyMapEx.render
+        marker_groups={@groups}
+        theme={:minimal}
+        interactive={false}
+      />
 
   ## Features
 
