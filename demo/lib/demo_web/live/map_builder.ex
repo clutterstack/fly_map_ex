@@ -1,10 +1,12 @@
-defmodule DemoWeb.LiveWithLayout do
+defmodule DemoWeb.MapBuilder do
   @moduledoc """
-  Development/testing LiveView for layout and component experimentation.
+  Interactive code builder for FlyMapEx components.
 
-  This module serves as a testing ground for FlyMapEx components and
-  layout functionality during development. It includes similar functionality
-  to MapDemoLive but with different layout configurations for testing purposes.
+  Allows users to build marker groups through a live code editor with:
+  - Real-time validation for region codes and syntax
+  - Autocomplete hints for regions and styles
+  - Live preview of the generated HEEx code
+  - Copy-to-clipboard functionality
 
   ## SEO Metadata
 
@@ -30,9 +32,9 @@ defmodule DemoWeb.LiveWithLayout do
   """
   def get_metadata do
     %{
-      title: "Testing Live Layout",
-      description: "Development page for testing LiveView layouts and components.",
-      keywords: "elixir, phoenix, liveview, testing, development"
+      title: "Interactive builder",
+      description: "Build marker groups for FlyMapEx with real-time validation and live preview.",
+      keywords: "elixir, phoenix, maps, interactive, builder, validation, preview"
     }
   end
 

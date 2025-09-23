@@ -21,8 +21,7 @@ defmodule DemoWeb.Router do
 
     # get "/", PageController, :show, page: "home", as: :home_page
     live "/my_machines", MachineMapLive, :index
-    live "/live_with_layout", LiveWithLayout
-    live "/demo", MapDemoLive, :index
+    live "/map_builder", MapBuilder
 
     # Dynamic liveview pages - must be last to avoid conflicts
     live "/:page_id", PageLive

@@ -69,26 +69,17 @@ defmodule DemoWeb.RouteRegistry do
 
     # Interactive tools
     %{
-      path: "/demo",
-      key: "demo",
-      type: :liveview,
-      module: DemoWeb.MapDemoLive,
-      nav_order: 6
-    },
-    %{
       path: "/my_machines",
       key: "my_machines",
       type: :liveview,
       module: DemoWeb.MachineMapLive,
       nav_order: 7
     },
-
-    # Development/testing pages
     %{
-      path: "/live_with_layout",
-      key: "live_with_layout",
+      path: "/map_builder",
+      key: "map_builder",
       type: :liveview,
-      module: DemoWeb.LiveWithLayout,
+      module: DemoWeb.MapBuilder,
       nav_order: 8
     }
   ]
