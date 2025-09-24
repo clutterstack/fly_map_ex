@@ -19,7 +19,7 @@ config :fly_map_ex,
   animation_opacity_range: {0.4, 1.0},
   # region_marker_radius: 3,
   marker_base_radius: 9,
-  default_theme: :responsive,
+  # default_theme: :warm,
   custom_regions: %{
     "dev" => %{name: "Development", coordinates: {47.6062, -122.3321}},
     "laptop-chris" => %{name: "Chris's Laptop", coordinates: {49.2827, -123.1207}},

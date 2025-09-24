@@ -58,7 +58,7 @@ defmodule FlyMapEx.Config do
   Default: true
   """
   def show_regions_default do
-    Application.get_env(:fly_map_ex, :show_regions, true)
+    Application.get_env(:fly_map_ex, :show_regions, false)
   end
 
   @doc """

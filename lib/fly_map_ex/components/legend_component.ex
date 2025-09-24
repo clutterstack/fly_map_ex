@@ -234,8 +234,8 @@ defmodule FlyMapEx.Components.LegendComponent do
         </div>
       </div>
 
-      <div class="flex items-center justify-between mb-1">
-        <%= if @interactive, do: "(click or press Enter/Space to toggle group visibility)", else: "Legend" %>
+      <div :if={@interactive && total_node_count(@marker_groups)!=0} class="flex items-center justify-between mb-1">
+        (click to toggle group visibility)
         <div class="text-xs text-base-content/50">
           <%= total_node_count(@marker_groups) %> nodes
         </div>

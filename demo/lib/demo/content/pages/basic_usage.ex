@@ -34,10 +34,6 @@ defmodule DemoWeb.Content.BasicUsage do
       %{
         key: "custom_regions",
         label: "Custom Regions"
-      },
-      %{
-        key: "multiple",
-        label: "Multiple"
       }
     ]
   end
@@ -55,14 +51,18 @@ defmodule DemoWeb.Content.BasicUsage do
         [
           ContentHelpers.convert_markdown(
           ~s"""
-          ## The SVG World Map
-
-
-          * the map is an SVG image generated using data from the Natural Earth and
-          * it uses the equirectangular projection -- a trivial conversion from (latitude, longitude) to Cartesian (y, x).
-
+          `<FlyMapEx.render />` with no explicit assigns renders an SVG map in the default layout and colour theme.
           """
-          )
+          ),
+          ContentHelpers.info_box(
+            :primary,
+            "Refs",
+            ContentHelpers.convert_markdown(
+              ~s"""
+              TK link map themes
+              """
+            )
+          ),
         ],
       example: %{
           marker_groups: [],
@@ -133,40 +133,6 @@ defmodule DemoWeb.Content.BasicUsage do
         ],
         description: "Markers placed using Fly.io region code",
         code_comment: "Use 3-letter region codes for Fly.io worker locations."
-      }
-    }
-  end
-
-  def get_content("multiple") do
-    %{
-      content:
-        [
-          ContentHelpers.content_section(
-            "Multiple node groups",
-            "Combine multiple nodes under a single label and styling for logical organization."
-          ),
-          ContentHelpers.pro_tip(
-            "Group related nodes together (e.g., all production servers, all staging environments).",
-            type: :best_practice
-          )
-        ]
-        |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra", "syd"]
-          },
-          %{
-            nodes: ["ams", "lhr", "dfw"]
-          },
-          %{
-            nodes: [
-              {47.0, -27.2}
-            ]
-          }
-        ],
-        description: "Multiple groups with different purposes",
-        code_comment: "Separate groups allow different styling and organization"
       }
     }
   end

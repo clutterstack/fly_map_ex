@@ -210,10 +210,10 @@ defmodule FlyMapEx do
     map_theme = Theme.map_theme(assigns[:theme] || FlyMapEx.Config.default_theme())
 
     # Determine if regions should be shown
-    show_regions =
-      if is_nil(assigns[:show_regions]),
-        do: FlyMapEx.Config.show_regions_default(),
-        else: assigns.show_regions
+    show_regions = assigns.show_regions || FlyMapEx.Config.show_regions_default()
+      # if is_nil(assigns[:show_regions]),
+      #   do: FlyMapEx.Config.show_regions_default(),
+      #   else: assigns.show_regions
 
     # Determine layout mode
     layout = assigns[:layout] || FlyMapEx.Config.layout_mode()

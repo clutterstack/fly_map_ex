@@ -20,9 +20,6 @@ defmodule DemoWeb.Content.Theming do
 
   def tabs do
     [
-      %{key: "blank_map",
-        label: "The Map"
-      },
       %{
         key: "presets",
         label: "Theme Presets"
@@ -45,34 +42,6 @@ defmodule DemoWeb.Content.Theming do
     and the assigns to pass to the FlyMapEx.render component.
   """
 
-  def get_content("blank_map") do
-    %{
-      content:
-        [
-          ContentHelpers.content_section(
-            "The SVG World Map",
-            "FlyMapEx renders an SVG world map with country borders, land masses, and ocean areas. Themes control the colours of these geographic elements."
-          ),
-          ContentHelpers.ul_with_bold(
-            "Map Elements",
-            [
-              {"Land", "Country and continental land masses"},
-              {"Ocean", "Water bodies and sea areas"},
-              {"Border", "Country boundaries and coastlines"},
-              {"Neutral Markers", "Default region indicators"},
-              {"Neutral Text", "Labels and region names"}
-            ]
-          )
-        ]
-        |> Enum.join(),
-      example: %{
-        marker_groups: [],
-        description: "SVG world map foundation",
-        code_comment:
-          "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
-      }
-    }
-  end
 
   def get_content("presets") do
     %{
