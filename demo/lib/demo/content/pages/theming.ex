@@ -3,6 +3,7 @@ defmodule DemoWeb.Content.Theming do
   A content page to be rendered from PageLive within the StageTemplate live_component.
   """
 
+  import DemoWeb.Content.ValidatedExample
   alias DemoWeb.Helpers.ContentHelpers
 
   @doc """
@@ -68,23 +69,23 @@ defmodule DemoWeb.Content.Theming do
           ])
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra", "ams"],
-            style: %{colour: "#3b82f6", size: 8},
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["lhr", "syd"],
-            style: %{colour: "#f59e0b", size: 8},
-            label: "Staging Environment"
-          }
-        ],
-        description: "Built-in theme presets",
-        code_comment:
-          "FlyMapEx includes seven preset themes: :light, :dark, :minimal, :cool, :warm, :high_contrast, and :responsive. Each controls map background colours and neutral elements."
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra", "ams"],
+              style: %{colour: "#3b82f6", size: 8},
+              label: "Production Servers"
+            },
+            %{
+              nodes: ["lhr", "syd"],
+              style: %{colour: "#f59e0b", size: 8},
+              label: "Staging Environment"
+            }
+          ]}
+          theme={:dark}
+        />
+      """)
     }
   end
 
@@ -147,23 +148,29 @@ defmodule DemoWeb.Content.Theming do
           """)
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra"],
-            style: %{colour: "#10b981", size: 8},
-            label: "Primary Services"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: %{colour: "#f59e0b", size: 8},
-            label: "Secondary Services"
-          }
-        ],
-        description: "Custom theme creation methods",
-        code_comment:
-          "Two ways to create custom themes: inline theme maps or config-registered themes. Define land, ocean, border, neutral_marker, and neutral_text properties."
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra"],
+              style: %{colour: "#10b981", size: 8},
+              label: "Primary Services"
+            },
+            %{
+              nodes: ["ams", "lhr"],
+              style: %{colour: "#f59e0b", size: 8},
+              label: "Secondary Services"
+            }
+          ]}
+          theme={%{
+            land: "#f8fafc",
+            ocean: "#e2e8f0",
+            border: "#475569",
+            neutral_marker: "#64748b",
+            neutral_text: "#334155"
+          }}
+        />
+      """)
     }
   end
 
@@ -215,18 +222,18 @@ defmodule DemoWeb.Content.Theming do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra", "ams"],
-            style: %{colour: "#3b82f6", size: 8},
-            label: "Production Environment"
-          }
-        ],
-        description: "Application-level theme configuration",
-        code_comment:
-          "Set default themes in config.exs for consistent theming across your app. Theme resolution: inline props → custom themes → app default → library default."
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra", "ams"],
+              style: %{colour: "#3b82f6", size: 8},
+              label: "Production Environment"
+            }
+          ]}
+          theme={:responsive}
+        />
+      """)
     }
   end
 end

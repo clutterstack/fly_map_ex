@@ -3,6 +3,7 @@ defmodule DemoWeb.Content.MarkerStyling do
   A content page to be rendered from PageLive within the StageTemplate live_component.
   """
 
+  import DemoWeb.Content.ValidatedExample
   alias DemoWeb.Helpers.ContentHelpers
 
   @doc """
@@ -55,28 +56,28 @@ defmodule DemoWeb.Content.MarkerStyling do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra"],
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            label: "Staging Environment"
-          },
-          %{
-            nodes: ["ord"],
-            label: "Development"
-          },
-          %{
-            nodes: ["nrt", "syd"],
-            label: "Testing"
-          }
-        ],
-        description: "Automatic colours for multiple groups",
-        code_comment: "FlyMapEx automatically assigns different colours to each group"
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra"],
+              label: "Production Servers"
+            },
+            %{
+              nodes: ["ams", "lhr"],
+              label: "Staging Environment"
+            },
+            %{
+              nodes: ["ord"],
+              label: "Development"
+            },
+            %{
+              nodes: ["nrt", "syd"],
+              label: "Testing"
+            }
+          ]}
+        />
+      """)
     }
   end
 
@@ -94,32 +95,32 @@ defmodule DemoWeb.Content.MarkerStyling do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra"],
-            style: :operational,
-            label: "Production Servers"
-          },
-          %{
-            nodes: ["ams", "lhr"],
-            style: :warning,
-            label: "Maintenance Mode"
-          },
-          %{
-            nodes: ["ord"],
-            style: :danger,
-            label: "Failed Nodes"
-          },
-          %{
-            nodes: ["nrt", "syd"],
-            style: :inactive,
-            label: "Offline Nodes"
-          }
-        ],
-        description: "Semantic styling with meaningful colours",
-        code_comment: "Semantic presets resolve from configuration"
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra"],
+              style: :operational,
+              label: "Production Servers"
+            },
+            %{
+              nodes: ["ams", "lhr"],
+              style: :warning,
+              label: "Maintenance Mode"
+            },
+            %{
+              nodes: ["ord"],
+              style: :danger,
+              label: "Failed Nodes"
+            },
+            %{
+              nodes: ["nrt", "syd"],
+              style: :inactive,
+              label: "Offline Nodes"
+            }
+          ]}
+        />
+      """)
     }
   end
 
@@ -156,26 +157,26 @@ defmodule DemoWeb.Content.MarkerStyling do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["sjc", "fra"],
-            style: %{
-              # hex, named colour, or CSS variable
-              colour: "#8b5cf6",
-              # radius in pixels
-              size: 8,
-              # :none, :pulse, :fade
-              animation: :pulse,
-              # boolean for glow effect
-              glow: true
-            },
-            label: "Custom Group"
-          }
-        ],
-        description: "Direct style maps with full control over appearance",
-        code_comment: "Direct style maps are the primary interface for custom styling"
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["sjc", "fra"],
+              style: %{
+                # hex, named colour, or CSS variable
+                colour: "#8b5cf6",
+                # radius in pixels
+                size: 8,
+                # :none, :pulse, :fade
+                animation: :pulse,
+                # boolean for glow effect
+                glow: true
+              },
+              label: "Custom Group"
+            }
+          ]}
+        />
+      """)
     }
   end
 
@@ -202,31 +203,31 @@ defmodule DemoWeb.Content.MarkerStyling do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["ams", "lhr"],
-            style: :warning,
-            label: "Maintenance Mode"
-          },
-          %{
-            nodes: ["sjc", "fra"],
-            style: %{
-              # hex, named colour, or CSS variable
-              colour: "#8b5cf6",
-              # radius in pixels
-              size: 8,
-              # :none, :pulse, :fade
-              animation: :pulse,
-              # boolean for glow effect
-              glow: true
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["ams", "lhr"],
+              style: :warning,
+              label: "Maintenance Mode"
             },
-            label: "Custom Group"
-          }
-        ],
-        description: "Mixed styling approaches in one map",
-        code_comment: "You can mix semantic, automatic, custom, and atom styles in the same map"
-      }
+            %{
+              nodes: ["sjc", "fra"],
+              style: %{
+                # hex, named colour, or CSS variable
+                colour: "#8b5cf6",
+                # radius in pixels
+                size: 8,
+                # :none, :pulse, :fade
+                animation: :pulse,
+                # boolean for glow effect
+                glow: true
+              },
+              label: "Custom Group"
+            }
+          ]}
+        />
+      """)
     }
   end
 end

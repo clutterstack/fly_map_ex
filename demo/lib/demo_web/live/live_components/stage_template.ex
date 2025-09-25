@@ -12,6 +12,7 @@ defmodule DemoWeb.Content.StageTemplate do
   require Logger
 
   import DemoWeb.Components.NewControls
+  import DemoWeb.Components.ValidatedTemplate
 
   def mount(socket) do
     {:ok,
@@ -44,7 +45,8 @@ defmodule DemoWeb.Content.StageTemplate do
     ~H"""
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="content-panels">
       <!-- Map Panel -->
-      <.stage_map {@tab_data.example} />
+      <.stage_map validated_example={@tab_data.example} />
+
       <!-- Tabbed Info Panel -->
       <.tabbed_info_panel
         tabs={@tabs}
@@ -55,8 +57,9 @@ defmodule DemoWeb.Content.StageTemplate do
         tab_content={@tab_data.content}
         tab_example={@tab_data.example}
       />
+
       <!-- Code Examples Panel -->
-      <.code_example_panel {@tab_data.example} />
+      <.code_example_panel validated_example={@tab_data.example} />
     </div>
     """
   end
@@ -67,39 +70,6 @@ defmodule DemoWeb.Content.StageTemplate do
     {:noreply, assign(socket, :current_tab, idx)}
   end
 
-  def code_example_panel(assigns) do
-    ~H"""
-    <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-      <!-- Quick Stats -->
-      <div class="bg-primary/10 border-t border-base-300 px-4 py-3">
-        <div class="text-sm text-primary">
-          {@description} • {if @marker_groups, do: get_groups_count(@marker_groups), else: 0} groups • {count_total_nodes(
-            @marker_groups
-          )} nodes
-        </div>
-      </div>
-      <div class="p-4">
-        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code><%= DemoWeb.Helpers.CodeGenerator.generate_heex_template(@marker_groups, nil, nil, @code_comment) %>
-          </code></pre>
-      </div>
-    </div>
-    """
-  end
-
-  @doc """
-  Renders the full-width map display.
-  """
-  attr :marker_groups, :list, required: true
-  attr :layout, :atom, default: :side_by_side
-  attr :theme, :any, default: nil
-
-  def stage_map(assigns) do
-    ~H"""
-    <div class="bg-base-100 rounded-lg col-span-2">
-      <FlyMapEx.render marker_groups={@marker_groups} layout={@layout} theme={@theme} />
-    </div>
-    """
-  end
 
   # defp content(page_module) do
   #   apply(page_module, :get_content, [])
@@ -118,20 +88,6 @@ defmodule DemoWeb.Content.StageTemplate do
     Enum.at(tabs, idx).key
   end
 
-  defp get_groups_count(groups) when is_nil(groups), do: 0
-  defp get_groups_count(groups) when is_list(groups), do: length(groups)
-  defp get_groups_count(_), do: 1
-
-  defp count_total_nodes(groups) when is_nil(groups), do: 0
-
-  defp count_total_nodes(groups) when is_list(groups) do
-    Enum.reduce(groups, 0, fn group, acc ->
-      nodes = group[:nodes] || []
-      acc + length(nodes)
-    end)
-  end
-
-  defp count_total_nodes(_), do: 0
 
   # get_content("custom_regions").content
 end

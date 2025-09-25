@@ -3,6 +3,7 @@ defmodule DemoWeb.Content.BasicUsage do
   A content page to be rendered from PageLive within the StageTemplate live_component.
   """
 
+  import DemoWeb.Content.ValidatedExample
   alias DemoWeb.Helpers.ContentHelpers
 
   @doc """
@@ -64,12 +65,9 @@ defmodule DemoWeb.Content.BasicUsage do
             )
           ),
         ],
-      example: %{
-          marker_groups: [],
-          description: "SVG world map foundation",
-          code_comment:
-            "The base SVG world map with country borders, land masses, and ocean areas. All themes control the colours of these geographic elements."
-      }
+      example: validated_template("""
+        <FlyMapEx.render />
+      """)
     }
   end
 
@@ -92,20 +90,22 @@ defmodule DemoWeb.Content.BasicUsage do
           )
         ]
         |> Enum.join(),
-      example: %{
-        description: "Markers placed by coordinates",
-        code_comment: "Nodes can be positioned with `{latitude, longitude}` tuples.",
-        marker_groups: [
-          %{
-            # San Francisco, somewhere in the North Sea
-            nodes: [{37.8, -122.4}, {56, 3.6}]
-          },
-          %{
-            # Iqaluit approximately
-            nodes: [{63.7, 68.5}]
-          }
-        ]
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              # San Francisco, somewhere in the North Sea
+              nodes: [{37.8, -122.4}, {56, 3.6}],
+              label: "Pacific & North Sea"
+            },
+            %{
+              # Iqaluit approximately
+              nodes: [{63.7, 68.5}],
+              label: "Arctic"
+            }
+          ]}
+        />
+      """)
     }
   end
 
@@ -125,15 +125,16 @@ defmodule DemoWeb.Content.BasicUsage do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["fra", "sin"]
-          }
-        ],
-        description: "Markers placed using Fly.io region code",
-        code_comment: "Use 3-letter region codes for Fly.io worker locations."
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["fra", "sin"],
+              label: "Global Regions"
+            }
+          ]}
+        />
+      """)
     }
   end
 
@@ -163,19 +164,20 @@ defmodule DemoWeb.Content.BasicUsage do
           )
         ]
         |> Enum.join(),
-      example: %{
-        marker_groups: [
-          %{
-            nodes: ["dev", "laptop-chris", "office-nyc"]
-          },
-          %{
-            nodes: ["fra", "sin", "lhr"]
-          }
-        ],
-        description: "Mix of custom and Fly.io regions",
-        code_comment:
-          "Custom regions like 'dev' and 'laptop-chris' can be configured in your app config alongside standard Fly.io regions."
-      }
+      example: validated_template("""
+        <FlyMapEx.render
+          marker_groups={[
+            %{
+              nodes: ["dev", "laptop-chris", "office-nyc"],
+              label: "Development"
+            },
+            %{
+              nodes: ["fra", "sin", "lhr"],
+              label: "Production"
+            }
+          ]}
+        />
+      """)
     }
   end
 end
