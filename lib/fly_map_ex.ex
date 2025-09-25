@@ -237,14 +237,12 @@ defmodule FlyMapEx do
         <div class="card-body">
           <div class={Shared.layout_container_class(@layout)}>
             <div class={Shared.map_container_class(@layout)}>
-              <div class="rounded-lg border overflow-hidden" style={"background-color: #{@map_theme.land}"}>
                 <WorldMap.render
                   marker_groups={@visible_groups}
                   colours={@map_theme}
                   show_regions={@show_regions}
                   interactive={@interactive}
                 />
-              </div>
             </div>
 
             <div class={Shared.legend_container_class(@layout)}>

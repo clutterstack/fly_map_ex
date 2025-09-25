@@ -111,7 +111,7 @@ defmodule FlyMapEx.Config do
   Default: :stacked
   """
   def layout_mode do
-    Application.get_env(:fly_map_ex, :layout_mode, :stacked)
+    Application.get_env(:fly_map_ex, :layout_mode, :side_by_side)
   end
 
   @doc """

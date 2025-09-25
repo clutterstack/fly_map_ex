@@ -111,10 +111,6 @@ defmodule DemoWeb.Content.ValidatedExample do
     attrs_content
     |> String.trim()
     |> parse_individual_attributes()
-    |> case do
-      {:ok, assigns} -> {:ok, assigns}
-      {:error, reason} -> {:error, reason}
-    end
   end
 
   defp parse_individual_attributes(attrs_string) do
