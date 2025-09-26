@@ -80,9 +80,9 @@ defmodule DemoWeb.Content.BasicUsage do
           ContentHelpers.content_section(
             "Add markers to the map",
             ~s"""
-              To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a list of locations at which to put markers.
+              To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a `:nodes` field with a list of positions for markers. The marker
 
-              The location can be in the form of a coordinate tuple: `{lat, long}`---or the equivalent where southern latitudes and western longitudes have negative values.
+              The location can be in the form of a coordinate tuple `{lat, long}` where negative values indicate southern latitudes and western longitudes.
 
             * To add markers, you put a list of nodes in each marker group.
             * At minimum, you have to give each node a map position.

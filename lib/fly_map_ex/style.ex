@@ -61,33 +61,6 @@ defmodule FlyMapEx.Style do
         monitoring_alert: %{colour: "#ff6b6b", size: 10, glow: true}
   """
 
-  # Colour palette for non-semantic cycling - maximum visual distinction
-  @cycle_colours [
-    # bright blue
-    "#2563eb",
-    # bright green
-    "#16a34a",
-    # bright red
-    "#dc2626",
-    # bright purple
-    "#9333ea",
-    # bright orange
-    "#ea580c",
-    # bright cyan
-    "#0891b2",
-    # bright yellow
-    "#ca8a04",
-    # bright pink
-    "#db2777",
-    # bright teal
-    "#0d9488",
-    # bright lime
-    "#65a30d",
-    # bright amber
-    "#d97706",
-    # bright indigo
-    "#4338ca"
-  ]
 
   @named_colours %{
     blue: "#2563eb",
@@ -123,10 +96,10 @@ defmodule FlyMapEx.Style do
 
   ## Examples
 
-      iex> FlyMapEx.Style.colors()
-      ["#3b82f6", "#10b981", "#f59e0b", ...]
+      iex> FlyMapEx.Style.colours()
+      ["#2563eb", "#16a34a", "#dc2626", ...]
   """
-  def colours, do: @cycle_colours
+  def colours, do: Map.values(@named_colours)
 
   @doc """
   Get a non-semantic style by cycling through predefined colours.
@@ -141,7 +114,8 @@ defmodule FlyMapEx.Style do
       FlyMapEx.Style.cycle(10) # blue again (wraps around)
   """
   def cycle(index, opts \\ []) when is_integer(index) do
-    colour = Enum.at(@cycle_colours, rem(index, length(@cycle_colours)))
+    named_colour_values = Map.values(@named_colours)
+    colour = Enum.at(named_colour_values, rem(index, length(named_colour_values)))
 
     defaults = [size: FlyMapEx.Config.default_marker_radius(), animation: :none, glow: false]
     merged_opts = Keyword.merge(defaults, opts)
