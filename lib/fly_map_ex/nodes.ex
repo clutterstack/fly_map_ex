@@ -237,7 +237,7 @@ defmodule FlyMapEx.Nodes do
   end
 
   def normalize_node({lat, long} = _node) when is_number(lat) and is_number(long) do
-    {:ok, %{label: "Node at #{lat}, #{long}", coordinates: {lat, long}}}
+    {:ok, %{label: "(#{lat}, #{long})", coordinates: {lat, long}}}
   end
 
   def normalize_node(%{label: label, region: region})
@@ -257,7 +257,7 @@ defmodule FlyMapEx.Nodes do
 
   def normalize_node(%{coordinates: {lat, long}} = node)
       when is_number(lat) and is_number(long) do
-    {:ok, Map.put(node, :label, "Node at #{lat}, #{long}")}
+    {:ok, Map.put(node, :label, "(#{lat}, #{long})")}
   end
 
   def normalize_node(%{coordinates: _invalid}) do

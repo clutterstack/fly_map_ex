@@ -25,8 +25,8 @@ defmodule DemoWeb.Content.BasicUsage do
         label: "Blank map"
       },
       %{
-        key: "by_coords",
-        label: "Coordinate positioning"
+        key: "add_markers",
+        label: "Add markers"
       },
       %{
         key: "fly_regions",
@@ -52,7 +52,7 @@ defmodule DemoWeb.Content.BasicUsage do
         [
           ContentHelpers.convert_markdown(
           ~s"""
-          `<FlyMapEx.render />` with no explicit assigns renders an SVG map in the default layout and colour theme.
+          `<FlyMapEx.render />` renders an SVG map in the default layout and colour theme.
           """
           ),
           ContentHelpers.info_box(
@@ -61,6 +61,8 @@ defmodule DemoWeb.Content.BasicUsage do
             ContentHelpers.convert_markdown(
               ~s"""
               TK link map themes
+
+              TK link WGS 84
               """
             )
           ),
@@ -71,19 +73,20 @@ defmodule DemoWeb.Content.BasicUsage do
     }
   end
 
-  def get_content("by_coords") do
+  def get_content("add_markers") do
     %{
       content:
         [
           ContentHelpers.content_section(
-            "Custom Coordinates",
+            "Add markers to the map",
             ~s"""
-              Use latitude and longitude coordinates
+              To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a list of locations at which to put markers.
+
+              The location can be in the form of a coordinate tuple: `{lat, long}`---or the equivalent where southern latitudes and western longitudes have negative values.
 
             * To add markers, you put a list of nodes in each marker group.
             * At minimum, you have to give each node a map position.
-            * You can also give it a label. If you don't, it gets a default one.
-            * Talk about style if we talk about labels
+
 
             Here's an example of a node group with one node in San Francisco and one somewhere in the ocean
             """
@@ -94,14 +97,7 @@ defmodule DemoWeb.Content.BasicUsage do
         <FlyMapEx.render
           marker_groups={[
             %{
-              # San Francisco, somewhere in the North Sea
-              nodes: [{37.8, -122.4}, {56, 3.6}],
-              label: "Pacific & North Sea"
-            },
-            %{
-              # Iqaluit approximately
-              nodes: [{63.7, 68.5}],
-              label: "Arctic"
+              nodes: [{37.8, -122.4}, {56, 3.6}]
             }
           ]}
         />
@@ -121,7 +117,7 @@ defmodule DemoWeb.Content.BasicUsage do
             """
           ),
           ContentHelpers.pro_tip(
-            ~s(Custom regions like "dev", "laptop-chris", "office-nyc" can be configured in your app config for mixed Fly.io + local deployments.)
+            ~s(Custom regions like "dev" or "laptop" can be specified in your app config.)
           )
         ]
         |> Enum.join(),
@@ -153,9 +149,12 @@ defmodule DemoWeb.Content.BasicUsage do
             config :fly_map_ex, :custom_regions,
               %{
                 "dev" => %{name: "Development", coordinates: {47.6062, -122.3321}},
-                "laptop-chris" =>
-                     %{name: "Chris's Laptop", coordinates: {49.2827, -123.1207}},
-                "office-nyc" => %{name: "NYC Office", coordinates: {40.7128, -74.0060}}
+                "laptop" =>
+                  %{
+                    name: "Laptop",
+                    # Iqaluit, approximately
+                    coordinates: {63.7, -68.5}
+                  }
               }
             """
           ),
@@ -168,12 +167,10 @@ defmodule DemoWeb.Content.BasicUsage do
         <FlyMapEx.render
           marker_groups={[
             %{
-              nodes: ["dev", "laptop-chris", "office-nyc"],
-              label: "Development"
+              nodes: ["dev", "laptop"]
             },
             %{
-              nodes: ["fra", "sin", "lhr"],
-              label: "Production"
+              nodes: ["fra", "sin", "lhr"]
             }
           ]}
         />

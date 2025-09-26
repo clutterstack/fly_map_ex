@@ -148,7 +148,7 @@ defmodule DemoWeb.MachineMapLive do
       available_apps =
         all_instances_data
         |> Map.keys()
-        |> Enum.sort()
+        |> Enum.sort(:desc)
 
       socket
       |> assign(:all_instances_data, all_instances_data)

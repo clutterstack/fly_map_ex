@@ -246,6 +246,7 @@ defmodule Demo.MachineDiscovery do
     |> Enum.filter(fn {_app, result} ->
       match?({:ok, [_ | _]}, result)
     end)
+    |> Enum.sort_by(fn {app_name, _} -> app_name end, :desc)
     |> Enum.map(fn {app_name, {:ok, machines}} ->
       nodes = machines |> Enum.map(fn {_id, region} -> region end) |> Enum.uniq()
       machine_count = length(machines)
@@ -264,6 +265,8 @@ defmodule Demo.MachineDiscovery do
         end
 
       style = Map.put(base_style, :size, adjusted_size)
+
+      style = base_style
 
       label =
         case machine_count do
@@ -303,45 +306,82 @@ defmodule Demo.MachineDiscovery do
   # Uses bright, visually distinct colors with consistent sizing for maximum clarity
   defp distinct_app_styles do
     base_radius = FlyMapEx.Config.default_marker_radius()
-    # standard_size = round(1.3 * base_radius)
 
     [
       # Bright blue
       %{colour: "#2563eb", size: round(base_radius), animated: false, glow: false},
 
       # Bright green
-      %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, glow: false},
+      %{colour: "#16e34a", size: round(base_radius),  animated: false, glow: false},
 
       # Bright red
-      %{colour: "#ec2626", size: round(1.2 * base_radius), animated: false, glow: false},
+      %{colour: "#ec2626", size: round(base_radius),  animated: false, glow: false},
 
       # Bright purple
-      %{colour: "#b333ea", size: round(1.4 * base_radius), animated: false, glow: false},
+      %{colour: "#b333ea", size: round(base_radius),  animated: false, glow: false},
 
       # Bright orange
-      %{colour: "#ea580c", size: round(1.6 * base_radius), animated: false, glow: false},
+      %{colour: "#ea580c", size: round(base_radius),  animated: false, glow: false},
 
       # Bright cyan
-      %{colour: "#08b1b2", size: round(1.8 * base_radius), animated: false, glow: false},
+      %{colour: "#08b1b2", size: round(base_radius),  animated: false, glow: false},
 
       # Bright yellow
-      %{colour: "#cafa04", size: round(2 * base_radius), animated: false, glow: false},
+      %{colour: "#cafa04", size: round(base_radius), animated: false, glow: false},
 
       # Bright pink
-      %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, glow: false},
+      %{colour: "#eb97a7", size: round(base_radius), animated: false, glow: false},
 
       # Bright teal
-      %{colour: "#0d9488", size: round(2.4 * base_radius), animated: false, glow: false},
+      %{colour: "#0d9488", size: round(base_radius), animated: false, glow: false},
 
       # Bright lime
-      %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, glow: false},
+      %{colour: "#65a30d", size: round(base_radius),  animated: false, glow: false},
 
       # Bright amber
-      %{colour: "#d97706", size: round(2.8 * base_radius), animated: false, glow: false},
+      %{colour: "#d97706", size: round(base_radius), animated: false, glow: false},
 
       # Bright indigo
-      %{colour: "#4338ca", size: round(3 * base_radius), animated: false, glow: false}
+      %{colour: "#4338ca", size: round(base_radius), animated: false, glow: false}
     ]
+
+    # [
+    #   # Bright blue
+    #   %{colour: "#2563eb", size: round(base_radius), animated: false, glow: false},
+
+    #   # Bright green
+    #   %{colour: "#16e34a", size: round(1.1 * base_radius), animated: false, glow: false},
+
+    #   # Bright red
+    #   %{colour: "#ec2626", size: round(1.2 * base_radius), animated: false, glow: false},
+
+    #   # Bright purple
+    #   %{colour: "#b333ea", size: round(1.4 * base_radius), animated: false, glow: false},
+
+    #   # Bright orange
+    #   %{colour: "#ea580c", size: round(1.6 * base_radius), animated: false, glow: false},
+
+    #   # Bright cyan
+    #   %{colour: "#08b1b2", size: round(1.8 * base_radius), animated: false, glow: false},
+
+    #   # Bright yellow
+    #   %{colour: "#cafa04", size: round(2 * base_radius), animated: false, glow: false},
+
+    #   # Bright pink
+    #   %{colour: "#eb97a7", size: round(2.2 * base_radius), animated: false, glow: false},
+
+    #   # Bright teal
+    #   %{colour: "#0d9488", size: round(2.4 * base_radius), animated: false, glow: false},
+
+    #   # Bright lime
+    #   %{colour: "#65a30d", size: round(2.6 * base_radius), animated: false, glow: false},
+
+    #   # Bright amber
+    #   %{colour: "#d97706", size: round(2.8 * base_radius), animated: false, glow: false},
+
+    #   # Bright indigo
+    #   %{colour: "#4338ca", size: round(3 * base_radius), animated: false, glow: false}
+    # ]
   end
 
   @doc """
