@@ -67,7 +67,15 @@ defmodule DemoWeb.Content.StageTemplate do
   def handle_event("switch_tab", %{"index" => idx_str}, socket) do
     idx = String.to_integer(idx_str)
     Logger.info("Switching to tab #{idx}")
-    {:noreply, assign(socket, :current_tab, idx)}
+
+    # Recalculate tab data for the new tab
+    tabs = get_tabs(socket.assigns.page_module)
+    tab_data = get_tab_data(socket.assigns.page_module, tabs, idx)
+
+    {:noreply,
+     socket
+     |> assign(:current_tab, idx)
+     |> assign(:tab_data, tab_data)}
   end
 
 

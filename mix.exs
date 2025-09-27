@@ -59,18 +59,63 @@ defmodule FlyMapEx.MixProject do
       main: "readme",
       source_ref: "v#{@version}",
       extra_section: "GUIDES",
-      extras: ["README.md"],
-      # extras: [
-      #   {"README.md", title: "Home"},
-      #   "guides.gen.md"
-      # ],
+      extras: [
+        "README.md",
+        "documentation/examples.md",
+        "documentation/guides/basic_usage.md",
+        "documentation/guides/marker_styling.md",
+        "documentation/guides/theming.md"
+      ],
+      groups_for_extras: [
+        "Getting Started": ["README.md"],
+        "Examples": ["documentation/examples.md"],
+        "Guides": [
+          "documentation/guides/basic_usage.md",
+          "documentation/guides/marker_styling.md",
+          "documentation/guides/theming.md"
+        ]
+      ],
       source_url: @source_url,
-      # groups_for_extras: [
-      #   "Start here": [
-      #     "documentation/intro.md",
-      #     "documentation/features.md"
-      #   ]
-      # ]
+      before_closing_head_tag: &docs_before_closing_head_tag/1,
+      before_closing_body_tag: &docs_before_closing_body_tag/1
     ]
   end
+
+  defp docs_before_closing_head_tag(:html) do
+    """
+    <style>
+    /* Ensure code examples are properly styled */
+    .content pre code {
+      white-space: pre;
+      word-wrap: normal;
+    }
+    </style>
+    """
+  end
+
+  defp docs_before_closing_head_tag(_), do: ""
+
+  defp docs_before_closing_body_tag(:html) do
+    """
+    <script>
+    // Add copy buttons to code blocks
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('pre code').forEach(function(code) {
+        const button = document.createElement('button');
+        button.textContent = 'Copy';
+        button.style.cssText = 'position:absolute;top:0.5rem;right:0.5rem;padding:0.25rem 0.5rem;font-size:0.75rem;';
+        button.onclick = function() {
+          navigator.clipboard.writeText(code.textContent);
+          button.textContent = 'Copied!';
+          setTimeout(() => button.textContent = 'Copy', 2000);
+        };
+        code.parentElement.style.position = 'relative';
+        code.parentElement.appendChild(button);
+      });
+    });
+    </script>
+    """
+  end
+
+  defp docs_before_closing_body_tag(_), do: ""
 end
