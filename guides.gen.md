@@ -1,6 +1,6 @@
 # FlyMapEx
 
-The FlyMapEx library provides a function component to display markers on a simple SVG world map, with or without a legend. It's meant to be simple to use, with a few configuration options. 
+FlyMapEx provides a function component to display markers on a simple SVG world map, with or without a legend. It's meant to be simple to use, with a few configuration options. 
 
 Use latitude and longitude or Fly.io region codes to position nodes on the map.
 
@@ -22,6 +22,10 @@ FlyMapEx is not a comprehensive mapping library. Check out the [Livebook MapLibr
 - Real-time data integration with LiveView
 - Machine discovery utilities for Fly.io deployments
 - Comprehensive styling API with gradients and custom colors
+
+# FlyMapEx
+
+
 
 ## Installation
 
@@ -325,6 +329,43 @@ config :fly_map_ex, :style_presets,
 %{nodes: ["sjc"], style: FlyMapEx.Style.preset(:brand_primary), label: "Production"}
 ```
 
+### Configuration
+
+Configure global defaults in your config/config.exs:
+
+```elixir
+config :fly_map_ex,
+  marker_opacity: 0.9,
+  default_marker_radius: 8,
+  animation_duration: "2s",
+  default_theme: :dark
+```
+
+### Custom Style Modules
+
+Create your own style builders:
+
+  defmodule MyApp.MapStyles do
+    def brand_primary(opts \\ []) do
+      FlyMapEx.Style.custom(
+        "#your-brand-color",
+        Keyword.merge([size: 8, animated: true, animation: :pulse], opts)
+      )
+    end
+  end
+
+  # Usage
+  %{nodes: ["sjc"], style: MyApp.MapStyles.brand_primary(), label: "Primary"}
+
+  3. CSS Variable Theming
+
+  Use CSS variables for dynamic theming:
+
+  %{nodes: ["sjc"], style: [colour: "var(--primary-color)"], label: "Dynamic"}
+
+  The system supports atoms, maps, keyword lists, and builder functions for maximum flexibility.
+
+
 #### Inline Styles
 
 ```elixir
@@ -399,28 +440,30 @@ The demo uses Fly.io's internal DNS to discover running machines:
 def mount(_params, _session, socket) do
   # Discover machines periodically
   {:ok, _pid} = Demo.MachineDiscovery.start_periodic_discovery(
-    "my-app-name",
-    self(),
+    "my-app-name", 
+    self(), 
     30_000  # 30 second intervals
   )
-
+  
   {:ok, socket}
 end
 
 def handle_info({:machines_updated, {:ok, machines}}, socket) do
   # Convert to marker groups for display
   marker_groups = FlyMapEx.Adapters.from_machine_tuples(
-    machines,
-    "Running Machines",
+    machines, 
+    "Running Machines", 
     :operational
   )
-
+  
   socket = assign(socket, marker_groups: marker_groups)
   {:noreply, socket}
 end
 ```
 
 ### DNS Machine Discovery
+
+
 
 Parse Fly.io DNS TXT records containing machine data:
 
@@ -454,100 +497,3 @@ mix docs
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Module Architecture
-
-  ### Core Components
-  - `FlyMapEx.render/1` - Main entry point function component with JS-based interactivity
-  - `FlyMapEx.Components.WorldMap` - SVG world map rendering
-  - `FlyMapEx.Components.LegendComponent` - Legend with optional interactivity
-
-  ### Supporting Components
-  - `FlyMapEx.Components.Marker` - Reusable marker rendering (map + legend)
-  - `FlyMapEx.Components.GlowFilter` - SVG glow effects for markers
-  - `FlyMapEx.WorldMapPaths` - Static SVG path definitions for world geography
-
-  ### Data and Configuration
-  - `FlyMapEx.Regions` - Fly.io region coordinates and name mapping
-  - `FlyMapEx.Nodes` - Node normalization and processing utilities
-  - `FlyMapEx.Theme` - Predefined colour themes and styling
-  - `FlyMapEx.Style` - Marker style definitions and helpers
-  - `FlyMapEx.Config` - Application-wide configuration settings
-  - `FlyMapEx.Adapters` - Data transformation utilities
-
-  ## Component Relationships
-
-  ```
-  FlyMapEx.render/1 (main entry)
-  ├── FlyMapEx.Shared (shared logic)
-  ├── FlyMapEx.Theme (theme colours)
-  ├── FlyMapEx.Components.WorldMap
-  │   ├── FlyMapEx.WorldMapPaths (geography)
-  │   ├── FlyMapEx.Components.Marker (markers)
-  │   │   └── FlyMapEx.Components.GlowFilter (effects)
-  │   ├── FlyMapEx.Regions (coordinates)
-  │   └── FlyMapEx.Nodes (data processing)
-  └── FlyMapEx.Components.LegendComponent
-      ├── interactive: true/false (conditional JS behavior)
-      ├── FlyMapEx.Components.Marker (indicators)
-      └── FlyMapEx.Regions (region info)
-  ```
-
-  ## Data Flow
-
-  1. **Input Processing**: Raw marker groups → `FlyMapEx.Nodes` → normalized nodes
-  2. **Style Application**: Style definitions → `FlyMapEx.Style` → resolved styles
-  3. **Theme Resolution**: Theme names → `FlyMapEx.Theme` → colour schemes
-  4. **Coordinate Transformation**: Region codes → `FlyMapEx.Regions` → lat/lng → SVG coordinates
-  5. **Rendering**: Processed data → Components → SVG/HTML output
-
-  ## Integration Patterns
-
-  ### Basic use (Interactive - Default)
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dark}
-    show_regions={true}
-  />
-  ```
-
-  ### Static Usage (Non-Interactive)
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dark}
-    show_regions={true}
-    interactive={false}
-  />
-  ```
-
-  ### Advanced Interactive Usage
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dashboard}
-    initially_visible={["production"]}
-    on_toggle={true}
-  />
-  ```
-
-  ### Real-Time Usage ⚡ NEW
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:responsive}
-    real_time={true}
-    channel="map:room_123"
-    update_throttle={50}
-  />
-  ```
-
-  ### Direct Component Usage
-  ```elixir
-  <FlyMapEx.Components.WorldMap.render
-    marker_groups={processed_groups}
-    colours={theme_colours}
-    show_regions={false}
-  />
-  ```

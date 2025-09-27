@@ -1,157 +1,9 @@
 defmodule FlyMapEx do
+
   @moduledoc """
-  A library for displaying a world map with markers at given
-  latitudes and longitudes.
+  A library for displaying a world map with markers at given latitudes and longitudes.
 
-  Provides Phoenix components and utilities for visualizing node deployments
-  across Fly.io regions with different marker styles, animations, and legends.
-
-  ## Real-Time Features ⚡ NEW
-
-  FlyMapEx now supports real-time marker updates via Phoenix channels for
-  sub-100ms performance improvements over traditional LiveView rendering:
-
-  - **Client-side rendering**: Markers updated via JavaScript without server round-trips
-  - **Progressive enhancement**: Falls back gracefully to server rendering
-  - **Bandwidth efficiency**: Only send coordinate/style deltas
-  - **State synchronization**: Robust client/server state management
-
-  ## Usage
-
-      # Basic interactive map
-      <FlyMapEx.render marker_groups={[
-        %{
-          nodes: ["sjc", "fra"],
-          style_key: :primary,
-          label: "Production Servers"
-        },
-        %{
-          nodes: ["ams"],
-          style_key: :warning,
-          label: "Critical Issues"
-        }
-      ]} theme={:dark} />
-
-      # Static map (no interactivity)
-      <FlyMapEx.render
-        marker_groups={@groups}
-        theme={:minimal}
-        interactive={false}
-      />
-
-  ## Features
-
-  - Interactive SVG world map with Fly.io region coordinates
-  - **Real-time marker updates via Phoenix channels** ⚡ NEW
-  - **Sub-100ms client-side rendering performance** ⚡ NEW
-  - **Progressive enhancement with graceful fallback** ⚡ NEW
-  - Flexible styling system with semantic style names
-  - Any number of custom marker groups
-  - Built-in legends
-  - Phoenix LiveView compatible
-  - Responsive design
-
-  ## Components
-
-  - `FlyMapEx.render/1` - Main function component with optional interactivity.
-  - `FlyMapEx.Components.WorldMap.render/1` - Just the SVG map
-
-  ## Module Architecture
-
-  ### Core Components
-  - `FlyMapEx.render/1` - Main entry point function component with JS-based interactivity
-  - `FlyMapEx.Components.WorldMap` - SVG world map rendering
-  - `FlyMapEx.Components.LegendComponent` - Legend with optional interactivity
-
-  ### Supporting Components
-  - `FlyMapEx.Components.Marker` - Reusable marker rendering (map + legend)
-  - `FlyMapEx.Components.GlowFilter` - SVG glow effects for markers
-  - `FlyMapEx.WorldMapPaths` - Static SVG path definitions for world geography
-
-  ### Data and Configuration
-  - `FlyMapEx.Regions` - Fly.io region coordinates and name mapping
-  - `FlyMapEx.Nodes` - Node normalization and processing utilities
-  - `FlyMapEx.Theme` - Predefined colour themes and styling
-  - `FlyMapEx.Style` - Marker style definitions and helpers
-  - `FlyMapEx.Config` - Application-wide configuration settings
-  - `FlyMapEx.Adapters` - Data transformation utilities
-
-  ## Component Relationships
-
-  ```
-  FlyMapEx.render/1 (main entry)
-  ├── FlyMapEx.Shared (shared logic)
-  ├── FlyMapEx.Theme (theme colours)
-  ├── FlyMapEx.Components.WorldMap
-  │   ├── FlyMapEx.WorldMapPaths (geography)
-  │   ├── FlyMapEx.Components.Marker (markers)
-  │   │   └── FlyMapEx.Components.GlowFilter (effects)
-  │   ├── FlyMapEx.Regions (coordinates)
-  │   └── FlyMapEx.Nodes (data processing)
-  └── FlyMapEx.Components.LegendComponent
-      ├── interactive: true/false (conditional JS behavior)
-      ├── FlyMapEx.Components.Marker (indicators)
-      └── FlyMapEx.Regions (region info)
-  ```
-
-  ## Data Flow
-
-  1. **Input Processing**: Raw marker groups → `FlyMapEx.Nodes` → normalized nodes
-  2. **Style Application**: Style definitions → `FlyMapEx.Style` → resolved styles
-  3. **Theme Resolution**: Theme names → `FlyMapEx.Theme` → colour schemes
-  4. **Coordinate Transformation**: Region codes → `FlyMapEx.Regions` → lat/lng → SVG coordinates
-  5. **Rendering**: Processed data → Components → SVG/HTML output
-
-  ## Integration Patterns
-
-  ### Basic use (Interactive - Default)
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dark}
-    show_regions={true}
-  />
-  ```
-
-  ### Static Usage (Non-Interactive)
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dark}
-    show_regions={true}
-    interactive={false}
-  />
-  ```
-
-  ### Advanced Interactive Usage
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:dashboard}
-    initially_visible={["production"]}
-    on_toggle={true}
-  />
-  ```
-
-  ### Real-Time Usage ⚡ NEW
-  ```elixir
-  <FlyMapEx.render
-    marker_groups={@groups}
-    theme={:responsive}
-    real_time={true}
-    channel="map:#{@room_id}"
-    update_throttle={50}
-  />
-  ```
-
-  ### Direct Component Usage
-  ```elixir
-  <FlyMapEx.Components.WorldMap.render
-    marker_groups={processed_groups}
-    colours={theme_colours}
-    show_regions={false}
-  />
-  ```
+  Provides Phoenix components and utilities for visualizing node locations with different marker styles, animations, and legends.
   """
 
   use Phoenix.Component
@@ -219,6 +71,7 @@ defmodule FlyMapEx do
         update_throttle={50}
       />
   """
+
   # Attributes for function component
   attr(:marker_groups, :list, default: [])
   attr(:theme, :any, default: nil)
@@ -289,7 +142,7 @@ defmodule FlyMapEx do
         "phx-hook": "RealTimeMap",
         "data-channel": @channel_topic,
         "data-map-id": @map_id,
-        "data-initial-state": Jason.encode!(%{
+        "data-initial-state": JSON.encode!(%{
           marker_groups: @marker_groups,
           theme: @map_theme,
           config: %{

@@ -28,7 +28,7 @@ defmodule FlyMapEx.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 1.0.17"},
-      {:ex_doc, "~> 0.38", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.38", only: :dev, runtime: false, warn_if_outdated: true}
     ]
   end
 
@@ -57,9 +57,20 @@ defmodule FlyMapEx.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"],
       source_ref: "v#{@version}",
-      source_url: @source_url
+      extra_section: "GUIDES",
+      extras: ["README.md"],
+      # extras: [
+      #   {"README.md", title: "Home"},
+      #   "guides.gen.md"
+      # ],
+      source_url: @source_url,
+      # groups_for_extras: [
+      #   "Start here": [
+      #     "documentation/intro.md",
+      #     "documentation/features.md"
+      #   ]
+      # ]
     ]
   end
 end
