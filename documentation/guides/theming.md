@@ -24,16 +24,6 @@ Each preset is carefully designed for specific use cases, from clean light inter
     theme={:dark}
   />
 ```
-### Available Themes
-| Theme | Description | Use Case |
-|-------|-------------|----------|
-| `:light` | Clean, bright theme with gray land masses and dark borders | Default theme, good for most applications |
-| `:dark` | Dark background with subtle borders for dark mode interfaces | Dark mode applications, night-time usage |
-| `:minimal` | Transparent backgrounds with subtle borders for overlays | Embedding in existing designs, overlay maps |
-| `:cool` | Blue-toned theme suitable for technical applications | Technical dashboards, monitoring systems |
-| `:warm` | Earth-toned theme with warm colours for friendly interfaces | Consumer applications, friendly interfaces |
-| `:high_contrast` | Maximum contrast theme for accessibility | Accessibility compliance, vision assistance |
-| `:responsive` | CSS variable-based theme that adapts to system preferences | Automatic light/dark mode switching |
 ### Tips
 - Start with :responsive for automatic light/dark adaptation
 - Use :high_contrast for accessibility compliance

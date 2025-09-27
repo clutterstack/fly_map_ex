@@ -11,9 +11,7 @@ defmodule FlyMapEx.FlyRegions do
 
       config :fly_map_ex, :custom_regions, %{
         "dev" => %{name: "Development", coordinates: {47.6062, -122.3321}},
-        "laptop-chris" => %{name: "Chris's Laptop", coordinates: {49.2827, -123.1207}},
-        "office-nyc" => %{name: "NYC Office", coordinates: {40.7128, -74.0060}}
-      }
+        "laptop" => %{name: "Laptop", coordinates: {49.2827, -123.1207}}      }
 
   Custom regions will be merged with built-in Fly.io regions, with custom regions
   taking precedence if there are naming conflicts.
@@ -101,7 +99,7 @@ defmodule FlyMapEx.FlyRegions do
   # ## Examples
 
   #     iex> FlyMapEx.FlyRegions.list()
-  #     ["ams", "iad", "atl", "dev", "laptop-chris", ...]
+  #     ["ams", "iad", "atl", ...]
   # """
   # def list do
   #   built_in = Map.keys(@fly_regions) |> Enum.map(&Atom.to_string/1)

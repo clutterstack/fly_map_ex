@@ -152,24 +152,6 @@ defmodule Mix.Tasks.Gen.GuideDocs do
         content_parts
       end
 
-    # Add available themes table
-    content_parts =
-      if Map.has_key?(section, :available_themes) and section.available_themes do
-        table_content = [
-          "### Available Themes",
-          "",
-          "| Theme | Description | Use Case |",
-          "|-------|-------------|----------|",
-          Enum.map(section.available_themes, fn theme ->
-            "| `#{theme.theme}` | #{theme.description} | #{theme.use_case} |"
-          end),
-          ""
-        ]
-        content_parts ++ List.flatten(table_content)
-      else
-        content_parts
-      end
-
     # Add tips as bullet points
     content_parts =
       if Map.has_key?(section, :tips) and is_list(section.tips) and length(section.tips) > 0 do
