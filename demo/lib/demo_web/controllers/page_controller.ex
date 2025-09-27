@@ -32,4 +32,19 @@ defmodule DemoWeb.PageController do
     render(conn, :home, assigns)
   end
 
+  def not_found(conn, _params) do
+    assigns = %{
+      page_title: "Page Not Found",
+      title: "Page Not Found",
+      description: "The requested page could not be found.",
+      keywords: "404, not found, error",
+      current_page: "404",
+      flash: conn.assigns[:flash] || %{}
+    }
+
+    conn
+    |> put_status(:not_found)
+    |> render(:not_found, assigns)
+  end
+
 end

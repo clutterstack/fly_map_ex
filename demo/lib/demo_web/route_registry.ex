@@ -146,11 +146,26 @@ defmodule DemoWeb.RouteRegistry do
 
   Used by PageLive to resolve content modules.
   Only works for content modules, not LiveView modules.
+
+  Returns `{:ok, module}` if the content page exists, or `{:error, reason}` if not.
   """
   def get_route_module(id) do
     case get_route(id) do
-      %{type: :content, module: module} -> module
-      _ -> raise ArgumentError, "Page '#{id}' is not a content module"
+      %{type: :content, module: module} -> {:ok, module}
+      %{type: type} -> {:error, "Page '#{id}' is a #{type} route, not a content module"}
+      nil -> {:error, "Page '#{id}' not found"}
+    end
+  end
+
+  @doc """
+  Gets the module for a content page (legacy version that raises).
+
+  DEPRECATED: Use `get_route_module/1` instead for better error handling.
+  """
+  def get_route_module!(id) do
+    case get_route_module(id) do
+      {:ok, module} -> module
+      {:error, reason} -> raise ArgumentError, reason
     end
   end
 

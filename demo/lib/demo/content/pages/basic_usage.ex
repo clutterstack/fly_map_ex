@@ -80,6 +80,8 @@ defmodule DemoWeb.Content.BasicUsage do
           ContentHelpers.content_section(
             "Add markers to the map",
             ~s"""
+
+            `<FlyMapEx.render />` renders an SVG map in the default layout and colour theme.
               To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a `:nodes` field with a list of positions for markers. The marker
 
               The location can be in the form of a coordinate tuple `{lat, long}` where negative values indicate southern latitudes and western longitudes.
@@ -90,7 +92,18 @@ defmodule DemoWeb.Content.BasicUsage do
 
             Here's an example of a node group with one node in San Francisco and one somewhere in the ocean
             """
-          )
+          ),
+          ContentHelpers.info_box(
+            :primary,
+            "Refs",
+            ContentHelpers.convert_markdown(
+              ~s"""
+              TK link map themes
+
+              TK link WGS 84
+              """
+            )
+          ),
         ]
         |> Enum.join(),
       example: validated_template("""
