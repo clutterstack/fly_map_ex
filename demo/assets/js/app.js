@@ -1,6 +1,5 @@
-// If you want to use Phoenix channels, run `mix help phx.gen.channel`
-// to get started and then uncomment the line below.
-// import "./user_socket.js"
+// Enable Phoenix channels for real-time map updates
+import "./user_socket.js"
 
 // You can include dependencies in two ways.
 //
@@ -23,11 +22,15 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import { RealTimeMapHook } from "./real_time_map_hook.js"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: {
+    RealTimeMap: RealTimeMapHook
+  }
 })
 
 // Show progress bar on live navigation and form submits
