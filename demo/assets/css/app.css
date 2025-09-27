@@ -7,6 +7,9 @@
 @source "../../lib/demo_web";
 @source "../../../lib/fly_map_ex";
 
+/* Import syntax highlighting styles */
+@import "./syntax_highlighting.css";
+
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";

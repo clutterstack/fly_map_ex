@@ -21,9 +21,6 @@ defmodule DemoWeb.Content.BasicUsage do
 
   def tabs do
     [
-      %{key: "blank_map",
-        label: "Blank map"
-      },
       %{
         key: "add_markers",
         label: "Add markers"
@@ -45,33 +42,6 @@ defmodule DemoWeb.Content.BasicUsage do
   * `example`: A description for the code panel label, an optional code comment,
     and the assigns to pass to the FlyMapEx.render component.
   """
-
-  def get_content("blank_map") do
-    %{
-      content:
-        [
-          ContentHelpers.convert_markdown(
-          ~s"""
-          `<FlyMapEx.render />` renders an SVG map in the default layout and colour theme.
-          """
-          ),
-          ContentHelpers.info_box(
-            :primary,
-            "Refs",
-            ContentHelpers.convert_markdown(
-              ~s"""
-              TK link map themes
-
-              TK link WGS 84
-              """
-            )
-          ),
-        ],
-      example: validated_template("""
-        <FlyMapEx.render />
-      """)
-    }
-  end
 
   def get_content("add_markers") do
     %{

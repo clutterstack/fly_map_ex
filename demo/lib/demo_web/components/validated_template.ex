@@ -19,6 +19,7 @@ defmodule DemoWeb.Components.ValidatedTemplate do
 
   use Phoenix.Component
   import Phoenix.HTML
+  alias DemoWeb.Helpers.SyntaxHighlighter
 
   @doc """
   Renders the map component using the validated template assigns.
@@ -53,7 +54,9 @@ defmodule DemoWeb.Components.ValidatedTemplate do
 
       <!-- Template Code Display -->
       <div class="p-4">
-        <pre class="text-sm text-base-content whitespace-pre-wrap overflow-x-auto bg-base-200 p-3 rounded"><code>{format_template(@validated_example.template)}</code></pre>
+        <div class="syntax-highlight text-sm bg-base-200 p-3 rounded overflow-x-auto">
+          {raw(highlight_template(@validated_example.template))}
+        </div>
       </div>
     </div>
     """
@@ -106,12 +109,16 @@ defmodule DemoWeb.Components.ValidatedTemplate do
     }
   end
 
-  defp format_template(template_string) do
-    # Clean up and format the template for nice display
-    template_string
-    |> String.trim()
-    |> format_multiline_template()
+  defp highlight_template(template_string) do
+    # Clean up, format, and highlight the template
+    formatted_template =
+      template_string
+      |> String.trim()
+      |> format_multiline_template()
+
+    SyntaxHighlighter.highlight_code(formatted_template, :heex)
   end
+
 
   defp format_multiline_template(template) do
     # If template is on multiple lines, preserve formatting

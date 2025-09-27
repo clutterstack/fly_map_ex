@@ -1,0 +1,221 @@
+/* Syntax Highlighting Styles with Light/Dark Theme Support */
+/* Light mode: Makeup's autumn_style */
+/* Dark mode: Makeup's paraiso_dark_style */
+/* Supports both explicit theme selection AND system preferences */
+
+.syntax-highlight {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height: 1.5;
+  white-space: pre-wrap; /* Preserve whitespace and line breaks */
+}
+
+.syntax-highlight .highlight {
+  color: inherit;
+}
+
+/* Light Mode Styles (Autumn Theme) - Default */
+.syntax-highlight .highlight .go { color: #888888 }
+.syntax-highlight .highlight .cs { font-style: italic; color: #0000aa }
+.syntax-highlight .highlight .nv { color: #aa0000 }
+.syntax-highlight .highlight .sx { color: #aa5500 }
+.syntax-highlight .highlight .nt { font-weight: bold; color: #1e90ff }
+.syntax-highlight .highlight .ch { font-style: italic; color: #aaaaaa }
+.syntax-highlight .highlight .err { background-color: #FAA; color: #F00 }
+.syntax-highlight .highlight .mf { color: #009999 }
+.syntax-highlight .highlight .sd { color: #aa5500 }
+.syntax-highlight .highlight .cm { font-style: italic; color: #aaaaaa }
+.syntax-highlight .highlight .sb { color: #aa5500 }
+.syntax-highlight .highlight .vg { color: #aa0000 }
+.syntax-highlight .highlight .ss { color: #aa5500 }
+.syntax-highlight .highlight .mh { color: #009999 }
+.syntax-highlight .highlight .sc { color: #aa5500 }
+.syntax-highlight .highlight .vc { color: #aa0000 }
+.syntax-highlight .highlight .nn { text-decoration: underline; color: #00aaaa }
+.syntax-highlight .highlight .gt { color: #aa0000 }
+.syntax-highlight .highlight .kp { color: #0000aa }
+.syntax-highlight .highlight .no { color: #aa0000 }
+.syntax-highlight .highlight .keyword_constant { color: #0000aa }
+.syntax-highlight .highlight .fm { color: #00aa00 }
+.syntax-highlight .highlight .gs { font-weight: bold }
+.syntax-highlight .highlight .gu { font-weight: bold; color: #800080 }
+.syntax-highlight .highlight .gp { color: #555555 }
+.syntax-highlight .highlight .mi { color: #009999 }
+.syntax-highlight .highlight .c1 { font-style: italic; color: #aaaaaa }
+.syntax-highlight .highlight .nd { color: #888888 }
+.syntax-highlight .highlight .mo { color: #009999 }
+.syntax-highlight .highlight .kt { color: #00aaaa }
+.syntax-highlight .highlight .name_builtin_pseudo { color: #00aaaa }
+.syntax-highlight .highlight .m { color: #009999 }
+.syntax-highlight .highlight .dl { color: #aa5500 }
+.syntax-highlight .highlight .cpf { font-style: normal; color: #4c8317 }
+.syntax-highlight .highlight .c { font-style: italic; color: #aaaaaa }
+.syntax-highlight .highlight .kd { color: #0000aa }
+.syntax-highlight .highlight .mb { color: #009999 }
+.syntax-highlight .highlight .vi { color: #aa0000 }
+.syntax-highlight .highlight .si { color: #aa5500 }
+.syntax-highlight .highlight .k { color: #0000aa }
+.syntax-highlight .highlight .sh { color: #aa5500 }
+.syntax-highlight .highlight .gh { font-weight: bold; color: #000080 }
+.syntax-highlight .highlight .s1 { color: #aa5500 }
+.syntax-highlight .highlight .kr { color: #0000aa }
+.syntax-highlight .highlight .ge { font-style: italic }
+.syntax-highlight .highlight .il { color: #009999 }
+.syntax-highlight .highlight .sr { color: #009999 }
+.syntax-highlight .highlight .nf { color: #00aa00 }
+.syntax-highlight .highlight .sa { color: #aa5500 }
+.syntax-highlight .highlight .s2 { color: #aa5500 }
+.syntax-highlight .highlight .na { color: #1e90ff }
+.syntax-highlight .highlight .gr { color: #aa0000 }
+.syntax-highlight .highlight .s { color: #aa5500 }
+.syntax-highlight .highlight .gi { color: #00aa00 }
+.syntax-highlight .highlight .ni { font-weight: bold; color: #800 }
+.syntax-highlight .highlight .cp { font-style: normal; color: #4c8317 }
+.syntax-highlight .highlight .kn { color: #0000aa }
+.syntax-highlight .highlight .vm { color: #aa0000 }
+.syntax-highlight .highlight .se { color: #aa5500 }
+.syntax-highlight .highlight .gd { color: #aa0000 }
+.syntax-highlight .highlight .nc { text-decoration: underline; color: #00aa00 }
+.syntax-highlight .highlight .ow { color: #0000aa }
+.syntax-highlight .highlight .nb { color: #00aaaa }
+.syntax-highlight .highlight .ss { color: #0000aa }
+.syntax-highlight .highlight .n { }
+.syntax-highlight .highlight .o { }
+.syntax-highlight .highlight .p { }
+
+/* Dark Mode Styles (Paraiso Dark Theme) */
+/* Applies when: explicit dark theme */
+[data-theme="dark"] .syntax-highlight .highlight .cs { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .nv { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .sx { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .nt { color: #5bc4bf; }
+[data-theme="dark"] .syntax-highlight .highlight .ch { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .err { background-color: #ef6155; color: #2f1e2e; }
+[data-theme="dark"] .syntax-highlight .highlight .mf { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .sd { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .cm { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .sb { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .vg { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .ss { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .mh { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .sc { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .vc { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .nn { color: #fec418; }
+[data-theme="dark"] .syntax-highlight .highlight .gt { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .kp { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .no { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .keyword_constant { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .fm { color: #fec418; }
+[data-theme="dark"] .syntax-highlight .highlight .gs { font-weight: bold; }
+[data-theme="dark"] .syntax-highlight .highlight .gu { font-weight: bold; color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .gp { color: #8d8687; }
+[data-theme="dark"] .syntax-highlight .highlight .mi { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .c1 { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .nd { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .mo { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .kt { color: #5bc4bf; }
+[data-theme="dark"] .syntax-highlight .highlight .name_builtin_pseudo { color: #5bc4bf; }
+[data-theme="dark"] .syntax-highlight .highlight .m { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .dl { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .cpf { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .c { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .kd { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .mb { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .vi { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .si { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .k { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .sh { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .gh { font-weight: bold; color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .s1 { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .kr { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .ge { font-style: italic; }
+[data-theme="dark"] .syntax-highlight .highlight .il { color: #f99b15; }
+[data-theme="dark"] .syntax-highlight .highlight .sr { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .nf { color: #fec418; }
+[data-theme="dark"] .syntax-highlight .highlight .sa { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .s2 { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .na { color: #5bc4bf; }
+[data-theme="dark"] .syntax-highlight .highlight .gr { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .s { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .gi { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .ni { font-weight: bold; color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .cp { color: #776e71; }
+[data-theme="dark"] .syntax-highlight .highlight .kn { color: #815ba4; }
+[data-theme="dark"] .syntax-highlight .highlight .vm { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .se { color: #48b685; }
+[data-theme="dark"] .syntax-highlight .highlight .gd { color: #ef6155; }
+[data-theme="dark"] .syntax-highlight .highlight .nc { color: #fec418; }
+[data-theme="dark"] .syntax-highlight .highlight .ow { color: #5bc4bf; }
+[data-theme="dark"] .syntax-highlight .highlight .nb { color: #5bc4bf; }
+
+/* Auto theme + system dark preference */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .syntax-highlight .highlight .cs { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .nv { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .sx { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .nt { color: #5bc4bf; }
+  [data-theme="auto"] .syntax-highlight .highlight .ch { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .err { background-color: #ef6155; color: #2f1e2e; }
+  [data-theme="auto"] .syntax-highlight .highlight .mf { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .sd { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .cm { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .sb { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .vg { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .ss { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .mh { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .sc { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .vc { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .nn { color: #fec418; }
+  [data-theme="auto"] .syntax-highlight .highlight .gt { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .kp { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .no { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .keyword_constant { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .fm { color: #fec418; }
+  [data-theme="auto"] .syntax-highlight .highlight .gs { font-weight: bold; }
+  [data-theme="auto"] .syntax-highlight .highlight .gu { font-weight: bold; color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .gp { color: #8d8687; }
+  [data-theme="auto"] .syntax-highlight .highlight .mi { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .c1 { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .nd { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .mo { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .kt { color: #5bc4bf; }
+  [data-theme="auto"] .syntax-highlight .highlight .name_builtin_pseudo { color: #5bc4bf; }
+  [data-theme="auto"] .syntax-highlight .highlight .m { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .dl { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .cpf { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .c { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .kd { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .mb { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .vi { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .si { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .k { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .sh { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .gh { font-weight: bold; color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .s1 { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .kr { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .ge { font-style: italic; }
+  [data-theme="auto"] .syntax-highlight .highlight .il { color: #f99b15; }
+  [data-theme="auto"] .syntax-highlight .highlight .sr { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .nf { color: #fec418; }
+  [data-theme="auto"] .syntax-highlight .highlight .sa { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .s2 { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .na { color: #5bc4bf; }
+  [data-theme="auto"] .syntax-highlight .highlight .gr { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .s { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .gi { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .ni { font-weight: bold; color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .cp { color: #776e71; }
+  [data-theme="auto"] .syntax-highlight .highlight .kn { color: #815ba4; }
+  [data-theme="auto"] .syntax-highlight .highlight .vm { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .se { color: #48b685; }
+  [data-theme="auto"] .syntax-highlight .highlight .gd { color: #ef6155; }
+  [data-theme="auto"] .syntax-highlight .highlight .nc { color: #fec418; }
+  [data-theme="auto"] .syntax-highlight .highlight .ow { color: #5bc4bf; }
+  [data-theme="auto"] .syntax-highlight .highlight .nb { color: #5bc4bf; }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .syntax-highlight {
+    font-size: 0.8rem;
+  }
+}

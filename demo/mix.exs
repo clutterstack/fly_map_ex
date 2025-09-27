@@ -56,7 +56,9 @@ defmodule Demo.MixProject do
       # Local dependency on parent FlyMapEx library
       {:fly_map_ex, path: ".."},
       {:tidewave, "~> 0.1", only: :dev},
-      {:earmark, "~> 1.4"}
+      {:earmark, "~> 1.4"},
+      {:makeup_elixir, "~> 1.0"},
+      {:makeup_eex, "~> 1.0"}
     ]
   end
 
