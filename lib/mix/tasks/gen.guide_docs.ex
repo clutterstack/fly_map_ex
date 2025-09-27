@@ -14,7 +14,6 @@ defmodule Mix.Tasks.Gen.GuideDocs do
   - `documentation/guides/basic_usage.md`
   - `documentation/guides/marker_styling.md`
   - `documentation/guides/theming.md`
-  - `documentation/examples.md` (combined overview)
 
   All files are generated from the library guide modules to ensure consistency
   between demo app content and documentation.
@@ -41,14 +40,8 @@ defmodule Mix.Tasks.Gen.GuideDocs do
     # Generate individual guide files
     Enum.each(@guide_modules, fn module -> generate_guide_file(module, project_root) end)
 
-    # Generate combined examples overview
-    generate_examples_overview(project_root)
-
-    Mix.shell().info("✅ Generated guide documentation:")
-    Mix.shell().info("   - documentation/guides/basic_usage.md")
-    Mix.shell().info("   - documentation/guides/marker_styling.md")
-    Mix.shell().info("   - documentation/guides/theming.md")
-    Mix.shell().info("   - documentation/examples.md")
+    Mix.shell().info("Guide files generated.")
+    Mix.shell().info("Now run `mix docs`.")
   end
 
   defp find_project_root do
@@ -84,8 +77,6 @@ defmodule Mix.Tasks.Gen.GuideDocs do
       "",
       metadata.description,
       "",
-      generate_table_of_contents(sections),
-      "",
       Enum.map(sections, &generate_section_markdown/1)
     ]
     |> List.flatten()
@@ -93,46 +84,7 @@ defmodule Mix.Tasks.Gen.GuideDocs do
 
     file_path = Path.join(project_root, "documentation/guides/#{metadata.slug}.md")
     File.write!(file_path, content)
-  end
-
-  defp generate_examples_overview(project_root) do
-    content = [
-      "# FlyMapEx Examples",
-      "",
-      "This document demonstrates various usage patterns for FlyMapEx. All examples are validated at compile-time and used in both the demo application and documentation.",
-      "",
-      generate_overview_toc(),
-      "",
-      Enum.map(@guide_modules, &generate_guide_overview/1)
-    ]
-    |> List.flatten()
-    |> Enum.join("\n")
-
-    file_path = Path.join(project_root, "documentation/examples.md")
-    File.write!(file_path, content)
-  end
-
-  defp generate_table_of_contents(sections) do
-    [
-      "## Table of Contents",
-      "",
-      Enum.map(sections, fn section ->
-        "- [#{section.title}](##{slugify(section.title)})"
-      end)
-    ]
-    |> List.flatten()
-  end
-
-  defp generate_overview_toc do
-    [
-      "## Table of Contents",
-      "",
-      Enum.map(@guide_modules, fn guide_module ->
-        metadata = apply(guide_module, :guide_metadata, [])
-        "- [#{metadata.title}](##{slugify(metadata.title)})"
-      end)
-    ]
-    |> List.flatten()
+    Mix.shell().info("Wrote documentation/guides/#{metadata.slug}.md")
   end
 
   defp generate_section_markdown(section) do
@@ -148,25 +100,6 @@ defmodule Mix.Tasks.Gen.GuideDocs do
     ]
     |> List.flatten()
     |> Enum.reject(&(&1 == ""))
-  end
-
-  defp generate_guide_overview(guide_module) do
-    metadata = apply(guide_module, :guide_metadata, [])
-    sections = apply(guide_module, :all_sections, [])
-
-    [
-      "## #{metadata.title}",
-      "",
-      metadata.description,
-      "",
-      Enum.take(sections, 2) |> Enum.map(&generate_section_markdown/1),
-      if length(sections) > 2 do
-        ["", "*[View complete #{metadata.title} guide →](guides/#{metadata.slug}.md)*", ""]
-      else
-        []
-      end
-    ]
-    |> List.flatten()
   end
 
   defp generate_example_code(example) when is_map(example) do
@@ -284,13 +217,5 @@ defmodule Mix.Tasks.Gen.GuideDocs do
       end
 
     content_parts
-  end
-
-  defp slugify(text) do
-    text
-    |> String.downcase()
-    |> String.replace(~r/[^a-z0-9\s-]/, "")
-    |> String.replace(~r/\s+/, "-")
-    |> String.trim("-")
   end
 end

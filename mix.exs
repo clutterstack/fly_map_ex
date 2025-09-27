@@ -61,14 +61,12 @@ defmodule FlyMapEx.MixProject do
       extra_section: "GUIDES",
       extras: [
         "README.md",
-        "documentation/examples.md",
         "documentation/guides/basic_usage.md",
         "documentation/guides/marker_styling.md",
         "documentation/guides/theming.md"
       ],
       groups_for_extras: [
         "Getting Started": ["README.md"],
-        "Examples": ["documentation/examples.md"],
         "Guides": [
           "documentation/guides/basic_usage.md",
           "documentation/guides/marker_styling.md",

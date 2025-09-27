@@ -2,12 +2,6 @@
 
 Control overall visual presentation and branding with FlyMapEx's comprehensive theming system.
 
-## Table of Contents
-
-- [Built-in Theme Presets](#built-in-theme-presets)
-- [Custom Theme Creation](#custom-theme-creation)
-- [Application-Level Theme Configuration](#application-level-theme-configuration)
-
 ## Built-in Theme Presets
 Seven ready-to-use themes that control map background colours, borders, and neutral elements.
 

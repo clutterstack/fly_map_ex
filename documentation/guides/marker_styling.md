@@ -2,13 +2,6 @@
 
 Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system.
 
-## Table of Contents
-
-- [Automatic Colours](#automatic-colours)
-- [Semantic Styling](#semantic-styling)
-- [Direct Style Maps](#direct-style-maps)
-- [Mixed Approaches](#mixed-approaches)
-
 ## Automatic Colours
 If you don't specify a group's marker styles, a different colour is automatically assigned to each group.
 

@@ -2,12 +2,6 @@
 
 Place node markers using coordinates or Fly.io region codes.
 
-## Table of Contents
-
-- [Add Markers to the Map](#add-markers-to-the-map)
-- [Fly.io Region Codes](#flyio-region-codes)
-- [Custom Regions for Mixed Deployments](#custom-regions-for-mixed-deployments)
-
 ## Add Markers to the Map
 `<FlyMapEx.render />` renders an SVG map in the default layout and colour theme.
 To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a `:nodes` field with a list of positions for markers.
