@@ -261,7 +261,19 @@ defmodule Mix.Tasks.Gen.GuideDocs do
             if String.starts_with?(link, "http") do
               "- [#{title}](#{link})"
             else
-              "- [#{title}](#{link})"
+              # Convert guide slugs to proper markdown file references
+              guide_link = cond do
+                String.starts_with?(link, "#") -> link  # Keep anchor links as-is
+                String.contains?(link, "#") ->
+                  # Handle guide#anchor format
+                  [guide_slug, anchor] = String.split(link, "#", parts: 2)
+                  "#{guide_slug}.md##{anchor}"
+                link == "basic_usage" -> "basic_usage.md"
+                link == "marker_styling" -> "marker_styling.md"
+                link == "theming" -> "theming.md"
+                true -> "#{link}.md"  # Convert other slugs to .md files
+              end
+              "- [#{title}](#{guide_link})"
             end
           end),
           ""

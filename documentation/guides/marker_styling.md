@@ -129,7 +129,7 @@ Custom style maps give you complete control over marker appearance, allowing you
 - Glow effects improve visibility on busy maps
 ### Related
 - [Mixed Approaches](#mixed)
-- [Map Themes](theming)
+- [Map Themes](theming.md)
 ## Mixed Approaches
 Combine different styling methods in one configuration for complex real-world scenarios.
 
@@ -164,4 +164,4 @@ Real applications often need a mix of styling approaches - semantic styles for c
 ### Related
 - [Semantic Styling](#semantic)
 - [Custom Styling](#custom)
-- [Basic Usage](basic_usage)
+- [Basic Usage](basic_usage.md)

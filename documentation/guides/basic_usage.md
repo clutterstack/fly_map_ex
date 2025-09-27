@@ -33,7 +33,7 @@ Here's an example of a node group with one node in San Francisco and one somewhe
 - Negative latitudes indicate southern hemisphere
 - Negative longitudes indicate western hemisphere
 ### Related
-- [Map Themes](theming)
+- [Map Themes](theming.md)
 - [WGS84 Coordinate System](https://en.wikipedia.org/wiki/World_Geodetic_System)
 ## Fly.io Region Codes
 Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure.
@@ -96,5 +96,5 @@ config :fly_map_ex, :custom_regions,
 - Use descriptive names that clearly identify the location purpose
 - Coordinate format is the same as for direct coordinate tuples
 ### Related
-- [Marker Styling](marker_styling)
-- [Configuration Reference](configuration)
+- [Marker Styling](marker_styling.md)
+- [Configuration Reference](theming.md#configuration)

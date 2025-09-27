@@ -218,7 +218,7 @@ defmodule FlyMapEx.Guides.BasicUsage do
       ],
       related_links: [
         {"Marker Styling", "marker_styling"},
-        {"Configuration Reference", "configuration"}
+        {"Configuration Reference", "theming#configuration"}
       ]
     }
   end

@@ -166,4 +166,4 @@ config :fly_map_ex,
 ### Related
 - [Theme Presets](#presets)
 - [Custom Themes](#custom)
-- [Marker Styling](marker_styling)
+- [Marker Styling](marker_styling.md)
