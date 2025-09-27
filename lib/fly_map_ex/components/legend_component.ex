@@ -182,7 +182,7 @@ defmodule FlyMapEx.Components.LegendComponent do
             phx-click={build_toggle_js_command(group.group_label, @on_toggle)}
           >
             <div class="flex-shrink-0 mt-0.5 p-0.5">
-              <Marker.marker style={group.style} mode={:legend} />
+              <Marker.marker style={group.style} mode={:legend} gradient_id={generate_legend_gradient_id(group.style)} />
             </div>
             <div class="flex-grow min-w-0">
               <div class="text-sm font-medium flex items-center text-base-content legend-text">
@@ -200,7 +200,7 @@ defmodule FlyMapEx.Components.LegendComponent do
         <% else %>
           <div class="flex items-start space-x-2 p-1 rounded transition-all duration-200 border border-transparent">
             <div class="flex-shrink-0 mt-0.5 p-0.5">
-              <Marker.marker style={group.style} mode={:legend} />
+              <Marker.marker style={group.style} mode={:legend} gradient_id={generate_legend_gradient_id(group.style)} />
             </div>
             <div class="flex-grow min-w-0">
               <div class="text-sm font-medium flex items-center text-base-content legend-text">
@@ -216,11 +216,8 @@ defmodule FlyMapEx.Components.LegendComponent do
 
       <!-- All Fly.io regions -->
       <div :if= {@show_regions} class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50">
-        <div class="flex-shrink-0 mt-0.5">
-          <span
-            class="inline-block w-2 h-2 rounded-full"
-            style={"background-color: #{@region_marker_colour}; opacity: #{@marker_opacity};"}
-          ></span>
+        <div class="flex-shrink-0 mt-0.5 p-0.5">
+          <Marker.marker style={%{colour: @region_marker_colour, size: 4, animation: :none}} mode={:legend} />
         </div>
         <div class="flex-grow min-w-0">
           <div class="text-sm font-medium text-base-content/60">
@@ -308,5 +305,16 @@ defmodule FlyMapEx.Components.LegendComponent do
       Map.get(group, :machine_count, length(group.nodes))
     end)
     |> Enum.sum()
+  end
+
+  # Generates a gradient ID for legend markers when glow effects are enabled.
+  # Returns nil if glow is not enabled, otherwise generates the same ID format as the WorldMap component.
+  defp generate_legend_gradient_id(style) do
+    if Map.get(style, :glow, false) do
+      colour = Map.get(style, :colour, "#6b7280")
+      "legend-glow-gradient-#{String.replace(colour, "#", "")}"
+    else
+      nil
+    end
   end
 end

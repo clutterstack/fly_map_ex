@@ -268,6 +268,15 @@ defmodule FlyMapEx.Components.Marker do
 
     ~H"""
     <svg class="inline-block" width={trunc(@marker_radius * FlyMapEx.Config.legend_container_multiplier())} height={trunc(@marker_radius * FlyMapEx.Config.legend_container_multiplier())} viewBox={viewbox(@dim)}>
+      <%= if @glow && @gradient_id do %>
+        <defs>
+          <radialGradient id={@gradient_id} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="60%" stop-color={Map.get(@style, :colour, "#6b7280")} stop-opacity="1"/>
+            <stop offset="80%" stop-color={Map.get(@style, :colour, "#6b7280")} stop-opacity="0.6"/>
+            <stop offset="100%" stop-color={Map.get(@style, :colour, "#6b7280")} stop-opacity="0.2"/>
+          </radialGradient>
+        </defs>
+      <% end %>
       <.render_marker_svg {assigns} />
     </svg>
     """
