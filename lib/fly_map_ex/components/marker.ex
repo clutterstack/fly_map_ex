@@ -156,7 +156,7 @@ defmodule FlyMapEx.Components.Marker do
 
   ## Animation Details
 
-  - **Pulse**: Radius changes cyclically to draw attention
+  - **Pulse**: Radius pulses on render to draw attention.
   - **Fade**: Opacity changes to create subtle movement
   - **Static**: No animation, solid appearance
 
@@ -222,7 +222,7 @@ defmodule FlyMapEx.Components.Marker do
           attributeName: "r",
           values: FlyMapEx.Config.pulse_radius_values(context, marker_radius),
           dur: FlyMapEx.Config.animation_duration(),
-          repeatCount: "indefinite"
+          repeatCount: "2"
         }
 
       _ ->
