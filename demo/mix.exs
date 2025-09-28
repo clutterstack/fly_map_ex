@@ -55,7 +55,7 @@ defmodule Demo.MixProject do
       {:bandit, "~> 1.5"},
       # Local dependency on parent FlyMapEx library
       {:fly_map_ex, path: ".."},
-      {:tidewave, "~> 0.1", only: :dev},
+      {:tidewave, "~> 0.5", only: :dev},
       {:earmark, "~> 1.4"},
       {:makeup_elixir, "~> 1.0"},
       {:makeup_eex, "~> 1.0"}
