@@ -86,6 +86,39 @@ defmodule FlyMapEx.Content.ValidatedExample do
     # This handles multi-line attributes and comments properly
     cleaned_template = String.trim(template_string)
 
+    # Check for invalid # comments in HEEx templates
+    if String.contains?(cleaned_template, "#") do
+      # Check if # appears in a position that would be a comment
+      lines = String.split(cleaned_template, "\n")
+
+      Enum.each(lines, fn line ->
+        # Check for lines that start with # (comment pattern)
+        if Regex.match?(~r/^\s*#/, line) do
+          {:error, "Invalid HEEx syntax: Use <%!-- comment --%> instead of # for comments"}
+          |> then(fn {_status, msg} ->
+            raise CompileError, description: msg
+          end)
+        end
+
+        # Check for inline # comments that are not inside strings
+        # Look for # that appears after whitespace and is not inside quotes
+        if Regex.match?(~r/\s#(?![^"]*"[^"]*$)(?![^']*'[^']*$)/, line) do
+          # Additional check: make sure it's not inside a string literal or map
+          # Simple heuristic: if there's an uneven number of quotes before the #, it's likely inside a string
+          parts_before_hash = String.split(line, "#") |> List.first()
+          quote_count = String.graphemes(parts_before_hash) |> Enum.count(&(&1 == "\""))
+
+          # If quote count is even, we're likely not inside a string
+          if rem(quote_count, 2) == 0 do
+            {:error, "Invalid HEEx syntax: Use <%!-- comment --%> instead of # for comments"}
+            |> then(fn {_status, msg} ->
+              raise CompileError, description: msg
+            end)
+          end
+        end
+      end)
+    end
+
     # Extract the component call using regex that handles multiline
     case Regex.run(~r/<FlyMapEx\.render\s*(.*?)\s*\/>/s, cleaned_template) do
       [_, attrs_content] ->
