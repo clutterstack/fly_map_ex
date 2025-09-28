@@ -32,11 +32,6 @@ defmodule FlyMapEx.Guides.BasicUsage do
         title: "Add Markers to the Map"
       },
       %{
-        key: "fly_regions",
-        label: "Fly.io regions",
-        title: "Fly.io Region Codes"
-      },
-      %{
         key: "custom_regions",
         label: "Custom Regions",
         title: "Custom Regions for Mixed Deployments"
@@ -55,61 +50,28 @@ defmodule FlyMapEx.Guides.BasicUsage do
     %{
       title: "Add Markers to the Map",
       content: """
-      `<FlyMapEx.render />` renders an SVG map in the default layout and colour theme.
-      To place nodes on the map, supply the `:marker_groups` assign. `:marker_groups` is a list of maps. Each map contains, at the very least, a `:nodes` field with a list of positions for markers.
+      `<FlyMapEx.render />` renders just an SVG map in the default layout and colour theme.
 
-      The location can be in the form of a coordinate tuple `{lat, long}` where negative values indicate southern latitudes and western longitudes.
+      To place nodes on the map, supply the `:marker_groups` assign; a list of maps that must contain at least a `:nodes` field indicating where to put the markers on the map.
 
-      * To add markers, you put a list of nodes in each marker group.
-      * At minimum, you have to give each node a map position.
+      Use latitude and longitude, Fly.io region (airport) codes, or custom-configured named locations for map positions.
 
-      Here's an example of a node group with one node in San Francisco and one somewhere in the ocean:
+      Here's an example with two node groups: one with a node in San Francisco and one somewhere in the North Sea, using `{lat, long}` notation; and one with a node in Frankfurt and a node in Singapore, using Fly.io region (airport) codes.
       """,
       example: validated_template("""
         <FlyMapEx.render
           marker_groups={[
-            %{
-              nodes: [{37.8, -122.4}, {56, 3.6}]
-            }
+            %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+            %{nodes: ["fra", "sin"]}
           ]}
         />
       """),
       tips: [
-        "Coordinate tuples use standard WGS84 format: `{latitude, longitude}`",
-        "Negative latitudes indicate southern hemisphere",
-        "Negative longitudes indicate western hemisphere"
+        "Coordinate tuples use standard WGS84 format: `{latitude, longitude}` where negative values mean western or southern hemispheres."
       ],
       related_links: [
         {"Map Themes", "theming"},
-        {"WGS84 Coordinate System", "https://en.wikipedia.org/wiki/World_Geodetic_System"}
-      ]
-    }
-  end
-
-  def get_section("fly_regions") do
-    %{
-      title: "Fly.io Region Codes",
-      content: """
-      Use three-letter region codes that automatically resolve to exact coordinates for Fly.io infrastructure.
-
-      FlyMapEx includes built-in coordinates for all official Fly.io regions, so you can reference them by their standard codes like `"fra"`, `"sin"`, `"lhr"`, etc.
-      """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["fra", "sin"],
-              label: "Global Regions"
-            }
-          ]}
-        />
-      """),
-      tips: [
-        ~s(Custom regions like "dev" or "laptop" can be specified in your app config.),
-        "All official Fly.io regions are supported out of the box",
-        "Region codes are case-insensitive"
-      ],
-      related_links: [
+        {"WGS84 Coordinate System", "https://en.wikipedia.org/wiki/World_Geodetic_System"},
         {"Custom Regions", "#custom_regions"},
         {"Fly.io Regions", "https://fly.io/docs/reference/regions/"}
       ]
@@ -118,7 +80,7 @@ defmodule FlyMapEx.Guides.BasicUsage do
 
   def get_section("custom_regions") do
     %{
-      title: "Custom Regions for Mixed Deployments",
+      title: "Configure custom regions",
       content: """
       Define custom regions in your app config for mixed Fly.io + local deployments. Perfect for showing development environments, office locations, or hybrid cloud setups.
 
@@ -127,14 +89,9 @@ defmodule FlyMapEx.Guides.BasicUsage do
       example: validated_template("""
         <FlyMapEx.render
           marker_groups={[
-            %{
-              nodes: [{47.6062, -122.3321}, {63.7, -68.5}],
-              label: "Development Environments"
-            },
-            %{
-              nodes: ["fra", "sin", "lhr"],
-              label: "Production Regions"
-            }
+            %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+            %{nodes: ["fra", "sin"]},
+            %{nodes: ["laptop"]}
           ]}
         />
       """),

@@ -14,6 +14,8 @@ defmodule FlyMapEx do
   This is the main entry point for the library, providing a single function component
   with optional JS-based interactivity for legend toggles.
 
+  You can specify a marker location by a `{lat, long}` coordinate tuple, a Fly.io region code, or a named region you've configured for your application.
+
   ## Attributes
 
   * `marker_groups` - List of marker group maps, each containing:
