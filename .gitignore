@@ -50,8 +50,9 @@ ehthumbs.db
 # Logs
 *.log
 
-# Claude Code related files
+# Claude Code/Codex-related files
 CLAUDE.md
 AGENTS.md
 PLAN.md
+MIGRATION_PLAN.md
 demo_app.md

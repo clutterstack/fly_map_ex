@@ -45,13 +45,13 @@ Import them in your asset pipeline (adjust paths for your setup):
 
 ```css
 /* assets/css/app.css */
-@import '../vendor/fly_map_ex/fly_map_ex.css';
+@import '../vendor/fly_map_ex/css/fly_map_ex.css';
 ```
 
 ```javascript
 // assets/js/app.js
 import { Socket } from 'phoenix'
-import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'
+import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'
 
 const socket = new Socket('/socket')
 socket.connect()
@@ -231,7 +231,7 @@ end
 ```javascript
 // assets/js/app.js
 import { Socket } from 'phoenix'
-import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'
+import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'
 
 const socket = new Socket('/socket')
 socket.connect()

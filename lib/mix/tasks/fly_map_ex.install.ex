@@ -27,38 +27,34 @@ defmodule Mix.Tasks.FlyMapEx.Install do
 
     static_dir = Application.app_dir(:fly_map_ex, "priv/static")
 
-    css_files = Path.wildcard(Path.join([static_dir, "css", "*.css"]))
-    js_files = Path.wildcard(Path.join([static_dir, "js", "*.js"]))
-
-    ensure_has_files!(css_files ++ js_files)
-
-    copy_files(css_files, assets_path, force?)
-    copy_files(js_files, assets_path, force?)
+    copy_static_group(Path.join(static_dir, "css"), Path.join(assets_path, "css"), force?)
+    copy_static_group(Path.join(static_dir, "js"), Path.join(assets_path, "js"), force?)
 
     Mix.shell().info("\nDone!\n")
     Mix.shell().info("Add the CSS to your bundler, e.g. in assets/css/app.css:")
-    Mix.shell().info("  @import '../vendor/fly_map_ex/fly_map_ex.css';")
+    Mix.shell().info("  @import '../vendor/fly_map_ex/css/fly_map_ex.css';")
     Mix.shell().info("\nImport the LiveView hook in assets/js/app.js:")
 
     Mix.shell().info(
-      "  import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'"
+      "  import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'"
     )
 
     Mix.shell().info("  let Hooks = { RealTimeMap: createRealTimeMapHook(socket) }")
   end
 
-  defp ensure_has_files!([]) do
-    raise Mix.Error,
-          "Unable to find FlyMapEx static assets. Ensure the dependency is compiled."
-  end
+  defp copy_static_group(source_dir, target_dir, force?) do
+    files = Path.wildcard(Path.join(source_dir, "*"))
 
-  defp ensure_has_files!(_), do: :ok
+    case files do
+      [] ->
+        raise Mix.Error,
+              "Unable to find FlyMapEx static assets in #{source_dir}. Ensure the dependency is compiled."
 
-  defp copy_files(files, assets_path, force?) do
-    Enum.each(files, fn source ->
-      target = Path.join([assets_path, Path.basename(source)])
-      copy_file(source, target, force?)
-    end)
+      _ ->
+        Enum.each(files, fn source ->
+          copy_file(source, Path.join(target_dir, Path.basename(source)), force?)
+        end)
+    end
   end
 
   defp copy_file(source, target, force?) do

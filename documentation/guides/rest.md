@@ -31,18 +31,26 @@ TKTK finish this
 In the consuming app's project root: 
 
 ```
-mkdir assets/vendor/fly_map_ex
-cp deps/fly_map_ex/priv/static/js/*  assets/vendor/fly_map_ex/  
-```    
-
-
-and in its assets/js/app.js:
-
+mix fly_map_ex.install
 ```
-import {createRealTimeMapHook} from "../../deps/fly_map_ex/priv/static/js/real_time_map_hook.js"
-import socket from "../../deps/fly_map_ex/priv/static/js/user_socket.js"
+
+This copies the packaged assets into `assets/vendor/fly_map_ex/{css,js}`. Import them in your bundler:
+
+```css
+/* assets/css/app.css */
+@import '../vendor/fly_map_ex/css/fly_map_ex.css';
 ```
-TK move those in the actual lib
+
+```javascript
+// assets/js/app.js
+import { Socket } from 'phoenix'
+import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'
+
+const socket = new Socket('/socket')
+socket.connect()
+
+const Hooks = { RealTimeMap: createRealTimeMapHook(socket) }
+```
 
 
 
