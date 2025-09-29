@@ -25,6 +25,27 @@ def deps do
 end
 ```
 
+### Vendor JS assets and configure hook
+
+TKTK finish this
+In the consuming app's project root: 
+
+```
+mkdir assets/vendor/fly_map_ex
+cp deps/fly_map_ex/priv/static/js/*  assets/vendor/fly_map_ex/  
+```    
+
+
+and in its assets/js/app.js:
+
+```
+import {createRealTimeMapHook} from "../../deps/fly_map_ex/priv/static/js/real_time_map_hook.js"
+import socket from "../../deps/fly_map_ex/priv/static/js/user_socket.js"
+```
+TK move those in the actual lib
+
+
+
 ## Basic Usage
 
 ### Interactive mode (default)
