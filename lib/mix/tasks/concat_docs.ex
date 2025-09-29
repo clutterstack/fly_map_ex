@@ -1,5 +1,4 @@
 defmodule Mix.Tasks.ConcatDocs do
-
   @moduledoc """
   A Mix task to combine separate documentation source files into single sections for ExDoc-generated docs.
   """

@@ -25,9 +25,10 @@ defmodule FlyMapEx.Shared do
   """
   def normalize_marker_groups(marker_groups) when is_list(marker_groups) do
     # First pass: normalize each group with initial labels
-    initial_groups = marker_groups
-    |> Enum.with_index()
-    |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
+    initial_groups =
+      marker_groups
+      |> Enum.with_index()
+      |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
 
     # Second pass: ensure unique group_labels for toggle functionality
     ensure_unique_group_labels(initial_groups)
@@ -96,13 +97,9 @@ defmodule FlyMapEx.Shared do
 
   String with appropriate CSS classes
   """
-  def layout_container_class(:side_by_side) do
-    "flex flex-col lg:flex-row gap-4"
-  end
+  def layout_container_class(:side_by_side), do: "fly-map-layout-side-by-side"
 
-  def layout_container_class(_) do
-    "space-y-4"
-  end
+  def layout_container_class(_), do: "fly-map-layout-stacked"
 
   @doc """
   Returns the appropriate CSS class for the map container.
@@ -115,13 +112,7 @@ defmodule FlyMapEx.Shared do
 
   String with appropriate CSS classes
   """
-  def map_container_class(:side_by_side) do
-    "lg:w-[65%] flex-shrink-0"
-  end
-
-  def map_container_class(_) do
-    ""
-  end
+  def map_container_class(_), do: "fly-map-map-container"
 
   @doc """
   Returns the appropriate CSS class for the legend container.
@@ -134,13 +125,7 @@ defmodule FlyMapEx.Shared do
 
   String with appropriate CSS classes
   """
-  def legend_container_class(:side_by_side) do
-    "lg:w-[35%] flex-shrink-0"
-  end
-
-  def legend_container_class(_) do
-    ""
-  end
+  def legend_container_class(_), do: "fly-map-legend-container"
 
   # Private functions
 
@@ -190,9 +175,11 @@ defmodule FlyMapEx.Shared do
           # Generate default label if missing
           default_label = generate_default_label(group)
           sanitized_label = sanitize_group_label(default_label)
+
           group
           |> Map.put(:label, default_label)
           |> Map.put(:group_label, sanitized_label)
+
         label ->
           # Sanitize the label for use as a group_label in CSS selectors
           sanitized_label = sanitize_group_label(label)
@@ -205,8 +192,10 @@ defmodule FlyMapEx.Shared do
   defp sanitize_group_label(label) when is_binary(label) do
     label
     |> String.replace(~r/[^a-zA-Z0-9_-]/, "_")
-    |> String.replace(~r/_{2,}/, "_")  # Replace multiple underscores with single
-    |> String.trim("_")  # Remove leading/trailing underscores
+    # Replace multiple underscores with single
+    |> String.replace(~r/_{2,}/, "_")
+    # Remove leading/trailing underscores
+    |> String.trim("_")
   end
 
   defp sanitize_group_label(label), do: to_string(label)
@@ -217,6 +206,7 @@ defmodule FlyMapEx.Shared do
       # If we have nodes, create label based on count
       Map.has_key?(group, :nodes) and not is_nil(Map.get(group, :nodes)) ->
         node_count = length(Map.get(group, :nodes, []))
+
         case node_count do
           0 -> "Empty Group"
           1 -> "Single Node"
@@ -229,13 +219,16 @@ defmodule FlyMapEx.Shared do
           case Map.get(group, :style) do
             atom when is_atom(atom) ->
               atom |> to_string() |> String.replace("_", " ") |> String.capitalize()
+
             _ ->
               "Styled Group"
           end
+
         style_name
 
       # Fallback to generic label
-      true -> "Marker Group"
+      true ->
+        "Marker Group"
     end
   end
 

@@ -148,8 +148,9 @@ defmodule FlyMapEx.Content.ValidatedExample do
 
   defp parse_individual_attributes(attrs_string) do
     # Find attribute names and their positions
-    attr_names = Regex.scan(~r/(\w+)\s*=/, attrs_string)
-    |> Enum.map(fn [_, name] -> name end)
+    attr_names =
+      Regex.scan(~r/(\w+)\s*=/, attrs_string)
+      |> Enum.map(fn [_, name] -> name end)
 
     assigns =
       attr_names
@@ -228,7 +229,6 @@ defmodule FlyMapEx.Content.ValidatedExample do
     end
   end
 
-
   defp validate_assigns!(assigns) do
     # Validate marker_groups if present
     if marker_groups = assigns[:marker_groups] do
@@ -261,6 +261,7 @@ defmodule FlyMapEx.Content.ValidatedExample do
   defp validate_group!(group, index) when is_map(group) do
     # Validate nodes field (required)
     nodes = group[:nodes] || group["nodes"]
+
     unless nodes do
       raise CompileError, description: "Group #{index + 1}: Missing 'nodes' field"
     end
@@ -286,7 +287,8 @@ defmodule FlyMapEx.Content.ValidatedExample do
     # Check if it's a valid Fly.io region or known custom region
     unless valid_region?(node) do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region or known custom region"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region or known custom region"
     end
   end
 
@@ -303,9 +305,11 @@ defmodule FlyMapEx.Content.ValidatedExample do
     end
 
     coordinates = node[:coordinates] || node["coordinates"]
+
     unless coordinates do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'"
     end
 
     validate_coordinates!(coordinates, group_index, node_index)
@@ -313,52 +317,32 @@ defmodule FlyMapEx.Content.ValidatedExample do
 
   defp validate_node!(_, group_index, node_index) do
     raise CompileError,
-      description: "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string, coordinate tuple, or coordinate map"
+      description:
+        "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string, coordinate tuple, or coordinate map"
   end
 
-  defp validate_coordinates!({lat, lng}, group_index, node_index) when is_number(lat) and is_number(lng) do
+  defp validate_coordinates!({lat, lng}, group_index, node_index)
+       when is_number(lat) and is_number(lng) do
     unless lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180 do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180"
     end
   end
 
   defp validate_coordinates!(_, group_index, node_index) do
     raise CompileError,
-      description: "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
+      description:
+        "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
   end
 
   # Check if a region is valid - either a Fly.io region or a known custom region
-  defp valid_region?(region) when is_binary(region) do
-    # First check if it's a standard Fly.io region
-    fly_region_valid?(region) or
-      # Then check against known custom regions for validation context
-      known_custom_region?(region)
-  end
-
+  defp valid_region?(region) when is_binary(region), do: FlyMapEx.FlyRegions.valid?(region)
   defp valid_region?(_), do: false
-
-  # Check if it's a valid Fly.io region (without accessing Application config)
-  defp fly_region_valid?(region) do
-    fly_regions = [
-      "ams", "iad", "atl", "bog", "bos", "otp", "ord", "dfw", "den", "eze",
-      "fra", "gdl", "hkg", "jnb", "lhr", "lax", "mad", "mia", "yul", "bom",
-      "cdg", "phx", "qro", "gig", "sjc", "scl", "gru", "sea", "ewr", "sin",
-      "arn", "syd", "nrt", "yyz", "waw"
-    ]
-    region in fly_regions
-  end
-
-  # Check against known custom regions that should be allowed during validation
-  defp known_custom_region?(region) do
-    # Include regions that are commonly used in development/examples
-    # This allows the validation to pass for known custom regions
-    known_custom_regions = ["dev", "laptop"]
-    region in known_custom_regions
-  end
 
   defp validate_theme!(theme) when is_atom(theme) do
     valid_themes = [:light, :dark, :minimal, :cool, :warm, :high_contrast, :responsive]
+
     unless theme in valid_themes do
       raise CompileError,
         description: "Invalid theme: #{theme}. Valid themes: #{inspect(valid_themes)}"
@@ -369,6 +353,7 @@ defmodule FlyMapEx.Content.ValidatedExample do
     # Custom theme map - validate it has required keys
     required_keys = [:land, :ocean, :border, :neutral_marker, :neutral_text]
     missing_keys = required_keys -- Map.keys(theme)
+
     unless missing_keys == [] do
       raise CompileError,
         description: "Custom theme missing keys: #{inspect(missing_keys)}"
@@ -382,6 +367,7 @@ defmodule FlyMapEx.Content.ValidatedExample do
 
   defp validate_layout!(layout) when is_atom(layout) do
     valid_layouts = [:side_by_side, :stacked, :map_only, :legend_only]
+
     unless layout in valid_layouts do
       raise CompileError,
         description: "Invalid layout: #{layout}. Valid layouts: #{inspect(valid_layouts)}"

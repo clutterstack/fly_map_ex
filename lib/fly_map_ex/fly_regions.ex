@@ -117,9 +117,21 @@ defmodule FlyMapEx.FlyRegions do
       %{ams: {5, 52}, iad: {-77, 39}, ...}
   """
   def fly_regions do
+    builtin =
       @fly_regions
       |> Enum.map(fn {key, coords} -> {Atom.to_string(key), coords} end)
-      |> Map.new()
+
+    custom =
+      get_custom_regions()
+      |> Enum.flat_map(fn
+        {code, %{coordinates: {lat, long}}} when is_binary(code) ->
+          [{code, {lat, long}}]
+
+        _ ->
+          []
+      end)
+
+    Map.new(builtin ++ custom)
   end
 
   @doc """
@@ -208,8 +220,8 @@ defmodule FlyMapEx.FlyRegions do
   """
   def valid?(region) when is_binary(region) do
     # Check custom regions first
+    # Then check built-in regions
     Map.has_key?(get_custom_regions(), region) or
-      # Then check built-in regions
       region in (Map.keys(@fly_regions) |> Enum.map(&Atom.to_string/1))
   end
 

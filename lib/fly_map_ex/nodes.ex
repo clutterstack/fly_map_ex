@@ -245,6 +245,7 @@ defmodule FlyMapEx.Nodes do
     case FlyRegions.coordinates(region) do
       {:ok, {lat, long}} ->
         {:ok, %{label: label, coordinates: {lat, long}}}
+
       {:error, reason} ->
         {:error, reason}
     end
@@ -271,5 +272,4 @@ defmodule FlyMapEx.Nodes do
   def normalize_node(_invalid) do
     {:error, :invalid_format}
   end
-
 end

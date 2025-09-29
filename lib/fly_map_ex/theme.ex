@@ -174,11 +174,11 @@ defmodule FlyMapEx.Theme do
       neutral_text: "#000000"
     },
     responsive: %{
-      land: "oklch(var(--color-base-100) / 1)",
-      ocean: "oklch(var(--color-base-200) / 1)",
-      border: "oklch(var(--color-base-300) / 1)",
-      neutral_marker: "oklch(var(--color-base-content) / 0.6)",
-      neutral_text: "oklch(var(--color-base-content) / 0.8)"
+      land: "var(--fly-map-land, #888888)",
+      ocean: "var(--fly-map-ocean, #aaaaaa)",
+      border: "var(--fly-map-border-color, #0f172a)",
+      neutral_marker: "var(--fly-map-neutral-marker, #6b7280)",
+      neutral_text: "var(--fly-map-neutral-text, #374151)"
     }
   }
 
@@ -207,7 +207,7 @@ defmodule FlyMapEx.Theme do
       %{land: "#custom", ocean: "#custom"}
 
       iex> FlyMapEx.Theme.map_theme(:responsive)
-      %{land: "oklch(var(--color-base-100) / 1)", ocean: "oklch(var(--color-base-200) / 1)", border: "oklch(var(--color-base-300) / 1)", neutral_marker: "oklch(var(--color-base-content) / 0.6)", neutral_text: "oklch(var(--color-base-content) / 0.8)"}
+      %{land: "var(--fly-map-land, #888888)", ocean: "var(--fly-map-ocean, #aaaaaa)", border: "var(--fly-map-border-color, #0f172a)", neutral_marker: "var(--fly-map-neutral-marker, #6b7280)", neutral_text: "var(--fly-map-neutral-text, #374151)"}
   """
   def map_theme(theme) when is_map(theme), do: theme
 
@@ -218,7 +218,9 @@ defmodule FlyMapEx.Theme do
           nil -> Map.get(@themes, FlyMapEx.Config.default_theme())
           custom_theme -> custom_theme
         end
-      theme -> theme
+
+      theme ->
+        theme
     end
   end
 
@@ -298,18 +300,19 @@ defmodule FlyMapEx.Theme do
   Get a responsive map_theme that adapts to CSS theme variables.
 
   This uses CSS custom properties that automatically change
-  based on the current DaisyUI theme. This is equivalent to
-  calling `map_theme(:responsive)`.
+  based on the host application's definitions. Override the
+  `--fly-map-*` variables in your CSS to match your design system.
+  This is equivalent to calling `map_theme(:responsive)`.
 
   ## Examples
 
       iex> FlyMapEx.Theme.responsive_map_theme()
       %{
-        land: "oklch(var(--color-base-100) / 1)",
-        ocean: "oklch(var(--color-base-200) / 1)",
-        border: "oklch(var(--color-base-300) / 1)",
-        neutral_marker: "oklch(var(--color-base-content) / 0.6)",
-        neutral_text: "oklch(var(--color-base-content) / 0.8)"
+        land: "var(--fly-map-land, #888888)",
+        ocean: "var(--fly-map-ocean, #aaaaaa)",
+        border: "var(--fly-map-border-color, #0f172a)",
+        neutral_marker: "var(--fly-map-neutral-marker, #6b7280)",
+        neutral_text: "var(--fly-map-neutral-text, #374151)"
       }
   """
   def responsive_map_theme do

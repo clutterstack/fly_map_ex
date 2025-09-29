@@ -35,6 +35,30 @@ def deps do
 end
 ```
 
+Then copy the bundled CSS/JS assets into your Phoenix project:
+
+```
+mix fly_map_ex.install
+```
+
+Import them in your asset pipeline (adjust paths for your setup):
+
+```css
+/* assets/css/app.css */
+@import '../vendor/fly_map_ex/fly_map_ex.css';
+```
+
+```javascript
+// assets/js/app.js
+import { Socket } from 'phoenix'
+import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'
+
+const socket = new Socket('/socket')
+socket.connect()
+
+const Hooks = { RealTimeMap: createRealTimeMapHook(socket) }
+```
+
 ## Basic Usage
 
 ### Interactive mode (default)
@@ -206,13 +230,19 @@ end
 
 ```javascript
 // assets/js/app.js
-import { RealTimeMapHook } from "./real_time_map_hook.js"
+import { Socket } from 'phoenix'
+import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'
 
-const liveSocket = new LiveSocket("/live", Socket, {
+const socket = new Socket('/socket')
+socket.connect()
+
+const Hooks = {
+  RealTimeMap: createRealTimeMapHook(socket)
+}
+
+const liveSocket = new LiveSocket('/live', Socket, {
   params: {_csrf_token: csrfToken},
-  hooks: {
-    RealTimeMap: RealTimeMapHook
-  }
+  hooks: Hooks
 })
 ```
 
@@ -265,10 +295,11 @@ Real-time mode includes comprehensive fallback mechanisms:
 FlyMapEx includes predefined background themes:
 - `:light` - Light background with dark borders
 - `:dark` - Dark background with subtle borders
-- `:transparent` - Transparent background with neutral borders
+- `:minimal` - Transparent backgrounds with neutral borders
 - `:cool` - Cool blue tones
 - `:warm` - Warm earth tones
 - `:high_contrast` - Maximum contrast for accessibility
+- `:responsive` - Uses `--fly-map-*` CSS variables defined by the host app
 
 ### Application Configuration
 
@@ -281,6 +312,21 @@ config :fly_map_ex,
   marker_base_radius: 2,
   animation_opacity_range: {0.3, 1.0}
 ```
+
+### Custom Regions
+
+Add supplementary region codes with display names and coordinates so they can
+be referenced alongside Fly.io regions:
+
+```elixir
+config :fly_map_ex, :custom_regions,
+  "dev" => %{name: "Developer Laptop", coordinates: {47.6062, -122.3321}},
+  "nyc-office" => %{name: "NYC Office", coordinates: {40.7128, -74.0060}}
+```
+
+Retrieve these at runtime with `FlyMapEx.Config.custom_regions/0` or list the
+codes with `FlyMapEx.Config.custom_region_codes/0`. Validation for examples and
+component helpers honours this configuration.
 
 ### Style System
 
@@ -341,15 +387,14 @@ style: %{color: "#ef4444", animation: :pulse}
 
 ## Utilities
 
-### FlyMapEx.Regions
+### FlyMapEx.FlyRegions
 
 Provides region data and coordinate utilities:
 
-- `list/0` - Returns all available Fly.io region codes
+- `fly_regions/0` - Returns all available region codes (including custom) with coordinates
 - `coordinates/1` - Get coordinates for a region code
-- `name/1` - Get human-readable name for a region code
-- `display_name/1` - Get formatted display name for regions
-- `valid?/1` - Validate if a region code is known
+- `name/1` - Fetch the display name for a region code
+- `valid?/1` - Predicate for whether a region is known
 
 ### FlyMapEx.Config
 
@@ -358,13 +403,15 @@ Configuration utilities:
 - `marker_opacity/0` - Get configured marker opacity
 - `show_regions_default/0` - Get default region visibility
 - `animation_opacity_range/0` - Get animation opacity range
+- `custom_regions/0` - Access configured custom regions
+- `custom_region_codes/0` - List custom region IDs
 
 ### FlyMapEx.Theme
 
 Background theme utilities:
 
-- `get/1` - Get theme configuration by name
-- `responsive_map_theme/0` - CSS custom properties for DaisyUI
+- `map_theme/1` - Get theme configuration by name or map
+- `responsive_map_theme/0` - CSS custom property-based theme (uses `--fly-map-*` vars)
 
 ### FlyMapEx.Adapters
 

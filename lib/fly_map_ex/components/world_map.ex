@@ -324,13 +324,13 @@ defmodule FlyMapEx.Components.WorldMap do
         <% end %>
         <% end %>
 
-        /* Legend styling classes for selected state */
+        /* Legend styling classes for selected state (mirrors CSS baseline) */
         .legend-selected {
-          background-color: oklch(var(--primary) / 0.1) !important;
-          border: 1px solid oklch(var(--primary) / 0.2) !important;
+          background-color: var(--fly-map-hover-bg) !important;
+          border: 1px solid var(--fly-map-border-hover) !important;
         }
-        .legend-selected .legend-text {
-          color: oklch(var(--primary)) !important;
+        .legend-selected .fly-map-legend-label {
+          color: var(--fly-map-text) !important;
         }
         <% end %>
       </style>
@@ -544,30 +544,34 @@ defmodule FlyMapEx.Components.WorldMap do
   """
   def get_region_marker_color(colours) do
     case Map.get(colours, :neutral_marker) do
-      "oklch" <> _ ->
-        # For CSS variables, provide fallback that inherits from document
-        "var(--color-base-content, #6b7280)"
+      <<"oklch", _::binary>> = color ->
+        color
+
+      <<"var", _::binary>> = color ->
+        color
 
       color when is_binary(color) ->
         color
 
       _ ->
-        Map.get(colours, :background, "#6b7280")
+        Map.get(colours, :background, "var(--fly-map-neutral-marker, #6b7280)")
     end
   end
 
   # Helper function to get the appropriate region text color
   defp get_region_text_color(colours) do
     case Map.get(colours, :neutral_text) do
-      "oklch" <> _ ->
-        # For CSS variables, provide fallback that inherits from document
-        "var(--color-base-content, #374151)"
+      <<"oklch", _::binary>> = color ->
+        color
+
+      <<"var", _::binary>> = color ->
+        color
 
       color when is_binary(color) ->
         color
 
       _ ->
-        Map.get(colours, :background, "#374151")
+        Map.get(colours, :background, "var(--fly-map-neutral-text, #374151)")
     end
   end
 end

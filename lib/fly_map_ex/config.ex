@@ -145,4 +145,24 @@ defmodule FlyMapEx.Config do
   def default_theme do
     Application.get_env(:fly_map_ex, :default_theme, :light)
   end
+
+  @doc """
+  Custom region definitions that supplement Fly.io regions.
+
+  Returns a map where keys are custom region codes (strings) and values
+  contain `:name` and `:coordinates` metadata. Configure via
+  `config :fly_map_ex, :custom_regions, %{}`.
+  """
+  def custom_regions do
+    Application.get_env(:fly_map_ex, :custom_regions, %{})
+  end
+
+  @doc """
+  List of custom region codes as strings.
+  """
+  def custom_region_codes do
+    custom_regions()
+    |> Map.keys()
+    |> Enum.sort()
+  end
 end

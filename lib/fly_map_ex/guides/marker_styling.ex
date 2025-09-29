@@ -8,15 +8,14 @@ defmodule FlyMapEx.Guides.MarkerStyling do
 
   import FlyMapEx.Content.ValidatedExample
 
-
-
   @doc """
   Guide metadata for documentation generation and demo presentation.
   """
   def guide_metadata do
     %{
       title: "Marker Styles",
-      description: "Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system.",
+      description:
+        "Master visual customization and semantic meaning through FlyMapEx's comprehensive styling system.",
       slug: "marker_styling",
       sections: sections()
     }
@@ -61,28 +60,29 @@ defmodule FlyMapEx.Guides.MarkerStyling do
 
       This provides instant visual distinction between different marker groups without requiring any styling configuration. FlyMapEx cycles through a carefully chosen colour palette that ensures good contrast and readability.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra"],
-              label: "Production Servers"
-            },
-            %{
-              nodes: ["ams", "lhr"],
-              label: "Staging Environment"
-            },
-            %{
-              nodes: ["ord"],
-              label: "Development"
-            },
-            %{
-              nodes: ["nrt", "syd"],
-              label: "Testing"
-            }
-          ]}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra"],
+                label: "Production Servers"
+              },
+              %{
+                nodes: ["ams", "lhr"],
+                label: "Staging Environment"
+              },
+              %{
+                nodes: ["ord"],
+                label: "Development"
+              },
+              %{
+                nodes: ["nrt", "syd"],
+                label: "Testing"
+              }
+            ]}
+          />
+        """),
       tips: [
         "Automatic colours follow a predefined sequence for consistency",
         "Each group gets a distinct colour automatically",
@@ -103,32 +103,33 @@ defmodule FlyMapEx.Guides.MarkerStyling do
 
       Semantic styles provide predefined combinations of colour, animation, and visual effects that correspond to common operational states. This creates consistency across your application and makes status immediately recognizable.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra"],
-              style: :operational,
-              label: "Production Servers"
-            },
-            %{
-              nodes: ["ams", "lhr"],
-              style: :warning,
-              label: "Maintenance Mode"
-            },
-            %{
-              nodes: ["ord"],
-              style: :danger,
-              label: "Failed Nodes"
-            },
-            %{
-              nodes: ["nrt", "syd"],
-              style: :inactive,
-              label: "Offline Nodes"
-            }
-          ]}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra"],
+                style: :operational,
+                label: "Production Servers"
+              },
+              %{
+                nodes: ["ams", "lhr"],
+                style: :warning,
+                label: "Maintenance Mode"
+              },
+              %{
+                nodes: ["ord"],
+                style: :danger,
+                label: "Failed Nodes"
+              },
+              %{
+                nodes: ["nrt", "syd"],
+                style: :inactive,
+                label: "Offline Nodes"
+              }
+            ]}
+          />
+        """),
       available_styles: [
         %{style: ":operational", description: "Green, steady - systems running normally"},
         %{style: ":warning", description: "Yellow/orange, pulsing - attention needed"},
@@ -157,22 +158,23 @@ defmodule FlyMapEx.Guides.MarkerStyling do
 
       Custom style maps give you complete control over marker appearance, allowing you to match your brand colours, create unique visual hierarchies, or implement custom status indicators.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra"],
-              style: %{
-                colour: "#8b5cf6",
-                size: 8,
-                animation: :pulse,
-                glow: true
-              },
-              label: "Custom Group"
-            }
-          ]}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra"],
+                style: %{
+                  colour: "#8b5cf6",
+                  size: 8,
+                  animation: :pulse,
+                  glow: true
+                },
+                label: "Custom Group"
+              }
+            ]}
+          />
+        """),
       style_parameters: [
         %{
           parameter: "colour/color",
@@ -234,27 +236,28 @@ defmodule FlyMapEx.Guides.MarkerStyling do
 
       Real applications often need a mix of styling approaches - semantic styles for core monitoring, automatic colours for organization, and custom styles for special cases. FlyMapEx handles this seamlessly.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["ams", "lhr"],
-              style: :warning,
-              label: "Maintenance Mode"
-            },
-            %{
-              nodes: ["sjc", "fra"],
-              style: %{
-                colour: "#8b5cf6",
-                size: 8,
-                animation: :pulse,
-                glow: true
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["ams", "lhr"],
+                style: :warning,
+                label: "Maintenance Mode"
               },
-              label: "Custom Group"
-            }
-          ]}
-        />
-      """),
+              %{
+                nodes: ["sjc", "fra"],
+                style: %{
+                  colour: "#8b5cf6",
+                  size: 8,
+                  animation: :pulse,
+                  glow: true
+                },
+                label: "Custom Group"
+              }
+            ]}
+          />
+        """),
       common_patterns: [
         %{
           pattern: "Primary systems",
@@ -283,7 +286,8 @@ defmodule FlyMapEx.Guides.MarkerStyling do
         "Maintain visual hierarchy with consistent sizing",
         "Use animations strategically to guide attention"
       ],
-      production_tip: "Start with semantic styles for core functionality, then add cycling and custom styles as needed.",
+      production_tip:
+        "Start with semantic styles for core functionality, then add cycling and custom styles as needed.",
       related_links: [
         {"Semantic Styling", "#semantic"},
         {"Custom Styling", "#custom"},

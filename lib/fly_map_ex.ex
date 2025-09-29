@@ -1,43 +1,29 @@
 defmodule FlyMapEx do
-
   @moduledoc """
   A library for displaying a world map with markers at given latitudes and longitudes.
 
   Provides Phoenix components and utilities for visualizing node locations with different marker styles, animations, and legends.
 
-  ## JavaScript Assets
+  ## Assets
 
-  For real-time functionality, FlyMapEx includes JavaScript components that need to be included in your Phoenix application:
+  Run the Mix task to copy FlyMapEx assets into your Phoenix project:
 
-  ### Option 1: Copy to your assets directory
+      mix fly_map_ex.install
 
-      # Copy the JavaScript files to your project
-      cp deps/fly_map_ex/priv/static/js/* assets/js/vendor/fly_map_ex/
+  The task copies CSS and JS files to `assets/vendor/fly_map_ex/`. Import them in
+  your bundler:
 
-  ### Option 2: Import directly from dependency
-
-      // assets/js/app.js
-      import { createRealTimeMapHook } from "../deps/fly_map_ex/priv/static/js/real_time_map_hook.js"
-
-  ### Setup for real-time features
+      /* assets/css/app.css */
+      @import '../vendor/fly_map_ex/fly_map_ex.css';
 
       // assets/js/app.js
-      import { createRealTimeMapHook } from "./vendor/fly_map_ex/real_time_map_hook.js"
-      import { Socket } from "phoenix"
+      import { createRealTimeMapHook } from '../vendor/fly_map_ex/real_time_map_hook.js'
 
-      const socket = new Socket("/socket", {
-        params: {token: window.userToken}
-      })
-      socket.connect()
+      const Hooks = {
+        RealTimeMap: createRealTimeMapHook(socket)
+      }
 
-      const liveSocket = new LiveSocket("/live", Socket, {
-        params: {_csrf_token: csrfToken},
-        hooks: {
-          RealTimeMap: createRealTimeMapHook(socket)
-        }
-      })
-
-  ## Available JavaScript Components
+  Available JavaScript helpers:
 
   - `real_time_map_hook.js` - Phoenix LiveView hook for real-time marker updates
   - `map_coordinates.js` - Coordinate transformation utilities (WGS84 ↔ SVG)
@@ -126,7 +112,7 @@ defmodule FlyMapEx do
   attr(:update_throttle, :integer, default: 100)
 
   def render(assigns) do
-    alias FlyMapEx.{Theme, Shared}
+    alias FlyMapEx.{Theme, Shared, JSON}
     alias FlyMapEx.Components.{WorldMap, LegendComponent}
 
     # Extract initially_visible groups or default to all
@@ -143,9 +129,9 @@ defmodule FlyMapEx do
 
     # Determine if regions should be shown
     show_regions = assigns.show_regions || FlyMapEx.Config.show_regions_default()
-      # if is_nil(assigns[:show_regions]),
-      #   do: FlyMapEx.Config.show_regions_default(),
-      #   else: assigns.show_regions
+    # if is_nil(assigns[:show_regions]),
+    #   do: FlyMapEx.Config.show_regions_default(),
+    #   else: assigns.show_regions
 
     # Determine layout mode
     layout = assigns[:layout] || FlyMapEx.Config.layout_mode()
@@ -176,8 +162,8 @@ defmodule FlyMapEx do
       |> assign(:map_id, map_id)
 
     ~H"""
-    <div class={@class}>
-      <div class="card bg-base-100" {if @real_time_enabled, do: [
+    <div class={["fly-map-container", @class]}>
+      <div class="fly-map-body" {if @real_time_enabled, do: [
         id: "real-time-map-#{@map_id}",
         "phx-hook": "RealTimeMap",
         "data-channel": @channel_topic,
@@ -192,34 +178,33 @@ defmodule FlyMapEx do
         }),
         "data-progressive-enhancement": "true"
       ], else: []}>
-        <div class="card-body">
-          <div class={Shared.layout_container_class(@layout)}>
-            <div class={Shared.map_container_class(@layout)}>
-                <WorldMap.render
-                  marker_groups={@visible_groups}
-                  colours={@map_theme}
-                  show_regions={@show_regions}
-                  interactive={@interactive}
-                  id={@map_id}
-                />
-            </div>
-
-            <div class={Shared.legend_container_class(@layout)}>
-              <LegendComponent.legend
-                marker_groups={@marker_groups}
-                selected_groups={@selected_groups}
-                region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
-                marker_opacity={FlyMapEx.Config.marker_opacity()}
+        <div class={Shared.layout_container_class(@layout)}>
+          <div class={Shared.map_container_class(@layout)}>
+            <div class="fly-map-map-wrapper">
+              <WorldMap.render
+                marker_groups={@visible_groups}
+                colours={@map_theme}
                 show_regions={@show_regions}
                 interactive={@interactive}
-                on_toggle={@on_toggle}
+                id={@map_id}
               />
             </div>
+          </div>
+
+          <div class={Shared.legend_container_class(@layout)}>
+            <LegendComponent.legend
+              marker_groups={@marker_groups}
+              selected_groups={@selected_groups}
+              region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
+              marker_opacity={FlyMapEx.Config.marker_opacity()}
+              show_regions={@show_regions}
+              interactive={@interactive}
+              on_toggle={@on_toggle}
+            />
           </div>
         </div>
       </div>
     </div>
     """
   end
-
 end

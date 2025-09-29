@@ -66,6 +66,7 @@ defmodule FlyMapEx.Examples do
     # Look for examples directory in current directory first, then parent directory
     # This handles both library root and demo app compilation contexts
     cwd = File.cwd!()
+
     potential_paths = [
       Path.join([cwd, "documentation", "examples", "#{path}.heex"]),
       Path.join([cwd, "..", "documentation", "examples", "#{path}.heex"])
@@ -101,6 +102,7 @@ defmodule FlyMapEx.Examples do
   """
   def list_examples do
     cwd = File.cwd!()
+
     potential_dirs = [
       Path.join([cwd, "documentation", "examples"]),
       Path.join([cwd, "..", "documentation", "examples"])
@@ -113,6 +115,7 @@ defmodule FlyMapEx.Examples do
       |> File.ls!()
       |> Enum.flat_map(fn subdir ->
         subdir_path = Path.join(examples_dir, subdir)
+
         if File.dir?(subdir_path) do
           subdir_path
           |> File.ls!()
@@ -138,6 +141,7 @@ defmodule FlyMapEx.Examples do
   """
   def read_example_file(path) do
     cwd = File.cwd!()
+
     potential_paths = [
       Path.join([cwd, "documentation", "examples", "#{path}.heex"]),
       Path.join([cwd, "..", "documentation", "examples", "#{path}.heex"])
@@ -212,8 +216,9 @@ defmodule FlyMapEx.Examples do
   end
 
   defp parse_individual_attributes(attrs_string) do
-    attr_names = Regex.scan(~r/(\w+)\s*=/, attrs_string)
-    |> Enum.map(fn [_, name] -> name end)
+    attr_names =
+      Regex.scan(~r/(\w+)\s*=/, attrs_string)
+      |> Enum.map(fn [_, name] -> name end)
 
     assigns =
       attr_names
@@ -315,6 +320,7 @@ defmodule FlyMapEx.Examples do
 
   defp validate_group!(group, index) when is_map(group) do
     nodes = group[:nodes] || group["nodes"]
+
     unless nodes do
       raise CompileError, description: "Group #{index + 1}: Missing 'nodes' field"
     end
@@ -339,7 +345,8 @@ defmodule FlyMapEx.Examples do
   defp validate_node!(node, group_index, node_index) when is_binary(node) do
     unless FlyMapEx.FlyRegions.valid?(node) do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region"
     end
   end
 
@@ -354,9 +361,11 @@ defmodule FlyMapEx.Examples do
     end
 
     coordinates = node[:coordinates] || node["coordinates"]
+
     unless coordinates do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'coordinates'"
     end
 
     validate_coordinates!(coordinates, group_index, node_index)
@@ -364,23 +373,28 @@ defmodule FlyMapEx.Examples do
 
   defp validate_node!(_, group_index, node_index) do
     raise CompileError,
-      description: "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string, coordinate tuple, or coordinate map"
+      description:
+        "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string, coordinate tuple, or coordinate map"
   end
 
-  defp validate_coordinates!({lat, lng}, group_index, node_index) when is_number(lat) and is_number(lng) do
+  defp validate_coordinates!({lat, lng}, group_index, node_index)
+       when is_number(lat) and is_number(lng) do
     unless lat >= -90 and lat <= 90 and lng >= -180 and lng <= 180 do
       raise CompileError,
-        description: "Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180"
+        description:
+          "Group #{group_index + 1}, Node #{node_index + 1}: Invalid coordinates - lat must be -90 to 90, lng -180 to 180"
     end
   end
 
   defp validate_coordinates!(_, group_index, node_index) do
     raise CompileError,
-      description: "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
+      description:
+        "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
   end
 
   defp validate_theme!(theme) when is_atom(theme) do
     valid_themes = [:light, :dark, :minimal, :cool, :warm, :high_contrast, :responsive]
+
     unless theme in valid_themes do
       raise CompileError,
         description: "Invalid theme: #{theme}. Valid themes: #{inspect(valid_themes)}"
@@ -390,6 +404,7 @@ defmodule FlyMapEx.Examples do
   defp validate_theme!(theme) when is_map(theme) do
     required_keys = [:land, :ocean, :border, :neutral_marker, :neutral_text]
     missing_keys = required_keys -- Map.keys(theme)
+
     unless missing_keys == [] do
       raise CompileError,
         description: "Custom theme missing keys: #{inspect(missing_keys)}"
@@ -403,6 +418,7 @@ defmodule FlyMapEx.Examples do
 
   defp validate_layout!(layout) when is_atom(layout) do
     valid_layouts = [:side_by_side, :stacked, :map_only, :legend_only]
+
     unless layout in valid_layouts do
       raise CompileError,
         description: "Invalid layout: #{layout}. Valid layouts: #{inspect(valid_layouts)}"

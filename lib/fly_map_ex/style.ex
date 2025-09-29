@@ -1,5 +1,4 @@
 defmodule FlyMapEx.Style do
-
   require Logger
 
   @moduledoc """
@@ -61,31 +60,19 @@ defmodule FlyMapEx.Style do
         monitoring_alert: %{colour: "#ff6b6b", size: 10, glow: true}
   """
 
-
   @named_colours %{
     blue: "#2563eb",
-    green:
-    "#16a34a",
-    red:
-    "#dc2626",
-    purple:
-    "#9333ea",
-    orange:
-    "#ea580c",
-    cyan:
-    "#0891b2",
-    yellow:
-    "#ca8a04",
-    pink:
-    "#db2777",
-    teal:
-    "#0d9488",
-    lime:
-    "#65a30d",
-    amber:
-    "#d97706",
-    indigo:
-    "#4338ca"
+    green: "#16a34a",
+    red: "#dc2626",
+    purple: "#9333ea",
+    orange: "#ea580c",
+    cyan: "#0891b2",
+    yellow: "#ca8a04",
+    pink: "#db2777",
+    teal: "#0d9488",
+    lime: "#65a30d",
+    amber: "#d97706",
+    indigo: "#4338ca"
   }
 
   @doc """
@@ -176,9 +163,12 @@ defmodule FlyMapEx.Style do
   """
   def preset(preset_name) when is_atom(preset_name) do
     case get_user_preset(preset_name) do
-      nil -> nil
+      nil ->
+        nil
+
       preset_opts when is_list(preset_opts) ->
         colour = Keyword.get(preset_opts, :colour) || Keyword.get(preset_opts, :color)
+
         if colour do
           opts = Keyword.delete(preset_opts, :colour) |> Keyword.delete(:color)
           # Convert keyword list to map with defaults
@@ -189,12 +179,15 @@ defmodule FlyMapEx.Style do
             glow: Keyword.get(opts, :glow, false),
             __source__: {:preset, [preset_name], preset_opts}
           }
+
           style_map
         else
           nil
         end
+
       preset_map when is_map(preset_map) ->
         colour = Map.get(preset_map, :colour) || Map.get(preset_map, :color)
+
         if colour do
           # Normalize to ensure all required fields
           normalized = normalize(preset_map)
@@ -221,7 +214,8 @@ defmodule FlyMapEx.Style do
 
     case Map.get(configured_defaults, preset_name) do
       nil -> get_builtin_preset(preset_name)
-      custom_preset -> normalize(custom_preset)  # Ensure proper format
+      # Ensure proper format
+      custom_preset -> normalize(custom_preset)
     end
   end
 
@@ -281,7 +275,6 @@ defmodule FlyMapEx.Style do
   # Or configured presets: style: :operational
   # Semantic presets (:operational, :warning, :danger, :inactive) are now configurable.
 
-
   @doc """
   Normalize a style definition to ensure all required fields are present.
 
@@ -338,10 +331,13 @@ defmodule FlyMapEx.Style do
       nil ->
         # Check default semantic presets
         case get_default_preset(style_atom) do
-          nil -> get_default_preset(:operational)  # ultimate fallback
+          # ultimate fallback
+          nil -> get_default_preset(:operational)
           preset_style -> preset_style
         end
-      preset_style -> preset_style
+
+      preset_style ->
+        preset_style
     end
   end
 

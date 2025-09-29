@@ -44,7 +44,7 @@ defmodule FlyMapEx.MixProject do
   defp package do
     [
       name: "fly_map_ex",
-      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
+      files: ~w(lib priv/static documentation .formatter.exs mix.exs README* LICENSE* CHANGELOG*),
       licenses: ["MIT"],
       links: %{
         "GitHub" => @source_url,
@@ -67,7 +67,7 @@ defmodule FlyMapEx.MixProject do
       ],
       groups_for_extras: [
         "Getting Started": ["README.md"],
-        "Guides": [
+        Guides: [
           "documentation/guides/basic_usage.md",
           "documentation/guides/marker_styling.md",
           "documentation/guides/theming.md"

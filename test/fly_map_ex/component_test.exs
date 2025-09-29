@@ -12,9 +12,11 @@ defmodule FlyMapEx.ComponentTest do
           nil ->
             # Generate default label if missing
             default_label = generate_default_label(group)
+
             group
             |> Map.put(:label, default_label)
             |> Map.put(:group_label, default_label)
+
           label ->
             Map.put(group, :group_label, label)
         end
@@ -26,6 +28,7 @@ defmodule FlyMapEx.ComponentTest do
         # If we have nodes, create label based on count
         Map.has_key?(group, :nodes) and not is_nil(Map.get(group, :nodes)) ->
           node_count = length(Map.get(group, :nodes, []))
+
           case node_count do
             0 -> "Empty Group"
             1 -> "Single Node"
@@ -38,13 +41,16 @@ defmodule FlyMapEx.ComponentTest do
             case Map.get(group, :style) do
               atom when is_atom(atom) ->
                 atom |> to_string() |> String.replace("_", " ") |> String.capitalize()
+
               _ ->
                 "Styled Group"
             end
+
           style_name
 
         # Fallback to generic label
-        true -> "Marker Group"
+        true ->
+          "Marker Group"
       end
     end
   end
@@ -112,7 +118,8 @@ defmodule FlyMapEx.ComponentTest do
       result = TestHelper.add_group_label_if_needed(group)
 
       # Should preserve the existing group_label and not generate a label
-      assert Map.get(result, :label) == nil  # No label should be generated
+      # No label should be generated
+      assert Map.get(result, :label) == nil
       assert result.group_label == "custom-group-id"
     end
 
@@ -197,7 +204,9 @@ defmodule FlyMapEx.ComponentTest do
       assert TestHelper.generate_default_label(%{nodes: []}) == "Empty Group"
       assert TestHelper.generate_default_label(%{nodes: ["sjc"]}) == "Single Node"
       assert TestHelper.generate_default_label(%{nodes: ["sjc", "fra"]}) == "2 Nodes"
-      assert TestHelper.generate_default_label(%{nodes: ["sjc", "fra", "lhr", "ams", "nrt"]}) == "5 Nodes"
+
+      assert TestHelper.generate_default_label(%{nodes: ["sjc", "fra", "lhr", "ams", "nrt"]}) ==
+               "5 Nodes"
     end
 
     test "generates correct style-based labels" do

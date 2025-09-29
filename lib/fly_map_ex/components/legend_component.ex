@@ -50,9 +50,9 @@ defmodule FlyMapEx.Components.LegendComponent do
 
   ## Styling
 
-  The component uses Tailwind CSS classes and adapts to the current theme.
-  Selected groups are highlighted with primary colours, while inactive
-  groups maintain subtle hover effects.
+  The component ships with framework-agnostic CSS classes defined in
+  `priv/static/css/fly_map_ex.css`. Override those classes or CSS variables
+  to align the legend with your design system.
   """
 
   use Phoenix.Component
@@ -88,7 +88,6 @@ defmodule FlyMapEx.Components.LegendComponent do
     required: true,
     doc: "Whether to show the 'All Fly.io Regions' entry in the legend."
   )
-
 
   attr(:interactive, :boolean,
     default: true,
@@ -166,46 +165,40 @@ defmodule FlyMapEx.Components.LegendComponent do
       |> assign(:on_toggle, on_toggle)
 
     ~H"""
-    <!-- Enhanced Legend -->
-    <div class="text-xs text-base-content/70 space-y-1">
+    <div class="fly-map-legend">
       <div :for={group <- @all_legend_entries}>
         <%= if @interactive and Map.has_key?(group, :group_label) do %>
           <button
-            class={[
-              "flex items-start space-x-2 p-1 rounded transition-all duration-200 w-full text-left",
-              "hover:bg-base-200/50 hover:shadow-sm",
-              "focus:bg-base-200/70 focus:outline-none focus:ring-2 focus:ring-primary/50",
-              "hover:border-base-content/10 border border-transparent"
-            ]}
+            class={["fly-map-legend-entry", "fly-map-legend-button"]}
             aria-pressed="false"
             data-legend-group={String.replace(group.group_label, ~r/[^a-zA-Z0-9_-]/, "_")}
             phx-click={build_toggle_js_command(group.group_label, @on_toggle)}
           >
-            <div class="flex-shrink-0 mt-0.5 p-0.5">
+            <div class="fly-map-legend-marker">
               <Marker.marker style={group.style} mode={:legend} gradient_id={generate_legend_gradient_id(group.style)} />
             </div>
-            <div class="flex-grow min-w-0">
-              <div class="text-sm font-medium flex items-center text-base-content legend-text">
+            <div class="fly-map-legend-content">
+              <div class="fly-map-legend-label">
                 <span>{group.label}:</span>
-                <span class="text-xs text-base-content/60 ml-2">
+                <span class="fly-map-legend-meta">
                   {format_nodes_display(group.nodes, "none")}
                 </span>
-                <span class="sr-only legend-status">
+                <span class="fly-map-legend-status">
                   <span class="group-visible-text">{group.label} group is visible. Press Enter or Space to hide.</span>
-                  <span class="group-hidden-text hidden">{group.label} group is hidden. Press Enter or Space to show.</span>
+                  <span class="group-hidden-text fly-map-hidden">{group.label} group is hidden. Press Enter or Space to show.</span>
                 </span>
               </div>
             </div>
           </button>
         <% else %>
-          <div class="flex items-start space-x-2 p-1 rounded transition-all duration-200 border border-transparent">
-            <div class="flex-shrink-0 mt-0.5 p-0.5">
+          <div class="fly-map-legend-entry">
+            <div class="fly-map-legend-marker">
               <Marker.marker style={group.style} mode={:legend} gradient_id={generate_legend_gradient_id(group.style)} />
             </div>
-            <div class="flex-grow min-w-0">
-              <div class="text-sm font-medium flex items-center text-base-content legend-text">
+            <div class="fly-map-legend-content">
+              <div class="fly-map-legend-label">
                 <span>{group.label}:</span>
-                <span class="text-xs text-base-content/60 ml-2">
+                <span class="fly-map-legend-meta">
                   {format_nodes_display(group.nodes, "none")}
                 </span>
               </div>
@@ -214,28 +207,23 @@ defmodule FlyMapEx.Components.LegendComponent do
         <% end %>
       </div>
 
-      <!-- All Fly.io regions -->
-      <div :if= {@show_regions} class="flex items-start space-x-2 p-1 rounded hover:bg-base-200/50">
-        <div class="flex-shrink-0 mt-0.5 p-0.5">
+      <div :if={@show_regions} class="fly-map-regions-display">
+        <div class="fly-map-legend-marker">
           <Marker.marker style={%{colour: @region_marker_colour, size: 4, animation: :none}} mode={:legend} />
         </div>
-        <div class="flex-grow min-w-0">
-          <div class="text-sm font-medium text-base-content/60">
+        <div class="fly-map-region-info">
+          <div class="fly-map-region-title">
             Fly.io Regions
           </div>
-          <div class="text-xs text-base-content/50">
-            <span>
-              (<%= FlyRegions.num_fly_regions %> regions)
-            </span>
+          <div class="fly-map-region-count">
+            (<%= FlyRegions.num_fly_regions %> regions)
           </div>
         </div>
       </div>
 
-      <div :if={@interactive && total_node_count(@marker_groups)!=0} class="flex items-center justify-between mb-1">
-        (click to toggle group visibility)
-        <div class="text-xs text-base-content/50">
-          <%= total_node_count(@marker_groups) %> nodes
-        </div>
+      <div :if={@interactive && total_node_count(@marker_groups) != 0} class="fly-map-legend-summary">
+        <span>(click to toggle group visibility)</span>
+        <span><%= total_node_count(@marker_groups) %> nodes</span>
       </div>
     </div>
     """
@@ -251,10 +239,18 @@ defmodule FlyMapEx.Components.LegendComponent do
     js_command =
       JS.toggle_class("group-hidden-#{safe_group_label}", to: "[data-group='#{safe_group_label}']")
       |> JS.toggle_class("legend-selected", to: "[data-legend-group='#{safe_group_label}']")
-      |> JS.set_attribute({"aria-pressed", "true"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']")
-      |> JS.set_attribute({"aria-pressed", "false"}, to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']")
-      |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-visible-text")
-      |> JS.toggle_class("hidden", to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text")
+      |> JS.set_attribute({"aria-pressed", "true"},
+        to: "[data-legend-group='#{safe_group_label}'][aria-pressed='false']"
+      )
+      |> JS.set_attribute({"aria-pressed", "false"},
+        to: "[data-legend-group='#{safe_group_label}'][aria-pressed='true']"
+      )
+      |> JS.toggle_class("fly-map-hidden",
+        to: "[data-legend-group='#{safe_group_label}'] .group-visible-text"
+      )
+      |> JS.toggle_class("fly-map-hidden",
+        to: "[data-legend-group='#{safe_group_label}'] .group-hidden-text"
+      )
 
     if on_toggle do
       # Send event to parent LiveView for integration

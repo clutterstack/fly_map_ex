@@ -8,7 +8,6 @@ defmodule FlyMapEx.Guides.BasicUsage do
 
   import FlyMapEx.Content.ValidatedExample
 
-
   @doc """
   Guide metadata for documentation generation and demo presentation.
   """
@@ -58,14 +57,15 @@ defmodule FlyMapEx.Guides.BasicUsage do
 
       Here's an example with two node groups: one with a node in San Francisco and one somewhere in the North Sea, using `{lat, long}` notation; and one with a node in Frankfurt and a node in Singapore, using Fly.io region (airport) codes.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{nodes: [{37.8, -122.4}, {56, 3.6}]},
-            %{nodes: ["fra", "sin"]}
-          ]}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+              %{nodes: ["fra", "sin"]}
+            ]}
+          />
+        """),
       tips: [
         "Coordinate tuples use standard WGS84 format: `{latitude, longitude}` where negative values mean western or southern hemispheres."
       ],
@@ -86,15 +86,16 @@ defmodule FlyMapEx.Guides.BasicUsage do
 
       Custom regions are treated like Fly.io regions once configured, allowing seamless mixing of official regions with your own custom locations.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{nodes: [{37.8, -122.4}, {56, 3.6}]},
-            %{nodes: ["fra", "sin"]},
-            %{nodes: ["laptop"]}
-          ]}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+              %{nodes: ["fra", "sin"]},
+              %{nodes: ["laptop"]}
+            ]}
+          />
+        """),
       code_examples: [
         %{
           title: "Configuration Example",

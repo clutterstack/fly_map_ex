@@ -53,6 +53,7 @@ defmodule Mix.Tasks.Gen.GuideDocs do
     else
       # Check parent directory
       parent = Path.join(cwd, "..")
+
       if has_flymap_mix_file?(parent) do
         Path.expand(parent)
       else
@@ -64,6 +65,7 @@ defmodule Mix.Tasks.Gen.GuideDocs do
 
   defp has_flymap_mix_file?(dir) do
     mix_file = Path.join(dir, "mix.exs")
+
     File.exists?(mix_file) and
       File.read!(mix_file) |> String.contains?("FlyMapEx.MixProject")
   end
@@ -72,15 +74,16 @@ defmodule Mix.Tasks.Gen.GuideDocs do
     metadata = apply(guide_module, :guide_metadata, [])
     sections = apply(guide_module, :all_sections, [])
 
-    content = [
-      "# #{metadata.title}",
-      "",
-      metadata.description,
-      "",
-      Enum.map(sections, &generate_section_markdown/1)
-    ]
-    |> List.flatten()
-    |> Enum.join("\n")
+    content =
+      [
+        "# #{metadata.title}",
+        "",
+        metadata.description,
+        "",
+        Enum.map(sections, &generate_section_markdown/1)
+      ]
+      |> List.flatten()
+      |> Enum.join("\n")
 
     file_path = Path.join(project_root, "documentation/guides/#{metadata.slug}.md")
     File.write!(file_path, content)
@@ -118,16 +121,18 @@ defmodule Mix.Tasks.Gen.GuideDocs do
     # Add code examples
     content_parts =
       if Map.has_key?(section, :code_examples) and section.code_examples do
-        code_sections = Enum.map(section.code_examples, fn code_example ->
-          [
-            "### #{code_example.title}",
-            "",
-            "```#{code_example.language}",
-            String.trim(code_example.code),
-            "```",
-            ""
-          ]
-        end)
+        code_sections =
+          Enum.map(section.code_examples, fn code_example ->
+            [
+              "### #{code_example.title}",
+              "",
+              "```#{code_example.language}",
+              String.trim(code_example.code),
+              "```",
+              ""
+            ]
+          end)
+
         content_parts ++ List.flatten(code_sections)
       else
         content_parts
@@ -142,11 +147,14 @@ defmodule Mix.Tasks.Gen.GuideDocs do
           "| Parameter | Description | Examples |",
           "|-----------|-------------|----------|",
           Enum.map(section.style_parameters, fn param ->
-            examples = if Map.has_key?(param, :examples), do: Enum.join(param.examples, ", "), else: ""
+            examples =
+              if Map.has_key?(param, :examples), do: Enum.join(param.examples, ", "), else: ""
+
             "| `#{param.parameter}` | #{param.description} | #{examples} |"
           end),
           ""
         ]
+
         content_parts ++ List.flatten(table_content)
       else
         content_parts
@@ -161,6 +169,7 @@ defmodule Mix.Tasks.Gen.GuideDocs do
           Enum.map(section.tips, fn tip -> "- #{tip}" end),
           ""
         ]
+
         content_parts ++ List.flatten(tips_content)
       else
         content_parts
@@ -168,7 +177,8 @@ defmodule Mix.Tasks.Gen.GuideDocs do
 
     # Add related links
     content_parts =
-      if Map.has_key?(section, :related_links) and is_list(section.related_links) and length(section.related_links) > 0 do
+      if Map.has_key?(section, :related_links) and is_list(section.related_links) and
+           length(section.related_links) > 0 do
         links_content = [
           "### Related",
           "",
@@ -177,22 +187,37 @@ defmodule Mix.Tasks.Gen.GuideDocs do
               "- [#{title}](#{link})"
             else
               # Convert guide slugs to proper markdown file references
-              guide_link = cond do
-                String.starts_with?(link, "#") -> link  # Keep anchor links as-is
-                String.contains?(link, "#") ->
-                  # Handle guide#anchor format
-                  [guide_slug, anchor] = String.split(link, "#", parts: 2)
-                  "#{guide_slug}.md##{anchor}"
-                link == "basic_usage" -> "basic_usage.md"
-                link == "marker_styling" -> "marker_styling.md"
-                link == "theming" -> "theming.md"
-                true -> "#{link}.md"  # Convert other slugs to .md files
-              end
+              guide_link =
+                cond do
+                  # Keep anchor links as-is
+                  String.starts_with?(link, "#") ->
+                    link
+
+                  String.contains?(link, "#") ->
+                    # Handle guide#anchor format
+                    [guide_slug, anchor] = String.split(link, "#", parts: 2)
+                    "#{guide_slug}.md##{anchor}"
+
+                  link == "basic_usage" ->
+                    "basic_usage.md"
+
+                  link == "marker_styling" ->
+                    "marker_styling.md"
+
+                  link == "theming" ->
+                    "theming.md"
+
+                  # Convert other slugs to .md files
+                  true ->
+                    "#{link}.md"
+                end
+
               "- [#{title}](#{guide_link})"
             end
           end),
           ""
         ]
+
         content_parts ++ List.flatten(links_content)
       else
         content_parts

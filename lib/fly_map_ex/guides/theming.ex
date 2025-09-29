@@ -8,14 +8,14 @@ defmodule FlyMapEx.Guides.Theming do
 
   import FlyMapEx.Content.ValidatedExample
 
-
   @doc """
   Guide metadata for documentation generation and demo presentation.
   """
   def guide_metadata do
     %{
       title: "Map Themes",
-      description: "Control overall visual presentation and branding with FlyMapEx's comprehensive theming system.",
+      description:
+        "Control overall visual presentation and branding with FlyMapEx's comprehensive theming system.",
       slug: "theming",
       sections: sections()
     }
@@ -55,23 +55,24 @@ defmodule FlyMapEx.Guides.Theming do
 
       Each preset is carefully designed for specific use cases, from clean light interfaces to dark mode applications and high-contrast accessibility requirements.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra", "ams"],
-              style: %{colour: "#3b82f6", size: 8},
-              label: "Production Servers"
-            },
-            %{
-              nodes: ["lhr", "syd"],
-              style: %{colour: "#f59e0b", size: 8},
-              label: "Staging Environment"
-            }
-          ]}
-          theme={:dark}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra", "ams"],
+                style: %{colour: "#3b82f6", size: 8},
+                label: "Production Servers"
+              },
+              %{
+                nodes: ["lhr", "syd"],
+                style: %{colour: "#f59e0b", size: 8},
+                label: "Staging Environment"
+              }
+            ]}
+            theme={:dark}
+          />
+        """),
       tips: [
         "Start with :responsive for automatic light/dark adaptation",
         "Use :high_contrast for accessibility compliance",
@@ -93,29 +94,30 @@ defmodule FlyMapEx.Guides.Theming do
 
       Custom themes give you complete control over the map's visual appearance, allowing perfect integration with your brand colours and design system.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra"],
-              style: %{colour: "#10b981", size: 8},
-              label: "Primary Services"
-            },
-            %{
-              nodes: ["ams", "lhr"],
-              style: %{colour: "#f59e0b", size: 8},
-              label: "Secondary Services"
-            }
-          ]}
-          theme={%{
-            land: "#f8fafc",
-            ocean: "#e2e8f0",
-            border: "#475569",
-            neutral_marker: "#64748b",
-            neutral_text: "#334155"
-          }}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra"],
+                style: %{colour: "#10b981", size: 8},
+                label: "Primary Services"
+              },
+              %{
+                nodes: ["ams", "lhr"],
+                style: %{colour: "#f59e0b", size: 8},
+                label: "Secondary Services"
+              }
+            ]}
+            theme={%{
+              land: "#f8fafc",
+              ocean: "#e2e8f0",
+              border: "#475569",
+              neutral_marker: "#64748b",
+              neutral_text: "#334155"
+            }}
+          />
+        """),
       theme_structure: [
         %{
           component: "land",
@@ -207,18 +209,19 @@ defmodule FlyMapEx.Guides.Theming do
 
       Application-level configuration allows you to establish consistent theming across your entire application while supporting environment-specific customization.
       """,
-      example: validated_template("""
-        <FlyMapEx.render
-          marker_groups={[
-            %{
-              nodes: ["sjc", "fra", "ams"],
-              style: %{colour: "#3b82f6", size: 8},
-              label: "Production Environment"
-            }
-          ]}
-          theme={:responsive}
-        />
-      """),
+      example:
+        validated_template("""
+          <FlyMapEx.render
+            marker_groups={[
+              %{
+                nodes: ["sjc", "fra", "ams"],
+                style: %{colour: "#3b82f6", size: 8},
+                label: "Production Environment"
+              }
+            ]}
+            theme={:responsive}
+          />
+        """),
       theme_resolution_priority: [
         %{
           priority: 1,
