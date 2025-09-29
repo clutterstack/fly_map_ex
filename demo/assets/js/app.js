@@ -22,14 +22,15 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import { RealTimeMapHook } from "./real_time_map_hook.js"
+import { createRealTimeMapHook } from "../../../priv/static/js/real_time_map_hook.js"
+import socket from "./user_socket.js"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
   hooks: {
-    RealTimeMap: RealTimeMapHook
+    RealTimeMap: createRealTimeMapHook(socket)
   }
 })
 

@@ -6,7 +6,6 @@
  * LiveView rerenders.
  */
 
-import socket from './user_socket.js';
 import {
   createMarkersFromGroups,
   updateMarker,
@@ -14,7 +13,14 @@ import {
   toggleMarkerGroup
 } from './map_markers.js';
 
-export const RealTimeMapHook = {
+/**
+ * Factory function to create a RealTimeMapHook with a provided socket.
+ *
+ * @param {Socket} socket - Phoenix socket instance
+ * @returns {Object} Phoenix LiveView hook object
+ */
+export function createRealTimeMapHook(socket) {
+  return {
   mounted() {
     console.log('RealTimeMapHook: Mounting real-time map');
 
@@ -537,5 +543,22 @@ export const RealTimeMapHook = {
     }
 
     return 'realtime';
+  }
+  };
+}
+
+// For backward compatibility, export a default hook using a global socket
+export const RealTimeMapHook = {
+  mounted() {
+    console.warn('RealTimeMapHook: Using deprecated export. Please use createRealTimeMapHook(socket) instead.');
+    // Try to get socket from window or LiveView
+    const socket = window.liveSocket?.socket;
+    if (!socket) {
+      console.error('RealTimeMapHook: No socket available. Use createRealTimeMapHook(socket) with a socket instance.');
+      return;
+    }
+
+    const hook = createRealTimeMapHook(socket);
+    return hook.mounted.call(this);
   }
 };

@@ -4,6 +4,44 @@ defmodule FlyMapEx do
   A library for displaying a world map with markers at given latitudes and longitudes.
 
   Provides Phoenix components and utilities for visualizing node locations with different marker styles, animations, and legends.
+
+  ## JavaScript Assets
+
+  For real-time functionality, FlyMapEx includes JavaScript components that need to be included in your Phoenix application:
+
+  ### Option 1: Copy to your assets directory
+
+      # Copy the JavaScript files to your project
+      cp deps/fly_map_ex/priv/static/js/* assets/js/vendor/fly_map_ex/
+
+  ### Option 2: Import directly from dependency
+
+      // assets/js/app.js
+      import { createRealTimeMapHook } from "../deps/fly_map_ex/priv/static/js/real_time_map_hook.js"
+
+  ### Setup for real-time features
+
+      // assets/js/app.js
+      import { createRealTimeMapHook } from "./vendor/fly_map_ex/real_time_map_hook.js"
+      import { Socket } from "phoenix"
+
+      const socket = new Socket("/socket", {
+        params: {token: window.userToken}
+      })
+      socket.connect()
+
+      const liveSocket = new LiveSocket("/live", Socket, {
+        params: {_csrf_token: csrfToken},
+        hooks: {
+          RealTimeMap: createRealTimeMapHook(socket)
+        }
+      })
+
+  ## Available JavaScript Components
+
+  - `real_time_map_hook.js` - Phoenix LiveView hook for real-time marker updates
+  - `map_coordinates.js` - Coordinate transformation utilities (WGS84 ↔ SVG)
+  - `map_markers.js` - Client-side marker rendering and manipulation utilities
   """
 
   use Phoenix.Component

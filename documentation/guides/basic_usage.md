@@ -34,14 +34,9 @@ Custom regions are treated like Fly.io regions once configured, allowing seamles
 ```heex
 <FlyMapEx.render
     marker_groups={[
-      %{
-        nodes: [{47.6062, -122.3321}, {63.7, -68.5}],
-        label: "Development Environments"
-      },
-      %{
-        nodes: ["fra", "sin", "lhr"],
-        label: "Production Regions"
-      }
+      %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+      %{nodes: ["fra", "sin"]},
+      %{nodes: ["laptop"]}
     ]}
   />
 ```
