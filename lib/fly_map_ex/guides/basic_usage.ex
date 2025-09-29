@@ -87,15 +87,18 @@ defmodule FlyMapEx.Guides.BasicUsage do
       Custom regions are treated like Fly.io regions once configured, allowing seamless mixing of official regions with your own custom locations.
       """,
       example:
-        validated_template("""
-          <FlyMapEx.render
-            marker_groups={[
-              %{nodes: [{37.8, -122.4}, {56, 3.6}]},
-              %{nodes: ["fra", "sin"]},
-              %{nodes: ["laptop"]}
-            ]}
-          />
-        """),
+        validated_template(
+          """
+            <FlyMapEx.render
+              marker_groups={[
+                %{nodes: [{37.8, -122.4}, {56, 3.6}]},
+                %{nodes: ["fra", "sin"]},
+                %{nodes: ["laptop"]}
+              ]}
+            />
+          """,
+          allow_regions: ["laptop"]
+        ),
       code_examples: [
         %{
           title: "Configuration Example",

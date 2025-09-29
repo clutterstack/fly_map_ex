@@ -62,7 +62,9 @@ defmodule FlyMapEx.Examples do
   - Coordinate formats are incorrect
   - Required fields are missing
   """
-  defmacro validated_example_file(path) do
+  defmacro validated_example_file(path, opts_ast \\ []) do
+    {opts, _binding} = Code.eval_quoted(opts_ast, [], __CALLER__)
+
     # Look for examples directory in current directory first, then parent directory
     # This handles both library root and demo app compilation contexts
     cwd = File.cwd!()
@@ -82,7 +84,7 @@ defmodule FlyMapEx.Examples do
 
     # Parse and validate the template using embedded validation logic
     parsed_assigns = parse_template(heex_string)
-    validate_assigns!(parsed_assigns)
+    validate_assigns!(parsed_assigns, opts)
 
     # Return quoted expression for the validated example
     quote do
@@ -289,10 +291,10 @@ defmodule FlyMapEx.Examples do
     end
   end
 
-  def validate_assigns!(assigns) do
+  def validate_assigns!(assigns, opts) do
     # Validate marker_groups if present
     if marker_groups = assigns[:marker_groups] do
-      validate_marker_groups!(marker_groups)
+      validate_marker_groups!(marker_groups, opts)
     end
 
     # Validate theme if present
@@ -308,53 +310,53 @@ defmodule FlyMapEx.Examples do
     assigns
   end
 
-  defp validate_marker_groups!(marker_groups) when is_list(marker_groups) do
+  defp validate_marker_groups!(marker_groups, opts) when is_list(marker_groups) do
     marker_groups
     |> Enum.with_index()
-    |> Enum.each(fn {group, index} -> validate_group!(group, index) end)
+    |> Enum.each(fn {group, index} -> validate_group!(group, index, opts) end)
   end
 
-  defp validate_marker_groups!(_) do
+  defp validate_marker_groups!(_, _opts) do
     raise CompileError, description: "marker_groups must be a list"
   end
 
-  defp validate_group!(group, index) when is_map(group) do
+  defp validate_group!(group, index, opts) when is_map(group) do
     nodes = group[:nodes] || group["nodes"]
 
     unless nodes do
       raise CompileError, description: "Group #{index + 1}: Missing 'nodes' field"
     end
 
-    validate_nodes!(nodes, index)
+    validate_nodes!(nodes, index, opts)
   end
 
-  defp validate_group!(_, index) do
+  defp validate_group!(_, index, _opts) do
     raise CompileError, description: "Group #{index + 1}: Must be a map"
   end
 
-  defp validate_nodes!(nodes, group_index) when is_list(nodes) do
+  defp validate_nodes!(nodes, group_index, opts) when is_list(nodes) do
     nodes
     |> Enum.with_index()
-    |> Enum.each(fn {node, node_index} -> validate_node!(node, group_index, node_index) end)
+    |> Enum.each(fn {node, node_index} -> validate_node!(node, group_index, node_index, opts) end)
   end
 
-  defp validate_nodes!(_, group_index) do
+  defp validate_nodes!(_, group_index, _opts) do
     raise CompileError, description: "Group #{group_index + 1}: 'nodes' must be a list"
   end
 
-  defp validate_node!(node, group_index, node_index) when is_binary(node) do
-    unless FlyMapEx.FlyRegions.valid?(node) do
+  defp validate_node!(node, group_index, node_index, opts) when is_binary(node) do
+    unless valid_region?(node, opts) do
       raise CompileError,
         description:
           "Group #{group_index + 1}, Node #{node_index + 1}: '#{node}' is not a valid Fly.io region"
     end
   end
 
-  defp validate_node!(node, group_index, node_index) when is_tuple(node) do
+  defp validate_node!(node, group_index, node_index, _opts) when is_tuple(node) do
     validate_coordinates!(node, group_index, node_index)
   end
 
-  defp validate_node!(node, group_index, node_index) when is_map(node) do
+  defp validate_node!(node, group_index, node_index, _opts) when is_map(node) do
     unless node[:label] || node["label"] do
       raise CompileError,
         description: "Group #{group_index + 1}, Node #{node_index + 1}: Custom node missing 'label'"
@@ -371,7 +373,7 @@ defmodule FlyMapEx.Examples do
     validate_coordinates!(coordinates, group_index, node_index)
   end
 
-  defp validate_node!(_, group_index, node_index) do
+  defp validate_node!(_, group_index, node_index, _opts) do
     raise CompileError,
       description:
         "Group #{group_index + 1}, Node #{node_index + 1}: Must be a region string, coordinate tuple, or coordinate map"
@@ -391,6 +393,17 @@ defmodule FlyMapEx.Examples do
       description:
         "Group #{group_index + 1}, Node #{node_index + 1}: Coordinates must be {latitude, longitude} tuple"
   end
+
+  defp valid_region?(region, opts) when is_binary(region) do
+    allowed_regions =
+      opts
+      |> Keyword.get(:allow_regions, [])
+      |> Enum.map(&to_string/1)
+
+    region in allowed_regions or FlyMapEx.FlyRegions.valid?(region)
+  end
+
+  defp valid_region?(_, _opts), do: false
 
   defp validate_theme!(theme) when is_atom(theme) do
     valid_themes = [:light, :dark, :minimal, :cool, :warm, :high_contrast, :responsive]
