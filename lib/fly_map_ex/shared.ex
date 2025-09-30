@@ -280,4 +280,34 @@ defmodule FlyMapEx.Shared do
     # Return groups in original order
     Enum.reverse(final_groups)
   end
+
+  @doc """
+  Convert coordinate tuples to lists for JSON encoding.
+  Recursively processes marker groups and nodes, converting {lat, lng} → [lat, lng].
+  """
+  def convert_coordinates_for_json(marker_groups) when is_list(marker_groups) do
+    Enum.map(marker_groups, &convert_group_coordinates/1)
+  end
+
+  defp convert_group_coordinates(group) when is_map(group) do
+    case Map.get(group, :nodes) do
+      nodes when is_list(nodes) ->
+        converted_nodes = Enum.map(nodes, &convert_node_coordinates/1)
+        Map.put(group, :nodes, converted_nodes)
+      _ ->
+        group
+    end
+  end
+
+  defp convert_node_coordinates(%{coordinates: {lat, lng}} = node)
+       when is_number(lat) and is_number(lng) do
+    Map.put(node, :coordinates, [lat, lng])
+  end
+
+  defp convert_node_coordinates({lat, lng} = _node)
+       when is_number(lat) and is_number(lng) do
+    [lat, lng]
+  end
+
+  defp convert_node_coordinates(node), do: node
 end

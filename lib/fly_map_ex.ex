@@ -169,7 +169,7 @@ defmodule FlyMapEx do
         "data-channel": @channel_topic,
         "data-map-id": @map_id,
         "data-initial-state": JSON.encode!(%{
-          marker_groups: @marker_groups,
+          marker_groups: Shared.convert_coordinates_for_json(@marker_groups),
           theme: @map_theme,
           config: %{
             bbox: %{minX: 0, minY: 0, maxX: 800, maxY: 391},
