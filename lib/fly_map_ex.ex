@@ -172,7 +172,7 @@ defmodule FlyMapEx do
           marker_groups: @marker_groups,
           theme: @map_theme,
           config: %{
-            bbox: {0, 0, 800, 391},
+            bbox: %{minX: 0, minY: 0, maxX: 800, maxY: 391},
             update_throttle: @update_throttle
           }
         }),

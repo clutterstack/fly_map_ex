@@ -431,54 +431,6 @@ mix phx.server
 
 Visit http://localhost:4000 and click "View Machine Map Demo" to see FlyMapEx in action.
 
-### Real-time Machine Discovery
-
-The demo uses Fly.io's internal DNS to discover running machines:
-
-```elixir
-# In your LiveView
-def mount(_params, _session, socket) do
-  # Discover machines periodically
-  {:ok, _pid} = Demo.MachineDiscovery.start_periodic_discovery(
-    "my-app-name", 
-    self(), 
-    30_000  # 30 second intervals
-  )
-  
-  {:ok, socket}
-end
-
-def handle_info({:machines_updated, {:ok, machines}}, socket) do
-  # Convert to marker groups for display
-  marker_groups = FlyMapEx.Adapters.from_machine_tuples(
-    machines, 
-    "Running Machines", 
-    :operational
-  )
-  
-  socket = assign(socket, marker_groups: marker_groups)
-  {:noreply, socket}
-end
-```
-
-### DNS Machine Discovery
-
-
-
-Parse Fly.io DNS TXT records containing machine data:
-
-```elixir
-# Example DNS TXT record: "683d314fdd4d68 yyz,568323e9b54dd8 lhr"
-machines = FlyMapEx.Adapters.from_fly_dns_txt("683d314fdd4d68 yyz,568323e9b54dd8 lhr")
-# Returns: [{"683d314fdd4d68", "yyz"}, {"568323e9b54dd8", "lhr"}]
-
-# Convert to marker groups with counts
-marker_groups = FlyMapEx.Adapters.from_machine_tuples(machines, "Active", :operational)
-# Returns: [
-#   %{nodes: ["yyz"], style: FlyMapEx.Style.operational(), label: "Active (1)", machine_count: 1},
-#   %{nodes: ["lhr"], style: FlyMapEx.Style.operational(), label: "Active (1)", machine_count: 1}
-# ]
-```
 
 ## Development
 

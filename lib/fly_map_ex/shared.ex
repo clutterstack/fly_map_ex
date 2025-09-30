@@ -7,6 +7,7 @@ defmodule FlyMapEx.Shared do
   """
 
   alias FlyMapEx.{Style, Nodes}
+  require Logger
 
   @doc """
   Normalizes marker groups with style and node processing.
@@ -24,14 +25,29 @@ defmodule FlyMapEx.Shared do
   List of normalized marker groups with processed styles and nodes
   """
   def normalize_marker_groups(marker_groups) when is_list(marker_groups) do
-    # First pass: normalize each group with initial labels
     initial_groups =
       marker_groups
+      |> Enum.reduce([], &collect_valid_groups/2)
       |> Enum.with_index()
       |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
 
-    # Second pass: ensure unique group_labels for toggle functionality
     ensure_unique_group_labels(initial_groups)
+  end
+
+  # Pattern match and collect valid groups
+  defp collect_valid_groups(group, acc) when is_map(group), do: [group | acc]
+
+  # Pattern match and log error tuples
+  defp collect_valid_groups({:error, reason}, acc) do
+    Logger.debug("FlyMapEx: Filtering out error tuple: #{inspect(reason)}")
+    acc
+  end
+
+  # Catch-all for invalid types
+  defp collect_valid_groups(invalid, acc) do
+    Logger.debug("FlyMapEx: Filtering out invalid marker group:
+  #{inspect(invalid)}")
+    acc
   end
 
   @doc """

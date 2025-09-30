@@ -156,33 +156,44 @@ defmodule FlyMapEx.Nodes do
   """
 
   alias FlyMapEx.FlyRegions
+  require Logger
 
   @doc """
   Process a single marker group to normalize nodes to coordinate format.
 
-  Returns {:ok, processed_group} or {:error, reason} if any nodes fail to normalize.
+  Returns `{:ok, processed_group}` with invalid nodes removed. Dropped nodes are
+  logged at the error level so integrators can detect malformed data without
+  crashing the render flow.
   """
   def process_marker_group(%{nodes: nodes} = group) when is_list(nodes) do
-    nodes
-    |> Enum.map(&normalize_node/1)
-    |> collect_results()
-    |> case do
-      {:ok, processed_nodes} -> {:ok, Map.put(group, :nodes, processed_nodes)}
-      {:error, _} = error -> error
-    end
+    {valid_nodes, invalid_nodes} =
+      Enum.reduce(nodes, {[], []}, fn node, {oks, errors} ->
+        case normalize_node(node) do
+          {:ok, normalized} -> {[normalized | oks], errors}
+          {:error, reason} -> {oks, [{node, reason} | errors]}
+        end
+      end)
+
+    invalid_nodes
+    |> Enum.reverse()
+    |> Enum.each(fn {node, reason} ->
+      group_label = Map.get(group, :label) || Map.get(group, :group_label)
+
+      Logger.error(
+        "FlyMapEx: Dropped invalid node #{inspect(node)}" <>
+          build_context(group_label, reason)
+      )
+    end)
+
+    {:ok, Map.put(group, :nodes, Enum.reverse(valid_nodes))}
   end
 
   def process_marker_group(group), do: {:ok, group}
 
-  # Helper function to collect results
-  defp collect_results(results) do
-    {oks, errors} = Enum.split_with(results, &match?({:ok, _}, &1))
+  defp build_context(nil, reason), do: " (reason: #{inspect(reason)})"
 
-    case errors do
-      [] -> {:ok, Enum.map(oks, fn {:ok, val} -> val end)}
-      _ -> {:error, Enum.map(errors, fn {:error, reason} -> reason end)}
-    end
-  end
+  defp build_context(group_label, reason),
+    do: " (group: #{inspect(group_label)}, reason: #{inspect(reason)})"
 
   @doc """
   Normalize a node to the standard format with label and coordinates.
