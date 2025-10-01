@@ -39,7 +39,7 @@ defmodule Mix.Tasks.FlyMapEx.Install do
       "  import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'"
     )
 
-    Mix.shell().info("  let Hooks = { RealTimeMap: createRealTimeMapHook(socket) }")
+    Mix.shell().info("  let Hooks = { RealTimeMap: createRealTimeMapHook(Socket) }")
   end
 
   defp copy_static_group(source_dir, target_dir, force?) do
