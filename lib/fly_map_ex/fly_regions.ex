@@ -143,9 +143,11 @@ defmodule FlyMapEx.FlyRegions do
   end
 
   @doc """
-  Get coordinates for a region code with error handling.
+  Get coordinates for a region code.
 
-  Returns {:ok, {longitude, latitude}} for valid regions or {:error, reason} for failures.
+  Returns {:ok, {longitude, latitude}} for all region codes. Unknown regions return
+  special off-screen coordinates {-190, 0} to avoid rendering issues. Use `valid?/1`
+  to check if a region is known.
 
   ## Examples
 
@@ -156,7 +158,7 @@ defmodule FlyMapEx.FlyRegions do
       {:ok, {-122, 47}}  # Seattle for development
 
       iex> FlyMapEx.FlyRegions.coordinates("unknown")
-      {:error, :unknown_region}
+      {:ok, {-190, 0}}  # Off-screen coordinates for unknown regions
 
       iex> FlyMapEx.FlyRegions.coordinates(123)
       {:error, :invalid_input}
@@ -174,16 +176,33 @@ defmodule FlyMapEx.FlyRegions do
 
           case @fly_regions[region_atom] do
             {lat, long} -> {:ok, {lat, long}}
-            nil -> {:error, :unknown_region}
+            nil -> {:ok, {-190, 0}}
           end
         rescue
-          ArgumentError -> {:error, :unknown_region}
+          ArgumentError -> {:ok, {-190, 0}}
         end
     end
   end
 
   def coordinates(_), do: {:error, :invalid_input}
 
+  @doc """
+  Get the human-readable name for a region code.
+
+  Returns {:ok, name} for all region codes. Unknown regions return the region code
+  itself as the name. Use `valid?/1` to check if a region is known.
+
+  ## Examples
+
+      iex> FlyMapEx.FlyRegions.name("sjc")
+      {:ok, "San Jose"}
+
+      iex> FlyMapEx.FlyRegions.name("unknown")
+      {:ok, "unknown"}  # Region code used as name for unknown regions
+
+      iex> FlyMapEx.FlyRegions.name(123)
+      {:error, :invalid_input}
+  """
   def name(region) when is_binary(region) do
     # First check custom regions
     case get_custom_regions()[region] do
@@ -196,11 +215,11 @@ defmodule FlyMapEx.FlyRegions do
           region_atom = String.to_existing_atom(region)
 
           case @fly_region_names[region_atom] do
-            nil -> {:error, :unknown_region}
+            nil -> {:ok, region}
             name -> {:ok, name}
           end
         rescue
-          ArgumentError -> {:error, :unknown_region}
+          ArgumentError -> {:ok, region}
         end
     end
   end

@@ -112,16 +112,16 @@ defmodule FlyMapEx.Nodes do
 
   ### Error Handling
 
-      # Invalid region code
-      {:error, :unknown_region} = FlyMapEx.Nodes.normalize_node("invalid")
+      # Unknown region code (logs warning, uses off-screen coordinates)
+      {:ok, _node} = FlyMapEx.Nodes.normalize_node("invalid")
 
       # Invalid coordinates
       {:error, :invalid_coordinates} = FlyMapEx.Nodes.normalize_node(%{
         coordinates: "not a tuple"
       })
 
-      # Invalid region
-      {:error, :unknown_region} = FlyMapEx.Nodes.normalize_node(%{
+      # Unknown region with custom label (logs warning, uses off-screen coordinates)
+      {:ok, _node} = FlyMapEx.Nodes.normalize_node(%{
         label: "Custom", region: "invalid"
       })
 
@@ -131,14 +131,17 @@ defmodule FlyMapEx.Nodes do
   - **Latitude**: -90 to 90 degrees (South to North)
   - **Longitude**: -180 to 180 degrees (West to East)
   - **Format**: `{latitude, longitude}` tuple of numbers
+  - **Unknown regions**: Placed at {-190, 0} (off-screen) with warning log
 
 
   ## Error Types
 
-  - `:unknown_region`: Fly.io region code not found
   - `:invalid_coordinates`: Malformed coordinate data
-  - `:invalid_region`: Invalid region in region-based node map
+  - `:invalid_region`: Invalid region structure in region-based node map
   - `:invalid_format`: Input doesn't match any expected format
+
+  Note: Unknown region codes no longer return errors. They are accepted and assigned
+  off-screen coordinates with a warning log to aid debugging.
 
   ## Performance Considerations
 
@@ -200,6 +203,10 @@ defmodule FlyMapEx.Nodes do
 
   Returns {:ok, normalized_node} for valid input or {:error, reason} for failures.
 
+  Unknown region codes are accepted and assigned off-screen coordinates {-190, 0}
+  with a warning log. This allows maps to render successfully even when custom regions
+  haven't been configured yet.
+
   Supports four input formats:
   - Region string: `"sjc"` → auto-label from Regions
   - Coordinate tuple: `{lat, lng}` → auto-label from coordinates
@@ -214,7 +221,7 @@ defmodule FlyMapEx.Nodes do
 
       # Coordinate tuple
       iex> FlyMapEx.Nodes.normalize_node({40.0, -74.0})
-      {:ok, %{label: "Node at 40.0, -74.0", coordinates: {40.0, -74.0}}}
+      {:ok, %{label: "(40.0, -74.0)", coordinates: {40.0, -74.0}}}
 
       # Custom region label
       iex> FlyMapEx.Nodes.normalize_node(%{label: "Production", region: "sjc"})
@@ -224,27 +231,25 @@ defmodule FlyMapEx.Nodes do
       iex> FlyMapEx.Nodes.normalize_node(%{label: "Custom", coordinates: {40.0, -74.0}})
       {:ok, %{label: "Custom", coordinates: {40.0, -74.0}}}
 
-      # Error cases
-      iex> FlyMapEx.Nodes.normalize_node("invalid_region")
-      {:error, :unknown_region}
+      # Unknown region (logs warning, returns off-screen coordinates)
+      iex> FlyMapEx.Nodes.normalize_node("unknown_region")
+      {:ok, %{label: "unknown_region", coordinates: {-190, 0}}}
 
+      # Error cases
       iex> FlyMapEx.Nodes.normalize_node(%{coordinates: "invalid"})
       {:error, :invalid_coordinates}
   """
   def normalize_node(node) when is_binary(node) do
-    case FlyRegions.coordinates(node) do
-      {:ok, {lat, long}} ->
-        label =
-          case FlyRegions.name(node) do
-            {:ok, name} -> name
-            {:error, _} -> node
-          end
-
-        {:ok, %{label: label, coordinates: {lat, long}}}
-
-      {:error, reason} ->
-        {:error, reason}
+    # Check if the region is known and warn if not
+    unless FlyRegions.valid?(node) do
+      Logger.warning("FlyMapEx: Unknown region code \"#{node}\" - using placeholder coordinates")
     end
+
+    # Get coordinates and name (both now always succeed)
+    {:ok, {lat, long}} = FlyRegions.coordinates(node)
+    {:ok, label} = FlyRegions.name(node)
+
+    {:ok, %{label: label, coordinates: {lat, long}}}
   end
 
   def normalize_node({lat, long} = _node) when is_number(lat) and is_number(long) do
@@ -253,13 +258,15 @@ defmodule FlyMapEx.Nodes do
 
   def normalize_node(%{label: label, region: region})
       when is_binary(label) and is_binary(region) do
-    case FlyRegions.coordinates(region) do
-      {:ok, {lat, long}} ->
-        {:ok, %{label: label, coordinates: {lat, long}}}
-
-      {:error, reason} ->
-        {:error, reason}
+    # Check if the region is known and warn if not
+    unless FlyRegions.valid?(region) do
+      Logger.warning("FlyMapEx: Unknown region code \"#{region}\" - using placeholder coordinates")
     end
+
+    # Get coordinates (now always succeeds)
+    {:ok, {lat, long}} = FlyRegions.coordinates(region)
+
+    {:ok, %{label: label, coordinates: {lat, long}}}
   end
 
   def normalize_node(%{label: label, coordinates: {lat, long}} = node)

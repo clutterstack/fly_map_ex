@@ -428,11 +428,8 @@ defmodule FlyMapEx.Components.WorldMap do
   defp coords_lookup(%{coordinates: coords}), do: coords
 
   defp coords_lookup(region_code) when is_binary(region_code) do
-    case FlyRegions.coordinates(region_code) do
-      {:ok, coords} -> coords
-      # Off-screen fallback
-      {:error, _} -> {-190, 0}
-    end
+    {:ok, coords} = FlyRegions.coordinates(region_code)
+    coords
   end
 
   defp marker_coords_lookup(%{lat: lat, lng: lng}), do: {lat, lng}

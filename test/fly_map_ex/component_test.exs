@@ -85,8 +85,8 @@ defmodule FlyMapEx.ComponentTest do
       assert result1.label == "Operational"
       assert result1.group_label == "Operational"
 
-      assert result3.label == "Warning level"
-      assert result3.group_label == "Warning level"
+      assert result2.label == "Warning level"
+      assert result2.group_label == "Warning level"
     end
 
     test "generates fallback label for minimal groups" do
