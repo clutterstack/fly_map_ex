@@ -139,7 +139,7 @@ defmodule MyAppWeb.DashboardLive do
     [
       %{
         nodes: ["sjc", "fra", "lhr"],
-        style_key: :primary,
+        style: :operational,
         label: "Production Servers"
       }
     ]
@@ -223,13 +223,13 @@ defmodule MyAppWeb.MonitoringLive do
 
       %{
         nodes: nodes,
-        style_key: status_to_style(status),
+        style: status_to_style(status),
         label: "#{String.capitalize(to_string(status))} (#{length(nodes)})"
       }
     end)
   end
 
-  defp status_to_style(:healthy), do: :primary
+  defp status_to_style(:healthy), do: :operational
   defp status_to_style(:warning), do: :warning
   defp status_to_style(:critical), do: :danger
   defp status_to_style(_), do: :inactive
@@ -325,7 +325,7 @@ defmodule MyAppWeb.ChatLive do
     |> Enum.map(fn {region, users} ->
       %{
         nodes: [region],
-        style_key: :primary,
+        style: :operational,
         label: "#{region} (#{length(users)} users)"
       }
     end)
@@ -440,13 +440,13 @@ defmodule MyAppWeb.PerformanceLive do
 
       %{
         nodes: nodes,
-        style_key: status,
+        style: status,
         label: "#{String.capitalize(to_string(status))} Performance"
       }
     end)
   end
 
-  defp performance_status(%{cpu: cpu, response_time: rt}) when cpu < 50 and rt < 100, do: :primary
+  defp performance_status(%{cpu: cpu, response_time: rt}) when cpu < 50 and rt < 100, do: :operational
   defp performance_status(%{cpu: cpu, response_time: rt}) when cpu < 80 and rt < 200, do: :warning
   defp performance_status(_), do: :danger
 end

@@ -44,7 +44,7 @@ defmodule FlyMapEx do
 
   * `marker_groups` - List of marker group maps, each containing:
     * `regions` - List of region codes (`"sjc"`) or coordinate maps (`%{label: "Name", coordinates: {lat, lng}}`)
-    * `style_key` - Style key atom (`:primary`, `:active`, `:warning`, `:expected`, `:acknowledged`, `:secondary`, `:inactive`)
+    * `style` - Style map or preset atom (e.g., `:operational`, `:warning`, `%{colour: "#10b981", size: 6}`)
     * `label` - Display label for this group
   * `theme` - Background theme name (e.g., :dark, :minimal, :cool) or custom theme map
   * `class` - Additional CSS classes for the container
@@ -63,12 +63,12 @@ defmodule FlyMapEx do
       <FlyMapEx.render marker_groups={[
         %{
           nodes: ["sjc", "fra"],
-          style_key: :primary,
+          style: :operational,
           label: "Production Servers"
         },
         %{
           nodes: ["ams"],
-          style_key: :warning,
+          style: :warning,
           label: "Critical Issues"
         }
       ]} theme={:dark} />

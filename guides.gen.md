@@ -57,12 +57,12 @@ end
 <FlyMapEx.render marker_groups={[
   %{
     nodes: ["sjc"],
-    style_key: :primary,
+    style: :operational,
     label: "Production Server"
   },
   %{
     nodes: ["fra", "ams"],
-    style_key: :warning,
+    style: :warning,
     label: "Staging Servers"
   }
 ]} />
@@ -74,7 +74,7 @@ end
 <FlyMapEx.render
   marker_groups={[%{
     nodes: ["sjc"],
-    style_key: :primary,
+    style: :operational,
     label: "Production"
   }]}
   theme={:dark}
@@ -102,7 +102,7 @@ end
       %{label: "NYC Office", coordinates: {40.7128, -74.0060}},
       "sjc"
     ],
-    style_key: :primary,
+    style: %{colour: "#2563eb", size: 6},
     label: "Global Infrastructure"
   }]}
   theme={:dark}
@@ -120,7 +120,7 @@ The main entry point component that renders a complete world map with regions, l
 
 - `marker_groups` (required) - List of marker group maps, each containing:
   - `regions` - List of region codes or coordinate maps
-  - `style_key` - Style key (`:primary`, `:active`, `:warning`, etc.)
+  - `style` - Style definition (`:operational`, `:warning`, `%{colour: "#2563eb", size: 6}`, etc.)
   - `label` - Display label for this group
 - `interactive` - Boolean to enable/disable client-side legend toggles (default: true)
 - `on_toggle` - Boolean to send events to parent LiveView when toggling groups (default: false)
