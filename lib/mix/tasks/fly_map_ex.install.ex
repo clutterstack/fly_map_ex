@@ -33,13 +33,23 @@ defmodule Mix.Tasks.FlyMapEx.Install do
     Mix.shell().info("\nDone!\n")
     Mix.shell().info("Add the CSS to your bundler, e.g. in assets/css/app.css:")
     Mix.shell().info("  @import '../vendor/fly_map_ex/css/fly_map_ex.css';")
-    Mix.shell().info("\nImport the LiveView hook in assets/js/app.js:")
+    Mix.shell().info("\nSet up Phoenix Socket and hook in assets/js/app.js:")
+
+    Mix.shell().info("  import {Socket} from \"phoenix\"")
 
     Mix.shell().info(
       "  import { createRealTimeMapHook } from '../vendor/fly_map_ex/js/real_time_map_hook.js'"
     )
 
-    Mix.shell().info("  let Hooks = { RealTimeMap: createRealTimeMapHook(Socket) }")
+    Mix.shell().info("")
+    Mix.shell().info("  const csrfToken = document.querySelector(\"meta[name='csrf-token']\").getAttribute(\"content\")")
+    Mix.shell().info("  const channelSocket = new Socket(\"/socket\", {params: {_csrf_token: csrfToken}})")
+    Mix.shell().info("  channelSocket.connect()")
+    Mix.shell().info("")
+    Mix.shell().info("  let Hooks = { RealTimeMap: createRealTimeMapHook(channelSocket) }")
+    Mix.shell().info("")
+    Mix.shell().info("Ensure your endpoint.ex has the socket configured:")
+    Mix.shell().info("  socket \"/socket\", YourAppWeb.MapSocket, websocket: true, longpoll: false")
   end
 
   defp copy_static_group(source_dir, target_dir, force?) do
