@@ -28,6 +28,7 @@ defmodule FlyMapEx.Shared do
     initial_groups =
       marker_groups
       |> Enum.reduce([], &collect_valid_groups/2)
+      |> Enum.reverse()
       |> Enum.with_index()
       |> Enum.map(fn {group, index} -> normalize_marker_group(group, index) end)
 
@@ -284,12 +285,22 @@ defmodule FlyMapEx.Shared do
   @doc """
   Convert coordinate tuples to lists for JSON encoding.
   Recursively processes marker groups and nodes, converting {lat, lng} → [lat, lng].
+  Also strips __source__ metadata from style maps (contains tuples).
   """
   def convert_coordinates_for_json(marker_groups) when is_list(marker_groups) do
     Enum.map(marker_groups, &convert_group_coordinates/1)
   end
 
   defp convert_group_coordinates(group) when is_map(group) do
+    # Strip __source__ from style map if present (contains non-JSON-encodable tuples)
+    group = case Map.get(group, :style) do
+      style when is_map(style) ->
+        Map.put(group, :style, Map.delete(style, :__source__))
+      _ ->
+        group
+    end
+
+    # Convert coordinate tuples in nodes
     case Map.get(group, :nodes) do
       nodes when is_list(nodes) ->
         converted_nodes = Enum.map(nodes, &convert_node_coordinates/1)
