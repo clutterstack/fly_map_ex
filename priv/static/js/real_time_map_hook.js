@@ -43,15 +43,9 @@ export function createRealTimeMapHook(socket) {
       this.initialState = {};
     }
 
-    const initialMarkerGroups = Array.isArray(this.initialState.marker_groups)
-      ? this.initialState.marker_groups
-      : Array.isArray(this.initialState.markerGroups)
-        ? this.initialState.markerGroups
-        : [];
-
-    // Initialize client state with normalised marker group key
+    // Initialize client state
     this.clientState = {
-      marker_groups: initialMarkerGroups,
+      markerGroups: this.initialState.markerGroups || [],
       theme: this.initialState.theme || {},
       config: this.initialState.config || {},
       lastUpdate: Date.now()
@@ -142,7 +136,7 @@ export function createRealTimeMapHook(socket) {
 
     // Create markers from initial state
     const markers = createMarkersFromGroups(
-      this.clientState.marker_groups,
+      this.clientState.markerGroups,
       this.clientState.config.bbox
     );
 
@@ -156,14 +150,10 @@ export function createRealTimeMapHook(socket) {
   },
 
   handleMarkerState(payload) {
-    const markerGroups = Array.isArray(payload.marker_groups)
-      ? payload.marker_groups
-      : [];
-
     // Update client state
     this.clientState = {
       ...this.clientState,
-      marker_groups: markerGroups,
+      markerGroups: payload.marker_groups || [],
       theme: payload.theme || this.clientState.theme,
       config: payload.config || this.clientState.config,
       lastUpdate: Date.now()
@@ -182,7 +172,7 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Find and update group in client state
-    const groupIndex = this.clientState.marker_groups.findIndex(
+    const groupIndex = this.clientState.markerGroups.findIndex(
       group => group.id === group_id
     );
 
@@ -192,18 +182,18 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Update group markers
-    this.clientState.marker_groups[groupIndex].markers = markers;
+    this.clientState.markerGroups[groupIndex].markers = markers;
     this.clientState.lastUpdate = Date.now();
 
     // Re-render affected group
-    this.renderGroupMarkers(this.clientState.marker_groups[groupIndex]);
+    this.renderGroupMarkers(this.clientState.markerGroups[groupIndex]);
   },
 
   handleMarkerAdd(payload) {
     const { group_id, marker } = payload;
 
     // Find group
-    const group = this.clientState.marker_groups.find(g => g.id === group_id);
+    const group = this.clientState.markerGroups.find(g => g.id === group_id);
     if (!group) {
       console.warn('RealTimeMapHook: Group not found for marker add:', group_id);
       return;
@@ -235,7 +225,7 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Update client state
-    const group = this.clientState.marker_groups.find(g => g.id === group_id);
+    const group = this.clientState.markerGroups.find(g => g.id === group_id);
     if (group && group.markers) {
       group.markers = group.markers.filter((_, index) =>
         `${group_id}-${index}` !== marker_id
@@ -260,7 +250,7 @@ export function createRealTimeMapHook(socket) {
     toggleMarkerGroup(group_id, visible);
 
     // Update client state
-    const group = this.clientState.marker_groups.find(g => g.id === group_id);
+    const group = this.clientState.markerGroups.find(g => g.id === group_id);
     if (group) {
       group.visible = visible;
       this.clientState.lastUpdate = Date.now();
@@ -474,19 +464,8 @@ export function createRealTimeMapHook(socket) {
         return false;
       }
 
-      if (!window.Phoenix) {
-        console.warn('RealTimeMapHook: Phoenix not available');
-        return false;
-      }
-
       if (!document.createElementNS) {
         console.warn('RealTimeMapHook: SVG manipulation not supported');
-        return false;
-      }
-
-      // Check if socket is available
-      if (!socket) {
-        console.warn('RealTimeMapHook: Socket not initialized');
         return false;
       }
 
@@ -557,18 +536,14 @@ export function createRealTimeMapHook(socket) {
   };
 }
 
-// For backward compatibility, export a default hook using a global socket
+// Deprecated: For backward compatibility only
+// Modern apps should use: createRealTimeMapHook(socket) with a proper Phoenix Socket instance
 export const RealTimeMapHook = {
   mounted() {
-    console.warn('RealTimeMapHook: Using deprecated export. Please use createRealTimeMapHook(socket) instead.');
-    // Try to get socket from window or LiveView
-    const socket = window.liveSocket?.socket;
-    if (!socket) {
-      console.error('RealTimeMapHook: No socket available. Use createRealTimeMapHook(socket) with a socket instance.');
-      return;
-    }
-
-    const hook = createRealTimeMapHook(socket);
-    return hook.mounted.call(this);
+    console.error(
+      'RealTimeMapHook: Deprecated export used. ' +
+      'Please use createRealTimeMapHook(socket) with a Phoenix Socket instance instead. ' +
+      'Example: new Socket("/socket", {params: {...}}) then createRealTimeMapHook(socket)'
+    );
   }
 };
