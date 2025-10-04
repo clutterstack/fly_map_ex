@@ -43,9 +43,15 @@ export function createRealTimeMapHook(socket) {
       this.initialState = {};
     }
 
-    // Initialize client state
+    const initialMarkerGroups = Array.isArray(this.initialState.marker_groups)
+      ? this.initialState.marker_groups
+      : Array.isArray(this.initialState.markerGroups)
+        ? this.initialState.markerGroups
+        : [];
+
+    // Initialize client state with normalised marker group key
     this.clientState = {
-      markerGroups: this.initialState.markerGroups || [],
+      marker_groups: initialMarkerGroups,
       theme: this.initialState.theme || {},
       config: this.initialState.config || {},
       lastUpdate: Date.now()
@@ -136,7 +142,7 @@ export function createRealTimeMapHook(socket) {
 
     // Create markers from initial state
     const markers = createMarkersFromGroups(
-      this.clientState.markerGroups,
+      this.clientState.marker_groups,
       this.clientState.config.bbox
     );
 
@@ -150,10 +156,14 @@ export function createRealTimeMapHook(socket) {
   },
 
   handleMarkerState(payload) {
+    const markerGroups = Array.isArray(payload.marker_groups)
+      ? payload.marker_groups
+      : [];
+
     // Update client state
     this.clientState = {
       ...this.clientState,
-      markerGroups: payload.marker_groups || [],
+      marker_groups: markerGroups,
       theme: payload.theme || this.clientState.theme,
       config: payload.config || this.clientState.config,
       lastUpdate: Date.now()
@@ -172,7 +182,7 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Find and update group in client state
-    const groupIndex = this.clientState.markerGroups.findIndex(
+    const groupIndex = this.clientState.marker_groups.findIndex(
       group => group.id === group_id
     );
 
@@ -182,18 +192,18 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Update group markers
-    this.clientState.markerGroups[groupIndex].markers = markers;
+    this.clientState.marker_groups[groupIndex].markers = markers;
     this.clientState.lastUpdate = Date.now();
 
     // Re-render affected group
-    this.renderGroupMarkers(this.clientState.markerGroups[groupIndex]);
+    this.renderGroupMarkers(this.clientState.marker_groups[groupIndex]);
   },
 
   handleMarkerAdd(payload) {
     const { group_id, marker } = payload;
 
     // Find group
-    const group = this.clientState.markerGroups.find(g => g.id === group_id);
+    const group = this.clientState.marker_groups.find(g => g.id === group_id);
     if (!group) {
       console.warn('RealTimeMapHook: Group not found for marker add:', group_id);
       return;
@@ -225,7 +235,7 @@ export function createRealTimeMapHook(socket) {
     }
 
     // Update client state
-    const group = this.clientState.markerGroups.find(g => g.id === group_id);
+    const group = this.clientState.marker_groups.find(g => g.id === group_id);
     if (group && group.markers) {
       group.markers = group.markers.filter((_, index) =>
         `${group_id}-${index}` !== marker_id
@@ -250,7 +260,7 @@ export function createRealTimeMapHook(socket) {
     toggleMarkerGroup(group_id, visible);
 
     // Update client state
-    const group = this.clientState.markerGroups.find(g => g.id === group_id);
+    const group = this.clientState.marker_groups.find(g => g.id === group_id);
     if (group) {
       group.visible = visible;
       this.clientState.lastUpdate = Date.now();
