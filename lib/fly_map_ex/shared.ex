@@ -108,13 +108,14 @@ defmodule FlyMapEx.Shared do
 
   ## Parameters
 
-  - `layout`: Layout mode (`:side_by_side` or other)
+  - `layout`: Layout mode (`:side_by_side`, `:nolegend`, or other)
 
   ## Returns
 
   String with appropriate CSS classes
   """
   def layout_container_class(:side_by_side), do: "fly-map-layout-side-by-side"
+  def layout_container_class(:nolegend), do: "fly-map-layout-nolegend"
 
   def layout_container_class(_), do: "fly-map-layout-stacked"
 

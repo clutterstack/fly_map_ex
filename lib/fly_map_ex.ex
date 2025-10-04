@@ -51,7 +51,7 @@ defmodule FlyMapEx do
   * `show_regions` - Whether to show region markers (default: nil, uses config default)
   * `interactive` - Whether legend should be interactive with JS toggles (default: true)
   * `initially_visible` - Which groups to show initially (`:all`, `:none`, or list of labels)
-  * `layout` - Layout mode (`:stacked` or `:side_by_side`)
+  * `layout` - Layout mode (`:stacked`, `:side_by_side`, or `:nolegend`)
   * `on_toggle` - Whether to send events to parent LiveView when groups are toggled (default: false)
   * `real_time` - Enable real-time updates via Phoenix channels (default: false)
   * `channel` - Channel topic for real-time updates (e.g., "map:room_id")
@@ -95,6 +95,13 @@ defmodule FlyMapEx do
         real_time={true}
         channel="map:room_123"
         update_throttle={50}
+      />
+
+      # Map without legend
+      <FlyMapEx.render
+        marker_groups={@groups}
+        theme={:dark}
+        layout={:nolegend}
       />
   """
 
@@ -191,17 +198,19 @@ defmodule FlyMapEx do
             </div>
           </div>
 
-          <div class={Shared.legend_container_class(@layout)}>
-            <LegendComponent.legend
-              marker_groups={@marker_groups}
-              selected_groups={@selected_groups}
-              region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
-              marker_opacity={FlyMapEx.Config.marker_opacity()}
-              show_regions={@show_regions}
-              interactive={@interactive}
-              on_toggle={@on_toggle}
-            />
-          </div>
+          <%= if @layout != :nolegend do %>
+            <div class={Shared.legend_container_class(@layout)}>
+              <LegendComponent.legend
+                marker_groups={@marker_groups}
+                selected_groups={@selected_groups}
+                region_marker_colour={WorldMap.get_region_marker_color(@map_theme)}
+                marker_opacity={FlyMapEx.Config.marker_opacity()}
+                show_regions={@show_regions}
+                interactive={@interactive}
+                on_toggle={@on_toggle}
+              />
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

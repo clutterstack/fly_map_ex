@@ -81,6 +81,11 @@
   gap: 1.25rem;
 }
 
+.fly-map-layout-nolegend {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (min-width: 1024px) {
   .fly-map-layout-side-by-side {
     flex-direction: row;
